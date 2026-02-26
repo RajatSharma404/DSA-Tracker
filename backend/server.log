@@ -1,0 +1,7 @@
+
+> backend@1.0.0 dev
+> ts-node index.ts
+
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+Server is running on http://localhost:3001
+Killed

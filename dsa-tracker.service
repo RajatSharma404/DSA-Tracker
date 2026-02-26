@@ -1,0 +1,17 @@
+[Unit]
+Description=DSA Roadmap Tracker Service
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=ashwani21
+WorkingDirectory=/home/ashwani21/Learning/DSA-Roadmap-Tracker
+# Use the full path to npm from NVM
+ExecStart=/home/ashwani21/.nvm/versions/node/v25.2.1/bin/npm start
+Restart=on-failure
+# Ensure the node path is in the PATH so npm can find node
+Environment=PATH=/home/ashwani21/.nvm/versions/node/v25.2.1/bin:/usr/local/bin:/usr/bin:/bin
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

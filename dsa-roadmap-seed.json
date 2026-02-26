@@ -1,0 +1,323 @@
+{
+  "topics": [
+    {
+      "id": 1,
+      "name": "JavaScript Basics for DSA",
+      "order": 1,
+      "description": "Learn JS constructs required for solving DSA problems",
+      "problems": [
+        {
+          "id": 1,
+          "title": "Reverse String",
+          "leetcode": "https://leetcode.com/problems/reverse-string/",
+          "difficulty": "Easy",
+          "order": 1
+        },
+        {
+          "id": 2,
+          "title": "Palindrome Number",
+          "leetcode": "https://leetcode.com/problems/palindrome-number/",
+          "difficulty": "Easy",
+          "order": 2
+        },
+        {
+          "id": 3,
+          "title": "Fizz Buzz",
+          "leetcode": "https://leetcode.com/problems/fizz-buzz/",
+          "difficulty": "Easy",
+          "order": 3
+        },
+        {
+          "id": 4,
+          "title": "Valid Anagram",
+          "leetcode": "https://leetcode.com/problems/valid-anagram/",
+          "difficulty": "Easy",
+          "order": 4
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Arrays",
+      "order": 2,
+      "description": "Foundation of all DSA problems",
+      "problems": [
+        {
+          "id": 5,
+          "title": "Two Sum",
+          "leetcode": "https://leetcode.com/problems/two-sum/",
+          "difficulty": "Easy",
+          "order": 1
+        },
+        {
+          "id": 6,
+          "title": "Best Time to Buy and Sell Stock",
+          "leetcode": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/",
+          "difficulty": "Easy",
+          "order": 2
+        },
+        {
+          "id": 7,
+          "title": "Contains Duplicate",
+          "leetcode": "https://leetcode.com/problems/contains-duplicate/",
+          "difficulty": "Easy",
+          "order": 3
+        },
+        {
+          "id": 8,
+          "title": "Maximum Subarray",
+          "leetcode": "https://leetcode.com/problems/maximum-subarray/",
+          "difficulty": "Medium",
+          "order": 4
+        },
+        {
+          "id": 9,
+          "title": "Product of Array Except Self",
+          "leetcode": "https://leetcode.com/problems/product-of-array-except-self/",
+          "difficulty": "Medium",
+          "order": 5
+        },
+        {
+          "id": 10,
+          "title": "Container With Most Water",
+          "leetcode": "https://leetcode.com/problems/container-with-most-water/",
+          "difficulty": "Medium",
+          "order": 6
+        },
+        {
+          "id": 11,
+          "title": "3Sum",
+          "leetcode": "https://leetcode.com/problems/3sum/",
+          "difficulty": "Medium",
+          "order": 7
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Hashing",
+      "order": 3,
+      "description": "Use hash maps for optimization",
+      "problems": [
+        {
+          "id": 12,
+          "title": "Valid Anagram",
+          "leetcode": "https://leetcode.com/problems/valid-anagram/",
+          "difficulty": "Easy",
+          "order": 1
+        },
+        {
+          "id": 13,
+          "title": "Group Anagrams",
+          "leetcode": "https://leetcode.com/problems/group-anagrams/",
+          "difficulty": "Medium",
+          "order": 2
+        },
+        {
+          "id": 14,
+          "title": "Top K Frequent Elements",
+          "leetcode": "https://leetcode.com/problems/top-k-frequent-elements/",
+          "difficulty": "Medium",
+          "order": 3
+        },
+        {
+          "id": 15,
+          "title": "Longest Consecutive Sequence",
+          "leetcode": "https://leetcode.com/problems/longest-consecutive-sequence/",
+          "difficulty": "Medium",
+          "order": 4
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Two Pointers",
+      "order": 4,
+      "description": "Efficient array traversal technique",
+      "problems": [
+        {
+          "id": 16,
+          "title": "Valid Palindrome",
+          "leetcode": "https://leetcode.com/problems/valid-palindrome/",
+          "difficulty": "Easy",
+          "order": 1
+        },
+        {
+          "id": 17,
+          "title": "Two Sum II",
+          "leetcode": "https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/",
+          "difficulty": "Medium",
+          "order": 2
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Sliding Window",
+      "order": 5,
+      "description": "Subarray optimization technique",
+      "problems": [
+        {
+          "id": 18,
+          "title": "Longest Substring Without Repeating Characters",
+          "leetcode": "https://leetcode.com/problems/longest-substring-without-repeating-characters/",
+          "difficulty": "Medium",
+          "order": 1
+        },
+        {
+          "id": 19,
+          "title": "Longest Repeating Character Replacement",
+          "leetcode": "https://leetcode.com/problems/longest-repeating-character-replacement/",
+          "difficulty": "Medium",
+          "order": 2
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Stack",
+      "order": 6,
+      "description": "LIFO data structure",
+      "problems": [
+        {
+          "id": 20,
+          "title": "Valid Parentheses",
+          "leetcode": "https://leetcode.com/problems/valid-parentheses/",
+          "difficulty": "Easy",
+          "order": 1
+        },
+        {
+          "id": 21,
+          "title": "Daily Temperatures",
+          "leetcode": "https://leetcode.com/problems/daily-temperatures/",
+          "difficulty": "Medium",
+          "order": 2
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Binary Search",
+      "order": 7,
+      "description": "Efficient search in sorted arrays",
+      "problems": [
+        {
+          "id": 22,
+          "title": "Binary Search",
+          "leetcode": "https://leetcode.com/problems/binary-search/",
+          "difficulty": "Easy",
+          "order": 1
+        },
+        {
+          "id": 23,
+          "title": "Search in Rotated Sorted Array",
+          "leetcode": "https://leetcode.com/problems/search-in-rotated-sorted-array/",
+          "difficulty": "Medium",
+          "order": 2
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Linked List",
+      "order": 8,
+      "description": "Pointer-based linear structure",
+      "problems": [
+        {
+          "id": 24,
+          "title": "Reverse Linked List",
+          "leetcode": "https://leetcode.com/problems/reverse-linked-list/",
+          "difficulty": "Easy",
+          "order": 1
+        },
+        {
+          "id": 25,
+          "title": "Linked List Cycle",
+          "leetcode": "https://leetcode.com/problems/linked-list-cycle/",
+          "difficulty": "Easy",
+          "order": 2
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Trees",
+      "order": 9,
+      "description": "Hierarchical data structure",
+      "problems": [
+        {
+          "id": 26,
+          "title": "Maximum Depth of Binary Tree",
+          "leetcode": "https://leetcode.com/problems/maximum-depth-of-binary-tree/",
+          "difficulty": "Easy",
+          "order": 1
+        },
+        {
+          "id": 27,
+          "title": "Binary Tree Level Order Traversal",
+          "leetcode": "https://leetcode.com/problems/binary-tree-level-order-traversal/",
+          "difficulty": "Medium",
+          "order": 2
+        },
+        {
+          "id": 28,
+          "title": "Lowest Common Ancestor",
+          "leetcode": "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/",
+          "difficulty": "Medium",
+          "order": 3
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "Graphs",
+      "order": 10,
+      "description": "Network-based data structure",
+      "problems": [
+        {
+          "id": 29,
+          "title": "Number of Islands",
+          "leetcode": "https://leetcode.com/problems/number-of-islands/",
+          "difficulty": "Medium",
+          "order": 1
+        },
+        {
+          "id": 30,
+          "title": "Course Schedule",
+          "leetcode": "https://leetcode.com/problems/course-schedule/",
+          "difficulty": "Medium",
+          "order": 2
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "name": "Dynamic Programming",
+      "order": 11,
+      "description": "Optimization technique using memoization",
+      "problems": [
+        {
+          "id": 31,
+          "title": "Climbing Stairs",
+          "leetcode": "https://leetcode.com/problems/climbing-stairs/",
+          "difficulty": "Easy",
+          "order": 1
+        },
+        {
+          "id": 32,
+          "title": "House Robber",
+          "leetcode": "https://leetcode.com/problems/house-robber/",
+          "difficulty": "Medium",
+          "order": 2
+        },
+        {
+          "id": 33,
+          "title": "Coin Change",
+          "leetcode": "https://leetcode.com/problems/coin-change/",
+          "difficulty": "Medium",
+          "order": 3
+        }
+      ]
+    }
+  ]
+}
