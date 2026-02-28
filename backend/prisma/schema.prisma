@@ -52,6 +52,7 @@ model User {
   accounts         Account[]
   sessions         Session[]
   challengeSessions ChallengeSession[]
+  notes            ProblemNote[]
 }
 
 model Topic {
@@ -68,10 +69,10 @@ model ChallengeSession {
   id          String         @id @default(uuid())
   userId      String
   user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  problemIds  String[]       // Problems assigned for this session
+  problemIds  String[]
   startTime   DateTime       @default(now())
   endTime     DateTime?
-  duration    Int            // Total time allowed in minutes
+  duration    Int
   status      ChallengeStatus @default(IN_PROGRESS)
   createdAt   DateTime       @default(now())
 }
@@ -93,7 +94,30 @@ model Problem {
   updatedAt  DateTime   @updatedAt
   topic      Topic      @relation(fields: [topicId], references: [id], onDelete: Cascade)
   progress   Progress[]
+  notes      ProblemNote[]
 }
+
+model ProblemNote {
+  id        String   @id @default(uuid())
+  userId    String
+  problemId String
+  content   String
+  type      NoteType @default(LEARNING)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@index([userId, problemId])
+  @@map("problem_notes")
+}
+
+enum NoteType {
+  GOTCHA
+  LEARNING
+  TIP
+}
+
 
 model Progress {
   id             String         @id @default(uuid())

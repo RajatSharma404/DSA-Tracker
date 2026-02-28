@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { dsaApi } from '@/lib/api';
-import { Sparkles, Loader2, Lightbulb, ChevronRight } from 'lucide-react';
+import { Sparkles, Loader2, Lightbulb, ChevronRight, Brain } from 'lucide-react';
 
 interface AIMentorHintProps {
   problemId: string;
@@ -27,7 +27,7 @@ export default function AIMentorHint({ problemId, problemTitle }: AIMentorHintPr
       setHint(res.hint);
     } catch (err) {
       console.error(err);
-      setHint("Failed to get hint. Please try again later.");
+      setHint("I'm having trouble accessing my patterns database. Try visualizing the core data structure needed!");
     } finally {
       setLoading(false);
     }
@@ -37,27 +37,42 @@ export default function AIMentorHint({ problemId, problemTitle }: AIMentorHintPr
     <div className="mt-4">
       <button
         onClick={fetchHint}
-        className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-3 py-2 rounded-lg transition-all
-          ${isOpen ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/20' : 'bg-purple-500/10 text-purple-400 hover:bg-purple-500/20'}
+        className={`group flex items-center gap-2 text-[11px] font-black uppercase tracking-wider px-4 py-2 rounded-full transition-all duration-300
+          ${isOpen 
+            ? 'bg-purple-600 text-white shadow-[0_0_15px_rgba(147,51,234,0.3)]' 
+            : 'bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 border border-purple-500/20'}
         `}
       >
-        {loading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
-        {hint && isOpen ? 'Hide Mentor Hint' : 'Ask AI Mentor for Hint'}
+        {loading ? <Loader2 size={13} className="animate-spin" /> : <Brain size={13} className={isOpen ? '' : 'group-hover:scale-125 transition-transform'} />}
+        {hint && isOpen ? 'Hide Insight' : 'Get Mentor Insight'}
       </button>
 
       {isOpen && (
-        <div className="mt-3 p-4 bg-[#1a1a1a] border border-purple-500/20 rounded-2xl animate-in slide-in-from-top-2 duration-300">
-          <div className="flex items-start gap-3">
-             <div className="p-2 rounded-lg bg-yellow-500/10 text-yellow-500 mt-1">
-                <Lightbulb size={14} />
+        <div className="mt-4 p-5 bg-[#0f0a15] border border-purple-500/20 rounded-[1.5rem] animate-in slide-in-from-top-3 fade-in duration-500 shadow-xl overflow-hidden relative">
+          <div className="absolute top-0 right-0 p-4 opacity-[0.03] pointer-events-none">
+             <Sparkles size={60} className="text-purple-500" />
+          </div>
+          
+          <div className="relative flex items-start gap-4">
+             <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                <Lightbulb size={18} />
              </div>
              <div>
-                <h5 className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1 flex items-center gap-1">
-                  Pattern Recognition <ChevronRight size={10} /> {problemTitle}
-                </h5>
-                <p className="text-sm text-gray-200 leading-relaxed font-medium">
-                  {loading ? 'Consulting the patterns database...' : hint}
-                </p>
+                <div className="flex items-center gap-2 mb-2">
+                   <span className="text-[10px] font-black text-purple-400 uppercase tracking-[0.2em]">Mastery Path</span>
+                   <ChevronRight size={10} className="text-gray-700" />
+                   <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{problemTitle}</span>
+                </div>
+                {loading ? (
+                  <div className="space-y-2">
+                    <div className="h-3 bg-purple-500/10 rounded-full w-48 animate-pulse" />
+                    <div className="h-3 bg-purple-500/5 rounded-full w-32 animate-pulse" />
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-200 leading-relaxed font-medium">
+                    {hint}
+                  </p>
+                )}
              </div>
           </div>
         </div>

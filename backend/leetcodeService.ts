@@ -12,7 +12,7 @@ export const fetchLeetCodeSolvedProblems = async (username: string) => {
           }
         }
       }
-      recentSubmissionList(username: $username, limit: 20) {
+      recentSubmissionList(username: $username, limit: 100) {
         title
         titleSlug
         timestamp

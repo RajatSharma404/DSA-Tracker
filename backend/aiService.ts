@@ -39,3 +39,131 @@ export const getPatternExplanation = async (topic: string) => {
   const result = await model.generateContent(prompt);
   return result.response.text();
 };
+
+export const getAICodeReview = async (code: string, problemTitle: string, topic: string) => {
+  const prompt = `
+    You are an elite Software Engineer and DSA Interviewer. 
+    Review the following solution for the problem: "${problemTitle}" (Topic: ${topic}).
+
+    Solution Code:
+    \`\`\`
+    ${code}
+    \`\`\`
+
+    Return ONLY a valid JSON object (no markdown fences, no explanation outside JSON) with this EXACT structure:
+    {
+      "verdict": "OPTIMAL" or "GOOD" or "NEEDS WORK",
+      "summary": "One crisp sentence summarizing the solution quality.",
+      "efficiency": {
+        "timeComplexity": "O(N log N)",
+        "timeExplanation": "Brief explanation of why this is the time complexity.",
+        "spaceComplexity": "O(N)",
+        "spaceExplanation": "Brief explanation of why this is the space complexity.",
+        "isOptimal": true or false,
+        "optimalNote": "If not optimal, what would be optimal? If optimal, say why."
+      },
+      "logic": {
+        "isCorrect": true or false,
+        "explanation": "Brief analysis of correctness.",
+        "edgeCases": [
+          { "case": "Empty array", "handled": true, "note": "Handled by the initial check." },
+          { "case": "Single element", "handled": false, "note": "Would crash at line X." }
+        ]
+      },
+      "cleanCode": [
+        { "suggestion": "Use destructuring for cleaner variable assignment.", "example": "const [a, b] = arr;" }
+      ],
+      "proTip": "One killer insight about this problem type that interviewers love."
+    }
+
+    RULES:
+    1. Keep explanations concise (1-2 sentences each).
+    2. Provide 2-4 edge cases.
+    3. Provide 1-2 clean code suggestions with SHORT code examples.
+    4. The proTip should be genuinely insightful — something a senior engineer would say.
+    5. Return raw JSON only. No markdown. No code fences around the JSON.
+  `;
+
+  const result = await model.generateContent(prompt);
+  const text = result.response.text();
+  // Try to parse as structured JSON
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (jsonMatch) {
+    try {
+      return { type: 'structured', data: JSON.parse(jsonMatch[0]) };
+    } catch {
+      // Fallback to raw text if JSON parsing fails
+      return { type: 'markdown', data: text };
+    }
+  }
+  return { type: 'markdown', data: text };
+};
+
+export const getAlgoTracing = async (code: string, problemTitle: string) => {
+  const prompt = `
+    You are an elite DSA instructor creating a step-by-step "Dry Run" walkthrough.
+    Problem: "${problemTitle}"
+    
+    Code:
+    \`\`\`
+    ${code}
+    \`\`\`
+
+    Create a cinematic, educational dry-run of this code using a SIMPLE sample input.
+    
+    Return ONLY a valid JSON object (no markdown, no code fences) with this EXACT structure:
+    {
+      "sampleInput": "e.g. nums = [2, 7, 11, 15], target = 9",
+      "expectedOutput": "e.g. [0, 1]",
+      "approach": "One-line summary of the algorithm strategy",
+      "steps": [
+        {
+          "step": 1,
+          "phase": "INIT",
+          "codeLine": "let map = new Map();",
+          "narrative": "We create an empty HashMap to store numbers we've seen so far. The key will be the number, the value will be its index.",
+          "thinking": "Why a Map? Because it gives us O(1) lookup — we can instantly check if a complement exists.",
+          "variables": [
+            { "name": "map", "value": "{}", "changed": true },
+            { "name": "i", "value": "0", "changed": true }
+          ],
+          "dataStructure": {
+            "type": "array|map|stack|pointer",
+            "label": "Input Array",
+            "items": [
+              { "value": "2", "state": "active" },
+              { "value": "7", "state": "default" },
+              { "value": "11", "state": "default" }
+            ]
+          }
+        }
+      ]
+    }
+
+    RULES:
+    1. Pick a SMALL sample input (3-6 elements max).
+    2. Max 10 steps. Each step = one meaningful logical operation.
+    3. "phase" must be one of: "INIT", "PROCESS", "CHECK", "FOUND", "RETURN", "LOOP".
+    4. "codeLine" = the exact line of code being executed (short).
+    5. "narrative" = explain WHAT is happening in plain English (1-2 sentences).
+    6. "thinking" = explain WHY this step matters for learning (1 sentence, like an interviewer tip).
+    7. For "variables", include ALL active variables and mark "changed": true only for ones that changed THIS step.
+    8. "dataStructure.items[].state" must be one of: "default", "active", "highlight", "done", "compare".
+       - "active" = currently being processed (blue)
+       - "highlight" = match found or important (green)
+       - "compare" = being compared against (yellow)
+       - "done" = already processed (dim)
+    9. IMPORTANT: Return raw JSON only. No markdown fences. No explanation outside JSON.
+  `;
+
+  const result = await model.generateContent(prompt);
+  const text = result.response.text();
+  // Try to extract JSON object
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) return { sampleInput: '', expectedOutput: '', approach: '', steps: [] };
+  try {
+    return JSON.parse(jsonMatch[0]);
+  } catch {
+    return { sampleInput: '', expectedOutput: '', approach: '', steps: [] };
+  }
+};

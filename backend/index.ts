@@ -3,9 +3,10 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
-import { getRevisionReminders, getWeakTopics } from './services';
+import { getRevisionReminders, getWeakTopics, getMasteryStats, getDailyProblem, getTimeAnalytics, getAchievements, getWeeklyReport } from './services';
 import { fetchLeetCodeSolvedProblems, slugify } from './leetcodeService';
-import { getAIHint, getPatternExplanation } from './aiService';
+import { getAIHint, getPatternExplanation, getAICodeReview, getAlgoTracing } from './aiService';
+import { DSA_TEMPLATES } from './templates';
 
 dotenv.config();
 
@@ -442,6 +443,15 @@ app.get('/api/analytics/activity', requireAuth, async (req: Request, res: Respon
   }
 });
 
+app.get('/api/analytics/mastery', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const stats = await getMasteryStats(req.user!.id);
+    res.json(stats);
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // 6. Update LeetCode Username
 app.patch('/api/user/leetcode', requireAuth, async (req: Request, res: Response) => {
   try {
@@ -472,23 +482,31 @@ app.post('/api/user/sync-leetcode', requireAuth, async (req: Request, res: Respo
     const data = await fetchLeetCodeSolvedProblems(user.leetcodeUsername);
     const recentSubmissions = data.recentSubmissionList || [];
     
-    // Filter only Accepted submissions
-    const acceptedSubmissions = recentSubmissions.filter((s: any) => s.statusDisplay === 'Accepted');
+    // Filter only Accepted submissions and deduplicate by titleSlug to take latest
+    const solvedMap = new Map<string, any>();
+    recentSubmissions.forEach((sub: any) => {
+      if (sub.statusDisplay === 'Accepted') {
+        if (!solvedMap.has(sub.titleSlug) || sub.timestamp > solvedMap.get(sub.titleSlug).timestamp) {
+          solvedMap.set(sub.titleSlug, sub);
+        }
+      }
+    });
+
+    console.log(`Syncing LeetCode for ${user.leetcodeUsername}: Found ${solvedMap.size} unique accepted problems in last 100 submissions.`);
     
     const results = [];
-    for (const sub of acceptedSubmissions) {
+    for (const [slug, sub] of solvedMap.entries()) {
       // Find matching problem in our DB
       const problem = await prisma.problem.findFirst({
         where: {
           OR: [
             { title: { equals: sub.title, mode: 'insensitive' } },
-            { link: { contains: sub.titleSlug } }
+            { link: { contains: slug } }
           ]
         }
       });
 
       if (problem) {
-        // Auto-mark as DONE (upsert ensures we don't duplicate)
         await prisma.progress.upsert({
           where: { userId_problemId: { userId, problemId: problem.id } },
           update: { 
@@ -503,8 +521,13 @@ app.post('/api/user/sync-leetcode', requireAuth, async (req: Request, res: Respo
           }
         });
         results.push(problem.title);
+      } else {
+        // Optional: log or handle problems that are solved on LC but not in our roadmap
+        console.log(`LeetCode problem not found in roadmap: ${sub.title} (${slug})`);
       }
     }
+
+    console.log(`Sync complete. Matched ${results.length} problems.`);
 
     res.json({ success: true, syncedCount: results.length, syncedProblems: results });
   } catch (error) {
@@ -614,6 +637,175 @@ app.get('/api/ai/pattern/:topicId', requireAuth, async (req: Request, res: Respo
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'AI Error' });
+  }
+});
+
+app.post('/api/ai/review', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const { problemId, code } = req.body;
+    const problem = await prisma.problem.findUnique({
+      where: { id: problemId },
+      include: { topic: true }
+    });
+
+    if (!problem) return res.status(404).json({ error: 'Problem not found' });
+
+    const review = await getAICodeReview(code, problem.title, problem.topic.name);
+    res.json({ review });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'AI Error during code review' });
+  }
+});
+
+app.post('/api/ai/trace', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const { problemId, code } = req.body;
+    const problem = await prisma.problem.findUnique({
+      where: { id: problemId }
+    });
+
+    if (!problem) return res.status(404).json({ error: 'Problem not found' });
+
+    const trace = await getAlgoTracing(code, problem.title);
+    res.json({ trace });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'AI Error during algorithm tracing' });
+  }
+});
+
+// === DSA WIKI / VAULT ===
+
+// Get all pattern templates
+app.get('/api/vault/templates', requireAuth, async (req: Request, res: Response) => {
+  res.json(DSA_TEMPLATES);
+});
+
+// Get notes for a specific problem
+app.get('/api/notes/:problemId', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const notes = await prisma.problemNote.findMany({
+      where: { userId, problemId: req.params.problemId as string },
+      orderBy: { createdAt: 'desc' },
+    });
+    res.json(notes);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch notes' });
+  }
+});
+
+// Get ALL notes for the user (for the vault page)
+app.get('/api/notes', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const notes = await prisma.problemNote.findMany({
+      where: { userId },
+      include: { problem: { select: { title: true, topic: { select: { name: true } } } } },
+      orderBy: { updatedAt: 'desc' },
+    });
+    res.json(notes);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch notes' });
+  }
+});
+
+// Create a note
+app.post('/api/notes', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const { problemId, content, type } = req.body;
+    
+    const note = await prisma.problemNote.create({
+      data: { userId, problemId, content, type: type || 'LEARNING' },
+    });
+    res.json(note);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to create note' });
+  }
+});
+
+// Update a note
+app.put('/api/notes/:noteId', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const { content, type } = req.body;
+    
+    const note = await prisma.problemNote.updateMany({
+      where: { id: req.params.noteId as string, userId },
+      data: { content, type },
+    });
+    res.json(note);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update note' });
+  }
+});
+
+// Delete a note
+app.delete('/api/notes/:noteId', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    
+    await prisma.problemNote.deleteMany({
+      where: { id: req.params.noteId as string, userId },
+    });
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to delete note' });
+  }
+});
+
+// === DAILY PROBLEM ===
+app.get('/api/daily-problem', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const daily = await getDailyProblem(userId);
+    res.json(daily);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to get daily problem' });
+  }
+});
+
+// === TIME ANALYTICS ===
+app.get('/api/analytics/time', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const analytics = await getTimeAnalytics(userId);
+    res.json(analytics);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to get time analytics' });
+  }
+});
+
+// === ACHIEVEMENTS ===
+app.get('/api/achievements', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const data = await getAchievements(userId);
+    res.json(data);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to get achievements' });
+  }
+});
+
+// === WEEKLY REPORT ===
+app.get('/api/weekly-report', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const data = await getWeeklyReport(userId);
+    res.json(data);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to get weekly report' });
   }
 });
 

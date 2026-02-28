@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, BookOpen, Clock, Target, Menu, LogOut, ShieldCheck, Network, Zap } from "lucide-react";
+import { LayoutDashboard, BookOpen, Clock, Target, Menu, LogOut, ShieldCheck, Network, Zap, Library, BarChart3, Trophy, FileText } from "lucide-react";
 import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
@@ -11,6 +11,10 @@ const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/" },
   { icon: Network, label: "Visual Roadmap", href: "/roadmap" },
   { icon: BookOpen, label: "Topics", href: "/topics" },
+  { icon: Library, label: "The Vault", href: "/vault" },
+  { icon: BarChart3, label: "Analytics", href: "/analytics" },
+  { icon: Trophy, label: "Achievements", href: "/achievements" },
+  { icon: FileText, label: "Weekly Report", href: "/weekly-report" },
   { icon: Zap, label: "The Arena", href: "/challenge" },
   { icon: Target, label: "Mock Interviews", href: "/interviews" },
 ];

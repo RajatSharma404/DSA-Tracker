@@ -120,6 +120,10 @@ export const dsaApi = {
     const res = await api.get('/analytics/activity');
     return res.data;
   },
+  getMasteryStats: async () => {
+    const res = await api.get('/analytics/mastery');
+    return res.data;
+  },
   updateLeetcodeUsername: async (leetcodeUsername: string) => {
     const res = await api.patch('/user/leetcode', { leetcodeUsername });
     return res.data;
@@ -147,5 +151,57 @@ export const dsaApi = {
   getPatternExplanation: async (topicId: string) => {
     const res = await api.get(`/ai/pattern/${topicId}`);
     return res.data;
-  }
+  },
+  getAICodeReview: async (problemId: string, code: string) => {
+    const res = await api.post('/ai/review', { problemId, code });
+    return res.data;
+  },
+  getAlgoTrace: async (problemId: string, code: string) => {
+    const res = await api.post('/ai/trace', { problemId, code });
+    return res.data;
+  },
+
+  // === Daily Problem ===
+  getDailyProblem: async () => {
+    const res = await api.get('/daily-problem');
+    return res.data;
+  },
+  getTimeAnalytics: async () => {
+    const res = await api.get('/analytics/time');
+    return res.data;
+  },
+  getAchievements: async () => {
+    const res = await api.get('/achievements');
+    return res.data;
+  },
+  getWeeklyReport: async () => {
+    const res = await api.get('/weekly-report');
+    return res.data;
+  },
+
+  // === Vault / Wiki ===
+  getTemplates: async () => {
+    const res = await api.get('/vault/templates');
+    return res.data;
+  },
+  getNotes: async (problemId: string) => {
+    const res = await api.get(`/notes/${problemId}`);
+    return res.data;
+  },
+  getAllNotes: async () => {
+    const res = await api.get('/notes');
+    return res.data;
+  },
+  createNote: async (problemId: string, content: string, type: string = 'LEARNING') => {
+    const res = await api.post('/notes', { problemId, content, type });
+    return res.data;
+  },
+  updateNote: async (noteId: string, content: string, type: string) => {
+    const res = await api.put(`/notes/${noteId}`, { content, type });
+    return res.data;
+  },
+  deleteNote: async (noteId: string) => {
+    const res = await api.delete(`/notes/${noteId}`);
+    return res.data;
+  },
 };

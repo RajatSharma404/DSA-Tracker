@@ -7,6 +7,9 @@ import Link from "next/link";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import AIMentorHint from "@/components/dashboard/AIMentorHint";
+import AICodeArchitect from "@/components/dashboard/AICodeArchitect";
+import ProblemNotes from "@/components/dashboard/ProblemNotes";
+import TopicStudyGuide from "@/components/dashboard/TopicStudyGuide";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -127,7 +130,8 @@ function TopicAccordion({ topic, index, isExpanded, onToggle }: { topic: Topic, 
       </div>
 
       {isExpanded && (
-        <div className="border-t border-[#222] bg-[#0a0a0a] p-2 sm:p-4 space-y-4">
+        <div className="border-t border-[#222] bg-[#0a0a0a] p-2 sm:p-4 space-y-4 overflow-hidden min-w-0">
+          <TopicStudyGuide topicName={topic.name} />
           <TopicStrategy topicId={topic.id} />
           {loading ? (
              <div className="py-8 text-center text-gray-500 text-sm animate-pulse">Loading problems...</div>
@@ -179,9 +183,13 @@ function TopicAccordion({ topic, index, isExpanded, onToggle }: { topic: Topic, 
                           </span>
                         )}
                       </div>
-                      {problem.status !== 'DONE' && (
-                        <AIMentorHint problemId={problem.id} problemTitle={problem.title} />
-                      )}
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {problem.status !== 'DONE' && (
+                          <AIMentorHint problemId={problem.id} problemTitle={problem.title} />
+                        )}
+                        <AICodeArchitect problemId={problem.id} problemTitle={problem.title} />
+                      </div>
+                      <ProblemNotes problemId={problem.id} />
                     </div>
                   </div>
                   

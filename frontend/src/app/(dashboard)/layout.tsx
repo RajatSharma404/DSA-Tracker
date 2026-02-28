@@ -8,7 +8,7 @@ export default function DashboardLayout({
   return (
     <>
       <Sidebar />
-      <main className="flex-1 overflow-y-auto w-full p-8 md:p-12">
+      <main className="flex-1 overflow-y-auto overflow-x-hidden w-full min-w-0 p-6 md:p-10">
         {children}
       </main>
     </>
