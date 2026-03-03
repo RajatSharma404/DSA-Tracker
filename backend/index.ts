@@ -25,7 +25,7 @@ app.use((req, res, next) => {
 });
 
 // Auto-admin hook for specific email
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'ashg821@gmail.com'; // Defaulting to your email
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'rajat.sharma.myid1@gmail.com'; // Defaulting to your email
 
 // Extend Express Request object
 declare global {
@@ -46,7 +46,7 @@ const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
   const token = authHeader.split(' ')[1];
   try {
     const decoded = jwt.verify(token, NEXTAUTH_SECRET) as { id: string, role: string };
-    
+
     // Auto-promotion logic if the user's role is not yet stored in DB as ADMIN
     const user = await prisma.user.findUnique({ where: { id: decoded.id } }) as any;
     if (user && user.email === ADMIN_EMAIL && user.role !== 'ADMIN') {
@@ -108,7 +108,7 @@ app.get('/api/dashboard', requireAuth, async (req: Request, res: Response) => {
 app.get('/api/topics', requireAuth, async (req: Request, res: Response) => {
   try {
     const userId = req.user!.id;
-    
+
     const topics = await prisma.topic.findMany({
       include: {
         problems: {
@@ -166,7 +166,7 @@ app.get('/api/topics/:topicId/problems', requireAuth, async (req: Request, res: 
     }));
 
     res.json(enrichedProblems);
-  } catch(err) {
+  } catch (err) {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -240,7 +240,7 @@ app.post('/api/progress', requireAuth, async (req: Request, res: Response) => {
 
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
+
       const lastActivity = new Date(streak.lastActivityDate);
       lastActivity.setHours(0, 0, 0, 0);
 
@@ -483,7 +483,7 @@ app.post('/api/user/sync-leetcode', requireAuth, async (req: Request, res: Respo
 
     const data = await fetchLeetCodeSolvedProblems(user.leetcodeUsername);
     const recentSubmissions = data.recentSubmissionList || [];
-    
+
     // Filter only Accepted submissions and deduplicate by titleSlug to take latest
     const solvedMap = new Map<string, any>();
     recentSubmissions.forEach((sub: any) => {
@@ -495,7 +495,7 @@ app.post('/api/user/sync-leetcode', requireAuth, async (req: Request, res: Respo
     });
 
     console.log(`Syncing LeetCode for ${user.leetcodeUsername}: Found ${solvedMap.size} unique accepted problems in last 100 submissions.`);
-    
+
     const results = [];
     for (const [slug, sub] of solvedMap.entries()) {
       // Find matching problem in our DB
@@ -511,7 +511,7 @@ app.post('/api/user/sync-leetcode', requireAuth, async (req: Request, res: Respo
       // Attempt to get runtime and memory details if user.leetcodeSession is set
       let runtimeOpt = null;
       let memoryOpt = null;
-      
+
       if (user.leetcodeSession) {
         try {
           const subs = await fetchProblemSubmissions(slug, user.leetcodeSession);
@@ -529,7 +529,7 @@ app.post('/api/user/sync-leetcode', requireAuth, async (req: Request, res: Respo
       if (problem) {
         await prisma.progress.upsert({
           where: { userId_problemId: { userId, problemId: problem.id } },
-          update: { 
+          update: {
             status: 'DONE',
             completedAt: new Date(sub.timestamp * 1000),
             ...(runtimeOpt && { leetcodeRuntime: runtimeOpt }),
@@ -548,7 +548,7 @@ app.post('/api/user/sync-leetcode', requireAuth, async (req: Request, res: Respo
       } else {
         // Auto-populate missing problem into a 'Misc / Uncategorized' topic
         console.log(`LeetCode problem not found in roadmap: ${sub.title} (${slug}). Injecting as Extra Practice.`);
-        
+
         // Find or create the Misc topic
         let miscTopic = await prisma.topic.findFirst({
           where: { name: 'Extra Practice (Auto-Synced)' }
@@ -558,7 +558,7 @@ app.post('/api/user/sync-leetcode', requireAuth, async (req: Request, res: Respo
           const maxOrderTopic = await prisma.topic.findFirst({
             orderBy: { orderIndex: 'desc' }
           });
-          
+
           miscTopic = await prisma.topic.create({
             data: {
               name: 'Extra Practice (Auto-Synced)',
@@ -596,7 +596,7 @@ app.post('/api/user/sync-leetcode', requireAuth, async (req: Request, res: Respo
             leetcodeMemory: memoryOpt
           }
         });
-        
+
         results.push(newProblem.title);
       }
     }
@@ -831,7 +831,7 @@ app.post('/api/challenges/:id/complete', requireAuth, async (req: Request, res: 
     const { status } = req.body; // COMPLETED or FAILED
     const session = await (prisma as any).challengeSession.update({
       where: { id: req.params.id },
-      data: { 
+      data: {
         status: status as any,
         endTime: new Date()
       }
@@ -955,7 +955,7 @@ app.post('/api/notes', requireAuth, async (req: Request, res: Response) => {
   try {
     const userId = (req as any).userId;
     const { problemId, content, type } = req.body;
-    
+
     const note = await prisma.problemNote.create({
       data: { userId, problemId, content, type: type || 'LEARNING' },
     });
@@ -971,7 +971,7 @@ app.put('/api/notes/:noteId', requireAuth, async (req: Request, res: Response) =
   try {
     const userId = (req as any).userId;
     const { content, type } = req.body;
-    
+
     const note = await prisma.problemNote.updateMany({
       where: { id: req.params.noteId as string, userId },
       data: { content, type },
@@ -987,7 +987,7 @@ app.put('/api/notes/:noteId', requireAuth, async (req: Request, res: Response) =
 app.delete('/api/notes/:noteId', requireAuth, async (req: Request, res: Response) => {
   try {
     const userId = (req as any).userId;
-    
+
     await prisma.problemNote.deleteMany({
       where: { id: req.params.noteId as string, userId },
     });
