@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { dsaApi, Problem } from '@/lib/api';
 import { useParams, useRouter } from 'next/navigation';
 import { Timer, AlertTriangle, CheckCircle2, XCircle, ExternalLink, ShieldAlert } from 'lucide-react';
+import { CodeEditor } from '@/components/dashboard/CodeEditor';
 
 export default function ChallengeSimulator() {
   const { id } = useParams();
@@ -112,32 +113,40 @@ export default function ChallengeSimulator() {
 
         <div className="grid lg:grid-cols-2 gap-8">
           {session.problems.map((prob: any, idx: number) => (
-            <div key={prob.id} className="group p-8 rounded-[2.5rem] bg-[#0d0d0d] border border-white/5 hover:border-white/10 transition-all space-y-6 flex flex-col justify-between">
-               <div className="space-y-4">
-                 <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] bg-white/5 px-2 py-1 rounded">Problem 0{idx + 1}</span>
-                    <span className={`text-[10px] font-black uppercase px-2 py-1 rounded border ${
-                       prob.difficulty === 'EASY' ? 'text-green-400 border-green-500/20 bg-green-500/10' :
-                       prob.difficulty === 'MEDIUM' ? 'text-orange-400 border-orange-500/20 bg-orange-500/10' : 'text-red-400 border-red-500/20 bg-red-500/10'
-                    }`}>
-                       {prob.difficulty}
-                    </span>
+             <div key={prob.id} className="group overflow-hidden rounded-[2.5rem] bg-[#0d0d0d] border border-white/5 hover:border-white/10 transition-all flex flex-col justify-between">
+               <div className="p-8 space-y-6">
+                 <div className="space-y-4">
+                   <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] bg-white/5 px-2 py-1 rounded">Problem 0{idx + 1}</span>
+                      <span className={`text-[10px] font-black uppercase px-2 py-1 rounded border ${
+                         prob.difficulty === 'EASY' ? 'text-green-400 border-green-500/20 bg-green-500/10' :
+                         prob.difficulty === 'MEDIUM' ? 'text-orange-400 border-orange-500/20 bg-orange-500/10' : 'text-red-400 border-red-500/20 bg-red-500/10'
+                      }`}>
+                         {prob.difficulty}
+                      </span>
+                   </div>
+                   <h3 className="text-3xl font-black text-white leading-tight">{prob.title}</h3>
+                   <div className="flex justify-between items-center text-sm text-gray-400 italic">
+                     <p>Topic: {prob.topic.name}</p>
+                     <a href={prob.link} target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 flex items-center gap-1 transition-colors">
+                       LeetCode <ExternalLink size={14} />
+                     </a>
+                   </div>
                  </div>
-                 <h3 className="text-3xl font-black text-white leading-tight">{prob.title}</h3>
-                 <p className="text-sm text-gray-400 italic">Topic: {prob.topic.name}</p>
                </div>
 
-               <div className="pt-8 border-t border-white/5">
-                 <a 
-                   href={prob.link} 
-                   target="_blank" 
-                   rel="noopener noreferrer"
-                   className="w-full py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-bold flex items-center justify-center gap-2 group-hover:bg-white/10 transition-all"
-                 >
-                   Open Code Editor <ExternalLink size={16} />
-                 </a>
+               <div className="border-t border-white/5 mt-auto bg-[#1a1a1a]/50">
+                 <details className="group/code">
+                   <summary className="w-full p-4 text-white font-bold flex items-center justify-center gap-2 cursor-pointer outline-none hover:bg-white/5 transition-all text-sm uppercase tracking-widest list-none">
+                     <span className="group-open/code:hidden flex items-center gap-2">Expand Code Editor</span>
+                     <span className="hidden group-open/code:flex items-center gap-2">Collapse Editor</span>
+                   </summary>
+                   <div className="p-1 pb-4">
+                     <CodeEditor initialCode={`/**\n * Problem: ${prob.title}\n * Language: Javascript\n */\n\nfunction solve() {\n  // Write your logic here\n  \n}\n\nconsole.log(solve());`} />
+                   </div>
+                 </details>
                </div>
-            </div>
+             </div>
           ))}
         </div>
 

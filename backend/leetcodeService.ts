@@ -56,3 +56,139 @@ export const slugify = (text: string) => {
     .replace(/[^\w-]+/g, '')  // Remove all non-word chars
     .replace(/--+/g, '-');    // Replace multiple - with single -
 };
+
+export const fetchProblemSubmissions = async (questionSlug: string, leetcodeSession: string) => {
+  const query = `
+    query submissionList($offset: Int!, $limit: Int!, $questionSlug: String!) {
+      questionSubmissionList(
+        offset: $offset
+        limit: $limit
+        questionSlug: $questionSlug
+      ) {
+        submissions {
+          id
+          title
+          titleSlug
+          statusDisplay
+          lang
+          runtime
+          memory
+          timestamp
+        }
+      }
+    }
+  `;
+
+  try {
+    const response = await axios.post('https://leetcode.com/graphql', {
+      query,
+      variables: { offset: 0, limit: 10, questionSlug }
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cookie': `LEETCODE_SESSION=${leetcodeSession}; csrftoken=dummy;`,
+        'x-csrftoken': 'dummy',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
+    });
+
+    if (response.data.errors) {
+      throw new Error(response.data.errors[0].message);
+    }
+    return response.data.data;
+  } catch (error) {
+    console.error('LeetCode API Error:', error);
+    throw error;
+  }
+};
+
+export const fetchSubmissionDetails = async (submissionId: string, leetcodeSession: string) => {
+  const query = `
+    query submissionDetails($submissionId: Int!) {
+      submissionDetails(submissionId: $submissionId) {
+        runtime
+        runtimeDisplay
+        memoryDisplay
+        code
+        timestamp
+        statusCode
+        lang {
+          name
+          verboseName
+        }
+      }
+    }
+  `;
+
+  try {
+    const response = await axios.post('https://leetcode.com/graphql', {
+      query,
+      variables: { submissionId: parseInt(submissionId, 10) }
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cookie': `LEETCODE_SESSION=${leetcodeSession}; csrftoken=dummy;`,
+        'x-csrftoken': 'dummy',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
+    });
+
+    if (response.data.errors) {
+      throw new Error(response.data.errors[0].message);
+    }
+    return response.data.data;
+  } catch (error) {
+    console.error('LeetCode API Error:', error);
+    throw error;
+  }
+};
+
+export const fetchActiveDailyCodingChallengeQuestion = async () => {
+  const query = `
+    query questionOfToday {
+      activeDailyCodingChallengeQuestion {
+        date
+        userStatus
+        link
+        question {
+          acRate
+          difficulty
+          freqBar
+          frontendQuestionId: questionFrontendId
+          isFavor
+          paidOnly: isPaidOnly
+          status
+          title
+          titleSlug
+          hasVideoSolution
+          hasSolution
+          topicTags {
+            name
+            id
+            slug
+          }
+        }
+      }
+    }
+  `;
+
+  try {
+    const response = await axios.post('https://leetcode.com/graphql', {
+      query,
+      variables: {}
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
+    });
+
+    if (response.data.errors) {
+      throw new Error(response.data.errors[0].message);
+    }
+    return response.data.data;
+  } catch (error) {
+    console.error('LeetCode Daily API Error:', error);
+    throw error;
+  }
+};

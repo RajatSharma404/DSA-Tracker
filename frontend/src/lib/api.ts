@@ -128,6 +128,22 @@ export const dsaApi = {
     const res = await api.patch('/user/leetcode', { leetcodeUsername });
     return res.data;
   },
+  updateLeetcodeSession: async (leetcodeSession: string) => {
+    const res = await api.patch('/user/leetcode-session', { leetcodeSession });
+    return res.data;
+  },
+  getLeetcodeSubmissions: async (problemSlug: string) => {
+    const res = await api.get(`/leetcode/submissions/${problemSlug}`);
+    return res.data;
+  },
+  getLeetcodeSubmissionCode: async (submissionId: string) => {
+    const res = await api.get(`/leetcode/submission/${submissionId}/code`);
+    return res.data;
+  },
+  getLeetcodeDailyChallenge: async () => {
+    const res = await api.get('/leetcode/daily-challenge');
+    return res.data;
+  },
   syncLeetcode: async () => {
     const res = await api.post('/user/sync-leetcode');
     return res.data;

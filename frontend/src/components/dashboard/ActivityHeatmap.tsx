@@ -113,36 +113,38 @@ export default function ActivityHeatmap({ data }: ActivityHeatmapProps) {
            <Calendar size={120} className="text-white" />
         </div>
         
-        {/* Month labels */}
-        <div className="flex mb-3 text-[9px] text-gray-500 font-black uppercase tracking-widest h-4">
-          <div className="w-10 shrink-0" />
-          <div className="flex-1 relative flex">
-            {monthLabels.map((ml, i) => (
-              <div 
-                key={i} 
-                className="absolute transition-all duration-500" 
-                style={{ left: `${(ml.index / weeks.length) * 100}%` }}
-              >
-                {ml.label}
+        <div className="overflow-x-auto scrollbar-hide pb-4 w-full">
+          <div className="min-w-max flex flex-col">
+            {/* Month labels */}
+            <div className="flex mb-3 text-[9px] text-gray-500 font-black uppercase tracking-widest h-4">
+              <div className="w-10 shrink-0" />
+              <div className="relative ml-4" style={{ width: `${weeks.length * 15 - 4}px` }}>
+                {monthLabels.map((ml, i) => (
+                  <div 
+                    key={i} 
+                    className="absolute transition-all duration-500" 
+                    style={{ left: `${(ml.index / weeks.length) * 100}%` }}
+                  >
+                    {ml.label}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
 
-        <div className="flex gap-4">
-          {/* Day labels */}
-          <div className="flex flex-col justify-between text-[8px] text-gray-600 font-black uppercase py-1 w-10 shrink-0">
-             <span className="h-[11px] leading-[11px]">Mon</span>
-             <span className="h-[11px] leading-[11px] opacity-0">Tue</span>
-             <span className="h-[11px] leading-[11px]">Wed</span>
-             <span className="h-[11px] leading-[11px] opacity-0">Thu</span>
-             <span className="h-[11px] leading-[11px]">Fri</span>
-             <span className="h-[11px] leading-[11px] opacity-0">Sat</span>
-             <span className="h-[11px] leading-[11px] opacity-0">Sun</span>
-          </div>
+            <div className="flex gap-4">
+              {/* Day labels */}
+              <div className="flex flex-col justify-between text-[8px] text-gray-600 font-black uppercase py-1 w-10 shrink-0">
+                 <span className="h-[11px] leading-[11px]">Mon</span>
+                 <span className="h-[11px] leading-[11px] opacity-0">Tue</span>
+                 <span className="h-[11px] leading-[11px]">Wed</span>
+                 <span className="h-[11px] leading-[11px] opacity-0">Thu</span>
+                 <span className="h-[11px] leading-[11px]">Fri</span>
+                 <span className="h-[11px] leading-[11px] opacity-0">Sat</span>
+                 <span className="h-[11px] leading-[11px] opacity-0">Sun</span>
+              </div>
 
-          {/* The Grid */}
-          <div className="flex gap-[4px] flex-1 overflow-x-auto scrollbar-hide pb-2">
+              {/* The Grid */}
+              <div className="flex gap-[4px] flex-1">
             {weeks.map((week, weekIdx) => (
               <div key={weekIdx} className="flex flex-col gap-[4px]">
                 {week.map((day) => {
@@ -163,6 +165,8 @@ export default function ActivityHeatmap({ data }: ActivityHeatmapProps) {
             ))}
           </div>
         </div>
+      </div>
+    </div>
 
         {/* Legend */}
         <div className="mt-6 pt-6 border-t border-white/5 flex items-center justify-between text-[9px] font-black uppercase tracking-widest text-gray-600">

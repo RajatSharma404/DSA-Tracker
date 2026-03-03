@@ -6,13 +6,15 @@ import { RefreshCcw, Save, ExternalLink, CheckCircle2 } from 'lucide-react';
 
 export default function LeetCodeSync() {
   const [username, setUsername] = useState('');
+  const [sessionCookie, setSessionCookie] = useState('');
   const [isSyncing, setIsSyncing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
+  const [isSavingUser, setIsSavingUser] = useState(false);
+  const [isSavingSession, setIsSavingSession] = useState(false);
   const [lastSyncResult, setLastSyncResult] = useState<{ count: number, problems: string[] } | null>(null);
 
-  const handleSave = async () => {
+  const handleSaveUsername = async () => {
     if (!username) return;
-    setIsSaving(true);
+    setIsSavingUser(true);
     try {
       await dsaApi.updateLeetcodeUsername(username);
       alert('LeetCode username updated!');
@@ -20,7 +22,22 @@ export default function LeetCodeSync() {
       console.error(error);
       alert('Failed to update username');
     } finally {
-      setIsSaving(false);
+      setIsSavingUser(false);
+    }
+  };
+
+  const handleSaveSession = async () => {
+    if (!sessionCookie) return;
+    setIsSavingSession(true);
+    try {
+      await dsaApi.updateLeetcodeSession(sessionCookie);
+      alert('LeetCode session saved securely! AI Code reviews can now auto-sync your submission code.');
+      setSessionCookie(''); // Clear after save for neatness
+    } catch (error) {
+      console.error(error);
+      alert('Failed to save session');
+    } finally {
+      setIsSavingSession(false);
     }
   };
 
@@ -63,25 +80,51 @@ export default function LeetCodeSync() {
       </div>
 
       <div className="space-y-4">
-        <div className="flex gap-2">
-          <input 
-            type="text" 
-            placeholder="LeetCode Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="flex-1 bg-[#1a1a1a] border border-[#222] rounded-xl px-4 py-3 text-sm focus:border-[#ffa116] outline-none"
-          />
-          <button 
-            onClick={handleSave}
-            disabled={isSaving || !username}
-            className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors"
-          >
-            <Save size={18} />
-          </button>
+        {/* Username Field */}
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-2">
+            <input 
+              type="text" 
+              placeholder="LeetCode Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="flex-1 bg-[#1a1a1a] border border-[#222] rounded-xl px-4 py-3 text-sm focus:border-[#ffa116] outline-none text-white"
+            />
+            <button 
+              onClick={handleSaveUsername}
+              disabled={isSavingUser || !username}
+              className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors text-white flex justify-center items-center"
+            >
+              {isSavingUser ? <RefreshCcw size={18} className="animate-spin" /> : <Save size={18} />}
+            </button>
+          </div>
+          <p className="text-[10px] text-gray-500 font-medium px-1">
+            Required for syncing problem completion statuses. Ensure your profile is public.
+          </p>
         </div>
-        <p className="text-[10px] text-gray-500 font-medium">
-          Make sure your profile is public on LeetCode for the sync to work.
-        </p>
+
+        {/* Session Cookie Field */}
+        <div className="flex flex-col gap-2 pt-2 border-t border-white/5">
+          <div className="flex gap-2">
+            <input 
+              type="password" 
+              placeholder="LEETCODE_SESSION Cookie (Optional)"
+              value={sessionCookie}
+              onChange={(e) => setSessionCookie(e.target.value)}
+              className="flex-1 bg-[#1a1a1a] border border-[#222] rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none text-white"
+            />
+            <button 
+              onClick={handleSaveSession}
+              disabled={isSavingSession || !sessionCookie}
+              className="px-4 py-2 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-xl hover:bg-blue-500/20 transition-colors flex justify-center items-center"
+            >
+              {isSavingSession ? <RefreshCcw size={18} className="animate-spin" /> : <Save size={18} />}
+            </button>
+          </div>
+          <p className="text-[10px] text-gray-500 font-medium px-1">
+            Required for syncing actual source code into the AI Code Architect. Copied from DevTools.
+          </p>
+        </div>
       </div>
 
       {lastSyncResult && lastSyncResult.count > 0 && (

@@ -46,6 +46,7 @@ model User {
   updatedAt        DateTime        @updatedAt @map("updated_at")
   role             Role            @default(USER)
   leetcodeUsername String?
+  leetcodeSession  String?
   mockInterviews   MockInterview[]
   progress         Progress[]
   streak           Streak?
@@ -131,6 +132,8 @@ model Progress {
   easinessFactor Float          @default(2.5)
   interval       Int            @default(0)
   nextReviewDate DateTime?
+  leetcodeRuntime String?
+  leetcodeMemory  String?
   problem        Problem        @relation(fields: [problemId], references: [id], onDelete: Cascade)
   user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 

@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import { getRevisionReminders, getWeakTopics, getMasteryStats, getDailyProblem, getTimeAnalytics, getAchievements, getWeeklyReport } from './services';
-import { fetchLeetCodeSolvedProblems, slugify } from './leetcodeService';
+import { fetchLeetCodeSolvedProblems, slugify, fetchProblemSubmissions, fetchSubmissionDetails, fetchActiveDailyCodingChallengeQuestion } from './leetcodeService';
 import { getAIHint, getPatternExplanation, getAICodeReview, getAlgoTracing } from './aiService';
 import { DSA_TEMPLATES } from './templates';
 
@@ -161,6 +161,8 @@ app.get('/api/topics/:topicId/problems', requireAuth, async (req: Request, res: 
       ...problem,
       status: problem.progress[0]?.status || 'TODO',
       timeSpent: problem.progress[0]?.timeSpent || 0,
+      leetcodeRuntime: problem.progress[0]?.leetcodeRuntime || null,
+      leetcodeMemory: problem.progress[0]?.leetcodeMemory || null,
     }));
 
     res.json(enrichedProblems);
@@ -506,24 +508,96 @@ app.post('/api/user/sync-leetcode', requireAuth, async (req: Request, res: Respo
         }
       });
 
+      // Attempt to get runtime and memory details if user.leetcodeSession is set
+      let runtimeOpt = null;
+      let memoryOpt = null;
+      
+      if (user.leetcodeSession) {
+        try {
+          const subs = await fetchProblemSubmissions(slug, user.leetcodeSession);
+          const theSub = subs?.questionSubmissionList?.submissions?.find((s: any) => s.statusDisplay === 'Accepted');
+          if (theSub) {
+            // These strings look like: "45 ms" or "16.4 MB"
+            runtimeOpt = theSub.runtime;
+            memoryOpt = theSub.memory;
+          }
+        } catch (e) {
+          // Silent fallback, could be invalid session or quota limits
+        }
+      }
+
       if (problem) {
         await prisma.progress.upsert({
           where: { userId_problemId: { userId, problemId: problem.id } },
           update: { 
             status: 'DONE',
-            completedAt: new Date(sub.timestamp * 1000)
+            completedAt: new Date(sub.timestamp * 1000),
+            ...(runtimeOpt && { leetcodeRuntime: runtimeOpt }),
+            ...(memoryOpt && { leetcodeMemory: memoryOpt })
           },
           create: {
             userId,
             problemId: problem.id,
             status: 'DONE',
-            completedAt: new Date(sub.timestamp * 1000)
+            completedAt: new Date(sub.timestamp * 1000),
+            leetcodeRuntime: runtimeOpt,
+            leetcodeMemory: memoryOpt
           }
         });
         results.push(problem.title);
       } else {
-        // Optional: log or handle problems that are solved on LC but not in our roadmap
-        console.log(`LeetCode problem not found in roadmap: ${sub.title} (${slug})`);
+        // Auto-populate missing problem into a 'Misc / Uncategorized' topic
+        console.log(`LeetCode problem not found in roadmap: ${sub.title} (${slug}). Injecting as Extra Practice.`);
+        
+        // Find or create the Misc topic
+        let miscTopic = await prisma.topic.findFirst({
+          where: { name: 'Extra Practice (Auto-Synced)' }
+        });
+
+        if (!miscTopic) {
+          const maxOrderTopic = await prisma.topic.findFirst({
+            orderBy: { orderIndex: 'desc' }
+          });
+          
+          miscTopic = await prisma.topic.create({
+            data: {
+              name: 'Extra Practice (Auto-Synced)',
+              description: 'Problems solved on LeetCode that are not part of the standard curriculum.',
+              orderIndex: (maxOrderTopic?.orderIndex || 99) + 1
+            }
+          });
+        }
+
+        // Get highest order index for problems in this topic to append to the end
+        const maxOrderProblem = await prisma.problem.findFirst({
+          where: { topicId: miscTopic.id },
+          orderBy: { orderIndex: 'desc' }
+        });
+
+        // Create the new problem
+        const newProblem = await prisma.problem.create({
+          data: {
+            title: sub.title,
+            link: `https://leetcode.com/problems/${slug}/`,
+            difficulty: 'MEDIUM', // Defaulting to medium as the basic API doesn't return difficulty in recent subs easily, but it's safe fallback
+            topicId: miscTopic.id,
+            orderIndex: (maxOrderProblem?.orderIndex || 0) + 1
+          }
+        });
+
+        // Mark it as done
+        await prisma.progress.create({
+          data: {
+            userId,
+            problemId: newProblem.id,
+            status: 'DONE',
+            completedAt: new Date(sub.timestamp * 1000),
+            leetcodeRuntime: runtimeOpt,
+            leetcodeMemory: memoryOpt
+          }
+        });
+        
+        results.push(newProblem.title);
       }
     }
 
@@ -533,6 +607,169 @@ app.post('/api/user/sync-leetcode', requireAuth, async (req: Request, res: Respo
   } catch (error) {
     console.error('Sync Error:', error);
     res.status(500).json({ error: 'Failed to sync with LeetCode' });
+  }
+});
+
+// Update LeetCode Session Cookie
+app.patch('/api/user/leetcode-session', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const { leetcodeSession } = req.body;
+    const userId = req.user!.id;
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { leetcodeSession } as any
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update leetcode session' });
+  }
+});
+
+// Extension direct sync (bypass normal requireAuth by using leetcodeSession)
+app.post('/api/extension/sync', async (req: Request, res: Response) => {
+  try {
+    const { problemSlug, leetcodeSession } = req.body;
+    if (!problemSlug || !leetcodeSession) {
+      return res.status(400).json({ error: 'Missing problemSlug or session' });
+    }
+
+    const user = await prisma.user.findFirst({
+      where: { leetcodeSession }
+    }) as any;
+
+    if (!user) {
+      return res.status(401).json({ error: 'No user linked to this LeetCode session' });
+    }
+
+    const data = await fetchProblemSubmissions(problemSlug, leetcodeSession);
+    const submissions = data?.questionSubmissionList?.submissions || [];
+    const acceptedSub = submissions.find((s: any) => s.statusDisplay === 'Accepted');
+
+    if (!acceptedSub) {
+      return res.status(400).json({ error: 'No accepted submission found' });
+    }
+
+    let problem = await prisma.problem.findFirst({
+      where: { link: { contains: problemSlug } }
+    });
+
+    // If it doesn't exist, we create it just like normal sync
+    if (!problem) {
+      let miscTopic = await prisma.topic.findFirst({
+        where: { name: 'Extra Practice (Auto-Synced)' }
+      });
+
+      if (!miscTopic) {
+        const maxOrderTopic = await prisma.topic.findFirst({
+          orderBy: { orderIndex: 'desc' }
+        });
+        miscTopic = await prisma.topic.create({
+          data: {
+            name: 'Extra Practice (Auto-Synced)',
+            description: 'Problems solved on LeetCode that are not part of the standard curriculum.',
+            orderIndex: (maxOrderTopic?.orderIndex || 99) + 1
+          }
+        });
+      }
+
+      const maxOrderProblem = await prisma.problem.findFirst({
+        where: { topicId: miscTopic.id },
+        orderBy: { orderIndex: 'desc' }
+      });
+
+      problem = await prisma.problem.create({
+        data: {
+          title: acceptedSub.title,
+          link: `https://leetcode.com/problems/${problemSlug}/`,
+          difficulty: 'MEDIUM',
+          topicId: miscTopic.id,
+          orderIndex: (maxOrderProblem?.orderIndex || 0) + 1
+        }
+      });
+    }
+
+    // Now upsert progress
+    await prisma.progress.upsert({
+      where: {
+        userId_problemId: {
+          userId: user.id,
+          problemId: problem.id
+        }
+      },
+      update: {
+        status: 'DONE',
+        completedAt: new Date(acceptedSub.timestamp * 1000),
+        leetcodeRuntime: acceptedSub.runtime,
+        leetcodeMemory: acceptedSub.memory
+      } as any,
+      create: {
+        userId: user.id,
+        problemId: problem.id,
+        status: 'DONE',
+        timeSpent: 0,
+        completedAt: new Date(acceptedSub.timestamp * 1000),
+        leetcodeRuntime: acceptedSub.runtime,
+        leetcodeMemory: acceptedSub.memory
+      } as any
+    });
+
+    res.json({ success: true, message: `Synced ${problem.title} from extension!` });
+  } catch (err) {
+    console.error('Extension Sync Error:', err);
+    res.status(500).json({ error: 'Extension sync failed' });
+  }
+});
+
+// Get LeetCode Submissions for a problem
+app.get('/api/leetcode/submissions/:problemSlug', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = req.user!.id;
+    const user = await prisma.user.findUnique({ where: { id: userId } }) as any;
+
+    if (!user?.leetcodeSession) {
+      return res.status(400).json({ error: 'LeetCode session cookie not set' });
+    }
+
+    const data = await fetchProblemSubmissions(req.params.problemSlug as string, user.leetcodeSession);
+    const submissions = data?.questionSubmissionList?.submissions || [];
+    res.json(submissions);
+  } catch (error) {
+    console.error('Fetch Submissions Error:', error);
+    res.status(500).json({ error: 'Failed to fetch submissions' });
+  }
+});
+
+// Get LeetCode Daily Challenge
+app.get('/api/leetcode/daily-challenge', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const data = await fetchActiveDailyCodingChallengeQuestion();
+    const activeChallenge = data?.activeDailyCodingChallengeQuestion || null;
+    res.json(activeChallenge);
+  } catch (error) {
+    console.error('Fetch Daily Challenge Error:', error);
+    res.status(500).json({ error: 'Failed to fetch daily challenge' });
+  }
+});
+
+
+// Get LeetCode Submission Details (Code)
+app.get('/api/leetcode/submission/:submissionId/code', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = req.user!.id;
+    const user = await prisma.user.findUnique({ where: { id: userId } }) as any;
+
+    if (!user?.leetcodeSession) {
+      return res.status(400).json({ error: 'LeetCode session cookie not set' });
+    }
+
+    const data = await fetchSubmissionDetails(req.params.submissionId as string, user.leetcodeSession);
+    const submissionDetails = data?.submissionDetails || null;
+    res.json(submissionDetails);
+  } catch (error) {
+    console.error('Fetch Submission Details Error:', error);
+    res.status(500).json({ error: 'Failed to fetch submission details' });
   }
 });
 

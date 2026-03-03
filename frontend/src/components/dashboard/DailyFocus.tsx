@@ -50,6 +50,7 @@ const SOURCE_CONFIG = {
 
 export default function DailyFocus() {
   const [daily, setDaily] = useState<DailyProblem | null>(null);
+  const [dailyLc, setDailyLc] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [allDone, setAllDone] = useState(false);
 
@@ -59,10 +60,23 @@ export default function DailyFocus() {
 
   const loadDaily = async () => {
     try {
-      const data = await dsaApi.getDailyProblem();
-      if (data) {
-        setDaily(data);
-      } else {
+      const [regularData, lcData] = await Promise.allSettled([
+        dsaApi.getDailyProblem(),
+        dsaApi.getLeetcodeDailyChallenge()
+      ]);
+
+      let hasData = false;
+      if (regularData.status === 'fulfilled' && regularData.value) {
+        setDaily(regularData.value);
+        hasData = true;
+      }
+      
+      if (lcData.status === 'fulfilled' && lcData.value) {
+        setDailyLc(lcData.value);
+        hasData = true;
+      }
+
+      if (!hasData) {
         setAllDone(true);
       }
     } catch (err) {
@@ -100,12 +114,11 @@ export default function DailyFocus() {
     );
   }
 
-  if (!daily) return null;
-
-  const config = SOURCE_CONFIG[daily.source];
-  const diffStyle = DIFFICULTY_STYLES[daily.problem.difficulty] || DIFFICULTY_STYLES.MEDIUM;
   const now = new Date();
   const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+  // If daily is present, use its config, else use a default glow
+  const config = daily ? SOURCE_CONFIG[daily.source] : SOURCE_CONFIG.REVISION;
 
   return (
     <div className={`p-8 rounded-[2.5rem] bg-[#0d0d0d] border border-white/5 relative overflow-hidden ${config.glow} group transition-all duration-700 hover:border-white/10`}>
@@ -131,50 +144,93 @@ export default function DailyFocus() {
               <p className="text-[9px] text-gray-600 font-bold uppercase tracking-widest">{dateStr}</p>
             </div>
           </div>
-          <div className={`flex items-center gap-1.5 px-3 py-1.5 ${config.accentBg} ${config.accent} border ${config.accentBorder} rounded-full`}>
-            {config.icon}
-            <span className="text-[8px] font-black uppercase tracking-widest">{config.label}</span>
-          </div>
         </div>
 
-        {/* Problem Card */}
-        <div className="p-6 bg-white/[0.03] rounded-2xl border border-white/5 hover:bg-white/[0.05] transition-all">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-2">
-                <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase ${diffStyle.bg} ${diffStyle.text} border ${diffStyle.border}`}>
-                  {daily.problem.difficulty}
-                </span>
-                <span className="text-[9px] font-bold text-gray-600 uppercase tracking-widest">{daily.problem.topicName}</span>
+        <div className="grid gap-4 md:grid-cols-2">
+          {/* Regular Daily Card */}
+          {daily && (
+            <div className="p-6 bg-white/[0.03] rounded-2xl border border-white/5 hover:bg-white/[0.05] transition-all flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase ${DIFFICULTY_STYLES[daily.problem.difficulty]?.bg || DIFFICULTY_STYLES.MEDIUM.bg} ${DIFFICULTY_STYLES[daily.problem.difficulty]?.text || DIFFICULTY_STYLES.MEDIUM.text} border ${DIFFICULTY_STYLES[daily.problem.difficulty]?.border || DIFFICULTY_STYLES.MEDIUM.border}`}>
+                      {daily.problem.difficulty}
+                    </span>
+                    <span className="text-[9px] font-bold text-gray-600 uppercase tracking-widest">{daily.problem.topicName}</span>
+                  </div>
+                  <div className={`flex items-center gap-1 px-2 py-0.5 ${config.accentBg} ${config.accent} border ${config.accentBorder} rounded-full`}>
+                    {config.icon}
+                    <span className="text-[8px] font-black uppercase tracking-widest">{config.label}</span>
+                  </div>
+                </div>
+                <h4 className="text-base font-black text-white mb-2 break-words">{daily.problem.title}</h4>
+                <p className="text-[11px] text-gray-400 leading-relaxed mb-4">
+                  <Brain size={11} className="inline mr-1 -mt-0.5" />
+                  {daily.reason}
+                </p>
               </div>
-              <h4 className="text-base font-black text-white mb-2 break-words">{daily.problem.title}</h4>
-              <p className="text-[11px] text-gray-400 leading-relaxed break-words">
-                <Brain size={11} className="inline mr-1 -mt-0.5" />
-                {daily.reason}
-              </p>
-            </div>
 
-            <div className="flex items-center gap-2 shrink-0">
-              {daily.problem.link && (
+              <div className="flex items-center gap-2">
+                {daily.problem.link && (
+                  <a
+                    href={daily.problem.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg shadow-white/10"
+                  >
+                    Solve Now
+                    <ExternalLink size={12} />
+                  </a>
+                )}
+                <Link
+                  href="/topics"
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white/5 text-gray-300 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all border border-white/5"
+                >
+                  View
+                  <ArrowRight size={12} />
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {/* LeetCode Daily Challenge Card */}
+          {dailyLc && dailyLc.question && (
+            <div className="p-6 bg-[#222]/50 rounded-2xl border border-white/5 hover:bg-[#222]/80 transition-all flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase ${DIFFICULTY_STYLES[dailyLc.question.difficulty.toUpperCase()]?.bg || DIFFICULTY_STYLES.MEDIUM.bg} ${DIFFICULTY_STYLES[dailyLc.question.difficulty.toUpperCase()]?.text || DIFFICULTY_STYLES.MEDIUM.text} border ${DIFFICULTY_STYLES[dailyLc.question.difficulty.toUpperCase()]?.border || DIFFICULTY_STYLES.MEDIUM.border}`}>
+                      {dailyLc.question.difficulty}
+                    </span>
+                    <span className="text-[9px] font-bold text-gray-600 uppercase tracking-widest">
+                      {dailyLc.question.topicTags?.[0]?.name || 'LeetCode'}
+                    </span>
+                  </div>
+                  <div className={`flex items-center gap-1 px-2 py-0.5 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 rounded-full`}>
+                    <Zap size={10} />
+                    <span className="text-[8px] font-black uppercase tracking-widest">Global Daily</span>
+                  </div>
+                </div>
+                <h4 className="text-base font-black text-white mb-2 break-words">{dailyLc.question.title}</h4>
+                <p className="text-[11px] text-gray-400 leading-relaxed mb-4">
+                  <img src="https://leetcode.com/static/images/LeetCode_logo_rvs.png" className="inline w-3 h-3 mr-1.5 grayscale opacity-70" alt="" />
+                  LeetCode's official problem of the day. Keep your streak alive!
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
                 <a
-                  href={daily.problem.link}
+                  href={`https://leetcode.com${dailyLc.link}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-5 py-2.5 bg-white text-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg shadow-white/10"
+                  className="flex-1 flex items-center justify-center gap-2 px-5 py-2.5 bg-[#ffa116] text-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#ffb84d] hover:scale-105 active:scale-95 transition-all shadow-lg shadow-[#ffa116]/20"
                 >
-                  Solve Now
+                  Attempt Challenge
                   <ExternalLink size={12} />
                 </a>
-              )}
-              <Link
-                href="/topics"
-                className="flex items-center gap-2 px-4 py-2.5 bg-white/5 text-gray-300 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all border border-white/5"
-              >
-                View
-                <ArrowRight size={12} />
-              </Link>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

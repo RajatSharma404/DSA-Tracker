@@ -168,7 +168,7 @@ function TopicAccordion({ topic, index, isExpanded, onToggle }: { topic: Topic, 
                       )}>
                         {problem.title}
                       </span>
-                      <div className="flex items-center gap-3 mt-1.5">
+                      <div className="flex items-center gap-3 mt-1.5 flex-wrap">
                         <span className={cn(
                           "text-xs px-2 py-0.5 rounded-full font-medium tracking-wide",
                           problem.difficulty === 'EASY' && "bg-green-500/10 text-green-500",
@@ -180,6 +180,16 @@ function TopicAccordion({ topic, index, isExpanded, onToggle }: { topic: Topic, 
                         {problem.status === 'DONE' && problem.timeSpent > 0 && (
                           <span className="text-xs text-gray-500 flex items-center gap-1">
                             <Clock size={12} /> {problem.timeSpent}m
+                          </span>
+                        )}
+                        {(problem as any).leetcodeRuntime && (
+                          <span className="text-[10px] font-mono text-gray-400 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded flex items-center gap-1">
+                            <Sparkles size={10} className="text-yellow-400" /> {(problem as any).leetcodeRuntime}
+                          </span>
+                        )}
+                        {(problem as any).leetcodeMemory && (
+                          <span className="text-[10px] font-mono text-gray-400 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded flex items-center gap-1">
+                            ⬇️ {(problem as any).leetcodeMemory}
                           </span>
                         )}
                       </div>

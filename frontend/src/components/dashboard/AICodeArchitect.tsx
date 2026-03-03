@@ -175,6 +175,49 @@ export default function AICodeArchitect({ problemId, problemTitle }: AICodeArchi
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  const [submissions, setSubmissions] = useState<any[]>([]);
+  const [fetchingSubs, setFetchingSubs] = useState(false);
+  const [selectedSubmissionId, setSelectedSubmissionId] = useState<string | null>(null);
+
+  const slugify = (text: string) => text.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^\w-]+/g, '').replace(/--+/g, '-');
+
+  React.useEffect(() => {
+    if (isOpen && submissions.length === 0) {
+      loadSubmissions();
+    }
+  }, [isOpen]);
+
+  const loadSubmissions = async () => {
+    setFetchingSubs(true);
+    try {
+      const slug = slugify(problemTitle);
+      const subs = await dsaApi.getLeetcodeSubmissions(slug);
+      setSubmissions(subs || []);
+    } catch (err) {
+      console.log('Failed to fetch subs, session might not be set or valid.', err);
+    } finally {
+      setFetchingSubs(false);
+    }
+  };
+
+  const handleSelectSubmission = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const subId = e.target.value;
+    setSelectedSubmissionId(subId);
+    if (!subId) return;
+    
+    setCode('// Fetching submission code...\n');
+    try {
+      const details = await dsaApi.getLeetcodeSubmissionCode(subId);
+      if (details?.code) {
+        setCode(details.code);
+      } else {
+        setCode('// Failed to get code for submission');
+      }
+    } catch (err) {
+      setCode('// Error fetching code. Make sure your session is valid.');
+    }
+  };
+
   const handleReview = async () => {
     if (!code.trim()) return;
     
@@ -203,6 +246,7 @@ export default function AICodeArchitect({ problemId, problemTitle }: AICodeArchi
     if (window.confirm("Clear code and results?")) {
       setCode('');
       setReview(null);
+      setSelectedSubmissionId(null);
     }
   };
 
@@ -243,6 +287,33 @@ export default function AICodeArchitect({ problemId, problemTitle }: AICodeArchi
                   </div>
                </div>
 
+               {/* Submissions Dropdown */}
+               {submissions.length > 0 && (
+                  <div className="px-6 py-3 bg-[#0c0c0c] border-b border-white/5 flex gap-3 flex-wrap items-center">
+                    <span className="text-[10px] uppercase font-black tracking-widest text-blue-400 flex items-center gap-2">
+                      <Zap size={12} className="text-yellow-400" />
+                      Sync Solution from LeetCode
+                    </span>
+                    <select 
+                      className="bg-black border border-white/10 rounded-md text-xs font-mono text-gray-300 px-3 py-1.5 focus:border-blue-500 outline-none hover:bg-white/5 transition"
+                      onChange={handleSelectSubmission}
+                      value={selectedSubmissionId || ''}
+                    >
+                      <option value="">-- Manual Code Input --</option>
+                      {submissions.map((s: any) => (
+                        <option key={s.id} value={s.id}>
+                          {s.statusDisplay} ({s.lang}) - {new Date(s.timestamp * 1000).toLocaleString()}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+               )}
+               {fetchingSubs && submissions.length === 0 && (
+                 <div className="px-6 py-3 bg-[#0c0c0c] border-b border-white/5 text-[10px] text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                   <Loader2 size={12} className="animate-spin text-blue-400" /> Checking LeetCode for recent submissions...
+                 </div>
+               )}
+
                {/* Textarea */}
                <div className="relative">
                   <textarea
@@ -277,7 +348,7 @@ export default function AICodeArchitect({ problemId, problemTitle }: AICodeArchi
                         : 'bg-white text-black hover:scale-105 active:scale-95 shadow-xl shadow-white/10'}
                     `}
                   >
-                    {loading ? <Loader2 size={14} className="animate-spin" /> : <Zap size={14} />}
+                    {loading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
                     {loading ? 'Processing...' : 'Run Analysis'}
                   </button>
                </div>
