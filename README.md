@@ -2,7 +2,7 @@
 
 A full-stack web application to track your Data Structures & Algorithms journey with AI-powered code evaluation, visual roadmaps, spaced repetition, and more — built with Next.js 15, Express.js, PostgreSQL, and Google Gemini AI.
 
-![Tech Stack](https://img.shields.io/badge/Next.js-16-black?logo=next.js) ![Express](https://img.shields.io/badge/Express-5-lightgrey?logo=express) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue?logo=postgresql) ![Prisma](https://img.shields.io/badge/Prisma-5-2D3748?logo=prisma) ![Gemini](https://img.shields.io/badge/Gemini_AI-powered-4285F4?logo=google)
+![Tech Stack](https://img.shields.io/badge/Next.js-15-black?logo=next.js) ![Express](https://img.shields.io/badge/Express-5-lightgrey?logo=express) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue?logo=postgresql) ![Prisma](https://img.shields.io/badge/Prisma-5-2D3748?logo=prisma) ![Gemini](https://img.shields.io/badge/Gemini_AI-powered-4285F4?logo=google)
 
 ---
 
