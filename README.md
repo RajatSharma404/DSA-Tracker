@@ -1,6 +1,6 @@
 # DSA Roadmap Tracker
 
-A full-stack web application to track your Data Structures & Algorithms journey with AI-powered code evaluation, visual roadmaps, spaced repetition, and more — built with Next.js 16, Express.js, PostgreSQL, and Google Gemini AI.
+A full-stack web application to track your Data Structures & Algorithms journey with AI-powered code evaluation, visual roadmaps, spaced repetition, and more — built with Next.js 15, Express.js, PostgreSQL, and Google Gemini AI.
 
 ![Tech Stack](https://img.shields.io/badge/Next.js-16-black?logo=next.js) ![Express](https://img.shields.io/badge/Express-5-lightgrey?logo=express) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue?logo=postgresql) ![Prisma](https://img.shields.io/badge/Prisma-5-2D3748?logo=prisma) ![Gemini](https://img.shields.io/badge/Gemini_AI-powered-4285F4?logo=google)
 
@@ -51,7 +51,7 @@ A full-stack web application to track your Data Structures & Algorithms journey 
 
 ## 🛠 Tech Stack
 
-**Frontend:** Next.js 16 · React 19 · Tailwind CSS 4 · ReactFlow · Recharts · Monaco Editor · Lucide Icons
+**Frontend:** Next.js 15· React 19 · Tailwind CSS 4 · ReactFlow · Recharts · Monaco Editor · Lucide Icons
 
 **Backend:** Express.js 5 · Prisma ORM · PostgreSQL · Google Gemini AI · JWT
 
@@ -84,7 +84,7 @@ You'll also need:
 ### Step 1 — Clone the Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/RajatSharma404/DSA-Tracker.git
 cd DSA-Tracker
 ```
 
@@ -93,7 +93,7 @@ cd DSA-Tracker
 The project uses PostgreSQL via Docker. Start it with one command:
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 This starts a PostgreSQL 15 container on port `5432` with database `dsatracker`.
