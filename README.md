@@ -16,8 +16,10 @@ A full-stack web application to track your Data Structures & Algorithms journey 
 6. [How to Use](#-how-to-use)
 7. [Project Structure](#-project-structure)
 8. [Environment Variables Reference](#-environment-variables-reference)
-9. [Deployment (Linux Service)](#-deployment-linux-service)
+9. [Deployment](#-deployment)
 10. [Troubleshooting](#-troubleshooting)
+11. [Contributing](#-contributing)
+12. [License](#-license)
 
 ---
 
@@ -360,36 +362,26 @@ DSA-Tracker/
 
 ---
 
-## 🖥 Deployment (Linux Service)
+## 🖥 Deployment
 
-For production deployment on a Linux server using `systemd`:
+For full production deployment instructions — including server setup, Nginx reverse proxy, SSL, database backups, and running with systemd or PM2 — see the **[Deployment Guide](DEPLOYMENT.md)**.
 
-### 1. Prepare
-
-Make sure `dsa-tracker.service` has the correct `User`, `WorkingDirectory`, and `ExecStart` paths for your server.
-
-### 2. Install the Service
+**Quick start (systemd):**
 
 ```bash
+# Edit dsa-tracker.service with your paths, then:
 sudo cp dsa-tracker.service /etc/systemd/system/dsa-tracker.service
 sudo systemctl daemon-reload
+sudo systemctl enable --now dsa-tracker
 ```
 
-### 3. Control the Service
+**Quick start (PM2):**
 
-| Action         | Command                             |
-| -------------- | ----------------------------------- |
-| **Start**      | `sudo systemctl start dsa-tracker`  |
-| **Stop**       | `sudo systemctl stop dsa-tracker`   |
-| **Status**     | `sudo systemctl status dsa-tracker` |
-| **Check Logs** | `journalctl -u dsa-tracker -f`      |
-
-> Alternatively, use PM2 with the included `ecosystem.config.js`:
->
-> ```bash
-> npm install -g pm2
-> pm2 start ecosystem.config.js
-> ```
+```bash
+npm install -g pm2
+pm2 start ecosystem.config.js
+pm2 save && pm2 startup
+```
 
 ---
 
@@ -408,6 +400,14 @@ sudo systemctl daemon-reload
 
 ---
 
-## License
+## 🤝 Contributing
 
-MIT
+Contributions are welcome! Please read the **[Contributing Guide](CONTRIBUTING.md)** for details on the development workflow, commit conventions, and pull request process.
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+
+You are free to use, modify, and distribute this software for personal or commercial purposes.
