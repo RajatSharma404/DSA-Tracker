@@ -83,7 +83,7 @@ You'll also need:
 ### Step 1 — Clone the Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/RajatSharma404/DSA-Tracker.git
 cd DSA-Tracker
 ```
 
