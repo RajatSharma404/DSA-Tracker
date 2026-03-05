@@ -16,10 +16,11 @@ A full-stack web application to track your Data Structures & Algorithms journey 
 6. [How to Use](#-how-to-use)
 7. [Project Structure](#-project-structure)
 8. [Environment Variables Reference](#-environment-variables-reference)
-9. [Deployment](#-deployment)
-10. [Troubleshooting](#-troubleshooting)
-11. [Contributing](#-contributing)
-12. [License](#-license)
+9. [Browser Extension](#-browser-extension)
+10. [Deployment](#-deployment)
+11. [Troubleshooting](#-troubleshooting)
+12. [Contributing](#-contributing)
+13. [License](#-license)
 
 ---
 
@@ -359,6 +360,23 @@ DSA-Tracker/
 | `NEXTAUTH_SECRET`      | Yes      | JWT signing secret (must match backend)                    |
 | `GOOGLE_CLIENT_ID`     | Yes      | Google OAuth Client ID                                     |
 | `GOOGLE_CLIENT_SECRET` | Yes      | Google OAuth Client Secret                                 |
+
+---
+
+## 🧩 Browser Extension
+
+The project includes a Chrome/Edge extension (`extension/` folder) that automatically syncs your LeetCode accepted submissions to the tracker.
+
+### Installation
+
+1. Open `chrome://extensions` (or `edge://extensions` for Edge)
+2. Enable **Developer mode** (toggle in the top-right)
+3. Click **Load unpacked**
+4. Select the `extension/` folder from this repository
+
+The extension activates on LeetCode problem pages and pings your backend when you get an **Accepted** submission.
+
+> **Sharing:** To share the extension with others, zip the `extension/` folder. They can extract it and load it the same way.
 
 ---
 
