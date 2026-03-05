@@ -92,7 +92,7 @@ cd DSA-Tracker
 The project uses PostgreSQL via Docker. Start it with one command:
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 This starts a PostgreSQL 15 container on port `5432` with database `dsatracker`.
