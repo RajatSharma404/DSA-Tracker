@@ -51,7 +51,7 @@ A full-stack web application to track your Data Structures & Algorithms journey 
 
 ## 🛠 Tech Stack
 
-**Frontend:** Next.js 15· React 19 · Tailwind CSS 4 · ReactFlow · Recharts · Monaco Editor · Lucide Icons
+**Frontend:** Next.js 15 · React 19 · Tailwind CSS 4 · ReactFlow · Recharts · Monaco Editor · Lucide Icons
 
 **Backend:** Express.js 5 · Prisma ORM · PostgreSQL · Google Gemini AI · JWT
 
