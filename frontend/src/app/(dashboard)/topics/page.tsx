@@ -2,7 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { dsaApi, Topic, Problem } from "@/lib/api";
-import { ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, ExternalLink, Sparkles, Loader2 } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  CheckCircle2,
+  Circle,
+  Clock,
+  ExternalLink,
+  Sparkles,
+  Loader2,
+  Code2,
+} from "lucide-react";
 import Link from "next/link";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -46,17 +56,21 @@ export default function TopicsPage() {
     <div className="max-w-4xl mx-auto space-y-8 animate-in mt-4 fade-in duration-500">
       <div>
         <h1 className="text-3xl font-bold tracking-tight mb-2">DSA Topics</h1>
-        <p className="text-gray-400">Master these topics sequentially to build a strong foundation.</p>
+        <p className="text-gray-400">
+          Master these topics sequentially to build a strong foundation.
+        </p>
       </div>
 
       <div className="space-y-4">
         {topics.map((topic, index) => (
-          <TopicAccordion 
-            key={topic.id} 
-            topic={topic} 
+          <TopicAccordion
+            key={topic.id}
+            topic={topic}
             index={index}
             isExpanded={expandedTopic === topic.id}
-            onToggle={() => setExpandedTopic(expandedTopic === topic.id ? null : topic.id)}
+            onToggle={() =>
+              setExpandedTopic(expandedTopic === topic.id ? null : topic.id)
+            }
           />
         ))}
       </div>
@@ -64,42 +78,60 @@ export default function TopicsPage() {
   );
 }
 
-function TopicAccordion({ topic, index, isExpanded, onToggle }: { topic: Topic, index: number, isExpanded: boolean, onToggle: () => void }) {
+function TopicAccordion({
+  topic,
+  index,
+  isExpanded,
+  onToggle,
+}: {
+  topic: Topic;
+  index: number;
+  isExpanded: boolean;
+  onToggle: () => void;
+}) {
   const [problems, setProblems] = useState<Problem[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (isExpanded && problems.length === 0) {
       setLoading(true);
-      dsaApi.getTopicProblems(topic.id)
+      dsaApi
+        .getTopicProblems(topic.id)
         .then(setProblems)
         .catch(console.error)
         .finally(() => setLoading(false));
     }
   }, [isExpanded, topic.id, problems.length]);
 
-  const handleProgressUpdate = async (problemId: string, currentStatus: string) => {
-    const newStatus = currentStatus === 'DONE' ? 'TODO' : 'DONE';
-    
+  const handleProgressUpdate = async (
+    problemId: string,
+    currentStatus: string,
+  ) => {
+    const newStatus = currentStatus === "DONE" ? "TODO" : "DONE";
+
     // Optimistic UI update
-    setProblems(prev => prev.map(p => 
-      p.id === problemId ? { ...p, status: newStatus as any } : p
-    ));
+    setProblems((prev) =>
+      prev.map((p) =>
+        p.id === problemId ? { ...p, status: newStatus as any } : p,
+      ),
+    );
 
     try {
       await dsaApi.updateProgress(problemId, newStatus as any, 0);
-    } catch(err) {
+    } catch (err) {
       console.error("Failed to update progress:", err);
       // Revert on error
-      setProblems(prev => prev.map(p => 
-        p.id === problemId ? { ...p, status: currentStatus as any } : p
-      ));
+      setProblems((prev) =>
+        prev.map((p) =>
+          p.id === problemId ? { ...p, status: currentStatus as any } : p,
+        ),
+      );
     }
-  }
+  };
 
   return (
     <div className="bg-[#111] border border-[#222] rounded-xl overflow-hidden transition-all duration-300">
-      <div 
+      <div
         onClick={onToggle}
         className="flex items-center justify-between p-5 cursor-pointer hover:bg-[#1a1a1a] transition-colors"
       >
@@ -109,22 +141,30 @@ function TopicAccordion({ topic, index, isExpanded, onToggle }: { topic: Topic, 
           </div>
           <div>
             <h3 className="font-semibold text-lg text-white">{topic.name}</h3>
-            {topic.description && <p className="text-sm text-gray-400 mt-1">{topic.description}</p>}
+            {topic.description && (
+              <p className="text-sm text-gray-400 mt-1">{topic.description}</p>
+            )}
           </div>
         </div>
-        
+
         <div className="flex items-center gap-6">
           <div className="hidden sm:flex flex-col items-end">
-            <span className="text-sm font-medium text-gray-300">{topic.progressPercentage}%</span>
+            <span className="text-sm font-medium text-gray-300">
+              {topic.progressPercentage}%
+            </span>
             <div className="w-24 h-1.5 bg-[#222] rounded-full mt-2 hidden sm:block">
-              <div 
+              <div
                 className="h-full bg-white transition-all duration-500 rounded-full"
                 style={{ width: `${topic.progressPercentage}%` }}
               />
             </div>
           </div>
           <div className="text-gray-500">
-            {isExpanded ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+            {isExpanded ? (
+              <ChevronDown size={20} />
+            ) : (
+              <ChevronRight size={20} />
+            )}
           </div>
         </div>
       </div>
@@ -134,57 +174,71 @@ function TopicAccordion({ topic, index, isExpanded, onToggle }: { topic: Topic, 
           <TopicStudyGuide topicName={topic.name} />
           <TopicStrategy topicId={topic.id} />
           {loading ? (
-             <div className="py-8 text-center text-gray-500 text-sm animate-pulse">Loading problems...</div>
+            <div className="py-8 text-center text-gray-500 text-sm animate-pulse">
+              Loading problems...
+            </div>
           ) : (
             <div className="space-y-2">
-              {problems.map(problem => (
-                <div 
+              {problems.map((problem) => (
+                <div
                   key={problem.id}
                   className={cn(
                     "flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-lg border border-transparent transition-all",
-                    problem.status === 'DONE' 
-                      ? "bg-[#111]/50 opacity-70" 
-                      : "bg-[#111] hover:border-[#333]"
+                    problem.status === "DONE"
+                      ? "bg-[#111]/50 opacity-70"
+                      : "bg-[#111] hover:border-[#333]",
                   )}
                 >
                   <div className="flex items-start sm:items-center gap-3">
-                    <button 
+                    <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleProgressUpdate(problem.id, problem.status);
                       }}
                       className="mt-1 sm:mt-0 flex-shrink-0 focus:outline-none"
                     >
-                      {problem.status === 'DONE' ? (
+                      {problem.status === "DONE" ? (
                         <CheckCircle2 size={20} className="text-green-500" />
                       ) : (
-                        <Circle size={20} className="text-gray-500 hover:text-white transition-colors" />
+                        <Circle
+                          size={20}
+                          className="text-gray-500 hover:text-white transition-colors"
+                        />
                       )}
                     </button>
                     <div>
-                      <span className={cn(
-                        "font-medium tracking-tight",
-                        problem.status === 'DONE' && "line-through text-gray-500"
-                      )}>
+                      <span
+                        className={cn(
+                          "font-medium tracking-tight",
+                          problem.status === "DONE" &&
+                            "line-through text-gray-500",
+                        )}
+                      >
                         {problem.title}
                       </span>
                       <div className="flex items-center gap-3 mt-1.5 flex-wrap">
-                        <span className={cn(
-                          "text-xs px-2 py-0.5 rounded-full font-medium tracking-wide",
-                          problem.difficulty === 'EASY' && "bg-green-500/10 text-green-500",
-                          problem.difficulty === 'MEDIUM' && "bg-yellow-500/10 text-yellow-500",
-                          problem.difficulty === 'HARD' && "bg-red-500/10 text-red-500",
-                        )}>
+                        <span
+                          className={cn(
+                            "text-xs px-2 py-0.5 rounded-full font-medium tracking-wide",
+                            problem.difficulty === "EASY" &&
+                              "bg-green-500/10 text-green-500",
+                            problem.difficulty === "MEDIUM" &&
+                              "bg-yellow-500/10 text-yellow-500",
+                            problem.difficulty === "HARD" &&
+                              "bg-red-500/10 text-red-500",
+                          )}
+                        >
                           {problem.difficulty}
                         </span>
-                        {problem.status === 'DONE' && problem.timeSpent > 0 && (
+                        {problem.status === "DONE" && problem.timeSpent > 0 && (
                           <span className="text-xs text-gray-500 flex items-center gap-1">
                             <Clock size={12} /> {problem.timeSpent}m
                           </span>
                         )}
                         {(problem as any).leetcodeRuntime && (
                           <span className="text-[10px] font-mono text-gray-400 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded flex items-center gap-1">
-                            <Sparkles size={10} className="text-yellow-400" /> {(problem as any).leetcodeRuntime}
+                            <Sparkles size={10} className="text-yellow-400" />{" "}
+                            {(problem as any).leetcodeRuntime}
                           </span>
                         )}
                         {(problem as any).leetcodeMemory && (
@@ -194,25 +248,41 @@ function TopicAccordion({ topic, index, isExpanded, onToggle }: { topic: Topic, 
                         )}
                       </div>
                       <div className="flex flex-wrap gap-2 mt-2">
-                        {problem.status !== 'DONE' && (
-                          <AIMentorHint problemId={problem.id} problemTitle={problem.title} />
+                        {problem.status !== "DONE" && (
+                          <AIMentorHint
+                            problemId={problem.id}
+                            problemTitle={problem.title}
+                          />
                         )}
-                        <AICodeArchitect problemId={problem.id} problemTitle={problem.title} />
+                        <AICodeArchitect
+                          problemId={problem.id}
+                          problemTitle={problem.title}
+                        />
                       </div>
                       <ProblemNotes problemId={problem.id} />
                     </div>
                   </div>
-                  
-                  {problem.link && (
-                    <a 
-                      href={problem.link} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="mt-4 sm:mt-0 flex items-center gap-1.5 text-sm text-blue-400 hover:text-blue-300 transition-colors bg-blue-500/10 px-3 py-1.5 rounded w-fit sm:w-auto"
+
+                  <div className="flex gap-2 mt-4 sm:mt-0">
+                    <Link
+                      href={`/problems/${problem.id}`}
+                      className="flex items-center gap-1.5 text-sm text-white font-medium hover:text-white transition-colors bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 px-4 py-2 rounded-lg shadow-lg shadow-blue-500/20"
                     >
-                      Solve <ExternalLink size={14} />
-                    </a>
-                  )}
+                      <Code2 size={14} />
+                      Solve
+                    </Link>
+                    {problem.link && (
+                      <a
+                        href={problem.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-300 transition-colors bg-white/5 hover:bg-white/10 px-3 py-2 rounded-lg"
+                        title="Open in LeetCode"
+                      >
+                        <ExternalLink size={14} />
+                      </a>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -247,14 +317,16 @@ function TopicStrategy({ topicId }: { topicId: string }) {
 
   return (
     <div className="mb-6">
-      <button 
+      <button
         onClick={fetchStrategy}
         className="flex items-center gap-2 text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors"
       >
         <Sparkles size={14} />
-        {isOpen ? 'Hide Mentor Strategy' : 'Show AI Mentor Strategy for this Topic'}
+        {isOpen
+          ? "Hide Mentor Strategy"
+          : "Show AI Mentor Strategy for this Topic"}
       </button>
-      
+
       {isOpen && (
         <div className="mt-4 p-6 bg-blue-500/5 border border-blue-500/10 rounded-2xl animate-in fade-in zoom-in-95">
           <div className="prose prose-invert prose-sm max-w-none">

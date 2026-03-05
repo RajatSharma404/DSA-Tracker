@@ -2,7 +2,25 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, BookOpen, Clock, Target, Menu, LogOut, ShieldCheck, Network, Zap, Library, BarChart3, Trophy, FileText } from "lucide-react";
+import {
+  LayoutDashboard,
+  BookOpen,
+  Clock,
+  Target,
+  Menu,
+  LogOut,
+  ShieldCheck,
+  Network,
+  Zap,
+  Library,
+  BarChart3,
+  Trophy,
+  FileText,
+  Settings,
+  Search,
+  RotateCcw,
+  Brain,
+} from "lucide-react";
 import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
@@ -15,19 +33,27 @@ const navItems = [
   { icon: BarChart3, label: "Analytics", href: "/analytics" },
   { icon: Trophy, label: "Achievements", href: "/achievements" },
   { icon: FileText, label: "Weekly Report", href: "/weekly-report" },
+  { icon: Search, label: "Explore", href: "/search" },
+  { icon: RotateCcw, label: "Review Queue", href: "/review" },
+  { icon: Brain, label: "AI Recommend", href: "/recommendations" },
   { icon: Zap, label: "The Arena", href: "/challenge" },
   { icon: Target, label: "Mock Interviews", href: "/interviews" },
+  { icon: Settings, label: "Settings", href: "/settings" },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const { data: session } = useSession();
-  
-  const isAdmin = (session?.user as any)?.role === 'ADMIN';
+
+  const isAdmin = (session?.user as any)?.role === "ADMIN";
   const displayItems = [...navItems];
   if (isAdmin) {
-    displayItems.push({ icon: ShieldCheck, label: "Admin Panel", href: "/admin" });
+    displayItems.push({
+      icon: ShieldCheck,
+      label: "Admin Panel",
+      href: "/admin",
+    });
   }
 
   return (
@@ -37,7 +63,9 @@ export function Sidebar() {
       }`}
     >
       <div className="flex items-center justify-between p-4 border-b border-[#222]">
-        {!collapsed && <span className="text-white font-bold text-lg">DSA Pro</span>}
+        {!collapsed && (
+          <span className="text-white font-bold text-lg">DSA Pro</span>
+        )}
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="p-1 rounded hover:bg-[#222] text-gray-400 hover:text-white transition-colors ml-auto"
@@ -48,7 +76,9 @@ export function Sidebar() {
 
       <nav className="flex-1 py-4 space-y-1">
         {displayItems.map((item) => {
-          const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
+          const isActive =
+            pathname === item.href ||
+            (item.href !== "/" && pathname.startsWith(item.href));
           return (
             <Link
               key={item.href}
@@ -60,7 +90,9 @@ export function Sidebar() {
               }`}
             >
               <item.icon size={20} className={isActive ? "text-white" : ""} />
-              {!collapsed && <span className="ml-3 font-medium">{item.label}</span>}
+              {!collapsed && (
+                <span className="ml-3 font-medium">{item.label}</span>
+              )}
             </Link>
           );
         })}
@@ -70,22 +102,30 @@ export function Sidebar() {
         {session?.user && !collapsed && (
           <div className="flex items-center gap-3 mb-4">
             {session.user.image ? (
-              <img src={session.user.image} alt="Profile" className="w-8 h-8 rounded-full" />
+              <img
+                src={session.user.image}
+                alt="Profile"
+                className="w-8 h-8 rounded-full"
+              />
             ) : (
               <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-white text-xs">
-                {session.user.name?.charAt(0) || 'U'}
+                {session.user.name?.charAt(0) || "U"}
               </div>
             )}
             <div className="flex flex-col overflow-hidden">
-              <span className="text-sm font-medium text-white truncate">{session.user.name}</span>
-              <span className="text-xs text-gray-500 truncate">{session.user.email}</span>
+              <span className="text-sm font-medium text-white truncate">
+                {session.user.name}
+              </span>
+              <span className="text-xs text-gray-500 truncate">
+                {session.user.email}
+              </span>
             </div>
           </div>
         )}
-        
+
         <button
-          onClick={() => signOut({ callbackUrl: '/login' })}
-          className={`flex items-center w-full px-2 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-[#222] rounded-lg transition-colors ${collapsed ? 'justify-center' : ''}`}
+          onClick={() => signOut({ callbackUrl: "/login" })}
+          className={`flex items-center w-full px-2 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-[#222] rounded-lg transition-colors ${collapsed ? "justify-center" : ""}`}
         >
           <LogOut size={20} />
           {!collapsed && <span className="ml-3">Sign Out</span>}

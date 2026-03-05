@@ -54,6 +54,9 @@ model User {
   sessions         Session[]
   challengeSessions ChallengeSession[]
   notes            ProblemNote[]
+  solutions        SolutionHistory[]
+  bookmarks        Bookmark[]
+  tags             UserTag[]
 }
 
 model Topic {
@@ -96,6 +99,9 @@ model Problem {
   topic      Topic      @relation(fields: [topicId], references: [id], onDelete: Cascade)
   progress   Progress[]
   notes      ProblemNote[]
+  solutions  SolutionHistory[]
+  bookmarks  Bookmark[]
+  problemTags ProblemTag[]
 }
 
 model ProblemNote {
@@ -186,4 +192,64 @@ enum ProgressStatus {
 enum Role {
   USER
   ADMIN
+}
+
+// === New Feature Models ===
+
+model SolutionHistory {
+  id          String   @id @default(uuid())
+  userId      String
+  problemId   String
+  code        String
+  language    String
+  isCorrect   Boolean  @default(false)
+  score       Int      @default(0)
+  verdict     String?
+  timeComplexity  String?
+  spaceComplexity String?
+  isOptimal   Boolean  @default(false)
+  isAIGenerated String @default("UNKNOWN") // HUMAN, AI_GENERATED, AI_ASSISTED, TEMPLATE, UNKNOWN
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem     Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@index([userId, problemId])
+  @@map("solution_history")
+}
+
+model Bookmark {
+  id        String   @id @default(uuid())
+  userId    String
+  problemId String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, problemId])
+  @@map("bookmarks")
+}
+
+model UserTag {
+  id        String       @id @default(uuid())
+  userId    String
+  name      String
+  color     String       @default("#6366f1")
+  createdAt DateTime     @default(now())
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problems  ProblemTag[]
+
+  @@unique([userId, name])
+  @@map("user_tags")
+}
+
+model ProblemTag {
+  id        String   @id @default(uuid())
+  problemId String
+  tagId     String
+  createdAt DateTime @default(now())
+  problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  tag       UserTag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([problemId, tagId])
+  @@map("problem_tags")
 }
