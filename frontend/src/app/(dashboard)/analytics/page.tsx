@@ -542,7 +542,9 @@ export default function AnalyticsPage() {
               )}
 
             {/* Difficulty Distribution */}
-            {productivity.difficultyDistribution && (
+            {productivity.difficultyDistribution &&
+  Array.isArray(productivity.difficultyDistribution) &&
+  productivity.difficultyDistribution.length > 0 &&  (
               <div className="p-6 bg-[#0a0a0f] border border-white/5 rounded-2xl">
                 <h3 className="text-xs font-black text-gray-400 uppercase tracking-wider mb-4">
                   Difficulty Distribution
