@@ -51,7 +51,12 @@ export default function Dashboard() {
     );
   }
 
-  if (!stats) return null;
+  if (!stats) return (
+    <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
+      <p className="text-gray-400 text-lg">Failed to load dashboard data.</p>
+      <p className="text-gray-600 text-sm">Make sure the backend is running and <code>NEXT_PUBLIC_API_URL</code> is set correctly.</p>
+    </div>
+  );
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
