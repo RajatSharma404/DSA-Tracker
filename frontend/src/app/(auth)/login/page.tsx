@@ -2,14 +2,27 @@
 
 import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { Activity, LayoutDashboard, Target, Zap } from "lucide-react";
+
+function ErrorMessage() {
+  const searchParams = useSearchParams();
+  const error = searchParams.get("error");
+  if (!error) return null;
+  return (
+    <div className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-red-400 text-sm text-center">
+      {error === "OAuthAccountNotLinked"
+        ? "This email is already linked to another account."
+        : error === "AccessDenied"
+          ? "Access denied. Please try again."
+          : `Sign in error: ${error}`}
+    </div>
+  );
+}
 
 export default function LoginPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const error = searchParams.get("error");
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -57,15 +70,10 @@ export default function LoginPage() {
               </p>
             </div>
 
-            {error && (
-              <div className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-red-400 text-sm text-center">
-                {error === "OAuthAccountNotLinked"
-                  ? "This email is already linked to another account."
-                  : error === "AccessDenied"
-                    ? "Access denied. Please try again."
-                    : `Sign in error: ${error}`}
-              </div>
-            )}
+            {/* Error message from OAuth callback */}
+            <Suspense fallback={null}>
+              <ErrorMessage />
+            </Suspense>
 
             <button
               onClick={() => signIn("google", { callbackUrl: "/" })}
