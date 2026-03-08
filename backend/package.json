@@ -5,8 +5,9 @@
   "main": "index.ts",
   "scripts": {
     "dev": "ts-node index.ts",
-    "build": "npx tsc",
-    "start": "ts-node index.ts"
+    "build": "npx tsc && npx prisma generate",
+    "start": "node index.js",
+    "postinstall": "npx prisma generate"
   },
   "keywords": [],
   "author": "",
