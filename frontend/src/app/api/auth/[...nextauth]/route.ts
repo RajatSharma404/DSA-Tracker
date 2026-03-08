@@ -1,13 +1,11 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
@@ -20,21 +18,40 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user, account, profile }) {
+      if (!user.email) return false;
       try {
-        if (!user.email) return false;
-        return true;
+        // Upsert user in DB manually (works without adapter)
+        await prisma.user.upsert({
+          where: { email: user.email },
+          update: { name: user.name, image: user.image },
+          create: {
+            email: user.email,
+            name: user.name,
+            image: user.image,
+            role: "USER",
+          },
+        });
       } catch (error) {
-        console.error("SignIn error:", error);
-        return false;
+        console.error("DB upsert error during signIn:", error);
+        // Still allow sign-in even if DB fails
       }
+      return true;
     },
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.role = (user as any).role;
-        // Create an access token that the Express backend can verify natively
+    async jwt({ token, user, trigger }) {
+      if (user?.email) {
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { email: user.email },
+            select: { id: true, role: true },
+          });
+          token.id = dbUser?.id ?? user.id;
+          token.role = dbUser?.role ?? "USER";
+        } catch {
+          token.id = user.id;
+          token.role = "USER";
+        }
         token.accessToken = jwt.sign(
-          { id: user.id, role: (user as any).role },
+          { id: token.id, role: token.role },
           process.env.NEXTAUTH_SECRET || "fallback_secret",
           { expiresIn: "7d" },
         );
@@ -42,7 +59,7 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      if (session.user && token.id) {
+      if (session.user) {
         session.user.id = token.id as string;
         (session.user as any).role = token.role;
         (session as any).accessToken = token.accessToken;
