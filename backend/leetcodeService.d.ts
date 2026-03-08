@@ -4,6 +4,16 @@ export declare const fetchLeetCodeSolvedProblems: (username: string) => Promise<
  * (e.g. "Two Sum" -> "two-sum")
  */
 export declare const slugify: (text: string) => string;
+/**
+ * Fetches ALL accepted problems for a user using the authenticated API.
+ * Paginates through `problemsetQuestionList` until all AC problems are retrieved.
+ * Requires a valid LEETCODE_SESSION cookie.
+ */
+export declare const fetchAllSolvedProblems: (leetcodeSession: string) => Promise<Array<{
+    title: string;
+    titleSlug: string;
+    difficulty: string;
+}>>;
 export declare const fetchProblemSubmissions: (questionSlug: string, leetcodeSession: string) => Promise<any>;
 export declare const fetchSubmissionDetails: (submissionId: string, leetcodeSession: string) => Promise<any>;
 export declare const fetchActiveDailyCodingChallengeQuestion: () => Promise<any>;

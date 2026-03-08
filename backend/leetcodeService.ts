@@ -62,6 +62,76 @@ export const slugify = (text: string) => {
     .replace(/--+/g, "-"); // Replace multiple - with single -
 };
 
+/**
+ * Fetches ALL accepted problems for a user using the authenticated API.
+ * Paginates through `problemsetQuestionList` until all AC problems are retrieved.
+ * Requires a valid LEETCODE_SESSION cookie.
+ */
+export const fetchAllSolvedProblems = async (
+  leetcodeSession: string,
+): Promise<Array<{ title: string; titleSlug: string; difficulty: string }>> => {
+  const query = `
+    query problemsetQuestionList($limit: Int, $skip: Int, $filters: QuestionListFilterInput) {
+      problemsetQuestionList: questionList(
+        categorySlug: ""
+        limit: $limit
+        skip: $skip
+        filters: $filters
+      ) {
+        total: totalNum
+        questions: data {
+          title
+          titleSlug
+          difficulty
+          status
+        }
+      }
+    }
+  `;
+
+  const all: Array<{ title: string; titleSlug: string; difficulty: string }> =
+    [];
+  const pageSize = 100;
+  let skip = 0;
+  let total = Infinity;
+
+  while (skip < total) {
+    const response = await axios.post(
+      "https://leetcode.com/graphql",
+      {
+        query,
+        variables: {
+          limit: pageSize,
+          skip,
+          filters: { status: "AC" },
+        },
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: `LEETCODE_SESSION=${leetcodeSession}; csrftoken=dummy;`,
+          "x-csrftoken": "dummy",
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        },
+      },
+    );
+
+    if (response.data.errors) {
+      throw new Error(response.data.errors[0].message);
+    }
+
+    const { total: t, questions } = response.data.data.problemsetQuestionList;
+    total = t;
+    all.push(...questions);
+    skip += pageSize;
+
+    if (questions.length === 0) break;
+  }
+
+  return all;
+};
+
 export const fetchProblemSubmissions = async (
   questionSlug: string,
   leetcodeSession: string,

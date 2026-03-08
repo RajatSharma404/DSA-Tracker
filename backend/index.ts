@@ -3,6 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
+import fs from "fs";
+import path from "path";
 import {
   getRevisionReminders,
   getWeakTopics,
@@ -14,6 +16,7 @@ import {
 } from "./services";
 import {
   fetchLeetCodeSolvedProblems,
+  fetchAllSolvedProblems,
   slugify,
   fetchProblemSubmissions,
   fetchSubmissionDetails,
@@ -567,6 +570,74 @@ app.delete(
   },
 );
 
+// Seed roadmap topics + problems from dsa-roadmap-seed.json (idempotent)
+app.post(
+  "/api/admin/seed",
+  requireAuth,
+  requireAdmin,
+  async (req: Request, res: Response) => {
+    try {
+      const seedDataPath = path.join(__dirname, "../dsa-roadmap-seed.json");
+      if (!fs.existsSync(seedDataPath)) {
+        return res.status(500).json({ error: "Seed data file not found" });
+      }
+      const seedData = JSON.parse(fs.readFileSync(seedDataPath, "utf8"));
+
+      let topicsUpserted = 0;
+      let problemsUpserted = 0;
+
+      for (const topicData of seedData.topics) {
+        const topic = await prisma.topic.upsert({
+          where: { name: topicData.name },
+          update: {
+            description: topicData.description,
+            orderIndex: topicData.order,
+          },
+          create: {
+            name: topicData.name,
+            description: topicData.description,
+            orderIndex: topicData.order,
+          },
+        });
+        topicsUpserted++;
+
+        for (const problemData of topicData.problems) {
+          const existing = await prisma.problem.findFirst({
+            where: { title: problemData.title, topicId: topic.id },
+          });
+
+          if (existing) {
+            await prisma.problem.update({
+              where: { id: existing.id },
+              data: {
+                link: problemData.leetcode,
+                difficulty: problemData.difficulty.toUpperCase() as any,
+                orderIndex: problemData.order,
+              },
+            });
+          } else {
+            await prisma.problem.create({
+              data: {
+                title: problemData.title,
+                link: problemData.leetcode,
+                difficulty: problemData.difficulty.toUpperCase() as any,
+                orderIndex: problemData.order,
+                topicId: topic.id,
+              },
+            });
+          }
+          problemsUpserted++;
+        }
+      }
+
+      res.json({ success: true, topicsUpserted, problemsUpserted });
+    } catch (error) {
+      console.error("Seed error:", error);
+      res.status(500).json({ error: "Seed failed" });
+    }
+  },
+);
+
 // 5. Get Activity Data for Heatmap
 app.get(
   "/api/analytics/activity",
@@ -650,25 +721,41 @@ app.post(
         return res.status(400).json({ error: "LeetCode username not set" });
       }
 
-      const data = await fetchLeetCodeSolvedProblems(user.leetcodeUsername);
-      const recentSubmissions = data.recentSubmissionList || [];
-
-      // Filter only Accepted submissions and deduplicate by titleSlug to take latest
+      // Build solved problem map: prefer authenticated full-list API, fall back to recent 100
       const solvedMap = new Map<string, any>();
-      recentSubmissions.forEach((sub: any) => {
-        if (sub.statusDisplay === "Accepted") {
-          if (
-            !solvedMap.has(sub.titleSlug) ||
-            sub.timestamp > solvedMap.get(sub.titleSlug).timestamp
-          ) {
-            solvedMap.set(sub.titleSlug, sub);
-          }
-        }
-      });
 
-      console.log(
-        `Syncing LeetCode for ${user.leetcodeUsername}: Found ${solvedMap.size} unique accepted problems in last 100 submissions.`,
-      );
+      if (user.leetcodeSession) {
+        // Fetch ALL accepted problems via authenticated paginated API
+        const allSolved = await fetchAllSolvedProblems(user.leetcodeSession);
+        for (const q of allSolved) {
+          solvedMap.set(q.titleSlug, {
+            title: q.title,
+            titleSlug: q.titleSlug,
+            difficulty: q.difficulty,
+            timestamp: 0, // not available from this endpoint
+          });
+        }
+        console.log(
+          `Syncing LeetCode for ${user.leetcodeUsername}: Found ${solvedMap.size} unique accepted problems (full history via session).`,
+        );
+      } else {
+        // Unauthenticated fallback: last 100 submissions only
+        const data = await fetchLeetCodeSolvedProblems(user.leetcodeUsername);
+        const recentSubmissions = data.recentSubmissionList || [];
+        recentSubmissions.forEach((sub: any) => {
+          if (sub.statusDisplay === "Accepted") {
+            if (
+              !solvedMap.has(sub.titleSlug) ||
+              sub.timestamp > solvedMap.get(sub.titleSlug).timestamp
+            ) {
+              solvedMap.set(sub.titleSlug, sub);
+            }
+          }
+        });
+        console.log(
+          `Syncing LeetCode for ${user.leetcodeUsername}: Found ${solvedMap.size} unique accepted problems in last 100 submissions (no session set).`,
+        );
+      }
 
       const results = [];
       for (const [slug, sub] of solvedMap.entries()) {

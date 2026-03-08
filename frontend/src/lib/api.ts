@@ -155,6 +155,14 @@ export const dsaApi = {
     const res = await api.delete(`/admin/problems/${id}`);
     return res.data;
   },
+  adminSeedRoadmap: async (): Promise<{
+    success: boolean;
+    topicsUpserted: number;
+    problemsUpserted: number;
+  }> => {
+    const res = await api.post("/admin/seed");
+    return res.data;
+  },
   getActivityData: async (): Promise<
     Array<{ date: string; count: number }>
   > => {

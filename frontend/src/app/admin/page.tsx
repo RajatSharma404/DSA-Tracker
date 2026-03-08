@@ -1,7 +1,9 @@
 "use client";
 
-import { LayoutDashboard, BookOpen, Users, FolderEdit, PlusCircle } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, FolderEdit, PlusCircle, DatabaseZap } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import { dsaApi } from "@/lib/api";
 
 const adminModules = [
   {
@@ -31,7 +33,21 @@ const adminModules = [
 ];
 
 export default function AdminDashboard() {
-  return (
+  const [seeding, setSeeding] = useState(false);
+  const [seedResult, setSeedResult] = useState<string | null>(null);
+
+  const handleSeed = async () => {
+    setSeeding(true);
+    setSeedResult(null);
+    try {
+      const result = await dsaApi.adminSeedRoadmap();
+      setSeedResult(`Seeded ${result.topicsUpserted} topics and ${result.problemsUpserted} problems.`);
+    } catch (e: any) {
+      setSeedResult("Seed failed: " + (e?.response?.data?.error || e.message));
+    } finally {
+      setSeeding(false);
+    }
+  };
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Admin Control Center</h1>
@@ -74,6 +90,28 @@ export default function AdminDashboard() {
                 <p className="text-2xl font-black mt-1">--</p>
             </div>
         </div>
+      </div>
+
+      <div className="p-6 rounded-2xl bg-[#111] border border-[#222]">
+        <div className="flex items-center gap-3 mb-2">
+          <DatabaseZap size={20} className="text-green-400" />
+          <h2 className="text-lg font-bold">Seed Roadmap Data</h2>
+        </div>
+        <p className="text-sm text-gray-500 mb-4">
+          Populate (or re-sync) all DSA topics and problems from the roadmap seed file. Safe to run multiple times — existing data is updated, not duplicated.
+        </p>
+        <button
+          onClick={handleSeed}
+          disabled={seeding}
+          className="px-5 py-2 rounded-lg bg-green-600 hover:bg-green-500 disabled:opacity-50 text-sm font-semibold transition-colors"
+        >
+          {seeding ? "Seeding…" : "Run Seed"}
+        </button>
+        {seedResult && (
+          <p className={`mt-3 text-sm ${seedResult.startsWith("Seed failed") ? "text-red-400" : "text-green-400"}`}>
+            {seedResult}
+          </p>
+        )}
       </div>
     </div>
   );

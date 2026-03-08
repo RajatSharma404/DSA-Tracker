@@ -8,6 +8,8 @@ const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const client_1 = require("@prisma/client");
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
 const services_1 = require("./services");
 const leetcodeService_1 = require("./leetcodeService");
 const aiService_1 = require("./aiService");
@@ -35,18 +37,28 @@ const requireAuth = async (req, res, next) => {
     const token = authHeader.split(" ")[1];
     try {
         const decoded = jsonwebtoken_1.default.verify(token, NEXTAUTH_SECRET);
-        // Auto-promotion logic if the user's role is not yet stored in DB as ADMIN
-        const user = (await prisma.user.findUnique({
-            where: { id: decoded.id },
+        if (!decoded.email) {
+            return res
+                .status(401)
+                .json({ error: "Unauthorized: Invalid token payload" });
+        }
+        // Upsert user by email so they're created on first request
+        let user = (await prisma.user.upsert({
+            where: { email: decoded.email },
+            update: {},
+            create: {
+                email: decoded.email,
+                role: "USER",
+            },
         }));
-        if (user && user.email === ADMIN_EMAIL && user.role !== "ADMIN") {
-            await prisma.user.update({
+        // Auto-promote to ADMIN if email matches
+        if (user.email === ADMIN_EMAIL && user.role !== "ADMIN") {
+            user = await prisma.user.update({
                 where: { id: user.id },
                 data: { role: "ADMIN" },
             });
-            decoded.role = "ADMIN";
         }
-        req.user = decoded;
+        req.user = { id: user.id, role: user.role };
         next();
     }
     catch (err) {
@@ -425,6 +437,65 @@ app.delete("/api/admin/problems/:id", requireAuth, requireAdmin, async (req, res
         res.status(500).json({ error: "Error deleting problem" });
     }
 });
+// Seed roadmap topics + problems from dsa-roadmap-seed.json (idempotent)
+app.post("/api/admin/seed", requireAuth, requireAdmin, async (req, res) => {
+    try {
+        const seedDataPath = path_1.default.join(__dirname, "../dsa-roadmap-seed.json");
+        if (!fs_1.default.existsSync(seedDataPath)) {
+            return res.status(500).json({ error: "Seed data file not found" });
+        }
+        const seedData = JSON.parse(fs_1.default.readFileSync(seedDataPath, "utf8"));
+        let topicsUpserted = 0;
+        let problemsUpserted = 0;
+        for (const topicData of seedData.topics) {
+            const topic = await prisma.topic.upsert({
+                where: { name: topicData.name },
+                update: {
+                    description: topicData.description,
+                    orderIndex: topicData.order,
+                },
+                create: {
+                    name: topicData.name,
+                    description: topicData.description,
+                    orderIndex: topicData.order,
+                },
+            });
+            topicsUpserted++;
+            for (const problemData of topicData.problems) {
+                const existing = await prisma.problem.findFirst({
+                    where: { title: problemData.title, topicId: topic.id },
+                });
+                if (existing) {
+                    await prisma.problem.update({
+                        where: { id: existing.id },
+                        data: {
+                            link: problemData.leetcode,
+                            difficulty: problemData.difficulty.toUpperCase(),
+                            orderIndex: problemData.order,
+                        },
+                    });
+                }
+                else {
+                    await prisma.problem.create({
+                        data: {
+                            title: problemData.title,
+                            link: problemData.leetcode,
+                            difficulty: problemData.difficulty.toUpperCase(),
+                            orderIndex: problemData.order,
+                            topicId: topic.id,
+                        },
+                    });
+                }
+                problemsUpserted++;
+            }
+        }
+        res.json({ success: true, topicsUpserted, problemsUpserted });
+    }
+    catch (error) {
+        console.error("Seed error:", error);
+        res.status(500).json({ error: "Seed failed" });
+    }
+});
 // 5. Get Activity Data for Heatmap
 app.get("/api/analytics/activity", requireAuth, async (req, res) => {
     try {
@@ -484,19 +555,35 @@ app.post("/api/user/sync-leetcode", requireAuth, async (req, res) => {
         if (!user?.leetcodeUsername) {
             return res.status(400).json({ error: "LeetCode username not set" });
         }
-        const data = await (0, leetcodeService_1.fetchLeetCodeSolvedProblems)(user.leetcodeUsername);
-        const recentSubmissions = data.recentSubmissionList || [];
-        // Filter only Accepted submissions and deduplicate by titleSlug to take latest
+        // Build solved problem map: prefer authenticated full-list API, fall back to recent 100
         const solvedMap = new Map();
-        recentSubmissions.forEach((sub) => {
-            if (sub.statusDisplay === "Accepted") {
-                if (!solvedMap.has(sub.titleSlug) ||
-                    sub.timestamp > solvedMap.get(sub.titleSlug).timestamp) {
-                    solvedMap.set(sub.titleSlug, sub);
-                }
+        if (user.leetcodeSession) {
+            // Fetch ALL accepted problems via authenticated paginated API
+            const allSolved = await (0, leetcodeService_1.fetchAllSolvedProblems)(user.leetcodeSession);
+            for (const q of allSolved) {
+                solvedMap.set(q.titleSlug, {
+                    title: q.title,
+                    titleSlug: q.titleSlug,
+                    difficulty: q.difficulty,
+                    timestamp: 0, // not available from this endpoint
+                });
             }
-        });
-        console.log(`Syncing LeetCode for ${user.leetcodeUsername}: Found ${solvedMap.size} unique accepted problems in last 100 submissions.`);
+            console.log(`Syncing LeetCode for ${user.leetcodeUsername}: Found ${solvedMap.size} unique accepted problems (full history via session).`);
+        }
+        else {
+            // Unauthenticated fallback: last 100 submissions only
+            const data = await (0, leetcodeService_1.fetchLeetCodeSolvedProblems)(user.leetcodeUsername);
+            const recentSubmissions = data.recentSubmissionList || [];
+            recentSubmissions.forEach((sub) => {
+                if (sub.statusDisplay === "Accepted") {
+                    if (!solvedMap.has(sub.titleSlug) ||
+                        sub.timestamp > solvedMap.get(sub.titleSlug).timestamp) {
+                        solvedMap.set(sub.titleSlug, sub);
+                    }
+                }
+            });
+            console.log(`Syncing LeetCode for ${user.leetcodeUsername}: Found ${solvedMap.size} unique accepted problems in last 100 submissions (no session set).`);
+        }
         const results = [];
         for (const [slug, sub] of solvedMap.entries()) {
             // Find matching problem in our DB
@@ -1698,6 +1785,9 @@ app.get("/api/analytics/productivity", requireAuth, async (req, res) => {
     }
 });
 // === SERVER START ===
+app.get("/", (req, res) => {
+    res.json({ status: "ok", message: "DSA Tracker API is running" });
+});
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });

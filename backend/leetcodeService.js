@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fetchProblemDetails = exports.checkSubmissionResult = exports.submitCodeToLeetCode = exports.fetchActiveDailyCodingChallengeQuestion = exports.fetchSubmissionDetails = exports.fetchProblemSubmissions = exports.slugify = exports.fetchLeetCodeSolvedProblems = void 0;
+exports.fetchProblemDetails = exports.checkSubmissionResult = exports.submitCodeToLeetCode = exports.fetchActiveDailyCodingChallengeQuestion = exports.fetchSubmissionDetails = exports.fetchProblemSubmissions = exports.fetchAllSolvedProblems = exports.slugify = exports.fetchLeetCodeSolvedProblems = void 0;
 const axios_1 = __importDefault(require("axios"));
 const fetchLeetCodeSolvedProblems = async (username) => {
     const query = `
@@ -60,6 +60,63 @@ const slugify = (text) => {
         .replace(/--+/g, "-"); // Replace multiple - with single -
 };
 exports.slugify = slugify;
+/**
+ * Fetches ALL accepted problems for a user using the authenticated API.
+ * Paginates through `problemsetQuestionList` until all AC problems are retrieved.
+ * Requires a valid LEETCODE_SESSION cookie.
+ */
+const fetchAllSolvedProblems = async (leetcodeSession) => {
+    const query = `
+    query problemsetQuestionList($limit: Int, $skip: Int, $filters: QuestionListFilterInput) {
+      problemsetQuestionList: questionList(
+        categorySlug: ""
+        limit: $limit
+        skip: $skip
+        filters: $filters
+      ) {
+        total: totalNum
+        questions: data {
+          title
+          titleSlug
+          difficulty
+          status
+        }
+      }
+    }
+  `;
+    const all = [];
+    const pageSize = 100;
+    let skip = 0;
+    let total = Infinity;
+    while (skip < total) {
+        const response = await axios_1.default.post("https://leetcode.com/graphql", {
+            query,
+            variables: {
+                limit: pageSize,
+                skip,
+                filters: { status: "AC" },
+            },
+        }, {
+            headers: {
+                "Content-Type": "application/json",
+                Cookie: `LEETCODE_SESSION=${leetcodeSession}; csrftoken=dummy;`,
+                "x-csrftoken": "dummy",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            },
+        });
+        if (response.data.errors) {
+            throw new Error(response.data.errors[0].message);
+        }
+        const { total: t, questions } = response.data.data.problemsetQuestionList;
+        total = t;
+        all.push(...questions);
+        skip += pageSize;
+        if (questions.length === 0)
+            break;
+    }
+    return all;
+};
+exports.fetchAllSolvedProblems = fetchAllSolvedProblems;
 const fetchProblemSubmissions = async (questionSlug, leetcodeSession) => {
     const query = `
     query submissionList($offset: Int!, $limit: Int!, $questionSlug: String!) {
