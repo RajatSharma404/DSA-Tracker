@@ -77,18 +77,20 @@ const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
     };
 
     if (!decoded.email) {
-      return res.status(401).json({ error: "Unauthorized: Invalid token payload" });
+      return res
+        .status(401)
+        .json({ error: "Unauthorized: Invalid token payload" });
     }
 
     // Upsert user by email so they're created on first request
-    let user = await prisma.user.upsert({
+    let user = (await prisma.user.upsert({
       where: { email: decoded.email },
       update: {},
       create: {
         email: decoded.email,
         role: "USER",
       },
-    }) as any;
+    })) as any;
 
     // Auto-promote to ADMIN if email matches
     if (user.email === ADMIN_EMAIL && user.role !== "ADMIN") {
