@@ -2181,6 +2181,10 @@ app.get(
 );
 
 // === SERVER START ===
+app.get("/", (req, res) => {
+  res.json({ status: "ok", message: "DSA Tracker API is running" });
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
