@@ -12,21 +12,31 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      allowDangerousEmailAccountLinking: true,
     }),
   ],
   session: {
-    strategy: "jwt"
+    strategy: "jwt",
   },
   callbacks: {
+    async signIn({ user, account, profile }) {
+      try {
+        if (!user.email) return false;
+        return true;
+      } catch (error) {
+        console.error("SignIn error:", error);
+        return false;
+      }
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.role = (user as any).role;
         // Create an access token that the Express backend can verify natively
         token.accessToken = jwt.sign(
-          { id: user.id, role: (user as any).role }, 
-          process.env.NEXTAUTH_SECRET || "fallback_secret", 
-          { expiresIn: "7d" }
+          { id: user.id, role: (user as any).role },
+          process.env.NEXTAUTH_SECRET || "fallback_secret",
+          { expiresIn: "7d" },
         );
       }
       return token;
@@ -38,10 +48,14 @@ export const authOptions: NextAuthOptions = {
         (session as any).accessToken = token.accessToken;
       }
       return session;
-    }
+    },
   },
   secret: process.env.NEXTAUTH_SECRET,
-  debug: true,
+  pages: {
+    signIn: "/login",
+    error: "/login",
+  },
+  debug: process.env.NODE_ENV === "development",
 };
 
 const handler = NextAuth(authOptions);
