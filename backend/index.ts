@@ -72,23 +72,33 @@ const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
   const token = authHeader.split(" ")[1];
   try {
     const decoded = jwt.verify(token, NEXTAUTH_SECRET) as {
-      id: string;
+      email: string;
       role: string;
     };
 
-    // Auto-promotion logic if the user's role is not yet stored in DB as ADMIN
-    const user = (await prisma.user.findUnique({
-      where: { id: decoded.id },
-    })) as any;
-    if (user && user.email === ADMIN_EMAIL && user.role !== "ADMIN") {
-      await prisma.user.update({
+    if (!decoded.email) {
+      return res.status(401).json({ error: "Unauthorized: Invalid token payload" });
+    }
+
+    // Upsert user by email so they're created on first request
+    let user = await prisma.user.upsert({
+      where: { email: decoded.email },
+      update: {},
+      create: {
+        email: decoded.email,
+        role: "USER",
+      },
+    }) as any;
+
+    // Auto-promote to ADMIN if email matches
+    if (user.email === ADMIN_EMAIL && user.role !== "ADMIN") {
+      user = await prisma.user.update({
         where: { id: user.id },
         data: { role: "ADMIN" } as any,
       });
-      decoded.role = "ADMIN";
     }
 
-    req.user = decoded;
+    req.user = { id: user.id, role: user.role };
     next();
   } catch (err) {
     return res.status(401).json({ error: "Unauthorized: Invalid token" });
