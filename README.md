@@ -28,7 +28,7 @@ A full-stack web application to track your Data Structures & Algorithms journey 
 
 | Feature                   | Description                                                                                                                                    |
 | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Visual Roadmap**        | Interactive graph of topics and problems using ReactFlow                                                                                       |
+| **Visual Roadmap**        | Interactive ReactFlow graph with dark-themed navigation controls, minimap, and live progress colours                                           |
 | **AI Code Evaluation**    | Submit code and get instant correctness verdict, complexity analysis, optimal approaches, edge case checks, and a score (powered by Gemini AI) |
 | **Solution Persistence**  | Your submitted code is saved — come back later and it's still there                                                                            |
 | **AI Mentor Hints**       | Get contextual hints without spoilers                                                                                                          |
@@ -38,11 +38,11 @@ A full-stack web application to track your Data Structures & Algorithms journey 
 | **Spaced Repetition**     | Review queue that resurfaces problems at optimal intervals                                                                                     |
 | **Explore & Search**      | Filter problems by difficulty, status, topic, bookmarks, and custom tags                                                                       |
 | **AI Recommendations**    | Personalized problem suggestions based on your weaknesses                                                                                      |
-| **Analytics Dashboard**   | Activity heatmap, skill radar, streak tracking, productivity insights                                                                          |
+| **Analytics Dashboard**   | Full-year activity heatmap (Jan – Dec), skill radar, streak tracking, productivity insights                                                    |
 | **Achievements & Badges** | Unlock badges as you hit milestones                                                                                                            |
 | **Weekly Reports**        | Auto-generated summary of your weekly progress                                                                                                 |
 | **The Vault**             | DSA pattern templates and personal notes per problem                                                                                           |
-| **The Arena**             | Timed challenge sessions to simulate interview pressure                                                                                        |
+| **The Arena**             | Full-screen timed arena: multi-language editor with Vim mode, collapsible problem panel, per-problem tabs                                      |
 | **Mock Interviews**       | Track your mock interview scores and feedback                                                                                                  |
 | **Google OAuth Login**    | Secure authentication via NextAuth                                                                                                             |
 | **Admin Panel**           | Manage users, topics, and problems                                                                                                             |
@@ -51,7 +51,7 @@ A full-stack web application to track your Data Structures & Algorithms journey 
 
 ## 🛠 Tech Stack
 
-**Frontend:** Next.js 15 · React 19 · Tailwind CSS 4 · ReactFlow · Recharts · Monaco Editor · Lucide Icons
+**Frontend:** Next.js 15 · React 19 · Tailwind CSS 4 · ReactFlow · Recharts · Monaco Editor · monaco-vim · Lucide Icons
 
 **Backend:** Express.js 5 · Prisma ORM · PostgreSQL · Google Gemini AI · JWT
 
@@ -222,7 +222,8 @@ After login, you land on the **Dashboard** showing:
 
 ### 4. Writing & Submitting Code
 
-- The **code editor** loads the LeetCode starter template for the selected language (C++, C, Java, Python3)
+- The **code editor** supports **JavaScript, Python, Java, and C++** — select your language from the toolbar
+- Toggle **Vim mode** with the `VIM` button in the toolbar; a status bar appears at the bottom of the editor showing the current Vim command state
 - Write your solution and click the purple **Submit** button
 - The AI evaluates your code and shows:
   - **Verdict** — Accepted, Wrong Answer, TLE, etc.
@@ -238,6 +239,9 @@ After login, you land on the **Dashboard** showing:
 
 Click **Visual Roadmap** to see an interactive graph of all topics and problems, showing dependencies and your progress visually.
 
+- Use the **navigation controls** (bottom-left) to zoom in/out and re-center — icons are now clearly styled against the dark background
+- The **minimap** (bottom-right) gives a bird's-eye view of the full graph
+
 ### 6. The Vault
 
 Access **The Vault** for:
@@ -249,7 +253,7 @@ Access **The Vault** for:
 
 The **Analytics** page shows:
 
-- Activity heatmap (GitHub-style contribution graph)
+- **Activity heatmap** — displays a full calendar year (January to December) for whichever year you select; use the year buttons to switch between years
 - Skill radar across all topics
 - Productivity insights and score trends
 
@@ -272,7 +276,12 @@ Use **Explore** to filter problems across all topics by:
 
 ### 11. The Arena
 
-**The Arena** offers timed challenge sessions — pick a difficulty and time limit, then solve as many problems as you can under pressure.
+**The Arena** offers timed challenge sessions — pick a topic and time limit, then solve under pressure.
+
+- The editor takes **full screen real estate** for distraction-free coding
+- Use the **problem tabs** (P1, P2…) in the top bar to switch between assigned problems
+- Click the **panel icon** (top-right) to toggle the collapsible problem details panel, which shows the problem title, difficulty, topic, and a LeetCode link
+- The timer turns orange at 3 minutes and red at 1 minute remaining
 
 ### 12. Settings
 
