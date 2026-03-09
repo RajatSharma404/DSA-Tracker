@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
+import crypto from "crypto";
 
 const nextConfig: NextConfig = {
+  // Unique build ID per deploy — busts Vercel/CDN caches automatically
+  generateBuildId: async () => {
+    return crypto.randomBytes(8).toString("hex");
+  },
   async rewrites() {
     return {
       // These rewrites are checked before Next.js pages/API routes

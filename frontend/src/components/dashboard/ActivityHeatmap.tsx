@@ -4,8 +4,6 @@ import React, { useMemo, useState } from "react";
 import {
   format,
   eachDayOfInterval,
-  startOfWeek,
-  endOfWeek,
   isFirstDayOfMonth,
   getYear,
   startOfYear,
@@ -35,14 +33,12 @@ export default function ActivityHeatmap({ data }: ActivityHeatmapProps) {
 
   // Always show Jan 1 → Dec 31 (clamp future days to today for current year)
   const { startDate, endDate } = useMemo(() => {
+    // Use exact Jan 1 — do NOT go back to start-of-week as that bleeds into December
     const yearStart = startOfYear(new Date(selectedYear, 0, 1));
     const yearEnd = endOfYear(new Date(selectedYear, 11, 31));
     return {
-      startDate: startOfWeek(yearStart, { weekStartsOn: 1 }),
-      endDate:
-        selectedYear === currentYear
-          ? today
-          : endOfWeek(yearEnd, { weekStartsOn: 1 }),
+      startDate: yearStart,
+      endDate: selectedYear === currentYear ? today : yearEnd,
     };
   }, [selectedYear, currentYear]);
 
