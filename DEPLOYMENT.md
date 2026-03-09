@@ -21,6 +21,7 @@ This guide covers deploying DSA Roadmap Tracker to a production environment. It 
 - [10. Backup and Restore](#10-backup-and-restore)
 - [11. Updating the Application](#11-updating-the-application)
 - [12. Troubleshooting](#12-troubleshooting)
+- [13. Deploying on Render](#13-deploying-on-render)
 
 ---
 
@@ -446,3 +447,87 @@ pm2 restart all
 | **Prisma schema drift**            | Run `npx prisma db push` in both `backend/` and `frontend/`         |
 | **Out of memory**                  | Check with `free -h`; consider adding swap or increasing server RAM |
 | **PM2 not starting on reboot**     | Re-run `pm2 startup` and `pm2 save`                                 |
+
+---
+
+## 13. Deploying on Render
+
+Render hosts the frontend (Next.js) and backend (Express) as two separate Web Services, and the database as a managed PostgreSQL instance.
+
+### Step 1 — Create a PostgreSQL database
+
+1. In the Render dashboard, click **New → PostgreSQL**
+2. Give it a name (e.g. `dsa-tracker-db`) and choose a region
+3. Once created, copy the **Internal Database URL** — you'll use this for both services
+
+### Step 2 — Deploy the Backend
+
+1. Click **New → Web Service**, connect your GitHub repo
+2. Set the following:
+
+   | Setting         | Value                                                                |
+   | --------------- | -------------------------------------------------------------------- |
+   | **Root Dir**    | `backend`                                                            |
+   | **Environment** | `Node`                                                               |
+   | **Build Cmd**   | `npm install && npx prisma db push && npx prisma db seed && npx tsc` |
+   | **Start Cmd**   | `node index.js`                                                      |
+
+3. Add environment variables:
+
+   | Variable          | Value                             |
+   | ----------------- | --------------------------------- |
+   | `PORT`            | `3001`                            |
+   | `NODE_ENV`        | `production`                      |
+   | `DATABASE_URL`    | Internal Database URL from Step 1 |
+   | `NEXTAUTH_SECRET` | A long random string (64+ chars)  |
+   | `GEMINI_API_KEY`  | Your Google Gemini API key        |
+
+4. Deploy. Once live, copy the backend's public URL (e.g. `https://dsa-tracker-backend.onrender.com`)
+
+### Step 3 — Deploy the Frontend
+
+1. Click **New → Web Service**, connect the same repo
+2. Set the following:
+
+   | Setting         | Value                                                |
+   | --------------- | ---------------------------------------------------- |
+   | **Root Dir**    | `frontend`                                           |
+   | **Environment** | `Node`                                               |
+   | **Build Cmd**   | `npm install && npx prisma db push && npm run build` |
+   | **Start Cmd**   | `npm start`                                          |
+
+3. Add environment variables:
+
+   | Variable               | Value                                                                     |
+   | ---------------------- | ------------------------------------------------------------------------- |
+   | `DATABASE_URL`         | Internal Database URL from Step 1 (for NextAuth)                          |
+   | `NEXTAUTH_URL`         | Your frontend Render URL (e.g. `https://dsa-tracker.onrender.com`)        |
+   | `NEXTAUTH_SECRET`      | Same secret as the backend                                                |
+   | `GOOGLE_CLIENT_ID`     | From Google Cloud Console                                                 |
+   | `GOOGLE_CLIENT_SECRET` | From Google Cloud Console                                                 |
+   | `BACKEND_URL`          | Your backend Render URL (e.g. `https://dsa-tracker-backend.onrender.com`) |
+
+4. In **Google Cloud Console**, add the frontend Render URL to:
+   - Authorised JavaScript origins: `https://dsa-tracker.onrender.com`
+   - Authorised redirect URIs: `https://dsa-tracker.onrender.com/api/auth/callback/google`
+
+### How `BACKEND_URL` works
+
+The `next.config.ts` rewrite proxies all `/api/*` requests to the backend.
+On Render (`BACKEND_URL` set), it proxies to your backend service URL.
+Locally (no env var), it falls back to `http://localhost:3001`.
+
+### Re-deploy not showing changes?
+
+Render caches the build directory between deploys. To force a clean build:
+
+1. Go to your Web Service → **Settings → Build & Deploy**
+2. Click **Clear build cache & deploy**
+
+Or via the Render CLI:
+
+```bash
+render deploys create --service-id <your-service-id> --clear-cache
+```
+
+> The `generateBuildId` in `next.config.ts` also ensures each deploy gets a unique build ID so browser and CDN caches are busted automatically.

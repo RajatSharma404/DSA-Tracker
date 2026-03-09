@@ -391,7 +391,7 @@ The extension activates on LeetCode problem pages and pings your backend when yo
 
 ## 🖥 Deployment
 
-For full production deployment instructions — including server setup, Nginx reverse proxy, SSL, database backups, and running with systemd or PM2 — see the **[Deployment Guide](DEPLOYMENT.md)**.
+For full production deployment instructions — including server setup, Nginx reverse proxy, SSL, database backups, running with systemd or PM2, and **deploying on Render** — see the **[Deployment Guide](DEPLOYMENT.md)**.
 
 **Quick start (systemd):**
 
