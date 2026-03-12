@@ -79,7 +79,7 @@ export function LeetCodeEditor({
   problemId,
   onSubmissionSuccess,
 }: LeetCodeEditorProps) {
-  const [selectedLang, setSelectedLang] = useState<string>("python3");
+  const [selectedLang, setSelectedLang] = useState<string>("cpp");
   const [code, setCode] = useState<string>("# Write your code here\n");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [evaluation, setEvaluation] = useState<EvaluationResult | null>(null);

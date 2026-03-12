@@ -28,7 +28,9 @@ A full-stack web application to track your Data Structures & Algorithms journey 
 
 | Feature                   | Description                                                                                                                                    |
 | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| **500-Problem Roadmap**   | 500 hand-picked LeetCode problems across 25 topics — from C++ Basics to Advanced DP and Graphs                                                 |
 | **Visual Roadmap**        | Interactive ReactFlow graph with dark-themed navigation controls, minimap, and live progress colours                                           |
+| **3D UI Effects**         | Mouse-tracking 3D tilt on stat cards, 3D pop on roadmap nodes, perspective hover on panels, and 3D badge flip animations                       |
 | **AI Code Evaluation**    | Submit code and get instant correctness verdict, complexity analysis, optimal approaches, edge case checks, and a score (powered by Gemini AI) |
 | **Solution Persistence**  | Your submitted code is saved — come back later and it's still there                                                                            |
 | **AI Mentor Hints**       | Get contextual hints without spoilers                                                                                                          |
@@ -125,7 +127,7 @@ npx prisma db push
 npx prisma db seed
 ```
 
-The seed loads ~150 DSA problems across 15+ topics (Arrays, Trees, Graphs, DP, etc.).
+The seed loads **500 DSA problems across 25 topics** — C++ Basics, Arrays, Hashing, Two Pointers, Sliding Window, Stack, Binary Search, Linked List, Trees, Graphs, Dynamic Programming, Queue & Deque, Heap/Priority Queue, Strings, Recursion & Backtracking, Greedy, Bit Manipulation, Math & Number Theory, Sorting & Searching, Tries, Union-Find, Monotonic Stack, Advanced Graphs, Advanced DP, and Matrix/2D Arrays.
 
 ### Step 4 — Set Up the Frontend
 

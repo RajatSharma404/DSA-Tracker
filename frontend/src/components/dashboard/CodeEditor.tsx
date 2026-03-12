@@ -14,11 +14,11 @@ const LANGUAGES: {
   starter: string;
 }[] = [
   {
-    label: "JavaScript",
-    value: "javascript",
-    version: "18.15.0",
+    label: "C++",
+    value: "cpp",
+    version: "10.2.0",
     starter:
-      "// Write your code here\nfunction solve() {\n  \n}\n\nconsole.log(solve());",
+      "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    \n    // Write your solution here\n    \n    return 0;\n}",
   },
   {
     label: "Python",
@@ -34,11 +34,11 @@ const LANGUAGES: {
       'public class Solution {\n    public static void main(String[] args) {\n        System.out.println("Hello!");\n    }\n}',
   },
   {
-    label: "C++",
-    value: "cpp",
-    version: "10.2.0",
+    label: "JavaScript",
+    value: "javascript",
+    version: "18.15.0",
     starter:
-      '#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello!" << endl;\n    return 0;\n}',
+      "// Write your code here\nfunction solve() {\n  \n}\n\nconsole.log(solve());",
   },
 ];
 
@@ -113,7 +113,7 @@ export function CodeEditor({ initialCode, className }: CodeEditorProps) {
 
   return (
     <div
-      className={`flex w-full border border-white/10 rounded-[2rem] overflow-hidden bg-[#0a0a0a] text-white ${className ?? "h-[500px]"}`}
+      className={`flex w-full border border-white/10 rounded-4xl overflow-hidden bg-[#0a0a0a] text-white ${className ?? "h-125"}`}
     >
       {/* Editor pane */}
       <div className="flex-1 flex flex-col border-r border-white/5 min-w-0">
@@ -194,7 +194,7 @@ export function CodeEditor({ initialCode, className }: CodeEditorProps) {
         {vimMode && (
           <div
             ref={statusBarRef}
-            className="px-4 py-1 bg-yellow-500/10 border-t border-yellow-500/20 text-yellow-400 text-xs font-mono min-h-[26px]"
+            className="px-4 py-1 bg-yellow-500/10 border-t border-yellow-500/20 text-yellow-400 text-xs font-mono min-h-6.5"
           />
         )}
       </div>

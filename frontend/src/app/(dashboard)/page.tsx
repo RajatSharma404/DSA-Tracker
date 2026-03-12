@@ -122,7 +122,7 @@ export default function Dashboard() {
       </div>
 
       {/* Progress Bar overall */}
-      <div className="p-6 rounded-2xl bg-[#111] border border-[#222]">
+      <div className="card-3d-hover p-6 rounded-2xl bg-[#111] border border-[#222]">
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-semibold text-lg">Roadmap Completion</h3>
           <span className="text-sm font-medium">
