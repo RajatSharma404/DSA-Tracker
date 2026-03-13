@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+﻿import React, { memo } from 'react';
 import { Handle, Position } from 'reactflow';
 import { BookOpen, CheckCircle2, Circle } from 'lucide-react';
 
