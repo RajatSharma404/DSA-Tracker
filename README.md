@@ -44,7 +44,7 @@ A full-stack web application to track your Data Structures & Algorithms journey 
 | **Achievements & Badges** | Unlock badges as you hit milestones                                                                                      |
 | **Weekly Reports**        | Auto-generated summary of your weekly progress                                                                           |
 | **The Vault**             | DSA pattern templates and personal notes per problem                                                                     |
-| **Learn (Theory First)**  | C++ mastery track with topic-wise theory modules, structured lesson blocks, and per-module linked practice              |
+| **Learn (Theory First)**  | C++ mastery track with topic-wise theory modules, structured lesson blocks, and per-module linked practice               |
 | **The Arena**             | Full-screen timed arena: multi-language editor with Vim mode, collapsible problem panel, per-problem tabs                |
 | **Mock Interviews**       | Track your mock interview scores and feedback                                                                            |
 | **Email Login**           | Secure credentials-based authentication via NextAuth                                                                     |
