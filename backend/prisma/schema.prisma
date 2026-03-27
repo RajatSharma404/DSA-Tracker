@@ -57,6 +57,7 @@ model User {
   solutions        SolutionHistory[]
   bookmarks        Bookmark[]
   tags             UserTag[]
+  theoryLessonProgress UserTheoryLessonProgress[]
 }
 
 model Topic {
@@ -67,6 +68,7 @@ model Topic {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   problems    Problem[]
+  theoryModules TheoryModule[]
 }
 
 model ChallengeSession {
@@ -102,6 +104,7 @@ model Problem {
   solutions  SolutionHistory[]
   bookmarks  Bookmark[]
   problemTags ProblemTag[]
+  theoryProblemLinks TheoryProblemLink[]
 }
 
 model ProblemNote {
@@ -252,4 +255,130 @@ model ProblemTag {
 
   @@unique([problemId, tagId])
   @@map("problem_tags")
+}
+
+model TheoryTrack {
+  id          String        @id @default(uuid())
+  slug        String        @unique
+  title       String
+  description String?
+  orderIndex  Int           @default(0)
+  isPublished Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  modules     TheoryModule[]
+
+  @@map("theory_tracks")
+}
+
+model TheoryModule {
+  id               String            @id @default(uuid())
+  trackId          String
+  topicId          String?
+  slug             String
+  title            String
+  summary          String?
+  orderIndex       Int               @default(0)
+  estimatedMinutes Int               @default(0)
+  isPublished      Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  track            TheoryTrack       @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  topic            Topic?            @relation(fields: [topicId], references: [id], onDelete: SetNull)
+  lessons          TheoryLesson[]
+  problemLinks     TheoryProblemLink[]
+
+  @@unique([trackId, slug])
+  @@index([topicId])
+  @@map("theory_modules")
+}
+
+model TheoryLesson {
+  id                 String                    @id @default(uuid())
+  moduleId           String
+  slug               String
+  title              String
+  summary            String?
+  orderIndex         Int                       @default(0)
+  difficulty         TheoryDifficulty          @default(BEGINNER)
+  estimatedMinutes   Int                       @default(0)
+  learningObjectives Json?
+  isPublished        Boolean                   @default(true)
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt
+  module             TheoryModule              @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  blocks             TheoryLessonBlock[]
+  problemLinks       TheoryProblemLink[]
+  progress           UserTheoryLessonProgress[]
+
+  @@unique([moduleId, slug])
+  @@map("theory_lessons")
+}
+
+model TheoryLessonBlock {
+  id         String          @id @default(uuid())
+  lessonId   String
+  blockType  TheoryBlockType
+  orderIndex Int
+  content    Json
+  language   String?
+  lesson     TheoryLesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([lessonId, orderIndex])
+  @@map("theory_lesson_blocks")
+}
+
+model TheoryProblemLink {
+  id         String       @id @default(uuid())
+  lessonId   String?
+  moduleId   String?
+  problemId  String
+  required   Boolean      @default(true)
+  orderIndex Int          @default(0)
+  lesson     TheoryLesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  module     TheoryModule? @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  problem    Problem      @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId])
+  @@index([moduleId])
+  @@index([problemId])
+  @@map("theory_problem_links")
+}
+
+model UserTheoryLessonProgress {
+  userId           String
+  lessonId         String
+  status           TheoryProgressStatus @default(NOT_STARTED)
+  progressPercent  Int                  @default(0)
+  timeSpentSeconds Int                  @default(0)
+  completedAt      DateTime?
+  lastSeenBlockId  String?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  user             User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson           TheoryLesson         @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@id([userId, lessonId])
+  @@index([lessonId])
+  @@map("user_theory_lesson_progress")
+}
+
+enum TheoryDifficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum TheoryBlockType {
+  MARKDOWN
+  CODE
+  NOTE
+  QUIZ
+  IMAGE
+}
+
+enum TheoryProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
 }

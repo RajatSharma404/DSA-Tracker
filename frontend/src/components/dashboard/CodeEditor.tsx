@@ -5,6 +5,7 @@ import { Play, Loader2, Terminal, Keyboard } from "lucide-react";
 interface CodeEditorProps {
   initialCode?: string;
   className?: string;
+  layout?: "horizontal" | "vertical";
 }
 
 const LANGUAGES: {
@@ -42,17 +43,25 @@ const LANGUAGES: {
   },
 ];
 
-export function CodeEditor({ initialCode, className }: CodeEditorProps) {
+export function CodeEditor({
+  initialCode,
+  className,
+  layout = "horizontal",
+}: CodeEditorProps) {
   const [selectedLang, setSelectedLang] = useState(LANGUAGES[0]);
   const [code, setCode] = useState(initialCode ?? LANGUAGES[0].starter);
   const [output, setOutput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
   const [vimMode, setVimMode] = useState(false);
   const [vimStatus, setVimStatus] = useState("");
+  const [editorRatio, setEditorRatio] = useState(68);
+  const [isResizingConsole, setIsResizingConsole] = useState(false);
   const editorRef = useRef<any>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const vimRef = useRef<any>(null);
   const statusBarRef = useRef<HTMLDivElement>(null);
+  const isVertical = layout === "vertical";
 
   // Reset code when language changes (only if using default starter)
   const handleLangChange = (lang: (typeof LANGUAGES)[0]) => {
@@ -80,6 +89,32 @@ export function CodeEditor({ initialCode, className }: CodeEditorProps) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vimMode]);
+
+  useEffect(() => {
+    if (!isResizingConsole || !isVertical) return;
+
+    const handleMove = (event: MouseEvent) => {
+      if (!rootRef.current) return;
+
+      const rect = rootRef.current.getBoundingClientRect();
+      const y = event.clientY - rect.top;
+      const nextRatio = (y / rect.height) * 100;
+      const clamped = Math.max(45, Math.min(85, nextRatio));
+      setEditorRatio(clamped);
+    };
+
+    const handleUp = () => {
+      setIsResizingConsole(false);
+    };
+
+    window.addEventListener("mousemove", handleMove);
+    window.addEventListener("mouseup", handleUp);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMove);
+      window.removeEventListener("mouseup", handleUp);
+    };
+  }, [isResizingConsole, isVertical]);
 
   const handleRun = async () => {
     setIsRunning(true);
@@ -113,10 +148,14 @@ export function CodeEditor({ initialCode, className }: CodeEditorProps) {
 
   return (
     <div
-      className={`flex w-full border border-white/10 rounded-4xl overflow-hidden bg-[#0a0a0a] text-white ${className ?? "h-125"}`}
+      ref={rootRef}
+      className={`flex ${isVertical ? "flex-col" : "w-full"} border border-white/10 rounded-4xl overflow-hidden bg-[#0a0a0a] text-white ${className ?? "h-125"}`}
     >
       {/* Editor pane */}
-      <div className="flex-1 flex flex-col border-r border-white/5 min-w-0">
+      <div
+        className={`flex flex-col ${isVertical ? "border-b" : "flex-1 border-r"} border-white/5 min-w-0`}
+        style={isVertical ? { height: `${editorRatio}%` } : undefined}
+      >
         {/* Toolbar */}
         <div className="flex items-center justify-between gap-3 px-4 py-3 bg-white/5 border-b border-white/5 shrink-0">
           {/* Language picker */}
@@ -178,6 +217,7 @@ export function CodeEditor({ initialCode, className }: CodeEditorProps) {
             }}
             options={{
               minimap: { enabled: false },
+              automaticLayout: true,
               fontSize: 15,
               fontFamily: '"Fira Code", "JetBrains Mono", monospace',
               fontLigatures: true,
@@ -199,8 +239,23 @@ export function CodeEditor({ initialCode, className }: CodeEditorProps) {
         )}
       </div>
 
+      {isVertical && (
+        <div
+          role="separator"
+          aria-orientation="horizontal"
+          aria-label="Resize console"
+          onMouseDown={() => setIsResizingConsole(true)}
+          className="group h-1.5 shrink-0 cursor-row-resize bg-white/5 hover:bg-green-500/40 active:bg-green-500/60 transition-colors"
+        >
+          <div className="mx-auto mt-px h-0.5 w-18 rounded-full bg-green-500/50 opacity-60 group-hover:opacity-100" />
+        </div>
+      )}
+
       {/* Output pane */}
-      <div className="w-[32%] flex flex-col bg-[#050505] shrink-0">
+      <div
+        className={`${isVertical ? "" : "w-[32%]"} flex flex-col bg-[#050505] shrink-0`}
+        style={isVertical ? { height: `${100 - editorRatio}%` } : undefined}
+      >
         <div className="px-4 py-3 border-b border-white/5 flex items-center gap-2 shrink-0">
           <Terminal size={13} className="text-[#4ade80]" />
           <span className="text-[11px] font-black tracking-widest text-[#4ade80] uppercase">

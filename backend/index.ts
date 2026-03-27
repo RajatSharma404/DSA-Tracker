@@ -2,9 +2,10 @@ import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 import fs from "fs";
 import path from "path";
+import { randomUUID } from "crypto";
 import {
   getRevisionReminders,
   getWeakTopics,
@@ -262,6 +263,699 @@ app.get(
       res.json(enrichedProblem);
     } catch (err) {
       res.status(500).json({ error: "Internal server error" });
+    }
+  },
+);
+
+// === THEORY / LEARN ROUTES ===
+
+app.get(
+  "/api/learn/tracks",
+  requireAuth,
+  async (req: Request, res: Response) => {
+    try {
+      const userId = req.user!.id;
+
+      const tracks = await prisma.$queryRaw<
+        Array<{
+          id: string;
+          slug: string;
+          title: string;
+          description: string | null;
+          orderIndex: number;
+        }>
+      >`
+      SELECT
+        id,
+        slug,
+        title,
+        description,
+        order_index AS "orderIndex"
+      FROM theory_tracks
+      WHERE is_published = true
+      ORDER BY order_index ASC, created_at ASC
+    `;
+
+      if (tracks.length === 0) {
+        return res.json([]);
+      }
+
+      const trackIds = tracks.map((t) => t.id);
+      const modules = await prisma.$queryRaw<
+        Array<{
+          id: string;
+          trackId: string;
+          slug: string;
+          title: string;
+          summary: string | null;
+          orderIndex: number;
+          estimatedMinutes: number;
+        }>
+      >(
+        Prisma.sql`
+      SELECT
+        id,
+        track_id AS "trackId",
+        slug,
+        title,
+        summary,
+        order_index AS "orderIndex",
+        estimated_minutes AS "estimatedMinutes"
+      FROM theory_modules
+      WHERE is_published = true
+        AND track_id IN (${Prisma.join(trackIds)})
+      ORDER BY order_index ASC, created_at ASC
+    `,
+      );
+
+      const moduleIds = modules.map((m) => m.id);
+      const lessons =
+        moduleIds.length > 0
+          ? await prisma.$queryRaw<
+              Array<{
+                id: string;
+                moduleId: string;
+                slug: string;
+                title: string;
+                summary: string | null;
+                orderIndex: number;
+                estimatedMinutes: number;
+                difficulty: string;
+              }>
+            >(
+              Prisma.sql`
+          SELECT
+            id,
+            module_id AS "moduleId",
+            slug,
+            title,
+            summary,
+            order_index AS "orderIndex",
+            estimated_minutes AS "estimatedMinutes",
+            difficulty::text AS difficulty
+          FROM theory_lessons
+          WHERE is_published = true
+            AND module_id IN (${Prisma.join(moduleIds)})
+          ORDER BY order_index ASC, created_at ASC
+        `,
+            )
+          : [];
+
+      const lessonIds = lessons.map((l) => l.id);
+      const progressRows =
+        lessonIds.length > 0
+          ? await prisma.$queryRaw<
+              Array<{
+                lessonId: string;
+                status: string;
+                progressPercent: number;
+              }>
+            >(
+              Prisma.sql`
+          SELECT
+            lesson_id AS "lessonId",
+            status::text AS status,
+            progress_percent AS "progressPercent"
+          FROM user_theory_lesson_progress
+          WHERE user_id = ${userId}
+            AND lesson_id IN (${Prisma.join(lessonIds)})
+        `,
+            )
+          : [];
+
+      const progressByLesson = new Map(
+        progressRows.map((p) => [p.lessonId, p]),
+      );
+
+      const lessonsByModule = new Map<string, any[]>();
+      for (const lesson of lessons) {
+        const progress =
+          progressByLesson.get(lesson.id) ||
+          ({ status: "NOT_STARTED", progressPercent: 0 } as const);
+        if (!lessonsByModule.has(lesson.moduleId)) {
+          lessonsByModule.set(lesson.moduleId, []);
+        }
+        lessonsByModule.get(lesson.moduleId)!.push({
+          ...lesson,
+          status: progress.status,
+          progressPercent: progress.progressPercent,
+        });
+      }
+
+      const modulesByTrack = new Map<string, any[]>();
+      for (const module of modules) {
+        const moduleLessons = lessonsByModule.get(module.id) || [];
+        const completed = moduleLessons.filter(
+          (l) => l.status === "COMPLETED",
+        ).length;
+        const progressPercent =
+          moduleLessons.length > 0
+            ? Math.round((completed / moduleLessons.length) * 100)
+            : 0;
+
+        if (!modulesByTrack.has(module.trackId)) {
+          modulesByTrack.set(module.trackId, []);
+        }
+
+        modulesByTrack.get(module.trackId)!.push({
+          ...module,
+          totalLessons: moduleLessons.length,
+          completedLessons: completed,
+          progressPercent,
+          lessons: moduleLessons,
+        });
+      }
+
+      const payload = tracks.map((track) => {
+        const trackModules = modulesByTrack.get(track.id) || [];
+        const totalLessons = trackModules.reduce(
+          (sum, module) => sum + module.totalLessons,
+          0,
+        );
+        const completedLessons = trackModules.reduce(
+          (sum, module) => sum + module.completedLessons,
+          0,
+        );
+        return {
+          ...track,
+          totalLessons,
+          completedLessons,
+          progressPercent:
+            totalLessons > 0
+              ? Math.round((completedLessons / totalLessons) * 100)
+              : 0,
+          modules: trackModules,
+        };
+      });
+
+      res.json(payload);
+    } catch (error) {
+      console.error("Learn tracks error:", error);
+      const message = error instanceof Error ? error.message : String(error);
+      if (
+        message.includes('relation "theory_tracks" does not exist') ||
+        message.includes("42P01")
+      ) {
+        return res.json([]);
+      }
+      res.status(500).json({
+        error: "Failed to load learn tracks",
+        hint: "Ensure theory migration has been applied.",
+      });
+    }
+  },
+);
+
+app.get(
+  "/api/learn/tracks/:trackSlug/modules/:moduleSlug/lessons/:lessonSlug",
+  requireAuth,
+  async (req: Request, res: Response) => {
+    try {
+      const userId = req.user!.id;
+      const { trackSlug, moduleSlug, lessonSlug } = req.params;
+
+      const lessons = await prisma.$queryRaw<
+        Array<{
+          id: string;
+          title: string;
+          summary: string | null;
+          difficulty: string;
+          estimatedMinutes: number;
+          learningObjectives: any;
+          moduleId: string;
+          moduleTitle: string;
+          moduleSlug: string;
+          trackTitle: string;
+          trackSlug: string;
+        }>
+      >`
+        SELECT
+          l.id,
+          l.title,
+          l.summary,
+          l.difficulty::text AS difficulty,
+          l.estimated_minutes AS "estimatedMinutes",
+          l.learning_objectives AS "learningObjectives",
+          m.id AS "moduleId",
+          m.title AS "moduleTitle",
+          m.slug AS "moduleSlug",
+          t.title AS "trackTitle",
+          t.slug AS "trackSlug"
+        FROM theory_lessons l
+        INNER JOIN theory_modules m ON m.id = l.module_id
+        INNER JOIN theory_tracks t ON t.id = m.track_id
+        WHERE t.slug = ${trackSlug}
+          AND m.slug = ${moduleSlug}
+          AND l.slug = ${lessonSlug}
+          AND t.is_published = true
+          AND m.is_published = true
+          AND l.is_published = true
+        LIMIT 1
+      `;
+
+      const lesson = lessons[0];
+      if (!lesson) {
+        return res.status(404).json({ error: "Lesson not found" });
+      }
+
+      const blocks = await prisma.$queryRaw<
+        Array<{
+          id: string;
+          blockType: string;
+          orderIndex: number;
+          content: any;
+          language: string | null;
+        }>
+      >`
+        SELECT
+          id,
+          block_type::text AS "blockType",
+          order_index AS "orderIndex",
+          content,
+          language
+        FROM theory_lesson_blocks
+        WHERE lesson_id = ${lesson.id}
+        ORDER BY order_index ASC
+      `;
+
+      const progressRows = await prisma.$queryRaw<
+        Array<{
+          status: string;
+          progressPercent: number;
+          timeSpentSeconds: number;
+          completedAt: Date | null;
+        }>
+      >`
+        SELECT
+          status::text AS status,
+          progress_percent AS "progressPercent",
+          time_spent_seconds AS "timeSpentSeconds",
+          completed_at AS "completedAt"
+        FROM user_theory_lesson_progress
+        WHERE user_id = ${userId}
+          AND lesson_id = ${lesson.id}
+      `;
+
+      const progress =
+        progressRows[0] ||
+        ({
+          status: "NOT_STARTED",
+          progressPercent: 0,
+          timeSpentSeconds: 0,
+          completedAt: null,
+        } as const);
+
+      const siblingLessons = await prisma.$queryRaw<
+        Array<{ id: string; slug: string; title: string; orderIndex: number }>
+      >`
+        SELECT id, slug, title, order_index AS "orderIndex"
+        FROM theory_lessons
+        WHERE module_id = ${lesson.moduleId}
+          AND is_published = true
+        ORDER BY order_index ASC, created_at ASC
+      `;
+
+      const siblingProgressRows = await prisma.$queryRaw<
+        Array<{ lessonId: string; status: string }>
+      >`
+        SELECT
+          lesson_id AS "lessonId",
+          status::text AS status
+        FROM user_theory_lesson_progress
+        WHERE user_id = ${userId}
+          AND lesson_id IN (
+            SELECT id FROM theory_lessons WHERE module_id = ${lesson.moduleId}
+          )
+      `;
+      const siblingProgress = new Map(
+        siblingProgressRows.map((row) => [row.lessonId, row.status]),
+      );
+
+      const problems = await prisma.$queryRaw<
+        Array<{
+          id: string;
+          title: string;
+          difficulty: string;
+          link: string | null;
+          topicName: string | null;
+          required: boolean;
+          orderIndex: number;
+          solved: boolean;
+        }>
+      >`
+        SELECT
+          p.id,
+          p.title,
+          p.difficulty::text AS difficulty,
+          p.link,
+          t.name AS "topicName",
+          tpl.required,
+          tpl.order_index AS "orderIndex",
+          CASE WHEN pr.status = 'DONE' THEN true ELSE false END AS solved
+        FROM theory_problem_links tpl
+        INNER JOIN "Problem" p ON p.id = tpl.problem_id
+        LEFT JOIN "Topic" t ON t.id = p."topicId"
+        LEFT JOIN "Progress" pr ON pr."problemId" = p.id AND pr."userId" = ${userId}
+        WHERE tpl.lesson_id = ${lesson.id}
+           OR (tpl.lesson_id IS NULL AND tpl.module_id = ${lesson.moduleId})
+        ORDER BY tpl.order_index ASC
+      `;
+
+      const isUnlocked = progress.status === "COMPLETED";
+
+      res.json({
+        lesson: {
+          id: lesson.id,
+          title: lesson.title,
+          summary: lesson.summary,
+          difficulty: lesson.difficulty,
+          estimatedMinutes: lesson.estimatedMinutes,
+          learningObjectives: lesson.learningObjectives,
+          module: {
+            id: lesson.moduleId,
+            title: lesson.moduleTitle,
+            slug: lesson.moduleSlug,
+          },
+          track: {
+            title: lesson.trackTitle,
+            slug: lesson.trackSlug,
+          },
+        },
+        blocks,
+        progress,
+        isUnlocked,
+        siblings: siblingLessons.map((s) => ({
+          ...s,
+          status: siblingProgress.get(s.id) || "NOT_STARTED",
+        })),
+        problems: problems.map((problem) => ({
+          ...problem,
+          unlocked: isUnlocked,
+        })),
+      });
+    } catch (error) {
+      console.error("Learn lesson detail error:", error);
+      res.status(500).json({ error: "Failed to load lesson" });
+    }
+  },
+);
+
+app.post(
+  "/api/learn/lessons/:lessonId/progress",
+  requireAuth,
+  async (req: Request, res: Response) => {
+    try {
+      const userId = req.user!.id;
+      const lessonId = req.params.lessonId as string;
+      const rawStatus = String(req.body.status || "IN_PROGRESS");
+      const allowed = ["NOT_STARTED", "IN_PROGRESS", "COMPLETED"];
+      if (!allowed.includes(rawStatus)) {
+        return res.status(400).json({ error: "Invalid status" });
+      }
+
+      const requestedPercent = Number(req.body.progressPercent ?? 0);
+      const progressPercent = Math.max(
+        0,
+        Math.min(100, rawStatus === "COMPLETED" ? 100 : requestedPercent),
+      );
+      const timeSpentSeconds = Math.max(
+        0,
+        Number(req.body.timeSpentSeconds ?? 0),
+      );
+      const lastSeenBlockId = req.body.lastSeenBlockId
+        ? String(req.body.lastSeenBlockId)
+        : null;
+      const completedAt = rawStatus === "COMPLETED" ? new Date() : null;
+
+      const lessonExists = await prisma.$queryRaw<Array<{ id: string }>>`
+        SELECT id
+        FROM theory_lessons
+        WHERE id = ${lessonId}
+          AND is_published = true
+        LIMIT 1
+      `;
+
+      if (lessonExists.length === 0) {
+        return res.status(404).json({ error: "Lesson not found" });
+      }
+
+      const rows = await prisma.$queryRaw<
+        Array<{
+          status: string;
+          progressPercent: number;
+          timeSpentSeconds: number;
+          completedAt: Date | null;
+          updatedAt: Date;
+        }>
+      >`
+        INSERT INTO user_theory_lesson_progress (
+          user_id,
+          lesson_id,
+          status,
+          progress_percent,
+          time_spent_seconds,
+          completed_at,
+          last_seen_block_id,
+          created_at,
+          updated_at
+        )
+        VALUES (
+          ${userId},
+          ${lessonId},
+          ${rawStatus}::"TheoryProgressStatus",
+          ${progressPercent},
+          ${timeSpentSeconds},
+          ${completedAt},
+          ${lastSeenBlockId},
+          NOW(),
+          NOW()
+        )
+        ON CONFLICT (user_id, lesson_id)
+        DO UPDATE SET
+          status = EXCLUDED.status,
+          progress_percent = EXCLUDED.progress_percent,
+          time_spent_seconds = EXCLUDED.time_spent_seconds,
+          completed_at = EXCLUDED.completed_at,
+          last_seen_block_id = EXCLUDED.last_seen_block_id,
+          updated_at = NOW()
+        RETURNING
+          status::text AS status,
+          progress_percent AS "progressPercent",
+          time_spent_seconds AS "timeSpentSeconds",
+          completed_at AS "completedAt",
+          updated_at AS "updatedAt"
+      `;
+
+      res.json(rows[0]);
+    } catch (error) {
+      console.error("Update theory progress error:", error);
+      res.status(500).json({ error: "Failed to update lesson progress" });
+    }
+  },
+);
+
+app.post(
+  "/api/admin/learn/seed",
+  requireAuth,
+  requireAdmin,
+  async (_req: Request, res: Response) => {
+    try {
+      const existing = await prisma.$queryRaw<Array<{ count: bigint }>>`
+        SELECT COUNT(*)::bigint AS count FROM theory_tracks
+      `;
+      if (Number(existing[0]?.count || 0) > 0) {
+        return res.json({
+          success: true,
+          seeded: false,
+          message: "Theory data already exists",
+        });
+      }
+
+      const arraysTopic = await prisma.topic.findFirst({
+        where: { name: { contains: "Array", mode: "insensitive" } },
+      });
+      const starterProblems = await prisma.problem.findMany({
+        where: arraysTopic ? { topicId: arraysTopic.id } : undefined,
+        orderBy: [{ orderIndex: "asc" }],
+        take: 3,
+      });
+
+      const trackId = randomUUID();
+      const moduleId = randomUUID();
+      const lessonOneId = randomUUID();
+      const lessonTwoId = randomUUID();
+
+      await prisma.$executeRaw`
+        INSERT INTO theory_tracks (id, slug, title, description, order_index, is_published, created_at, updated_at)
+        VALUES (
+          ${trackId},
+          'cpp-foundations',
+          'C++ Foundations',
+          'Learn core C++ theory before solving DSA questions.',
+          1,
+          true,
+          NOW(),
+          NOW()
+        )
+      `;
+
+      await prisma.$executeRaw`
+        INSERT INTO theory_modules (id, track_id, topic_id, slug, title, summary, order_index, estimated_minutes, is_published, created_at, updated_at)
+        VALUES (
+          ${moduleId},
+          ${trackId},
+          ${arraysTopic?.id || null},
+          'cpp-basics-for-dsa',
+          'C++ Basics For DSA',
+          'Syntax, data structures, and complexity thinking with C++.',
+          1,
+          45,
+          true,
+          NOW(),
+          NOW()
+        )
+      `;
+
+      await prisma.$executeRaw`
+        INSERT INTO theory_lessons (id, module_id, slug, title, summary, order_index, difficulty, estimated_minutes, learning_objectives, is_published, created_at, updated_at)
+        VALUES (
+          ${lessonOneId},
+          ${moduleId},
+          'cpp-setup-and-complexity',
+          'C++ Setup and Big-O',
+          'Understand compilation, STL basics, and runtime complexity.',
+          1,
+          'BEGINNER',
+          20,
+          ${JSON.stringify([
+            "Understand O(1), O(log n), O(n), O(n log n)",
+            "Write fast I/O boilerplate in C++",
+            "Know when vectors vs arrays matter",
+          ])}::jsonb,
+          true,
+          NOW(),
+          NOW()
+        )
+      `;
+
+      await prisma.$executeRaw`
+        INSERT INTO theory_lessons (id, module_id, slug, title, summary, order_index, difficulty, estimated_minutes, learning_objectives, is_published, created_at, updated_at)
+        VALUES (
+          ${lessonTwoId},
+          ${moduleId},
+          'cpp-hashmap-and-two-pointer',
+          'HashMap and Two Pointer Patterns',
+          'Theory behind two most common interview patterns.',
+          2,
+          'BEGINNER',
+          25,
+          ${JSON.stringify([
+            "Identify when to use unordered_map",
+            "Convert brute force to linear scans",
+            "Avoid common two-pointer edge cases",
+          ])}::jsonb,
+          true,
+          NOW(),
+          NOW()
+        )
+      `;
+
+      const lessonOneBlocks = [
+        {
+          type: "MARKDOWN",
+          content: {
+            markdown:
+              "### Why theory before problems?\nStrong fundamentals reduce trial-and-error coding and improve interview speed.",
+          },
+        },
+        {
+          type: "CODE",
+          content: {
+            title: "Fast I/O template",
+            code: "ios_base::sync_with_stdio(false);\\ncin.tie(nullptr);",
+          },
+          language: "cpp",
+        },
+        {
+          type: "NOTE",
+          content: {
+            markdown:
+              "For many DSA questions, reducing nested loops to one pass is the main optimization goal.",
+          },
+        },
+      ];
+
+      for (let i = 0; i < lessonOneBlocks.length; i++) {
+        const block = lessonOneBlocks[i];
+        await prisma.$executeRaw`
+          INSERT INTO theory_lesson_blocks (id, lesson_id, block_type, order_index, content, language)
+          VALUES (
+            ${randomUUID()},
+            ${lessonOneId},
+            ${block.type}::"TheoryBlockType",
+            ${i + 1},
+            ${JSON.stringify(block.content)}::jsonb,
+            ${block.language || null}
+          )
+        `;
+      }
+
+      const lessonTwoBlocks = [
+        {
+          type: "MARKDOWN",
+          content: {
+            markdown:
+              "### Hash map pattern\nUse value->index maps when you need complement lookup in constant average time.",
+          },
+        },
+        {
+          type: "MARKDOWN",
+          content: {
+            markdown:
+              "### Two pointer pattern\nUse left/right pointers on sorted data when target conditions depend on pair sums or windows.",
+          },
+        },
+      ];
+
+      for (let i = 0; i < lessonTwoBlocks.length; i++) {
+        const block = lessonTwoBlocks[i];
+        await prisma.$executeRaw`
+          INSERT INTO theory_lesson_blocks (id, lesson_id, block_type, order_index, content, language)
+          VALUES (
+            ${randomUUID()},
+            ${lessonTwoId},
+            ${block.type}::"TheoryBlockType",
+            ${i + 1},
+            ${JSON.stringify(block.content)}::jsonb,
+            NULL
+          )
+        `;
+      }
+
+      for (let i = 0; i < starterProblems.length; i++) {
+        await prisma.$executeRaw`
+          INSERT INTO theory_problem_links (id, lesson_id, module_id, problem_id, required, order_index)
+          VALUES (
+            ${randomUUID()},
+            ${lessonTwoId},
+            NULL,
+            ${starterProblems[i].id},
+            true,
+            ${i + 1}
+          )
+        `;
+      }
+
+      res.json({
+        success: true,
+        seeded: true,
+        tracks: 1,
+        modules: 1,
+        lessons: 2,
+      });
+    } catch (error) {
+      console.error("Theory seed error:", error);
+      res.status(500).json({ error: "Failed to seed theory content" });
     }
   },
 );

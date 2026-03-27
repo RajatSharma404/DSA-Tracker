@@ -1,6 +1,14 @@
 import axios from "axios";
 import { getSession } from "next-auth/react";
 
+type SessionWithToken = {
+  accessToken?: string;
+};
+
+let cachedAccessToken: string | null = null;
+let lastSessionReadAt = 0;
+const SESSION_CACHE_MS = 30_000;
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 export const api = axios.create({
@@ -12,9 +20,20 @@ export const api = axios.create({
 
 // Automatically attach JWT token to all requests
 api.interceptors.request.use(async (config) => {
-  const session = await getSession();
-  if (session && (session as any).accessToken) {
-    config.headers.Authorization = `Bearer ${(session as any).accessToken}`;
+  const now = Date.now();
+  if (now - lastSessionReadAt > SESSION_CACHE_MS) {
+    lastSessionReadAt = now;
+    try {
+      const session = (await getSession()) as SessionWithToken | null;
+      cachedAccessToken = session?.accessToken || null;
+    } catch {
+      // Avoid noisy client-fetch failures from breaking API calls.
+      cachedAccessToken = null;
+    }
+  }
+
+  if (cachedAccessToken) {
+    config.headers.Authorization = `Bearer ${cachedAccessToken}`;
   }
   return config;
 });
@@ -62,6 +81,88 @@ export interface MockInterview {
   feedback: string | null;
 }
 
+export interface LearnLessonSummary {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string | null;
+  orderIndex: number;
+  estimatedMinutes: number;
+  difficulty: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+  status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
+  progressPercent: number;
+}
+
+export interface LearnModuleSummary {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string | null;
+  orderIndex: number;
+  estimatedMinutes: number;
+  totalLessons: number;
+  completedLessons: number;
+  progressPercent: number;
+  lessons: LearnLessonSummary[];
+}
+
+export interface LearnTrackSummary {
+  id: string;
+  slug: string;
+  title: string;
+  description: string | null;
+  orderIndex: number;
+  totalLessons: number;
+  completedLessons: number;
+  progressPercent: number;
+  modules: LearnModuleSummary[];
+}
+
+export interface LearnLessonDetail {
+  lesson: {
+    id: string;
+    title: string;
+    summary: string | null;
+    difficulty: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+    estimatedMinutes: number;
+    learningObjectives: string[] | null;
+    module: { id: string; title: string; slug: string };
+    track: { title: string; slug: string };
+  };
+  blocks: Array<{
+    id: string;
+    blockType: "MARKDOWN" | "CODE" | "NOTE" | "QUIZ" | "IMAGE";
+    orderIndex: number;
+    content: unknown;
+    language: string | null;
+  }>;
+  progress: {
+    status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
+    progressPercent: number;
+    timeSpentSeconds: number;
+    completedAt: string | null;
+  };
+  isUnlocked: boolean;
+  siblings: Array<{
+    id: string;
+    slug: string;
+    title: string;
+    orderIndex: number;
+    status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
+  }>;
+  problems: Array<{
+    id: string;
+    title: string;
+    difficulty: "EASY" | "MEDIUM" | "HARD";
+    link: string | null;
+    topicName: string | null;
+    required: boolean;
+    orderIndex: number;
+    solved: boolean;
+    unlocked: boolean;
+  }>;
+}
+
 export const dsaApi = {
   getDashboardStats: async (): Promise<DashboardStats> => {
     const res = await api.get("/dashboard");
@@ -69,6 +170,36 @@ export const dsaApi = {
   },
   getTopics: async (): Promise<Topic[]> => {
     const res = await api.get("/topics");
+    return res.data;
+  },
+  getLearnTracks: async (): Promise<LearnTrackSummary[]> => {
+    const res = await api.get("/learn/tracks");
+    return res.data;
+  },
+  getLearnLesson: async (
+    trackSlug: string,
+    moduleSlug: string,
+    lessonSlug: string,
+  ): Promise<LearnLessonDetail> => {
+    const res = await api.get(
+      `/learn/tracks/${trackSlug}/modules/${moduleSlug}/lessons/${lessonSlug}`,
+    );
+    return res.data;
+  },
+  updateLearnLessonProgress: async (
+    lessonId: string,
+    data: {
+      status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
+      progressPercent?: number;
+      timeSpentSeconds?: number;
+      lastSeenBlockId?: string;
+    },
+  ) => {
+    const res = await api.post(`/learn/lessons/${lessonId}/progress`, data);
+    return res.data;
+  },
+  adminSeedLearn: async () => {
+    const res = await api.post("/admin/learn/seed");
     return res.data;
   },
   getTopicProblems: async (topicId: string): Promise<Problem[]> => {

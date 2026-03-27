@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   BookOpen,
-  Clock,
   Target,
   Menu,
   LogOut,
@@ -20,13 +19,14 @@ import {
   Search,
   RotateCcw,
   Brain,
+  GraduationCap,
 } from "lucide-react";
 import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
-import Image from "next/image";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/" },
+  { icon: GraduationCap, label: "Learn", href: "/learn" },
   { icon: Network, label: "Visual Roadmap", href: "/roadmap" },
   { icon: BookOpen, label: "Topics", href: "/topics" },
   { icon: Library, label: "The Vault", href: "/vault" },
@@ -46,7 +46,11 @@ export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const { data: session } = useSession();
 
-  const isAdmin = (session?.user as any)?.role === "ADMIN";
+  const routeCollapsed = pathname.startsWith("/challenge/");
+  const effectiveCollapsed = routeCollapsed || collapsed;
+  const isAdmin =
+    ((session?.user as { role?: string } | undefined)?.role || "USER") ===
+    "ADMIN";
   const displayItems = [...navItems];
   if (isAdmin) {
     displayItems.push({
@@ -59,11 +63,11 @@ export function Sidebar() {
   return (
     <div
       className={`flex flex-col h-screen bg-[#111111] text-gray-400 border-r border-[#222] transition-all duration-300 ${
-        collapsed ? "w-16" : "w-64"
+        effectiveCollapsed ? "w-16" : "w-64"
       }`}
     >
       <div className="flex items-center justify-between p-4 border-b border-[#222]">
-        {!collapsed && (
+        {!effectiveCollapsed && (
           <span className="text-white font-bold text-lg">DSA Pro</span>
         )}
         <button
@@ -90,7 +94,7 @@ export function Sidebar() {
               }`}
             >
               <item.icon size={20} className={isActive ? "text-white" : ""} />
-              {!collapsed && (
+              {!effectiveCollapsed && (
                 <span className="ml-3 font-medium">{item.label}</span>
               )}
             </Link>
@@ -99,7 +103,7 @@ export function Sidebar() {
       </nav>
 
       <div className="p-4 border-t border-[#222]">
-        {session?.user && !collapsed && (
+        {session?.user && !effectiveCollapsed && (
           <div className="flex items-center gap-3 mb-4">
             {session.user.image ? (
               <img
@@ -125,10 +129,10 @@ export function Sidebar() {
 
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
-          className={`flex items-center w-full px-2 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-[#222] rounded-lg transition-colors ${collapsed ? "justify-center" : ""}`}
+          className={`flex items-center w-full px-2 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-[#222] rounded-lg transition-colors ${effectiveCollapsed ? "justify-center" : ""}`}
         >
           <LogOut size={20} />
-          {!collapsed && <span className="ml-3">Sign Out</span>}
+          {!effectiveCollapsed && <span className="ml-3">Sign Out</span>}
         </button>
       </div>
     </div>

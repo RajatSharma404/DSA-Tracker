@@ -25,6 +25,11 @@ export default function ChallengeSimulator() {
   const [isFinished, setIsFinished] = useState(false);
   const [activeProblem, setActiveProblem] = useState(0);
   const [showPanel, setShowPanel] = useState(true);
+  const [problemContent, setProblemContent] = useState<string | null>(null);
+  const [loadingContent, setLoadingContent] = useState(false);
+  const [panelWidth, setPanelWidth] = useState(380);
+  const [isResizingPanel, setIsResizingPanel] = useState(false);
+  const mainAreaRef = useRef<HTMLDivElement | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -68,6 +73,68 @@ export default function ChallengeSimulator() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [timeLeft, isFinished]);
+
+  useEffect(() => {
+    async function loadContent() {
+      if (!session?.problems?.length) return;
+
+      const currentProblem = session.problems[activeProblem];
+      if (!currentProblem?.link) {
+        setProblemContent("<p>No description available.</p>");
+        return;
+      }
+
+      try {
+        setLoadingContent(true);
+        const match = currentProblem.link.match(/problems\/([^/]+)/);
+
+        if (!match?.[1]) {
+          setProblemContent("<p>No description available.</p>");
+          return;
+        }
+
+        const details = await dsaApi.getProblemDetails(match[1]);
+        setProblemContent(
+          details?.content ||
+            details?.question ||
+            "<p>No description available.</p>",
+        );
+      } catch {
+        setProblemContent("<p>Failed to load description.</p>");
+      } finally {
+        setLoadingContent(false);
+      }
+    }
+
+    loadContent();
+  }, [session, activeProblem]);
+
+  useEffect(() => {
+    if (!isResizingPanel) return;
+
+    const handleMove = (event: MouseEvent) => {
+      if (!mainAreaRef.current) return;
+
+      const rect = mainAreaRef.current.getBoundingClientRect();
+      const proposed = rect.right - event.clientX;
+      const minWidth = 300;
+      const maxWidth = Math.min(700, rect.width - 320);
+      const clamped = Math.max(minWidth, Math.min(maxWidth, proposed));
+      setPanelWidth(clamped);
+    };
+
+    const handleUp = () => {
+      setIsResizingPanel(false);
+    };
+
+    window.addEventListener("mousemove", handleMove);
+    window.addEventListener("mouseup", handleUp);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMove);
+      window.removeEventListener("mouseup", handleUp);
+    };
+  }, [isResizingPanel]);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -195,7 +262,10 @@ export default function ChallengeSimulator() {
       </header>
 
       {/* ── MAIN AREA ────────────────────────────────────────────── */}
-      <div className="flex-1 flex overflow-hidden relative z-10">
+      <div
+        ref={mainAreaRef}
+        className={`flex-1 flex overflow-hidden relative z-10 ${isResizingPanel ? "select-none" : ""}`}
+      >
         {/* Code Editor — full width, slides when panel open */}
         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
           {isFinished ? (
@@ -237,7 +307,8 @@ export default function ChallengeSimulator() {
               <CodeEditor
                 key={prob.id}
                 initialCode={`// Problem: ${prob.title}\n// Topic: ${prob.topic?.name ?? ""}\n\nfunction solve() {\n  // Write your logic here\n  \n}\n\nconsole.log(solve());`}
-                className="h-full rounded-[1.5rem]"
+                layout="vertical"
+                className="h-full rounded-3xl"
               />
             </div>
           )}
@@ -254,13 +325,29 @@ export default function ChallengeSimulator() {
         </div>
 
         {/* ── RIGHT PROBLEM PANEL ──────────────────────────────── */}
+        {showPanel && (
+          <div
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Resize problem panel"
+            onMouseDown={() => setIsResizingPanel(true)}
+            className="group shrink-0 w-1 cursor-col-resize bg-white/5 hover:bg-blue-500/40 active:bg-blue-500/60 transition-colors"
+          >
+            <div className="h-full w-full opacity-0 group-hover:opacity-100 bg-blue-500/20" />
+          </div>
+        )}
+
         <aside
           className={`shrink-0 overflow-y-auto border-l border-white/5 bg-[#0a0a0a] transition-all duration-300 ease-in-out ${
-            showPanel ? "w-[380px]" : "w-0 overflow-hidden border-none"
+            showPanel ? "" : "w-0 overflow-hidden border-none"
           }`}
+          style={showPanel ? { width: `${panelWidth}px` } : undefined}
         >
           {showPanel && prob && (
-            <div className="p-6 space-y-6 min-w-[380px]">
+            <div
+              className="p-6 space-y-6"
+              style={{ minWidth: `${panelWidth}px` }}
+            >
               {/* Problem header */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between gap-2">
@@ -294,6 +381,26 @@ export default function ChallengeSimulator() {
                   <Cpu size={14} className="text-gray-600" />
                   <span>Algorithmic Challenge</span>
                 </div>
+              </div>
+
+              <div className="h-px bg-white/5" />
+
+              {/* Problem description */}
+              <div className="space-y-2">
+                <p className="text-[10px] font-black uppercase tracking-widest text-gray-600">
+                  Description
+                </p>
+                {loadingContent ? (
+                  <div className="h-32 animate-pulse rounded-xl bg-white/5" />
+                ) : (
+                  <div
+                    className="custom-scrollbar max-h-75 overflow-y-auto pr-2 text-sm text-gray-300"
+                    dangerouslySetInnerHTML={{
+                      __html:
+                        problemContent || "<p>No description available.</p>",
+                    }}
+                  />
+                )}
               </div>
 
               <div className="h-px bg-white/5" />
