@@ -1,6 +1,6 @@
 # DSA Roadmap Tracker
 
-A full-stack web application to track your Data Structures & Algorithms journey with AI-powered code evaluation, visual roadmaps, spaced repetition, and more — built with Next.js 15, Express.js, PostgreSQL,.
+A full-stack web application to track your Data Structures & Algorithms journey with AI-powered code evaluation, theory-first learning, visual roadmaps, spaced repetition, and more — built with Next.js 15, Express.js, and PostgreSQL.
 
 ![Tech Stack](https://img.shields.io/badge/Next.js-15-black?logo=next.js) ![Express](https://img.shields.io/badge/Express-5-lightgrey?logo=express) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue?logo=postgresql) ![Prisma](https://img.shields.io/badge/Prisma-5-2D3748?logo=prisma)
 
@@ -44,6 +44,7 @@ A full-stack web application to track your Data Structures & Algorithms journey 
 | **Achievements & Badges** | Unlock badges as you hit milestones                                                                                      |
 | **Weekly Reports**        | Auto-generated summary of your weekly progress                                                                           |
 | **The Vault**             | DSA pattern templates and personal notes per problem                                                                     |
+| **Learn (Theory First)**  | C++ mastery track with topic-wise theory modules, structured lesson blocks, and per-module linked practice              |
 | **The Arena**             | Full-screen timed arena: multi-language editor with Vim mode, collapsible problem panel, per-problem tabs                |
 | **Mock Interviews**       | Track your mock interview scores and feedback                                                                            |
 | **Email Login**           | Secure credentials-based authentication via NextAuth                                                                     |
@@ -201,13 +202,22 @@ After login, you land on the **Dashboard** showing:
 - Weak topics that need attention
 - Problems due for revision
 
-### 3. Topics & Problems
+### 3. Learn (Theory First)
+
+Open **Learn** from the sidebar to follow a theory-first workflow before solving problems.
+
+- Topic-wise C++ modules (beginner to advanced)
+- Structured lesson blocks (concepts, templates, notes)
+- Linked practice problems that unlock after lesson completion
+- Progress tracking per lesson and module
+
+### 4. Topics & Problems
 
 - Click **Topics** in the sidebar to see all DSA topics (Arrays, Linked List, Trees, etc.)
 - Click any topic to see its problems
 - Click a problem to open the **code editor**
 
-### 4. Writing & Submitting Code
+### 5. Writing & Submitting Code
 
 - The **code editor** supports **JavaScript, Python, Java, and C++** — select your language from the toolbar
 - Toggle **Vim mode** with the `VIM` button in the toolbar; a status bar appears at the bottom of the editor showing the current Vim command state
@@ -222,21 +232,21 @@ After login, you land on the **Dashboard** showing:
   - **Feedback** — A mentor-style comment
 - **Your code is saved automatically** — next time you open the same problem, your last submission loads in the editor
 
-### 5. Visual Roadmap
+### 6. Visual Roadmap
 
 Click **Visual Roadmap** to see an interactive graph of all topics and problems, showing dependencies and your progress visually.
 
 - Use the **navigation controls** (bottom-left) to zoom in/out and re-center — icons are now clearly styled against the dark background
 - The **minimap** (bottom-right) gives a bird's-eye view of the full graph
 
-### 6. The Vault
+### 7. The Vault
 
 Access **The Vault** for:
 
 - DSA pattern templates (Sliding Window, Binary Search, BFS/DFS, etc.)
 - Personal notes per problem (Markdown supported)
 
-### 7. Analytics
+### 8. Analytics
 
 The **Analytics** page shows:
 
@@ -244,7 +254,7 @@ The **Analytics** page shows:
 - Skill radar across all topics
 - Productivity insights and score trends
 
-### 8. Explore & Search
+### 9. Explore & Search
 
 Use **Explore** to filter problems across all topics by:
 
@@ -253,24 +263,26 @@ Use **Explore** to filter problems across all topics by:
 - Topic
 - Bookmarks and custom tags
 
-### 9. Review Queue
+### 10. Review Queue
 
 **Review Queue** uses spaced repetition to resurface problems you've solved. Problems appear when they're due for review to strengthen long-term retention.
 
-### 10. AI Recommendations
+### 11. AI Recommendations
 
 **AI Recommend** analyzes your solved problems and weak areas to suggest what to practice next.
 
-### 11. The Arena
+### 12. The Arena
 
 **The Arena** offers timed challenge sessions — pick a topic and time limit, then solve under pressure.
 
 - The editor takes **full screen real estate** for distraction-free coding
 - Use the **problem tabs** (P1, P2…) in the top bar to switch between assigned problems
 - Click the **panel icon** (top-right) to toggle the collapsible problem details panel, which shows the problem title, difficulty, topic, and a LeetCode link
+- Drag the **vertical splitter** to resize editor area vs problem panel like LeetCode
+- Drag the **horizontal splitter** in the editor to resize code area vs console output
 - The timer turns orange at 3 minutes and red at 1 minute remaining
 
-### 12. Settings
+### 13. Settings
 
 In **Settings**, you can configure your LeetCode session cookie (for direct LeetCode integration if desired) and other preferences.
 
@@ -292,7 +304,7 @@ DSA-Tracker/
 │   ├── services.ts             # Business logic (streaks, analytics, achievements)
 │   ├── templates.ts            # DSA pattern templates for The Vault
 │   ├── prisma/
-│   │   ├── schema.prisma       # Database schema (15 models)
+│   │   ├── schema.prisma       # Database schema (topics, progress, auth, theory learning)
 │   │   ├── seed.ts             # Seeds topics and problems
 │   │   └── migrations/         # Database migrations
 │   └── package.json
@@ -303,6 +315,7 @@ DSA-Tracker/
 │   │   │   ├── (auth)/login/        # Login page
 │   │   │   ├── (dashboard)/         # All authenticated pages
 │   │   │   │   ├── page.tsx              # Dashboard
+│   │   │   │   ├── learn/                # Theory-first learning (tracks/modules/lessons)
 │   │   │   │   ├── topics/               # Topic list + problem pages
 │   │   │   │   ├── problems/             # Individual problem + code editor
 │   │   │   │   ├── roadmap/              # Visual roadmap
