@@ -1,8 +1,8 @@
 # DSA Roadmap Tracker
 
-A full-stack web application to track your Data Structures & Algorithms journey with AI-powered code evaluation, visual roadmaps, spaced repetition, and more — built with Next.js 15, Express.js, PostgreSQL, and Google Gemini AI.
+A full-stack web application to track your Data Structures & Algorithms journey with AI-powered code evaluation, visual roadmaps, spaced repetition, and more — built with Next.js 15, Express.js, PostgreSQL,.
 
-![Tech Stack](https://img.shields.io/badge/Next.js-15-black?logo=next.js) ![Express](https://img.shields.io/badge/Express-5-lightgrey?logo=express) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue?logo=postgresql) ![Prisma](https://img.shields.io/badge/Prisma-5-2D3748?logo=prisma) ![Gemini](https://img.shields.io/badge/Gemini_AI-powered-4285F4?logo=google)
+![Tech Stack](https://img.shields.io/badge/Next.js-15-black?logo=next.js) ![Express](https://img.shields.io/badge/Express-5-lightgrey?logo=express) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue?logo=postgresql) ![Prisma](https://img.shields.io/badge/Prisma-5-2D3748?logo=prisma)
 
 ---
 
@@ -26,28 +26,28 @@ A full-stack web application to track your Data Structures & Algorithms journey 
 
 ## ✨ Features
 
-| Feature                   | Description                                                                                                                                    |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| **500-Problem Roadmap**   | 500 hand-picked LeetCode problems across 25 topics — from C++ Basics to Advanced DP and Graphs                                                 |
-| **Visual Roadmap**        | Interactive ReactFlow graph with dark-themed navigation controls, minimap, and live progress colours                                           |
-| **3D UI Effects**         | Mouse-tracking 3D tilt on stat cards, 3D pop on roadmap nodes, perspective hover on panels, and 3D badge flip animations                       |
-| **AI Code Evaluation**    | Submit code and get instant correctness verdict, complexity analysis, optimal approaches, edge case checks, and a score (powered by Gemini AI) |
-| **Solution Persistence**  | Your submitted code is saved — come back later and it's still there                                                                            |
-| **AI Mentor Hints**       | Get contextual hints without spoilers                                                                                                          |
-| **AI Code Review**        | Paste any code and receive a detailed review                                                                                                   |
-| **Algorithm Visualizer**  | Step-by-step dry run of your code with variable tracking                                                                                       |
-| **Topic Study Guides**    | In-depth guides for each DSA topic                                                                                                             |
-| **Spaced Repetition**     | Review queue that resurfaces problems at optimal intervals                                                                                     |
-| **Explore & Search**      | Filter problems by difficulty, status, topic, bookmarks, and custom tags                                                                       |
-| **AI Recommendations**    | Personalized problem suggestions based on your weaknesses                                                                                      |
-| **Analytics Dashboard**   | Full-year activity heatmap (Jan – Dec), skill radar, streak tracking, productivity insights                                                    |
-| **Achievements & Badges** | Unlock badges as you hit milestones                                                                                                            |
-| **Weekly Reports**        | Auto-generated summary of your weekly progress                                                                                                 |
-| **The Vault**             | DSA pattern templates and personal notes per problem                                                                                           |
-| **The Arena**             | Full-screen timed arena: multi-language editor with Vim mode, collapsible problem panel, per-problem tabs                                      |
-| **Mock Interviews**       | Track your mock interview scores and feedback                                                                                                  |
-| **Google OAuth Login**    | Secure authentication via NextAuth                                                                                                             |
-| **Admin Panel**           | Manage users, topics, and problems                                                                                                             |
+| Feature                   | Description                                                                                                              |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| **500-Problem Roadmap**   | 500 hand-picked LeetCode problems across 25 topics — from C++ Basics to Advanced DP and Graphs                           |
+| **Visual Roadmap**        | Interactive ReactFlow graph with dark-themed navigation controls, minimap, and live progress colours                     |
+| **3D UI Effects**         | Mouse-tracking 3D tilt on stat cards, 3D pop on roadmap nodes, perspective hover on panels, and 3D badge flip animations |
+| **AI Code Evaluation**    | Submit code and get instant correctness verdict, complexity analysis, optimal approaches, edge case checks, and a score  |
+| **Solution Persistence**  | Your submitted code is saved — come back later and it's still there                                                      |
+| **AI Mentor Hints**       | Get contextual hints without spoilers                                                                                    |
+| **AI Code Review**        | Paste any code and receive a detailed review                                                                             |
+| **Algorithm Visualizer**  | Step-by-step dry run of your code with variable tracking                                                                 |
+| **Topic Study Guides**    | In-depth guides for each DSA topic                                                                                       |
+| **Spaced Repetition**     | Review queue that resurfaces problems at optimal intervals                                                               |
+| **Explore & Search**      | Filter problems by difficulty, status, topic, bookmarks, and custom tags                                                 |
+| **AI Recommendations**    | Personalized problem suggestions based on your weaknesses                                                                |
+| **Analytics Dashboard**   | Full-year activity heatmap (Jan – Dec), skill radar, streak tracking, productivity insights                              |
+| **Achievements & Badges** | Unlock badges as you hit milestones                                                                                      |
+| **Weekly Reports**        | Auto-generated summary of your weekly progress                                                                           |
+| **The Vault**             | DSA pattern templates and personal notes per problem                                                                     |
+| **The Arena**             | Full-screen timed arena: multi-language editor with Vim mode, collapsible problem panel, per-problem tabs                |
+| **Mock Interviews**       | Track your mock interview scores and feedback                                                                            |
+| **Email Login**           | Secure credentials-based authentication via NextAuth                                                                     |
+| **Admin Panel**           | Manage users, topics, and problems                                                                                       |
 
 ---
 
@@ -55,9 +55,9 @@ A full-stack web application to track your Data Structures & Algorithms journey 
 
 **Frontend:** Next.js 15 · React 19 · Tailwind CSS 4 · ReactFlow · Recharts · Monaco Editor · monaco-vim · Lucide Icons
 
-**Backend:** Express.js 5 · Prisma ORM · PostgreSQL · Google Gemini AI · JWT
+**Backend:** Express.js 5 · Prisma ORM · PostgreSQL · Local AI heuristics engine · JWT
 
-**Auth:** NextAuth (Google OAuth)
+**Auth:** NextAuth (Credentials Provider)
 
 **Infra:** Docker (PostgreSQL) · PM2 / systemd for production
 
@@ -76,8 +76,7 @@ Before you begin, make sure you have these installed:
 
 You'll also need:
 
-- A **Google Cloud Console** project with OAuth 2.0 credentials (for login)
-- A **Google Gemini API key** (for AI features) — get one at [aistudio.google.com](https://aistudio.google.com/apikey)
+- A configured local backend and database for AI-assisted heuristics and analytics
 
 ---
 
@@ -115,7 +114,6 @@ Create a `.env` file inside the `backend/` folder:
 PORT=3001
 DATABASE_URL="postgresql://postgres:password@localhost:5432/dsatracker?schema=public"
 NEXTAUTH_SECRET="any-long-random-string-here"
-GEMINI_API_KEY="your-google-gemini-api-key"
 ```
 
 > **Note:** The Docker default password is `password`. If you changed it in `docker-compose.yml`, update `DATABASE_URL` accordingly.
@@ -142,20 +140,7 @@ Create a `.env.local` file inside the `frontend/` folder:
 DATABASE_URL="postgresql://postgres:password@localhost:5432/dsatracker?schema=public"
 NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_SECRET="same-secret-as-backend"
-GOOGLE_CLIENT_ID="your-google-oauth-client-id"
-GOOGLE_CLIENT_SECRET="your-google-oauth-client-secret"
 ```
-
-> **Getting Google OAuth credentials:**
->
-> 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-> 2. Create a new project (or select existing)
-> 3. Go to **APIs & Services → Credentials**
-> 4. Click **Create Credentials → OAuth 2.0 Client ID**
-> 5. Set Application type to **Web application**
-> 6. Add `http://localhost:3000` to **Authorized JavaScript origins**
-> 7. Add `http://localhost:3000/api/auth/callback/google` to **Authorized redirect URIs**
-> 8. Copy the Client ID and Client Secret into your `.env.local`
 
 Push the frontend Prisma schema (needed for NextAuth):
 
@@ -205,7 +190,7 @@ This starts both servers simultaneously:
 
 ### 1. Sign In
 
-Open [http://localhost:3000](http://localhost:3000) and click **Sign in with Google**. Your account is created automatically on first login.
+Open [http://localhost:3000](http://localhost:3000) and sign in with your email. Your account is created automatically on first login.
 
 ### 2. Dashboard
 
@@ -302,7 +287,7 @@ DSA-Tracker/
 │
 ├── backend/
 │   ├── index.ts                # Express server — all API routes
-│   ├── aiService.ts            # Gemini AI — hints, reviews, evaluation, recommendations
+│   ├── aiService.ts            # Local AI heuristics — hints, reviews, evaluation, recommendations
 │   ├── leetcodeService.ts      # LeetCode API integration
 │   ├── services.ts             # Business logic (streaks, analytics, achievements)
 │   ├── templates.ts            # DSA pattern templates for The Vault
@@ -355,22 +340,19 @@ DSA-Tracker/
 
 ### Backend (`backend/.env`)
 
-| Variable          | Required | Description                               |
-| ----------------- | -------- | ----------------------------------------- |
-| `PORT`            | Yes      | Backend server port (default: `3001`)     |
-| `DATABASE_URL`    | Yes      | PostgreSQL connection string              |
-| `NEXTAUTH_SECRET` | Yes      | JWT signing secret (must match frontend)  |
-| `GEMINI_API_KEY`  | Yes      | Google Gemini API key for all AI features |
+| Variable          | Required | Description                              |
+| ----------------- | -------- | ---------------------------------------- |
+| `PORT`            | Yes      | Backend server port (default: `3001`)    |
+| `DATABASE_URL`    | Yes      | PostgreSQL connection string             |
+| `NEXTAUTH_SECRET` | Yes      | JWT signing secret (must match frontend) |
 
 ### Frontend (`frontend/.env.local`)
 
-| Variable               | Required | Description                                                |
-| ---------------------- | -------- | ---------------------------------------------------------- |
-| `DATABASE_URL`         | Yes      | PostgreSQL connection string (for NextAuth Prisma adapter) |
-| `NEXTAUTH_URL`         | Yes      | Your app URL (`http://localhost:3000` for local)           |
-| `NEXTAUTH_SECRET`      | Yes      | JWT signing secret (must match backend)                    |
-| `GOOGLE_CLIENT_ID`     | Yes      | Google OAuth Client ID                                     |
-| `GOOGLE_CLIENT_SECRET` | Yes      | Google OAuth Client Secret                                 |
+| Variable          | Required | Description                                                |
+| ----------------- | -------- | ---------------------------------------------------------- |
+| `DATABASE_URL`    | Yes      | PostgreSQL connection string (for NextAuth Prisma adapter) |
+| `NEXTAUTH_URL`    | Yes      | Your app URL (`http://localhost:3000` for local)           |
+| `NEXTAUTH_SECRET` | Yes      | JWT signing secret (must match backend)                    |
 
 ---
 
@@ -393,7 +375,8 @@ The extension activates on LeetCode problem pages and pings your backend when yo
 
 ## 🖥 Deployment
 
-For full production deployment instructions — including server setup, Nginx reverse proxy, SSL, database backups, running with systemd or PM2, and **deploying on Render** — see the **[Deployment Guide](DEPLOYMENT.md)**.
+For full production deployment instructions — including server setup, Nginx reverse proxy, SSL, database backups, running with systemd or PM2, and **deploying on Render** or **Google App Engine**, see the **[Deployment Guide](DEPLOYMENT.md)**.
+You can use the provided scripts and `GOOGLE_APP_ENGINE_DEPLOYMENT.md` for easy GAE deployment.
 
 **Quick start (systemd):**
 
@@ -416,16 +399,15 @@ pm2 save && pm2 startup
 
 ## ❓ Troubleshooting
 
-| Problem                              | Solution                                                                                       |
-| ------------------------------------ | ---------------------------------------------------------------------------------------------- |
-| **Port 3000/3001 already in use**    | Kill the process: `npx kill-port 3000 3001` or change ports in `.env`                          |
-| **Docker DB not starting**           | Check Docker is running: `docker ps`. Run `docker-compose up -d` again                         |
-| **Prisma schema out of sync**        | Run `npx prisma db push` in both `backend/` and `frontend/`                                    |
-| **Google login not working**         | Verify redirect URI in Google Console matches `http://localhost:3000/api/auth/callback/google` |
-| **AI features returning errors**     | Check your `GEMINI_API_KEY` is valid and has quota remaining                                   |
-| **"NEXTAUTH_SECRET" mismatch**       | Ensure the secret is identical in both `backend/.env` and `frontend/.env.local`                |
-| **Blank page after login**           | Make sure the backend is running on port 3001                                                  |
-| **Lock file error on `npm run dev`** | Delete `frontend/.next/dev/lock` and try again                                                 |
+| Problem                              | Solution                                                                        |
+| ------------------------------------ | ------------------------------------------------------------------------------- |
+| **Port 3000/3001 already in use**    | Kill the process: `npx kill-port 3000 3001` or change ports in `.env`           |
+| **Docker DB not starting**           | Check Docker is running: `docker ps`. Run `docker-compose up -d` again          |
+| **Prisma schema out of sync**        | Run `npx prisma db push` in both `backend/` and `frontend/`                     |
+| **AI features returning errors**     | Review backend logs for local AI heuristic fallback behavior                    |
+| **"NEXTAUTH_SECRET" mismatch**       | Ensure the secret is identical in both `backend/.env` and `frontend/.env.local` |
+| **Blank page after login**           | Make sure the backend is running on port 3001                                   |
+| **Lock file error on `npm run dev`** | Delete `frontend/.next/dev/lock` and try again                                  |
 
 ---
 

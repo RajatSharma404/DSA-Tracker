@@ -2,7 +2,7 @@
 
 import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, Suspense } from "react";
+import { useEffect, Suspense, useState } from "react";
 import { Activity, LayoutDashboard, Target, Zap } from "lucide-react";
 
 function ErrorMessage() {
@@ -23,12 +23,32 @@ function ErrorMessage() {
 export default function LoginPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [submitError, setSubmitError] = useState("");
 
   useEffect(() => {
     if (status === "authenticated") {
       router.push("/");
     }
   }, [status, router]);
+
+  const handleSignIn = async () => {
+    setSubmitError("");
+    const result = await signIn("credentials", {
+      redirect: false,
+      email,
+      name,
+      callbackUrl: "/",
+    });
+
+    if (result?.error) {
+      setSubmitError("Please enter a valid email to continue.");
+      return;
+    }
+
+    router.push(result?.url || "/");
+  };
 
   if (status === "loading") {
     return (
@@ -65,9 +85,7 @@ export default function LoginPage() {
           <div className="space-y-8">
             <div className="text-center space-y-2">
               <h2 className="text-xl font-semibold text-white">Welcome back</h2>
-              <p className="text-gray-500 text-sm">
-                Sign in with your account to continue
-              </p>
+              <p className="text-gray-500 text-sm">Sign in to continue</p>
             </div>
 
             {/* Error message from OAuth callback */}
@@ -75,17 +93,57 @@ export default function LoginPage() {
               <ErrorMessage />
             </Suspense>
 
-            <button
-              onClick={() => signIn("google", { callbackUrl: "/" })}
-              className="group relative w-full flex items-center justify-center gap-3 py-4 px-6 bg-white text-black rounded-2xl font-bold text-sm tracking-tight hover:bg-gray-200 transition-all active:scale-[0.98] shadow-lg"
-            >
-              <img
-                src="https://authjs.dev/img/providers/google.svg"
-                alt="Google"
-                className="w-5 h-5"
+            <div className="space-y-3">
+              <button
+                onClick={() => signIn("google", { callbackUrl: "/" })}
+                className="group relative w-full flex items-center justify-center gap-3 py-4 px-6 bg-white text-black rounded-2xl font-bold text-sm tracking-tight hover:bg-gray-200 transition-all active:scale-[0.98] shadow-lg"
+              >
+                <img
+                  src="https://authjs.dev/img/providers/google.svg"
+                  alt="Google"
+                  className="w-5 h-5"
+                />
+                Continue with Google
+              </button>
+
+              <div className="relative py-1">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-white/10" />
+                </div>
+                <div className="relative flex justify-center">
+                  <span className="bg-[#0d0d0d] px-3 text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                    or use email
+                  </span>
+                </div>
+              </div>
+
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Name (optional)"
+                className="w-full rounded-2xl border border-white/15 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-gray-500 outline-none focus:border-white/30"
               />
-              Continue with Google
-            </button>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email"
+                className="w-full rounded-2xl border border-white/15 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-gray-500 outline-none focus:border-white/30"
+              />
+              <button
+                onClick={handleSignIn}
+                className="group relative w-full py-4 px-6 bg-white text-black rounded-2xl font-bold text-sm tracking-tight hover:bg-gray-200 transition-all active:scale-[0.98] shadow-lg"
+              >
+                Continue
+              </button>
+            </div>
+
+            {submitError ? (
+              <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-center text-sm text-red-400">
+                {submitError}
+              </div>
+            ) : null}
 
             <div className="pt-4 grid grid-cols-3 gap-4">
               <div className="flex flex-col items-center space-y-2">

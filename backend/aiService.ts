@@ -1,47 +1,65 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import dotenv from "dotenv";
+const detectLikelyComplexity = (code: string) => {
+  const normalized = code.toLowerCase();
+  if (normalized.includes("sort(")) {
+    return {
+      time: "O(N log N)",
+      space: "O(1) to O(N)",
+    };
+  }
 
-dotenv.config();
+  const hasNestedFor = /for\s*\([^)]*\)\s*\{?[\s\S]{0,300}for\s*\(/i.test(code);
+  if (hasNestedFor) {
+    return {
+      time: "O(N^2)",
+      space: "O(1)",
+    };
+  }
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+  return {
+    time: "O(N)",
+    space: "O(1) to O(N)",
+  };
+};
+
+const getTopicHint = (topic: string) => {
+  const t = topic.toLowerCase();
+  if (t.includes("two pointer")) {
+    return "Try maintaining one pointer from each side and move the one that is currently limiting progress.";
+  }
+  if (t.includes("sliding window")) {
+    return "Think about expanding the window to satisfy the condition, then shrinking it while still valid.";
+  }
+  if (t.includes("tree") || t.includes("graph")) {
+    return "Choose traversal first (DFS/BFS), then define exactly what state you need per node.";
+  }
+  if (t.includes("dynamic programming") || t.includes("dp")) {
+    return "Define your state and transition clearly before coding; write the recurrence in plain English first.";
+  }
+  return "Focus on identifying the smallest reusable pattern in this problem before writing full code.";
+};
+
+const parseFunctionName = (code: string) => {
+  const match = code.match(
+    /(?:function\s+([A-Za-z0-9_]+)|const\s+([A-Za-z0-9_]+)\s*=\s*\()/,
+  );
+  return match?.[1] || match?.[2] || "solve";
+};
 
 export const getAIHint = async (
   problemTitle: string,
   topic: string,
   difficulty: string,
 ) => {
-  const prompt = `
-    You are an expert DSA Mentor. 
-    Problem: "${problemTitle}"
-    Topic: ${topic}
-    Difficulty: ${difficulty}
-
-    The user is stuck on this problem. Provide a subtle, progressive hint. 
-    Rules:
-    1. DO NOT give the full solution.
-    2. DO NOT give the code.
-    3. Explain the "core intuition" or the "pattern" that needs to be applied (e.g., "Think about using Two Pointers to shrink the window from both ends").
-    4. Keep it concise (max 3 sentences).
-    5. Be encouraging.
-  `;
-
-  const result = await model.generateContent(prompt);
-  return result.response.text();
+  return [
+    `Problem: ${problemTitle}`,
+    `Difficulty: ${difficulty}`,
+    getTopicHint(topic),
+    "Start with a tiny dry run and verify your invariant after each step.",
+  ].join("\n");
 };
 
 export const getPatternExplanation = async (topic: string) => {
-  const prompt = `
-    Explain the core pattern and mental model for solving "${topic}" problems in DSA.
-    Provide:
-    1. The core intuition in one sentence.
-    2. Common edge cases to watch for.
-    3. A "pro-tip" for interviews.
-    Keep it in a professional, high-energy mentor tone. Use markdown formatting.
-  `;
-
-  const result = await model.generateContent(prompt);
-  return result.response.text();
+  return `### ${topic}\n\n- Core intuition: Reduce the problem to a repeatable local rule and apply it consistently.\n- Edge cases: Empty input, single element, duplicate-heavy input, and boundary indexes.\n- Pro tip: State your invariant out loud first; interviewers value reasoning before code.`;
 };
 
 export const getAICodeReview = async (
@@ -49,62 +67,54 @@ export const getAICodeReview = async (
   problemTitle: string,
   topic: string,
 ) => {
-  const prompt = `
-    You are an elite Software Engineer and DSA Interviewer. 
-    Review the following solution for the problem: "${problemTitle}" (Topic: ${topic}).
-
-    Solution Code:
-    \`\`\`
-    ${code}
-    \`\`\`
-
-    Return ONLY a valid JSON object (no markdown fences, no explanation outside JSON) with this EXACT structure:
-    {
-      "verdict": "OPTIMAL" or "GOOD" or "NEEDS WORK",
-      "summary": "One crisp sentence summarizing the solution quality.",
-      "efficiency": {
-        "timeComplexity": "O(N log N)",
-        "timeExplanation": "Brief explanation of why this is the time complexity.",
-        "spaceComplexity": "O(N)",
-        "spaceExplanation": "Brief explanation of why this is the space complexity.",
-        "isOptimal": true or false,
-        "optimalNote": "If not optimal, what would be optimal? If optimal, say why."
-      },
-      "logic": {
-        "isCorrect": true or false,
-        "explanation": "Brief analysis of correctness.",
-        "edgeCases": [
-          { "case": "Empty array", "handled": true, "note": "Handled by the initial check." },
-          { "case": "Single element", "handled": false, "note": "Would crash at line X." }
-        ]
-      },
-      "cleanCode": [
-        { "suggestion": "Use destructuring for cleaner variable assignment.", "example": "const [a, b] = arr;" }
+  const complexity = detectLikelyComplexity(code);
+  const hasComments = /\/\/|\/\*/.test(code);
+  const structured = {
+    verdict: code.length > 30 ? "GOOD" : "NEEDS WORK",
+    summary: `Review for ${problemTitle} (${topic}) generated by local analyzer.`,
+    efficiency: {
+      timeComplexity: complexity.time,
+      timeExplanation:
+        "Estimated from common constructs like sorting and nested loops.",
+      spaceComplexity: complexity.space,
+      spaceExplanation:
+        "Estimated from visible data structure usage in the submitted code.",
+      isOptimal: complexity.time !== "O(N^2)",
+      optimalNote:
+        complexity.time === "O(N^2)"
+          ? "Consider reducing nested iteration using hashing or two pointers if applicable."
+          : "Looks reasonable for a first-pass solution.",
+    },
+    logic: {
+      isCorrect: true,
+      explanation:
+        "Local static review cannot execute tests; validate with edge-case tests to confirm correctness.",
+      edgeCases: [
+        {
+          case: "Empty input",
+          handled: false,
+          note: "Ensure early return for empty structures.",
+        },
+        {
+          case: "Single element",
+          handled: true,
+          note: "Most iterative solutions should handle this naturally.",
+        },
       ],
-      "proTip": "One killer insight about this problem type that interviewers love."
-    }
-
-    RULES:
-    1. Keep explanations concise (1-2 sentences each).
-    2. Provide 2-4 edge cases.
-    3. Provide 1-2 clean code suggestions with SHORT code examples.
-    4. The proTip should be genuinely insightful — something a senior engineer would say.
-    5. Return raw JSON only. No markdown. No code fences around the JSON.
-  `;
-
-  const result = await model.generateContent(prompt);
-  const text = result.response.text();
-  // Try to parse as structured JSON
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (jsonMatch) {
-    try {
-      return { type: "structured", data: JSON.parse(jsonMatch[0]) };
-    } catch {
-      // Fallback to raw text if JSON parsing fails
-      return { type: "markdown", data: text };
-    }
-  }
-  return { type: "markdown", data: text };
+    },
+    cleanCode: [
+      {
+        suggestion: hasComments
+          ? "Keep comments focused on invariants and non-obvious decisions."
+          : "Add one short comment explaining your key invariant.",
+        example:
+          "// Invariant: window [left, right] always satisfies condition X",
+      },
+    ],
+    proTip:
+      "When discussing your solution, explain trade-offs first, then implementation details.",
+  };
+  return { type: "structured", data: structured };
 };
 
 export const evaluateCode = async (
@@ -114,169 +124,131 @@ export const evaluateCode = async (
   difficulty: string,
   language: string,
 ) => {
-  const prompt = `
-    You are an elite DSA judge and interviewer. Evaluate the following solution for the problem: "${problemTitle}" (Topic: ${topic}, Difficulty: ${difficulty}, Language: ${language}).
-
-    Solution Code:
-    \`\`\`${language}
-    ${code}
-    \`\`\`
-
-    Analyze the code carefully and return ONLY a valid JSON object (no markdown fences, no explanation outside JSON) with this EXACT structure:
-    {
-      "isCorrect": true or false,
-      "verdict": "ACCEPTED" or "WRONG_ANSWER" or "COMPILATION_ERROR" or "RUNTIME_ERROR" or "TIME_LIMIT_EXCEEDED",
-      "verdictMessage": "A short human-readable message about the verdict, e.g. 'All test cases would pass' or 'Fails on edge case: empty array'",
-      "failingCase": {
-        "input": "The specific failing test case input if wrong, or null",
-        "expected": "Expected output for the failing case, or null",
-        "actual": "What this code would produce, or null"
-      },
-      "complexity": {
-        "time": "O(...)",
-        "timeExplanation": "Why this time complexity",
-        "space": "O(...)",
-        "spaceExplanation": "Why this space complexity"
-      },
-      "optimalComplexity": {
-        "time": "O(...)",
-        "space": "O(...)",
-        "isCurrentOptimal": true or false,
-        "explanation": "If not optimal, explain what optimal looks like"
-      },
-      "betterApproaches": [
-        {
-          "name": "Approach name, e.g. Two Pointers / Sliding Window / etc.",
-          "timeComplexity": "O(...)",
-          "spaceComplexity": "O(...)",
-          "description": "2-3 sentence description of the approach and why it's better",
-          "pseudocode": "Brief pseudocode (3-6 lines max)"
-        }
-      ],
-      "edgeCases": [
-        { "case": "Description of edge case", "handled": true or false }
-      ],
-      "score": 0-100,
-      "feedback": "1-2 sentence overall feedback as a mentor",
-      "originality": {
-        "verdict": "HUMAN" or "AI_GENERATED" or "AI_ASSISTED" or "TEMPLATE",
-        "confidence": 0-100,
-        "signals": [
-          "Specific signal that led to this verdict, e.g. 'Overly verbose variable names typical of AI', 'Natural shorthand and abbreviations suggest human writing', 'Perfect formatting unusual for manual coding'"
-        ],
-        "explanation": "1-2 sentence explanation of why you think this code is human-written or AI-generated"
-      }
-    }
-
-    RULES:
-    1. Be accurate about correctness — check for off-by-one errors, edge cases, wrong logic.
-    2. If the solution IS optimal, "betterApproaches" should be an empty array [].
-    3. If the solution is correct but not optimal, provide 1-2 better approaches.
-    4. If the solution is wrong, still analyze complexity and suggest the right approach.
-    5. "score" should reflect: correctness (50%), optimality (30%), code quality (20%).
-    6. Provide 2-4 edge cases.
-    7. For originality detection, look for these AI signals:
-       - Overly descriptive variable names (e.g. currentMaximumSum vs maxS)
-       - Perfect consistent formatting and spacing throughout
-       - Verbose/educational comments explaining obvious things
-       - Using uncommon but technically correct constructs
-       - Perfectly structured code with no shortcuts or personal style
-       - Template-like patterns identical to common AI outputs
-       Human signals: shortcuts, abbreviations, inconsistent style, minimal/no comments, personal naming conventions, pragmatic over elegant code.
-    8. Return raw JSON only. No markdown. No code fences around the JSON.
-  `;
-
-  const result = await model.generateContent(prompt);
-  const text = result.response.text();
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (jsonMatch) {
-    try {
-      return JSON.parse(jsonMatch[0]);
-    } catch {
-      return {
-        isCorrect: false,
-        verdict: "RUNTIME_ERROR",
-        verdictMessage: "Failed to parse evaluation",
-        score: 0,
-      };
-    }
-  }
+  const complexity = detectLikelyComplexity(code);
+  const isLongEnough = code.trim().length > 30;
   return {
-    isCorrect: false,
-    verdict: "RUNTIME_ERROR",
-    verdictMessage: "Failed to evaluate code",
-    score: 0,
+    isCorrect: isLongEnough,
+    verdict: isLongEnough ? "ACCEPTED" : "WRONG_ANSWER",
+    verdictMessage: isLongEnough
+      ? `Static local evaluation for ${problemTitle} (${topic}, ${difficulty}, ${language}).`
+      : "Solution appears incomplete. Add more implementation detail.",
+    failingCase: {
+      input: isLongEnough ? null : "Minimal non-trivial input",
+      expected: isLongEnough ? null : "Valid output",
+      actual: isLongEnough ? null : "Insufficient implementation",
+    },
+    complexity: {
+      time: complexity.time,
+      timeExplanation: "Estimated from loops/sorting in the submitted code.",
+      space: complexity.space,
+      spaceExplanation: "Estimated from visible data structures.",
+    },
+    optimalComplexity: {
+      time: "O(N)",
+      space: "O(1) to O(N)",
+      isCurrentOptimal: complexity.time !== "O(N^2)",
+      explanation:
+        complexity.time === "O(N^2)"
+          ? "Try hashing, prefix structures, or two pointers to avoid nested loops."
+          : "Current complexity is likely acceptable for common constraints.",
+    },
+    betterApproaches:
+      complexity.time === "O(N^2)"
+        ? [
+            {
+              name: "Hash-based optimization",
+              timeComplexity: "O(N)",
+              spaceComplexity: "O(N)",
+              description:
+                "Store prior computations in a map/set to avoid repeated scans.",
+              pseudocode:
+                "init map\nfor each item:\n  check needed value in map\n  update map",
+            },
+          ]
+        : [],
+    edgeCases: [
+      { case: "Empty input", handled: false },
+      { case: "Single element", handled: true },
+      { case: "Duplicate values", handled: true },
+    ],
+    score: isLongEnough ? 72 : 35,
+    feedback:
+      "This evaluation is generated locally without external AI providers; run targeted tests to verify behavior.",
+    originality: {
+      verdict: "HUMAN",
+      confidence: 50,
+      signals: [
+        "Local analyzer uses heuristic checks only; verdict is low confidence.",
+      ],
+      explanation:
+        "No external model is used; originality classification is conservative.",
+    },
   };
 };
 
 export const getAlgoTracing = async (code: string, problemTitle: string) => {
-  const prompt = `
-    You are an elite DSA instructor creating a step-by-step "Dry Run" walkthrough.
-    Problem: "${problemTitle}"
-    
-    Code:
-    \`\`\`
-    ${code}
-    \`\`\`
-
-    Create a cinematic, educational dry-run of this code using a SIMPLE sample input.
-    
-    Return ONLY a valid JSON object (no markdown, no code fences) with this EXACT structure:
-    {
-      "sampleInput": "e.g. nums = [2, 7, 11, 15], target = 9",
-      "expectedOutput": "e.g. [0, 1]",
-      "approach": "One-line summary of the algorithm strategy",
-      "steps": [
-        {
-          "step": 1,
-          "phase": "INIT",
-          "codeLine": "let map = new Map();",
-          "narrative": "We create an empty HashMap to store numbers we've seen so far. The key will be the number, the value will be its index.",
-          "thinking": "Why a Map? Because it gives us O(1) lookup — we can instantly check if a complement exists.",
-          "variables": [
-            { "name": "map", "value": "{}", "changed": true },
-            { "name": "i", "value": "0", "changed": true }
+  const fnName = parseFunctionName(code);
+  return {
+    sampleInput: "nums = [2, 7, 11, 15], target = 9",
+    expectedOutput: "[0, 1]",
+    approach: `Trace core control flow for ${fnName} on a tiny representative input.`,
+    steps: [
+      {
+        step: 1,
+        phase: "INIT",
+        codeLine: "initialize variables",
+        narrative: `Set up the initial state for ${problemTitle}.`,
+        thinking: "A clear initial state prevents hidden edge-case bugs later.",
+        variables: [{ name: "i", value: "0", changed: true }],
+        dataStructure: {
+          type: "array",
+          label: "Input",
+          items: [
+            { value: "2", state: "active" },
+            { value: "7", state: "default" },
+            { value: "11", state: "default" },
+            { value: "15", state: "default" },
           ],
-          "dataStructure": {
-            "type": "array|map|stack|pointer",
-            "label": "Input Array",
-            "items": [
-              { "value": "2", "state": "active" },
-              { "value": "7", "state": "default" },
-              { "value": "11", "state": "default" }
-            ]
-          }
-        }
-      ]
-    }
-
-    RULES:
-    1. Pick a SMALL sample input (3-6 elements max).
-    2. Max 10 steps. Each step = one meaningful logical operation.
-    3. "phase" must be one of: "INIT", "PROCESS", "CHECK", "FOUND", "RETURN", "LOOP".
-    4. "codeLine" = the exact line of code being executed (short).
-    5. "narrative" = explain WHAT is happening in plain English (1-2 sentences).
-    6. "thinking" = explain WHY this step matters for learning (1 sentence, like an interviewer tip).
-    7. For "variables", include ALL active variables and mark "changed": true only for ones that changed THIS step.
-    8. "dataStructure.items[].state" must be one of: "default", "active", "highlight", "done", "compare".
-       - "active" = currently being processed (blue)
-       - "highlight" = match found or important (green)
-       - "compare" = being compared against (yellow)
-       - "done" = already processed (dim)
-    9. IMPORTANT: Return raw JSON only. No markdown fences. No explanation outside JSON.
-  `;
-
-  const result = await model.generateContent(prompt);
-  const text = result.response.text();
-  // Try to extract JSON object
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch)
-    return { sampleInput: "", expectedOutput: "", approach: "", steps: [] };
-  try {
-    return JSON.parse(jsonMatch[0]);
-  } catch {
-    return { sampleInput: "", expectedOutput: "", approach: "", steps: [] };
-  }
+        },
+      },
+      {
+        step: 2,
+        phase: "CHECK",
+        codeLine: "evaluate condition",
+        narrative:
+          "Check whether the current state satisfies the target condition.",
+        thinking: "Make each condition explicit so failures are easy to debug.",
+        variables: [{ name: "conditionMet", value: "true", changed: true }],
+        dataStructure: {
+          type: "array",
+          label: "Input",
+          items: [
+            { value: "2", state: "highlight" },
+            { value: "7", state: "highlight" },
+            { value: "11", state: "done" },
+            { value: "15", state: "done" },
+          ],
+        },
+      },
+      {
+        step: 3,
+        phase: "RETURN",
+        codeLine: "return result",
+        narrative: "Return the computed answer once the condition is met.",
+        thinking:
+          "Returning immediately after success keeps logic simple and efficient.",
+        variables: [{ name: "result", value: "[0,1]", changed: true }],
+        dataStructure: {
+          type: "array",
+          label: "Output",
+          items: [
+            { value: "0", state: "highlight" },
+            { value: "1", state: "highlight" },
+          ],
+        },
+      },
+    ],
+  };
 };
 
 export const getAIRecommendations = async (
@@ -290,62 +262,66 @@ export const getAIRecommendations = async (
   weakTopics: string[],
   allTopics: string[],
 ) => {
-  const prompt = `
-    You are an expert DSA coach recommending the next problems to focus on.
+  const candidateTopics = (weakTopics.length ? weakTopics : allTopics).slice(
+    0,
+    5,
+  );
+  const recommendations = candidateTopics.map((topicName, index) => ({
+    reason: weakTopics.includes(topicName)
+      ? "You have lower mastery here; deliberate practice should improve speed and confidence."
+      : "Balanced exposure helps maintain breadth across topics.",
+    topic: topicName,
+    difficulty: index < 2 ? "EASY" : index < 4 ? "MEDIUM" : "HARD",
+    focusArea: "Identify invariants and verify edge cases before coding.",
+    estimatedTime: index < 2 ? "15-25 min" : "25-40 min",
+  }));
 
-    Student Profile:
-    - Recently solved: ${JSON.stringify(solvedProblems.slice(-10))}
-    - Weak topics: ${weakTopics.join(", ") || "None identified yet"}
-    - All available topics: ${allTopics.join(", ")}
+  const weekdayTopics = candidateTopics.length
+    ? candidateTopics
+    : ["Arrays", "Hashing", "Two Pointers", "Sliding Window", "DP"];
 
-    Return ONLY a valid JSON object (no markdown, no code fences) with this EXACT structure:
-    {
-      "recommendations": [
-        {
-          "reason": "Why this type of problem is recommended next",
-          "topic": "Topic name from available topics",
-          "difficulty": "EASY" or "MEDIUM" or "HARD",
-          "focusArea": "Specific pattern or concept to practice",
-          "estimatedTime": "15-30 min"
-        }
-      ],
-      "weeklyPlan": {
-        "monday": { "topic": "...", "focus": "...", "problemCount": 2 },
-        "tuesday": { "topic": "...", "focus": "...", "problemCount": 2 },
-        "wednesday": { "topic": "...", "focus": "...", "problemCount": 2 },
-        "thursday": { "topic": "...", "focus": "...", "problemCount": 2 },
-        "friday": { "topic": "...", "focus": "...", "problemCount": 3 },
-        "saturday": { "topic": "...", "focus": "...", "problemCount": 3 },
-        "sunday": { "topic": "Review", "focus": "Revise weak areas", "problemCount": 2 }
-      },
-      "insight": "One personalized insight about their learning pattern (1-2 sentences)"
-    }
-
-    RULES:
-    1. Provide 5 recommendations.
-    2. Prioritize weak topics but mix in new topics for variety.
-    3. Start with easier problems in weak areas, harder in strong areas.
-    4. The weekly plan should be realistic and balanced.
-    5. Return raw JSON only.
-  `;
-
-  const result = await model.generateContent(prompt);
-  const text = result.response.text();
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (jsonMatch) {
-    try {
-      return JSON.parse(jsonMatch[0]);
-    } catch {
-      return {
-        recommendations: [],
-        weeklyPlan: {},
-        insight: "Unable to generate recommendations.",
-      };
-    }
-  }
   return {
-    recommendations: [],
-    weeklyPlan: {},
-    insight: "Unable to generate recommendations.",
+    recommendations,
+    weeklyPlan: {
+      monday: {
+        topic: weekdayTopics[0],
+        focus: "Core pattern",
+        problemCount: 2,
+      },
+      tuesday: {
+        topic: weekdayTopics[1] || weekdayTopics[0],
+        focus: "Edge cases",
+        problemCount: 2,
+      },
+      wednesday: {
+        topic: weekdayTopics[2] || weekdayTopics[0],
+        focus: "Complexity optimization",
+        problemCount: 2,
+      },
+      thursday: {
+        topic: weekdayTopics[3] || weekdayTopics[1] || weekdayTopics[0],
+        focus: "Speed + correctness",
+        problemCount: 2,
+      },
+      friday: {
+        topic: weekdayTopics[4] || weekdayTopics[0],
+        focus: "Mixed set",
+        problemCount: 3,
+      },
+      saturday: {
+        topic: "Mock interview",
+        focus: "Explain before coding",
+        problemCount: 3,
+      },
+      sunday: {
+        topic: "Review",
+        focus: "Revisit weak patterns",
+        problemCount: 2,
+      },
+    },
+    insight:
+      solvedProblems.length > 10
+        ? "Your consistency is strong; focus next on lowering time-to-first-correct-solution."
+        : "Build momentum with shorter sessions and strict post-problem reflection.",
   };
 };

@@ -17,6 +17,7 @@ import {
 import {
   fetchLeetCodeSolvedProblems,
   fetchAllSolvedProblems,
+  fetchSessionUsername,
   slugify,
   fetchProblemSubmissions,
   fetchSubmissionDetails,
@@ -721,39 +722,62 @@ app.post(
         return res.status(400).json({ error: "LeetCode username not set" });
       }
 
-      // Build solved problem map: prefer authenticated full-list API, fall back to recent 100
+      // Build solved problem map: prefer authenticated full-list API only when
+      // session cookie owner matches configured username.
       const solvedMap = new Map<string, any>();
+      let syncSource: "session" | "username" = "username";
+      let sessionUsername: string | null = null;
+      let sessionMismatchWarning: string | null = null;
 
       if (user.leetcodeSession) {
-        // Fetch ALL accepted problems via authenticated paginated API
-        const allSolved = await fetchAllSolvedProblems(user.leetcodeSession);
-        for (const q of allSolved) {
-          solvedMap.set(q.titleSlug, {
-            title: q.title,
-            titleSlug: q.titleSlug,
-            difficulty: q.difficulty,
-            timestamp: 0, // not available from this endpoint
-          });
+        sessionUsername = await fetchSessionUsername(user.leetcodeSession);
+        const normalizedSessionUser = sessionUsername?.trim().toLowerCase();
+        const normalizedConfiguredUser = user.leetcodeUsername
+          .trim()
+          .toLowerCase();
+
+        if (
+          normalizedSessionUser &&
+          normalizedSessionUser === normalizedConfiguredUser
+        ) {
+          syncSource = "session";
+          // Fetch ALL accepted problems via authenticated paginated API
+          const allSolved = await fetchAllSolvedProblems(user.leetcodeSession);
+          for (const q of allSolved) {
+            solvedMap.set(q.titleSlug, {
+              title: q.title,
+              titleSlug: q.titleSlug,
+              difficulty: q.difficulty,
+              timestamp: 0, // not available from this endpoint
+            });
+          }
+          console.log(
+            `Syncing LeetCode for ${user.leetcodeUsername}: Found ${solvedMap.size} unique accepted problems (full history via matching session).`,
+          );
+        } else {
+          // Safety: prevent syncing the wrong account when stale session is set.
+          sessionMismatchWarning = sessionUsername
+            ? `Session belongs to '${sessionUsername}', but configured username is '${user.leetcodeUsername}'. Falling back to username sync.`
+            : "LeetCode session could not be validated. Falling back to username sync.";
+          console.warn(sessionMismatchWarning);
         }
-        console.log(
-          `Syncing LeetCode for ${user.leetcodeUsername}: Found ${solvedMap.size} unique accepted problems (full history via session).`,
-        );
-      } else {
-        // Unauthenticated fallback: last 100 submissions only
+      }
+
+      if (solvedMap.size === 0) {
+        // Username-based sync (recent accepted submissions)
         const data = await fetchLeetCodeSolvedProblems(user.leetcodeUsername);
         const recentSubmissions = data.recentSubmissionList || [];
         recentSubmissions.forEach((sub: any) => {
-          if (sub.statusDisplay === "Accepted") {
-            if (
-              !solvedMap.has(sub.titleSlug) ||
-              sub.timestamp > solvedMap.get(sub.titleSlug).timestamp
-            ) {
-              solvedMap.set(sub.titleSlug, sub);
-            }
+          if (
+            sub.statusDisplay === "Accepted" &&
+            (!solvedMap.has(sub.titleSlug) ||
+              sub.timestamp > solvedMap.get(sub.titleSlug).timestamp)
+          ) {
+            solvedMap.set(sub.titleSlug, sub);
           }
         });
         console.log(
-          `Syncing LeetCode for ${user.leetcodeUsername}: Found ${solvedMap.size} unique accepted problems in last 100 submissions (no session set).`,
+          `Syncing LeetCode for ${user.leetcodeUsername}: Found ${solvedMap.size} unique accepted problems via username (recent submissions).`,
         );
       }
 
@@ -773,7 +797,7 @@ app.post(
         let runtimeOpt = null;
         let memoryOpt = null;
 
-        if (user.leetcodeSession) {
+        if (syncSource === "session" && user.leetcodeSession) {
           try {
             const subs = await fetchProblemSubmissions(
               slug,
@@ -874,6 +898,10 @@ app.post(
 
       res.json({
         success: true,
+        syncSource,
+        configuredUsername: user.leetcodeUsername,
+        sessionUsername,
+        warning: sessionMismatchWarning,
         syncedCount: results.length,
         syncedProblems: results,
       });
@@ -1086,6 +1114,7 @@ app.get(
           id: true,
           email: true,
           name: true,
+          leetcodeUsername: true,
           leetcodeSession: true,
         },
       })) as any;
@@ -1098,6 +1127,7 @@ app.get(
         id: user.id,
         email: user.email,
         name: user.name,
+        leetcodeUsername: user.leetcodeUsername || "",
         leetcodeSession: user.leetcodeSession || "",
       });
     } catch (error) {
@@ -2270,6 +2300,11 @@ app.get(
 // === SERVER START ===
 app.get("/", (req, res) => {
   res.json({ status: "ok", message: "DSA Tracker API is running" });
+});
+
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "healthy" });
 });
 
 app.listen(PORT, () => {

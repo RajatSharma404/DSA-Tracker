@@ -1,12 +1,37 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import jwt from "jsonwebtoken";
 
 export const authOptions: NextAuthOptions = {
+  trustHost: true,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+    }),
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        name: { label: "Name", type: "text" },
+      },
+      async authorize(credentials) {
+        const email = credentials?.email?.toString().trim().toLowerCase();
+        const name = credentials?.name?.toString().trim() || "DSA User";
+
+        if (!email || !email.includes("@")) {
+          return null;
+        }
+
+        return {
+          id: email,
+          email,
+          name,
+          image: null,
+          role: "USER",
+        } as any;
+      },
     }),
   ],
   session: {
@@ -14,13 +39,12 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, user }) {
-      // On first sign-in, user object is populated from Google
       if (user) {
         token.email = user.email;
         token.name = user.name;
         token.picture = user.image;
+        token.role = (user as any).role ?? "USER";
       }
-      // Always sign an accessToken the Express backend can verify
       token.accessToken = jwt.sign(
         { email: token.email, role: token.role ?? "USER" },
         process.env.NEXTAUTH_SECRET || "fallback_secret",

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { dsaApi, DashboardStats } from "@/lib/api";
+import { useSession } from "next-auth/react";
 import { StatCard } from "@/components/ui/StatCard";
 import {
   CheckCircle2,
@@ -19,29 +20,63 @@ import DailyFocus from "@/components/dashboard/DailyFocus";
 import BadgeShowcase from "@/components/dashboard/BadgeShowcase";
 
 export default function Dashboard() {
+  const { data: session, status } = useSession();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [activityData, setActivityData] = useState<
     Array<{ date: string; count: number }>
   >([]);
   const [loading, setLoading] = useState(true);
 
+  const loadDashboardData = async (shouldAutoSync: boolean) => {
+    try {
+      if (shouldAutoSync) {
+        try {
+          await dsaApi.syncLeetcode();
+        } catch (syncError) {
+          // Auto-sync is best-effort; dashboard should still load.
+          console.warn("LeetCode auto-sync skipped", syncError);
+        }
+      }
+
+      const [statsData, actData] = await Promise.all([
+        dsaApi.getDashboardStats(),
+        dsaApi.getActivityData(),
+      ]);
+      setStats(statsData);
+      setActivityData(actData);
+    } catch (error) {
+      console.error("Failed to load dashboard data", error);
+      setStats(null);
+      setActivityData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    async function loadData() {
-      try {
-        const [statsData, actData] = await Promise.all([
-          dsaApi.getDashboardStats(),
-          dsaApi.getActivityData(),
-        ]);
-        setStats(statsData);
-        setActivityData(actData);
-      } catch (error) {
-        console.error("Failed to load dashboard data", error);
-      } finally {
+    if (status !== "authenticated") {
+      if (status === "unauthenticated") {
         setLoading(false);
       }
+      return;
     }
-    loadData();
-  }, []);
+
+    setLoading(true);
+    setStats(null);
+
+    const userEmail = session?.user?.email || "unknown-user";
+    const syncStorageKey = `leetcode-last-sync:${userEmail}`;
+    const lastSyncRaw = window.localStorage.getItem(syncStorageKey);
+    const lastSyncMs = lastSyncRaw ? Number(lastSyncRaw) : 0;
+    const shouldAutoSync =
+      !lastSyncMs || Date.now() - lastSyncMs > 2 * 60 * 1000;
+
+    loadDashboardData(shouldAutoSync).finally(() => {
+      if (shouldAutoSync) {
+        window.localStorage.setItem(syncStorageKey, Date.now().toString());
+      }
+    });
+  }, [status, session?.user?.email]);
 
   if (loading) {
     return (
@@ -94,7 +129,14 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="md:col-span-4 flex flex-col gap-6">
-          <LeetCodeSync />
+          <LeetCodeSync
+            onSyncComplete={() => {
+              if (status === "authenticated") {
+                setLoading(true);
+                loadDashboardData(false);
+              }
+            }}
+          />
           <BadgeShowcase />
           <SkillRadar />
         </div>

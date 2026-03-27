@@ -132,6 +132,50 @@ export const fetchAllSolvedProblems = async (
   return all;
 };
 
+/**
+ * Returns the logged-in LeetCode username tied to the provided session cookie.
+ * Returns null when the session is invalid or username cannot be resolved.
+ */
+export const fetchSessionUsername = async (
+  leetcodeSession: string,
+): Promise<string | null> => {
+  const query = `
+    query globalData {
+      userStatus {
+        username
+      }
+    }
+  `;
+
+  try {
+    const response = await axios.post(
+      "https://leetcode.com/graphql",
+      {
+        query,
+        variables: {},
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: `LEETCODE_SESSION=${leetcodeSession}; csrftoken=dummy;`,
+          "x-csrftoken": "dummy",
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        },
+      },
+    );
+
+    if (response.data.errors) {
+      throw new Error(response.data.errors[0].message);
+    }
+
+    return response.data?.data?.userStatus?.username || null;
+  } catch (error) {
+    console.error("LeetCode session username fetch error:", error);
+    return null;
+  }
+};
+
 export const fetchProblemSubmissions = async (
   questionSlug: string,
   leetcodeSession: string,

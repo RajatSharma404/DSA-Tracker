@@ -145,7 +145,6 @@ Make sure these are set in your `.env` files:
 **Backend (.env):**
 
 ```env
-GEMINI_API_KEY=your-gemini-key  # For AI features
 ```
 
 **Frontend (.env.local):**
@@ -157,3 +156,4 @@ GEMINI_API_KEY=your-gemini-key  # For AI features
 ## 🎉 Enjoy Coding!
 
 You can now solve problems directly in your DSA Tracker and automatically sync with LeetCode! 🚀
+
