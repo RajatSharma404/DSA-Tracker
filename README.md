@@ -50,7 +50,32 @@ A full-stack web application to track your Data Structures & Algorithms journey 
 | **Email Login**           | Secure credentials-based authentication via NextAuth                                                                     |
 | **Admin Panel**           | Manage users, topics, and problems                                                                                       |
 
----
+
+## 🆕 Latest UI & Roadmap Improvements
+
+### 3D Effects & Visual Polish
+
+- **3D Tilt & Pop:** Stat cards, roadmap nodes, and dashboard panels now feature subtle 3D tilt and pop effects that respond to mouse movement, adding depth and interactivity without overwhelming the UI.
+- **Animated Overlays:** Key UI elements (cards, nodes, badges) have animated overlays and glows for a modern, dynamic look.
+- **Perspective Hover:** Panels and study guides use perspective transforms and smooth transitions for a tactile feel.
+- **Badge Flip Animations:** Achievement badges flip in 3D when unlocked or hovered.
+
+### Roadmap Usability Upgrades
+
+- **Improved Layout:** The roadmap graph uses a more compact, readable layout with better spacing and edge routing.
+- **Camera Controls:** Enhanced zoom, pan, and re-center controls with dark-themed icons for clarity.
+- **Expand/Collapse:** Collapse or expand topic groups and problem clusters for a cleaner view.
+- **Filters:** Filter roadmap by topic, status, or difficulty to focus on what matters most.
+- **Minimap Polish:** The minimap is styled for dark mode and always visible for easy navigation.
+- **Error-Free Rendering:** All roadmap and dashboard components are validated for error-free rendering after each update.
+
+### General Visual Enhancements
+
+- **Consistent Dark Theme:** All navigation, overlays, and controls are styled for a cohesive dark mode experience.
+- **Animated Transitions:** Smooth transitions and subtle animations throughout the dashboard and roadmap.
+- **Accessibility:** Improved contrast, focus states, and keyboard navigation for better accessibility.
+
+These improvements make the DSA Tracker more engaging, visually appealing, and user-friendly. For details on customizing or extending these effects, see the relevant components in `frontend/src/components/roadmap/`, `dashboard/`, and `ui/`.
 
 ## 🛠 Tech Stack
 
