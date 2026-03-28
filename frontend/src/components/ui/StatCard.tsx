@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef } from "react";
-import { CheckCircle2, Flame, AlertCircle } from "lucide-react";
 
 interface StatCardProps {
   title: string;
@@ -28,16 +27,16 @@ export function StatCard({
     const rect = card.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    const rotateX = ((y - rect.height / 2) / (rect.height / 2)) * -12;
-    const rotateY = ((x - rect.width / 2) / (rect.width / 2)) * 12;
-    card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(12px)`;
-    card.style.boxShadow = `${rotateY * -2}px ${rotateX * 2}px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05)`;
+    const rotateX = ((y - rect.height / 2) / (rect.height / 2)) * -6;
+    const rotateY = ((x - rect.width / 2) / (rect.width / 2)) * 6;
+    card.style.transform = `perspective(1400px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(3px)`;
+    card.style.boxShadow = `${rotateY * -1.2}px ${rotateX * 1.2}px 26px rgba(0,0,0,0.42), 0 0 0 1px rgba(255,255,255,0.04)`;
   };
 
   const handleMouseLeave = () => {
     const card = cardRef.current;
     if (!card) return;
-    card.style.transform = `perspective(800px) rotateX(0deg) rotateY(0deg) translateZ(0px)`;
+    card.style.transform = `perspective(1400px) rotateX(0deg) rotateY(0deg) translateZ(0px)`;
     card.style.boxShadow = ``;
   };
 
@@ -46,12 +45,13 @@ export function StatCard({
       ref={cardRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="p-6 rounded-2xl bg-[#111] border border-[#222] flex flex-col justify-between cursor-default"
+      className="p-6 rounded-2xl bg-[#111] border border-[#222] flex flex-col justify-between cursor-default relative overflow-hidden"
       style={{
-        transition: "transform 0.15s ease, box-shadow 0.15s ease",
+        transition: "transform 0.2s ease, box-shadow 0.2s ease",
         willChange: "transform",
       }}
     >
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_18%,rgba(255,255,255,0.08),transparent_42%)]" />
       <div className="flex items-center justify-between text-gray-400">
         <span className="text-sm font-medium">{title}</span>
         <Icon

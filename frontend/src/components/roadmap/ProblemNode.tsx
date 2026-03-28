@@ -1,10 +1,9 @@
-import React, { memo, useMemo } from "react";
+import React, { memo, useMemo, useState } from "react";
 import { Handle, Position } from "reactflow";
 import {
   CheckCircle2,
   Circle,
   ExternalLink,
-  HelpCircle,
   AlertCircle,
 } from "lucide-react";
 
@@ -26,6 +25,10 @@ const ProblemNode = ({ data }: ProblemNodeProps) => {
     if (!data.nextReviewDate || !isDone) return false;
     return new Date(data.nextReviewDate) <= new Date();
   }, [data.nextReviewDate, isDone]);
+  const [transform, setTransform] = useState(
+    "perspective(2200px) rotateX(0deg) rotateY(0deg) translateZ(0px)",
+  );
+  const [glow, setGlow] = useState({ x: 50, y: 50 });
 
   const diffColors = {
     EASY: "text-green-400 bg-green-400/10 border-green-400/20",
@@ -33,9 +36,29 @@ const ProblemNode = ({ data }: ProblemNodeProps) => {
     HARD: "text-red-400 bg-red-400/10 border-red-400/20",
   };
 
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const rotateY = ((x - rect.width / 2) / rect.width) * 1.2;
+    const rotateX = -((y - rect.height / 2) / rect.height) * 0.95;
+
+    setTransform(
+      `perspective(2200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(0px)`,
+    );
+    setGlow({ x: (x / rect.width) * 100, y: (y / rect.height) * 100 });
+  };
+
+  const resetTilt = () => {
+    setTransform("perspective(2200px) rotateX(0deg) rotateY(0deg) translateZ(0px)");
+    setGlow({ x: 50, y: 50 });
+  };
+
   return (
     <div
-      className={`problem-node-3d group px-4 py-3 rounded-xl border-2 shadow-lg backdrop-blur-md transition-all duration-300 min-w-[200px]
+      onMouseMove={handleMouseMove}
+      onMouseLeave={resetTilt}
+      className={`problem-node-3d group relative overflow-hidden px-4 py-3 rounded-xl border-2 shadow-lg backdrop-blur-md transition-all duration-300 min-w-50 will-change-transform
       ${
         isRevisionDue
           ? "bg-orange-500/10 border-orange-500 shadow-orange-500/20 animate-pulse"
@@ -46,10 +69,17 @@ const ProblemNode = ({ data }: ProblemNodeProps) => {
               : "bg-[#0d0d0d] border-[#222] hover:border-[#333]"
       }
     `}
+      style={{ transform, transformStyle: "flat" }}
     >
-      <Handle type="target" position={Position.Left} className="!bg-[#333]" />
+      <div
+        className="pointer-events-none absolute inset-0 opacity-55"
+        style={{
+          background: `radial-gradient(circle at ${glow.x}% ${glow.y}%, rgba(255,255,255,0.07), transparent 44%)`,
+        }}
+      />
+      <Handle type="target" position={Position.Left} className="bg-[#333]!" />
 
-      <div className="flex items-center gap-3">
+      <div className="relative z-10 flex items-center gap-3">
         <div
           className={`p-1.5 rounded-lg ${
             isRevisionDue
@@ -103,7 +133,7 @@ const ProblemNode = ({ data }: ProblemNodeProps) => {
         </div>
       </div>
 
-      <Handle type="source" position={Position.Right} className="!bg-[#333]" />
+      <Handle type="source" position={Position.Right} className="bg-[#333]!" />
     </div>
   );
 };

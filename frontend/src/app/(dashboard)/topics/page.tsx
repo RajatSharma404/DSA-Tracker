@@ -91,6 +91,10 @@ function TopicAccordion({
 }) {
   const [problems, setProblems] = useState<Problem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [cardTransform, setCardTransform] = useState(
+    "perspective(2200px) rotateX(0deg) rotateY(0deg) translateZ(0px)",
+  );
+  const [cardGlow, setCardGlow] = useState({ x: 50, y: 50 });
 
   useEffect(() => {
     if (isExpanded && problems.length === 0) {
@@ -129,14 +133,52 @@ function TopicAccordion({
     }
   };
 
+  const handleCardMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const rotateY = ((x - rect.width / 2) / rect.width) * 0.8;
+    const rotateX = -((y - rect.height / 2) / rect.height) * 0.6;
+
+    setCardTransform(
+      `perspective(2200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(0px)`,
+    );
+    setCardGlow({
+      x: (x / rect.width) * 100,
+      y: (y / rect.height) * 100,
+    });
+  };
+
+  const resetCardTilt = () => {
+    setCardTransform(
+      "perspective(2200px) rotateX(0deg) rotateY(0deg) translateZ(0px)",
+    );
+    setCardGlow({ x: 50, y: 50 });
+  };
+
   return (
-    <div className="bg-[#111] border border-[#222] rounded-xl overflow-hidden transition-all duration-300">
+    <div
+      onMouseMove={handleCardMouseMove}
+      onMouseLeave={resetCardTilt}
+      className="relative bg-[#111] border border-[#222] rounded-xl overflow-hidden transition-all duration-300 will-change-transform"
+      style={{
+        transform: cardTransform,
+        transformStyle: "flat",
+        transition: "transform 0.2s ease, border-color 0.2s ease",
+      }}
+    >
+      <div
+        className="pointer-events-none absolute inset-0 opacity-60"
+        style={{
+          background: `radial-gradient(circle at ${cardGlow.x}% ${cardGlow.y}%, rgba(96,165,250,0.04), transparent 34%)`,
+        }}
+      />
       <div
         onClick={onToggle}
-        className="flex items-center justify-between p-5 cursor-pointer hover:bg-[#1a1a1a] transition-colors"
+        className="relative z-10 flex items-center justify-between p-5 cursor-pointer hover:bg-[#1a1a1a] transition-colors"
       >
         <div className="flex items-center gap-4">
-          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#222] text-sm font-medium text-gray-400">
+          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#222] text-sm font-medium text-gray-400 shadow-inner shadow-white/10 transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-0.5">
             {index + 1}
           </div>
           <div>
@@ -170,7 +212,9 @@ function TopicAccordion({
       </div>
 
       {isExpanded && (
-        <div className="border-t border-[#222] bg-[#0a0a0a] p-2 sm:p-4 space-y-4 overflow-hidden min-w-0">
+        <div className="relative border-t border-[#222] bg-[#0a0a0a] p-2 sm:p-4 space-y-4 overflow-hidden min-w-0 animate-in fade-in duration-400">
+          <div className="pointer-events-none absolute -top-20 -left-16 w-56 h-56 rounded-full bg-blue-500/5 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-20 -right-16 w-56 h-56 rounded-full bg-emerald-500/5 blur-3xl" />
           <TopicStudyGuide topicName={topic.name} />
           <TopicStrategy topicId={topic.id} />
           {loading ? (
@@ -183,19 +227,20 @@ function TopicAccordion({
                 <div
                   key={problem.id}
                   className={cn(
-                    "flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-lg border border-transparent transition-all",
+                    "relative overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-lg border border-transparent transition-all transform-gpu hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(0,0,0,0.35)]",
                     problem.status === "DONE"
                       ? "bg-[#111]/50 opacity-70"
                       : "bg-[#111] hover:border-[#333]",
                   )}
                 >
+                  <div className="pointer-events-none absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.04),transparent_45%)]" />
                   <div className="flex items-start sm:items-center gap-3">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleProgressUpdate(problem.id, problem.status);
                       }}
-                      className="mt-1 sm:mt-0 flex-shrink-0 focus:outline-none"
+                      className="mt-1 sm:mt-0 shrink-0 focus:outline-none transition-transform active:scale-90"
                     >
                       {problem.status === "DONE" ? (
                         <CheckCircle2 size={20} className="text-green-500" />
@@ -266,7 +311,7 @@ function TopicAccordion({
                   <div className="flex gap-2 mt-4 sm:mt-0">
                     <Link
                       href={`/problems/${problem.id}`}
-                      className="flex items-center gap-1.5 text-sm text-white font-medium hover:text-white transition-colors bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 px-4 py-2 rounded-lg shadow-lg shadow-blue-500/20"
+                      className="flex items-center gap-1.5 text-sm text-white font-medium hover:text-white transition-colors bg-linear-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 px-4 py-2 rounded-lg shadow-lg shadow-blue-500/20"
                     >
                       <Code2 size={14} />
                       Solve

@@ -9,8 +9,6 @@ import ReactFlow, {
   Edge,
   MarkerType,
   ConnectionLineType,
-  useNodesState,
-  useEdgesState,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import dagre from "dagre";
@@ -23,6 +21,9 @@ const nodeTypes = {
   problemNode: ProblemNode,
 };
 
+type StatusFilter = "ALL" | "TODO" | "DOING" | "DONE" | "DUE";
+type DifficultyFilter = "ALL" | "EASY" | "MEDIUM" | "HARD";
+
 const getLayoutedElements = (
   nodes: Node[],
   edges: Edge[],
@@ -32,10 +33,14 @@ const getLayoutedElements = (
   dagreGraph.setDefaultEdgeLabel(() => ({}));
 
   const isHorizontal = direction === "LR";
-  dagreGraph.setGraph({ rankdir: direction, ranksep: 100, nodesep: 50 });
+  dagreGraph.setGraph({ rankdir: direction, ranksep: 56, nodesep: 34 });
 
   nodes.forEach((node) => {
-    dagreGraph.setNode(node.id, { width: 250, height: 100 });
+    const isTopic = node.type === "topicNode";
+    dagreGraph.setNode(node.id, {
+      width: isTopic ? 268 : 212,
+      height: isTopic ? 118 : 72,
+    });
   });
 
   edges.forEach((edge) => {
@@ -49,9 +54,13 @@ const getLayoutedElements = (
     node.targetPosition = isHorizontal ? "left" : ("top" as any);
     node.sourcePosition = isHorizontal ? "right" : ("bottom" as any);
 
+    const isTopic = node.type === "topicNode";
+    const nodeWidth = isTopic ? 268 : 212;
+    const nodeHeight = isTopic ? 118 : 72;
+
     node.position = {
-      x: nodeWithPosition.x - 125,
-      y: nodeWithPosition.y - 50,
+      x: nodeWithPosition.x - nodeWidth / 2,
+      y: nodeWithPosition.y - nodeHeight / 2,
     };
 
     return node;
@@ -61,9 +70,130 @@ const getLayoutedElements = (
 };
 
 export default function RoadmapGraph() {
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [nodes, setNodes] = useState<Node[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
   const [loading, setLoading] = useState(true);
+  const [topicsData, setTopicsData] = useState<Topic[]>([]);
+  const [problemsByTopic, setProblemsByTopic] = useState<Record<string, Problem[]>>({});
+  const [expandedTopics, setExpandedTopics] = useState<Set<string>>(new Set());
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
+  const [difficultyFilter, setDifficultyFilter] = useState<DifficultyFilter>("ALL");
+
+  const isProblemVisible = useCallback(
+    (problem: Problem) => {
+      const isDue =
+        problem.status === "DONE" &&
+        !!problem.nextReviewDate &&
+        new Date(problem.nextReviewDate) <= new Date();
+
+      const statusMatches =
+        statusFilter === "ALL"
+          ? true
+          : statusFilter === "DUE"
+            ? isDue
+            : problem.status === statusFilter;
+
+      const difficultyMatches =
+        difficultyFilter === "ALL" || problem.difficulty === difficultyFilter;
+
+      return statusMatches && difficultyMatches;
+    },
+    [statusFilter, difficultyFilter],
+  );
+
+  const toggleTopic = useCallback((topicId: string) => {
+    setExpandedTopics((prev) => {
+      const next = new Set(prev);
+      if (next.has(topicId)) next.delete(topicId);
+      else next.add(topicId);
+      return next;
+    });
+  }, []);
+
+  const expandAll = useCallback(() => {
+    setExpandedTopics(new Set(topicsData.map((t) => t.id)));
+  }, [topicsData]);
+
+  const collapseAll = useCallback(() => {
+    setExpandedTopics(new Set());
+  }, []);
+
+  const graphElements = useMemo(() => {
+    const initialNodes: Node[] = [];
+    const initialEdges: Edge[] = [];
+
+    topicsData.forEach((topic, index) => {
+      const allProblems = problemsByTopic[topic.id] || [];
+      const filteredProblems = allProblems.filter(isProblemVisible);
+      const isExpanded = expandedTopics.has(topic.id);
+      const visibleProblems = isExpanded ? filteredProblems : [];
+      const hiddenCount = filteredProblems.length - visibleProblems.length;
+
+      initialNodes.push({
+        id: `topic-${topic.id}`,
+        type: "topicNode",
+        data: {
+          label: topic.name,
+          description: topic.description,
+          progressPercentage: topic.progressPercentage,
+          solvedProblems: topic.solvedProblems,
+          totalProblems: topic.totalProblems,
+          expanded: isExpanded,
+          hiddenCount,
+          onToggle: () => toggleTopic(topic.id),
+        },
+        position: { x: 0, y: 0 },
+      });
+
+      if (index > 0) {
+        const prevCompleted = topicsData[index - 1].progressPercentage === 100;
+        initialEdges.push({
+          id: `edge-topics-${index}`,
+          source: `topic-${topicsData[index - 1].id}`,
+          target: `topic-${topic.id}`,
+          type: "smoothstep",
+          animated: false,
+          style: {
+            stroke: prevCompleted ? "#10b981" : "rgba(59,130,246,0.65)",
+            strokeWidth: 2.1,
+          },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            color: prevCompleted ? "#10b981" : "#3b82f6",
+          },
+        });
+      }
+
+      visibleProblems.forEach((problem) => {
+        initialNodes.push({
+          id: `prob-${problem.id}`,
+          type: "problemNode",
+          data: {
+            label: problem.title,
+            difficulty: problem.difficulty,
+            status: problem.status,
+            link: problem.link,
+            nextReviewDate: problem.nextReviewDate,
+          },
+          position: { x: 0, y: 0 },
+        });
+
+        initialEdges.push({
+          id: `edge-${topic.id}-${problem.id}`,
+          source: `topic-${topic.id}`,
+          target: `prob-${problem.id}`,
+          type: "smoothstep",
+          style: {
+            stroke: problem.status === "DONE" ? "#10b981" : "rgba(255,255,255,0.24)",
+            strokeWidth: problem.status === "DONE" ? 1.9 : 1.3,
+            strokeDasharray: problem.status === "DONE" ? "0" : "4 6",
+          },
+        });
+      });
+    });
+
+    return getLayoutedElements(initialNodes, initialEdges, "LR");
+  }, [topicsData, problemsByTopic, expandedTopics, isProblemVisible, toggleTopic]);
 
   const initData = async () => {
     try {
@@ -72,89 +202,14 @@ export default function RoadmapGraph() {
         dsaApi.getTopicProblems(topic.id),
       );
       const problemsSets = await Promise.all(allTopicProblemsPromises);
-
-      const initialNodes: Node[] = [];
-      const initialEdges: Edge[] = [];
-
-      // Build Graph
-      topics.forEach((topic, index) => {
-        // Node for Topic
-        initialNodes.push({
-          id: `topic-${topic.id}`,
-          type: "topicNode",
-          data: {
-            label: topic.name,
-            description: topic.description,
-            progressPercentage: topic.progressPercentage,
-            solvedProblems: topic.solvedProblems,
-            totalProblems: topic.totalProblems,
-          },
-          position: { x: 0, y: 0 }, // Will be positioned by dagre
-        });
-
-        // Connect Topic to next Topic
-        if (index > 0) {
-          initialEdges.push({
-            id: `edge-topics-${index}`,
-            source: `topic-${topics[index - 1].id}`,
-            target: `topic-${topic.id}`,
-            animated: topics[index - 1].progressPercentage === 100,
-            style: {
-              stroke:
-                topics[index - 1].progressPercentage === 100
-                  ? "#10b981"
-                  : "#3b82f6",
-              strokeWidth: 3,
-            },
-            markerEnd: {
-              type: MarkerType.ArrowClosed,
-              color:
-                topics[index - 1].progressPercentage === 100
-                  ? "#10b981"
-                  : "#3b82f6",
-            },
-          });
-        }
-
-        // Problems for this topic
-        const problems = problemsSets[index];
-        problems.forEach((problem) => {
-          initialNodes.push({
-            id: `prob-${problem.id}`,
-            type: "problemNode",
-            data: {
-              label: problem.title,
-              difficulty: problem.difficulty,
-              status: problem.status,
-              link: problem.link,
-              nextReviewDate: problem.nextReviewDate,
-            },
-            position: { x: 0, y: 0 },
-          });
-
-          initialEdges.push({
-            id: `edge-${topic.id}-${problem.id}`,
-            source: `topic-${topic.id}`,
-            target: `prob-${problem.id}`,
-            type: "default",
-            style: {
-              stroke: problem.status === "DONE" ? "#10b981" : "#333",
-              strokeWidth: 2,
-              strokeDasharray: problem.status === "DONE" ? "0" : "5 5",
-            },
-          });
-        });
+      const topicProblemMap: Record<string, Problem[]> = {};
+      topics.forEach((topic, i) => {
+        topicProblemMap[topic.id] = problemsSets[i];
       });
 
-      const { nodes: layoutedNodes, edges: layoutedEdges } =
-        getLayoutedElements(
-          initialNodes,
-          initialEdges,
-          "LR", // Left to Right looks better for tree-like branching
-        );
-
-      setNodes([...layoutedNodes]);
-      setEdges([...layoutedEdges]);
+      setTopicsData(topics);
+      setProblemsByTopic(topicProblemMap);
+      setExpandedTopics(new Set(topics.slice(0, 2).map((t) => t.id)));
     } catch (error) {
       console.error("Failed to fetch roadmap data", error);
     } finally {
@@ -166,16 +221,21 @@ export default function RoadmapGraph() {
     initData();
   }, []);
 
+  useEffect(() => {
+    setNodes(graphElements.nodes);
+    setEdges(graphElements.edges);
+  }, [graphElements]);
+
   if (loading) {
     return (
-      <div className="flex h-[600px] w-full items-center justify-center">
+      <div className="flex h-150 w-full items-center justify-center">
         <div className="h-10 w-10 animate-spin rounded-full border-2 border-white/10 border-t-white"></div>
       </div>
     );
   }
 
   return (
-    <div className="h-[700px] w-full bg-[#050505] rounded-[2rem] border border-white/5 overflow-hidden shadow-2xl relative">
+    <div className="h-175 w-full bg-[#050505] rounded-4xl border border-white/5 overflow-hidden shadow-2xl relative">
       <div className="absolute top-6 left-6 z-10">
         <div className="bg-black/50 backdrop-blur-md border border-white/10 px-4 py-2 rounded-full flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-gray-400">
           <div className="flex items-center gap-2">
@@ -187,18 +247,55 @@ export default function RoadmapGraph() {
         </div>
       </div>
 
+      <div className="absolute top-6 right-6 z-10 flex items-center gap-2 bg-black/50 backdrop-blur-md border border-white/10 rounded-xl px-3 py-2">
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+          className="bg-[#111] border border-white/10 rounded-md px-2 py-1 text-[11px] font-bold text-gray-300 outline-hidden"
+        >
+          <option value="ALL">Status: All</option>
+          <option value="TODO">Status: Todo</option>
+          <option value="DOING">Status: Doing</option>
+          <option value="DONE">Status: Done</option>
+          <option value="DUE">Status: Due Review</option>
+        </select>
+
+        <select
+          value={difficultyFilter}
+          onChange={(e) => setDifficultyFilter(e.target.value as DifficultyFilter)}
+          className="bg-[#111] border border-white/10 rounded-md px-2 py-1 text-[11px] font-bold text-gray-300 outline-hidden"
+        >
+          <option value="ALL">Difficulty: All</option>
+          <option value="EASY">Easy</option>
+          <option value="MEDIUM">Medium</option>
+          <option value="HARD">Hard</option>
+        </select>
+
+        <button
+          onClick={expandAll}
+          className="px-2.5 py-1 rounded-md bg-blue-500/20 text-blue-300 border border-blue-500/30 text-[11px] font-bold hover:bg-blue-500/30 transition-colors"
+        >
+          Expand
+        </button>
+        <button
+          onClick={collapseAll}
+          className="px-2.5 py-1 rounded-md bg-white/5 text-gray-300 border border-white/10 text-[11px] font-bold hover:bg-white/10 transition-colors"
+        >
+          Collapse
+        </button>
+      </div>
+
       <ReactFlow
         nodes={nodes}
         edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
         nodeTypes={nodeTypes}
         connectionLineType={ConnectionLineType.SmoothStep}
         fitView
-        minZoom={0.2}
-        maxZoom={1.5}
+        fitViewOptions={{ padding: 0.16 }}
+        minZoom={0.42}
+        maxZoom={1.85}
       >
-        <Background color="#1a1a1a" gap={20} />
+        <Background color="#1a1a1a" gap={26} />
         <Controls
           showInteractive={false}
           style={{
@@ -213,7 +310,7 @@ export default function RoadmapGraph() {
           }}
         />
         <MiniMap
-          nodeColor={(n) => (n.type === "topicNode" ? "#3b82f6" : "#1a1a1a")}
+          nodeColor={(n) => (n.type === "topicNode" ? "#3b82f6" : "#1f2937")}
           maskColor="rgba(0,0,0,0.7)"
           style={{
             background: "#0d0d0d",

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { dsaApi, Problem } from "@/lib/api";
 import {
@@ -29,6 +29,9 @@ export default function ProblemSolvePage() {
   const [activeTab, setActiveTab] = useState<
     "solve" | "hints" | "architect" | "notes"
   >("solve");
+  const [leftPanelWidth, setLeftPanelWidth] = useState(50);
+  const [isResizing, setIsResizing] = useState(false);
+  const splitContainerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (problemId) {
@@ -36,6 +39,29 @@ export default function ProblemSolvePage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [problemId]);
+
+  useEffect(() => {
+    if (!isResizing) return;
+
+    const handleMove = (event: MouseEvent) => {
+      if (!splitContainerRef.current) return;
+
+      const rect = splitContainerRef.current.getBoundingClientRect();
+      const nextLeftPercent = ((event.clientX - rect.left) / rect.width) * 100;
+      const clamped = Math.max(30, Math.min(70, nextLeftPercent));
+      setLeftPanelWidth(clamped);
+    };
+
+    const handleUp = () => setIsResizing(false);
+
+    window.addEventListener("mousemove", handleMove);
+    window.addEventListener("mouseup", handleUp);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMove);
+      window.removeEventListener("mouseup", handleUp);
+    };
+  }, [isResizing]);
 
   const loadProblem = async () => {
     try {
@@ -151,17 +177,36 @@ export default function ProblemSolvePage() {
 
       {/* Main Content */}
       <div className="flex-1 overflow-hidden">
-        <div className="h-full max-w-450 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-0 lg:divide-x divide-white/10">
+        <div
+          ref={splitContainerRef}
+          className={`h-full max-w-450 mx-auto flex flex-col lg:flex-row gap-0 ${
+            isResizing ? "select-none" : ""
+          }`}
+        >
           {/* Left Panel - Problem Description */}
-          <div className="h-full overflow-y-auto p-6 space-y-6">
+          <div
+            className="h-full overflow-y-auto p-6 space-y-6"
+            style={{ width: `calc(${leftPanelWidth}% - 2px)` }}
+          >
             <div
               className="prose prose-invert prose-sm max-w-none"
               dangerouslySetInnerHTML={{ __html: problemDetails.content }}
             />
           </div>
 
+          <div
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Resize problem and editor panels"
+            onMouseDown={() => setIsResizing(true)}
+            className="hidden lg:block w-1 shrink-0 cursor-col-resize bg-white/10 hover:bg-blue-500/40 active:bg-blue-500/60 transition-colors"
+          />
+
           {/* Right Panel - Code Editor & Tools */}
-          <div className="h-full overflow-y-auto p-6 space-y-6">
+          <div
+            className="h-full overflow-y-auto p-6 space-y-6 border-t lg:border-t-0 lg:border-l border-white/10"
+            style={{ width: `calc(${100 - leftPanelWidth}% - 2px)` }}
+          >
             {/* Tab Navigation */}
             <div className="flex gap-2 border-b border-white/10 pb-4">
               <button
