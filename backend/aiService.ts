@@ -262,66 +262,110 @@ export const getAIRecommendations = async (
   weakTopics: string[],
   allTopics: string[],
 ) => {
+  // Calculate experience metrics
+  const totalSolved = solvedProblems.length;
+  const avgScore =
+    totalSolved > 0
+      ? solvedProblems.reduce((sum, p) => sum + (p.score || 0), 0) / totalSolved
+      : 0;
+  const optimalCount = solvedProblems.filter((p) => p.isOptimal).length;
+
+  // Pick candidate topics (prioritize weak topics)
   const candidateTopics = (weakTopics.length ? weakTopics : allTopics).slice(
     0,
     5,
   );
-  const recommendations = candidateTopics.map((topicName, index) => ({
-    reason: weakTopics.includes(topicName)
-      ? "You have lower mastery here; deliberate practice should improve speed and confidence."
-      : "Balanced exposure helps maintain breadth across topics.",
-    topic: topicName,
-    difficulty: index < 2 ? "EASY" : index < 4 ? "MEDIUM" : "HARD",
-    focusArea: "Identify invariants and verify edge cases before coding.",
-    estimatedTime: index < 2 ? "15-25 min" : "25-40 min",
-  }));
 
+  // Personalized suggested problems (simulate with topic, difficulty, and reason)
+  const suggestedProblems = candidateTopics.map((topicName, index) => {
+    // Personalize difficulty: if user is experienced, suggest harder problems
+    let difficulty = "EASY";
+    if (avgScore > 70 && totalSolved > 20) {
+      difficulty = index < 2 ? "MEDIUM" : "HARD";
+    } else if (avgScore > 40 && totalSolved > 10) {
+      difficulty = index < 3 ? "EASY" : "MEDIUM";
+    }
+    return {
+      title: `${topicName} Practice #${index + 1}`,
+      reason: weakTopics.includes(topicName)
+        ? "You have lower mastery here; deliberate practice should improve speed and confidence."
+        : "Balanced exposure helps maintain breadth across topics.",
+      topic: topicName,
+      difficulty,
+    };
+  });
+
+  // Weekly plan (same as before)
   const weekdayTopics = candidateTopics.length
     ? candidateTopics
     : ["Arrays", "Hashing", "Two Pointers", "Sliding Window", "DP"];
+  const weeklyPlan = [
+    {
+      day: "monday",
+      topic: weekdayTopics[0],
+      focus: "Core pattern",
+      problems: [suggestedProblems[0]?.title || ""],
+    },
+    {
+      day: "tuesday",
+      topic: weekdayTopics[1] || weekdayTopics[0],
+      focus: "Edge cases",
+      problems: [suggestedProblems[1]?.title || ""],
+    },
+    {
+      day: "wednesday",
+      topic: weekdayTopics[2] || weekdayTopics[0],
+      focus: "Complexity optimization",
+      problems: [suggestedProblems[2]?.title || ""],
+    },
+    {
+      day: "thursday",
+      topic: weekdayTopics[3] || weekdayTopics[1] || weekdayTopics[0],
+      focus: "Speed + correctness",
+      problems: [suggestedProblems[3]?.title || ""],
+    },
+    {
+      day: "friday",
+      topic: weekdayTopics[4] || weekdayTopics[0],
+      focus: "Mixed set",
+      problems: [suggestedProblems[4]?.title || ""],
+    },
+    {
+      day: "saturday",
+      topic: "Mock interview",
+      focus: "Explain before coding",
+      problems: [],
+    },
+    {
+      day: "sunday",
+      topic: "Review",
+      focus: "Revisit weak patterns",
+      problems: [],
+    },
+  ];
+
+  // Tips based on experience
+  const tips = [];
+  if (totalSolved < 5) {
+    tips.push("Start with easy problems to build confidence and momentum.");
+  } else if (avgScore < 50) {
+    tips.push(
+      "Review your incorrect submissions and focus on understanding mistakes.",
+    );
+  } else if (optimalCount / (totalSolved || 1) < 0.5) {
+    tips.push(
+      "Aim for more optimal solutions; revisit problems where your solution was not optimal.",
+    );
+  } else {
+    tips.push(
+      "Great job! Try mock interviews and timed practice for the next level.",
+    );
+  }
 
   return {
-    recommendations,
-    weeklyPlan: {
-      monday: {
-        topic: weekdayTopics[0],
-        focus: "Core pattern",
-        problemCount: 2,
-      },
-      tuesday: {
-        topic: weekdayTopics[1] || weekdayTopics[0],
-        focus: "Edge cases",
-        problemCount: 2,
-      },
-      wednesday: {
-        topic: weekdayTopics[2] || weekdayTopics[0],
-        focus: "Complexity optimization",
-        problemCount: 2,
-      },
-      thursday: {
-        topic: weekdayTopics[3] || weekdayTopics[1] || weekdayTopics[0],
-        focus: "Speed + correctness",
-        problemCount: 2,
-      },
-      friday: {
-        topic: weekdayTopics[4] || weekdayTopics[0],
-        focus: "Mixed set",
-        problemCount: 3,
-      },
-      saturday: {
-        topic: "Mock interview",
-        focus: "Explain before coding",
-        problemCount: 3,
-      },
-      sunday: {
-        topic: "Review",
-        focus: "Revisit weak patterns",
-        problemCount: 2,
-      },
-    },
-    insight:
-      solvedProblems.length > 10
-        ? "Your consistency is strong; focus next on lowering time-to-first-correct-solution."
-        : "Build momentum with shorter sessions and strict post-problem reflection.",
+    weakTopics,
+    suggestedProblems,
+    weeklyPlan,
+    tips,
   };
 };
