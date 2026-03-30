@@ -50,7 +50,6 @@ A full-stack web application to track your Data Structures & Algorithms journey 
 | **Email Login**           | Secure credentials-based authentication via NextAuth                                                                     |
 | **Admin Panel**           | Manage users, topics, and problems                                                                                       |
 
-
 ## 🆕 Latest UI & Roadmap Improvements
 
 ### 3D Effects & Visual Polish
@@ -76,6 +75,25 @@ A full-stack web application to track your Data Structures & Algorithms journey 
 - **Accessibility:** Improved contrast, focus states, and keyboard navigation for better accessibility.
 
 These improvements make the DSA Tracker more engaging, visually appealing, and user-friendly. For details on customizing or extending these effects, see the relevant components in `frontend/src/components/roadmap/`, `dashboard/`, and `ui/`.
+
+## 🤖 AI Recommendations (Personalized)
+
+The AI Recommendations engine now provides personalized suggestions based on your experience, including:
+
+- **Weak Topics:** Topics where your completion rate is low
+- **Suggested Problems:** Problems are recommended based on your solved count, average score, and optimal solution rate
+- **Weekly Plan:** A day-by-day plan tailored to your current strengths and weaknesses
+- **Tips:** Actionable advice based on your progress and performance
+
+**How it works:**
+
+- The backend analyzes your recent solved problems, scores, and optimal solutions
+- Recommendations adapt as you solve more problems and improve your skills
+- Difficulty and focus areas are chosen to match your experience level
+
+> For best results, keep solving and submitting problems — the more you use the tracker, the smarter the recommendations become!
+
+---
 
 ## 🛠 Tech Stack
 
