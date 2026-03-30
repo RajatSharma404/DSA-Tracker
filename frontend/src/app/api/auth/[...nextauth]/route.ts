@@ -4,7 +4,6 @@ import GoogleProvider from "next-auth/providers/google";
 import jwt from "jsonwebtoken";
 
 export const authOptions: NextAuthOptions = {
-  trustHost: true,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
