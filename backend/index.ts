@@ -270,17 +270,49 @@ app.get(
 // === THEORY / LEARN ROUTES ===
 
 const seedStarterTheoryContent = async () => {
-  const existing = await prisma.$queryRaw<Array<{ count: bigint }>>`
-    SELECT COUNT(*)::bigint AS count FROM theory_tracks
+  const publishedTrackCount = await prisma.$queryRaw<Array<{ count: bigint }>>`
+    SELECT COUNT(*)::bigint AS count FROM theory_tracks WHERE is_published = true
   `;
 
-  if (Number(existing[0]?.count || 0) > 0) {
+  if (Number(publishedTrackCount[0]?.count || 0) > 0) {
     return {
       seeded: false,
       tracks: 0,
       modules: 0,
       lessons: 0,
-      message: "Theory data already exists",
+      message: "Published theory data already exists",
+    };
+  }
+
+  const totalTrackCount = await prisma.$queryRaw<Array<{ count: bigint }>>`
+    SELECT COUNT(*)::bigint AS count FROM theory_tracks
+  `;
+
+  if (Number(totalTrackCount[0]?.count || 0) > 0) {
+    await prisma.$executeRaw`
+      UPDATE theory_tracks
+      SET is_published = true, updated_at = NOW()
+      WHERE is_published = false
+    `;
+
+    await prisma.$executeRaw`
+      UPDATE theory_modules
+      SET is_published = true, updated_at = NOW()
+      WHERE is_published = false
+    `;
+
+    await prisma.$executeRaw`
+      UPDATE theory_lessons
+      SET is_published = true, updated_at = NOW()
+      WHERE is_published = false
+    `;
+
+    return {
+      seeded: false,
+      tracks: 0,
+      modules: 0,
+      lessons: 0,
+      message: "Published existing theory data",
     };
   }
 
