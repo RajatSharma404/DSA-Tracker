@@ -7,8 +7,11 @@ import ReactFlow, {
   MiniMap,
   Node,
   Edge,
+  Position,
   MarkerType,
   ConnectionLineType,
+  useNodesState,
+  useEdgesState,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import dagre from "dagre";
@@ -24,17 +27,17 @@ const nodeTypes = {
 type StatusFilter = "ALL" | "TODO" | "DOING" | "DONE" | "DUE";
 type DifficultyFilter = "ALL" | "EASY" | "MEDIUM" | "HARD";
 
+// Initial layout for first render only
 const getLayoutedElements = (
   nodes: Node[],
   edges: Edge[],
-  direction = "TB",
+  savedPositions: Record<string, { x: number; y: number }>,
+  direction = "LR",
 ) => {
   const dagreGraph = new dagre.graphlib.Graph();
   dagreGraph.setDefaultEdgeLabel(() => ({}));
-
   const isHorizontal = direction === "LR";
   dagreGraph.setGraph({ rankdir: direction, ranksep: 56, nodesep: 34 });
-
   nodes.forEach((node) => {
     const isTopic = node.type === "topicNode";
     dagreGraph.setNode(node.id, {
@@ -42,42 +45,57 @@ const getLayoutedElements = (
       height: isTopic ? 118 : 72,
     });
   });
-
   edges.forEach((edge) => {
     dagreGraph.setEdge(edge.source, edge.target);
   });
-
   dagre.layout(dagreGraph);
-
-  nodes.forEach((node) => {
+  const layoutedNodes = nodes.map((node) => {
     const nodeWithPosition = dagreGraph.node(node.id);
-    node.targetPosition = isHorizontal ? "left" : ("top" as any);
-    node.sourcePosition = isHorizontal ? "right" : ("bottom" as any);
-
+    const persistedPosition = savedPositions[node.id];
     const isTopic = node.type === "topicNode";
     const nodeWidth = isTopic ? 268 : 212;
     const nodeHeight = isTopic ? 118 : 72;
-
-    node.position = {
-      x: nodeWithPosition.x - nodeWidth / 2,
-      y: nodeWithPosition.y - nodeHeight / 2,
+    return {
+      ...node,
+      targetPosition: isHorizontal ? Position.Left : Position.Top,
+      sourcePosition: isHorizontal ? Position.Right : Position.Bottom,
+      position: persistedPosition ?? {
+        x: nodeWithPosition.x - nodeWidth / 2,
+        y: nodeWithPosition.y - nodeHeight / 2,
+      },
+      draggable: true,
     };
-
-    return node;
   });
 
-  return { nodes, edges };
+  const layoutedEdges = edges.map((edge) => ({
+    ...edge,
+    type: "default",
+    markerEnd: edge.markerEnd ?? {
+      type: MarkerType.ArrowClosed,
+      color: "rgba(148, 163, 184, 0.8)",
+      width: 16,
+      height: 16,
+    },
+  }));
+
+  return { nodes: layoutedNodes, edges: layoutedEdges };
 };
 
 export default function RoadmapGraph() {
-  const [nodes, setNodes] = useState<Node[]>([]);
-  const [edges, setEdges] = useState<Edge[]>([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [loading, setLoading] = useState(true);
+  const [nodePositions, setNodePositions] = useState<
+    Record<string, { x: number; y: number }>
+  >({});
   const [topicsData, setTopicsData] = useState<Topic[]>([]);
-  const [problemsByTopic, setProblemsByTopic] = useState<Record<string, Problem[]>>({});
+  const [problemsByTopic, setProblemsByTopic] = useState<
+    Record<string, Problem[]>
+  >({});
   const [expandedTopics, setExpandedTopics] = useState<Set<string>>(new Set());
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
-  const [difficultyFilter, setDifficultyFilter] = useState<DifficultyFilter>("ALL");
+  const [difficultyFilter, setDifficultyFilter] =
+    useState<DifficultyFilter>("ALL");
 
   const isProblemVisible = useCallback(
     (problem: Problem) => {
@@ -118,17 +136,16 @@ export default function RoadmapGraph() {
     setExpandedTopics(new Set());
   }, []);
 
+  // Build nodes/edges and always auto-layout with Dagre
   const graphElements = useMemo(() => {
     const initialNodes: Node[] = [];
     const initialEdges: Edge[] = [];
-
     topicsData.forEach((topic, index) => {
       const allProblems = problemsByTopic[topic.id] || [];
       const filteredProblems = allProblems.filter(isProblemVisible);
       const isExpanded = expandedTopics.has(topic.id);
       const visibleProblems = isExpanded ? filteredProblems : [];
       const hiddenCount = filteredProblems.length - visibleProblems.length;
-
       initialNodes.push({
         id: `topic-${topic.id}`,
         type: "topicNode",
@@ -144,26 +161,27 @@ export default function RoadmapGraph() {
         },
         position: { x: 0, y: 0 },
       });
-
       if (index > 0) {
         const prevCompleted = topicsData[index - 1].progressPercentage === 100;
         initialEdges.push({
           id: `edge-topics-${index}`,
           source: `topic-${topicsData[index - 1].id}`,
           target: `topic-${topic.id}`,
-          type: "smoothstep",
+          type: "default",
           animated: false,
           style: {
             stroke: prevCompleted ? "#10b981" : "rgba(59,130,246,0.65)",
             strokeWidth: 2.1,
+            strokeLinecap: "round",
           },
           markerEnd: {
             type: MarkerType.ArrowClosed,
             color: prevCompleted ? "#10b981" : "#3b82f6",
+            width: 16,
+            height: 16,
           },
         });
       }
-
       visibleProblems.forEach((problem) => {
         initialNodes.push({
           id: `prob-${problem.id}`,
@@ -177,27 +195,42 @@ export default function RoadmapGraph() {
           },
           position: { x: 0, y: 0 },
         });
-
         initialEdges.push({
           id: `edge-${topic.id}-${problem.id}`,
           source: `topic-${topic.id}`,
           target: `prob-${problem.id}`,
-          type: "smoothstep",
+          type: "default",
           style: {
-            stroke: problem.status === "DONE" ? "#10b981" : "rgba(255,255,255,0.24)",
+            stroke:
+              problem.status === "DONE" ? "#10b981" : "rgba(255,255,255,0.24)",
             strokeWidth: problem.status === "DONE" ? 1.9 : 1.3,
             strokeDasharray: problem.status === "DONE" ? "0" : "4 6",
+            strokeLinecap: "round",
+          },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            color:
+              problem.status === "DONE" ? "#10b981" : "rgba(226,232,240,0.7)",
+            width: 14,
+            height: 14,
           },
         });
       });
     });
-
-    return getLayoutedElements(initialNodes, initialEdges, "LR");
-  }, [topicsData, problemsByTopic, expandedTopics, isProblemVisible, toggleTopic]);
+    return getLayoutedElements(initialNodes, initialEdges, nodePositions, "LR");
+  }, [
+    topicsData,
+    problemsByTopic,
+    expandedTopics,
+    isProblemVisible,
+    toggleTopic,
+    nodePositions,
+  ]);
 
   const initData = async () => {
     try {
       const topics = await dsaApi.getTopics();
+      console.log("Fetched topics:", topics);
       const allTopicProblemsPromises = topics.map((topic) =>
         dsaApi.getTopicProblems(topic.id),
       );
@@ -206,7 +239,7 @@ export default function RoadmapGraph() {
       topics.forEach((topic, i) => {
         topicProblemMap[topic.id] = problemsSets[i];
       });
-
+      console.log("Fetched problems by topic:", topicProblemMap);
       setTopicsData(topics);
       setProblemsByTopic(topicProblemMap);
       setExpandedTopics(new Set(topics.slice(0, 2).map((t) => t.id)));
@@ -224,12 +257,38 @@ export default function RoadmapGraph() {
   useEffect(() => {
     setNodes(graphElements.nodes);
     setEdges(graphElements.edges);
-  }, [graphElements]);
+  }, [graphElements, setNodes, setEdges]);
+
+  // No manual drag logic; nodes are always auto-laid out
 
   if (loading) {
     return (
       <div className="flex h-150 w-full items-center justify-center">
         <div className="h-10 w-10 animate-spin rounded-full border-2 border-white/10 border-t-white"></div>
+      </div>
+    );
+  }
+
+  if (!nodes || nodes.length === 0) {
+    return (
+      <div className="flex flex-col h-150 w-full items-center justify-center text-gray-400 text-lg">
+        <div>
+          No roadmap data found. Please check your topics and problems data.
+        </div>
+        <div className="mt-4 text-xs text-gray-500">
+          Debug info:
+          <br />
+          Topics: {topicsData.length}
+          <br />
+          Problems:{" "}
+          {Object.values(problemsByTopic).reduce(
+            (acc, arr) => acc + arr.length,
+            0,
+          )}
+          <br />
+          Nodes: {nodes.length}
+          <br />
+        </div>
       </div>
     );
   }
@@ -262,7 +321,9 @@ export default function RoadmapGraph() {
 
         <select
           value={difficultyFilter}
-          onChange={(e) => setDifficultyFilter(e.target.value as DifficultyFilter)}
+          onChange={(e) =>
+            setDifficultyFilter(e.target.value as DifficultyFilter)
+          }
           className="bg-[#111] border border-white/10 rounded-md px-2 py-1 text-[11px] font-bold text-gray-300 outline-hidden"
         >
           <option value="ALL">Difficulty: All</option>
@@ -288,12 +349,21 @@ export default function RoadmapGraph() {
       <ReactFlow
         nodes={nodes}
         edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onNodeDragStop={(_, node) => {
+          setNodePositions((prev) => ({
+            ...prev,
+            [node.id]: node.position,
+          }));
+        }}
         nodeTypes={nodeTypes}
-        connectionLineType={ConnectionLineType.SmoothStep}
+        connectionLineType={ConnectionLineType.Bezier}
         fitView
         fitViewOptions={{ padding: 0.16 }}
         minZoom={0.42}
         maxZoom={1.85}
+        nodesDraggable={true}
       >
         <Background color="#1a1a1a" gap={26} />
         <Controls
