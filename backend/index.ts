@@ -274,9 +274,10 @@ const FALLBACK_LEARN_TRACKS = [
     id: "fallback-track-cpp-foundations",
     slug: "cpp-foundations",
     title: "C++ Foundations",
-    description: "Learn core C++ theory before solving DSA questions.",
+    description:
+      "Build language fluency and complexity instincts for interviews.",
     orderIndex: 1,
-    totalLessons: 2,
+    totalLessons: 4,
     completedLessons: 0,
     progressPercent: 0,
     modules: [
@@ -284,9 +285,9 @@ const FALLBACK_LEARN_TRACKS = [
         id: "fallback-module-cpp-basics",
         slug: "cpp-basics-for-dsa",
         title: "C++ Basics For DSA",
-        summary: "Syntax, data structures, and complexity thinking with C++.",
+        summary: "Syntax, STL, complexity, and memory-safe patterns.",
         orderIndex: 1,
-        estimatedMinutes: 45,
+        estimatedMinutes: 60,
         totalLessons: 2,
         completedLessons: 0,
         progressPercent: 0,
@@ -295,23 +296,287 @@ const FALLBACK_LEARN_TRACKS = [
             id: "fallback-lesson-setup-complexity",
             slug: "cpp-setup-and-complexity",
             title: "C++ Setup and Big-O",
-            summary: "Understand compilation, STL basics, and runtime complexity.",
+            summary:
+              "Understand compilation, STL basics, and runtime complexity.",
             orderIndex: 1,
             estimatedMinutes: 20,
             difficulty: "BEGINNER",
             status: "NOT_STARTED",
             progressPercent: 0,
+            learningObjectives: [
+              "Understand O(1), O(log n), O(n), O(n log n)",
+              "Write fast I/O boilerplate in C++",
+              "Know when vectors vs arrays matter",
+            ],
           },
           {
             id: "fallback-lesson-hashmap-two-pointer",
             slug: "cpp-hashmap-and-two-pointer",
             title: "HashMap and Two Pointer Patterns",
-            summary: "Theory behind two most common interview patterns.",
+            summary:
+              "Theory behind two common interview optimization patterns.",
             orderIndex: 2,
             estimatedMinutes: 25,
             difficulty: "BEGINNER",
             status: "NOT_STARTED",
             progressPercent: 0,
+            learningObjectives: [
+              "Identify when to use unordered_map",
+              "Convert brute force to linear scans",
+              "Avoid common two-pointer edge cases",
+            ],
+          },
+        ],
+      },
+      {
+        id: "fallback-module-cpp-advanced",
+        slug: "cpp-memory-and-templates",
+        title: "Memory and Templates",
+        summary:
+          "References, pointers, and template utilities for cleaner code.",
+        orderIndex: 2,
+        estimatedMinutes: 70,
+        totalLessons: 2,
+        completedLessons: 0,
+        progressPercent: 0,
+        lessons: [
+          {
+            id: "fallback-lesson-pointers-references",
+            slug: "pointers-references-and-raii",
+            title: "Pointers, References, and RAII",
+            summary:
+              "Master safe memory handling in competitive coding contexts.",
+            orderIndex: 1,
+            estimatedMinutes: 30,
+            difficulty: "INTERMEDIATE",
+            status: "NOT_STARTED",
+            progressPercent: 0,
+            learningObjectives: [
+              "Differentiate stack and heap allocation",
+              "Use references to avoid unnecessary copies",
+              "Apply RAII for exception-safe resource management",
+            ],
+          },
+          {
+            id: "fallback-lesson-template-patterns",
+            slug: "template-patterns-for-dsa",
+            title: "Template Patterns for DSA",
+            summary: "Use templates and helpers to build reusable solutions.",
+            orderIndex: 2,
+            estimatedMinutes: 25,
+            difficulty: "INTERMEDIATE",
+            status: "NOT_STARTED",
+            progressPercent: 0,
+            learningObjectives: [
+              "Write generic helper functions",
+              "Use lambda comparators with STL",
+              "Avoid template overengineering in interviews",
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "fallback-track-algorithmic-patterns",
+    slug: "algorithmic-patterns",
+    title: "Algorithmic Patterns",
+    description: "Learn transferable patterns used across most DSA questions.",
+    orderIndex: 2,
+    totalLessons: 4,
+    completedLessons: 0,
+    progressPercent: 0,
+    modules: [
+      {
+        id: "fallback-module-linear-patterns",
+        slug: "linear-patterns",
+        title: "Linear Scan Patterns",
+        summary: "Two pointers, sliding windows, and prefix transforms.",
+        orderIndex: 1,
+        estimatedMinutes: 75,
+        totalLessons: 2,
+        completedLessons: 0,
+        progressPercent: 0,
+        lessons: [
+          {
+            id: "fallback-lesson-two-pointers",
+            slug: "two-pointers-mastery",
+            title: "Two Pointers Mastery",
+            summary: "Sort + sweep strategy for pair and range problems.",
+            orderIndex: 1,
+            estimatedMinutes: 35,
+            difficulty: "BEGINNER",
+            status: "NOT_STARTED",
+            progressPercent: 0,
+            learningObjectives: [
+              "Recognize monotonic movement opportunities",
+              "Track invariants while moving pointers",
+              "Handle duplicates and boundary conditions",
+            ],
+          },
+          {
+            id: "fallback-lesson-sliding-window",
+            slug: "sliding-window-system",
+            title: "Sliding Window System",
+            summary: "Expand/contract windows to optimize contiguous ranges.",
+            orderIndex: 2,
+            estimatedMinutes: 30,
+            difficulty: "INTERMEDIATE",
+            status: "NOT_STARTED",
+            progressPercent: 0,
+            learningObjectives: [
+              "Model fixed vs variable windows",
+              "Track counts/frequencies efficiently",
+              "Convert nested loops to linear scans",
+            ],
+          },
+        ],
+      },
+      {
+        id: "fallback-module-state-patterns",
+        slug: "state-patterns",
+        title: "State Transition Patterns",
+        summary: "Greedy choices, dynamic programming, and state compression.",
+        orderIndex: 2,
+        estimatedMinutes: 80,
+        totalLessons: 2,
+        completedLessons: 0,
+        progressPercent: 0,
+        lessons: [
+          {
+            id: "fallback-lesson-greedy-proof",
+            slug: "greedy-choice-proofing",
+            title: "Greedy Choice Proofing",
+            summary: "When local optimum decisions lead to global optimum.",
+            orderIndex: 1,
+            estimatedMinutes: 30,
+            difficulty: "INTERMEDIATE",
+            status: "NOT_STARTED",
+            progressPercent: 0,
+            learningObjectives: [
+              "Identify exchange arguments",
+              "Prove correctness with invariants",
+              "Spot cases where greedy fails",
+            ],
+          },
+          {
+            id: "fallback-lesson-dp-transitions",
+            slug: "dp-state-transitions",
+            title: "DP State Transitions",
+            summary:
+              "Design states, transitions, and base cases systematically.",
+            orderIndex: 2,
+            estimatedMinutes: 40,
+            difficulty: "ADVANCED",
+            status: "NOT_STARTED",
+            progressPercent: 0,
+            learningObjectives: [
+              "Define minimal sufficient state",
+              "Optimize recursion to tabulation",
+              "Reduce dimensions when dependencies allow",
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "fallback-track-data-structures",
+    slug: "data-structures-systems",
+    title: "Data Structure Systems",
+    description: "Core structures and traversal logic used in problem solving.",
+    orderIndex: 3,
+    totalLessons: 4,
+    completedLessons: 0,
+    progressPercent: 0,
+    modules: [
+      {
+        id: "fallback-module-trees-graphs",
+        slug: "trees-and-graphs",
+        title: "Trees and Graphs",
+        summary: "Traversal strategies and path/state representations.",
+        orderIndex: 1,
+        estimatedMinutes: 90,
+        totalLessons: 2,
+        completedLessons: 0,
+        progressPercent: 0,
+        lessons: [
+          {
+            id: "fallback-lesson-tree-traversals",
+            slug: "tree-traversal-playbook",
+            title: "Tree Traversal Playbook",
+            summary: "DFS/BFS templates and subtree decomposition methods.",
+            orderIndex: 1,
+            estimatedMinutes: 35,
+            difficulty: "BEGINNER",
+            status: "NOT_STARTED",
+            progressPercent: 0,
+            learningObjectives: [
+              "Choose preorder/inorder/postorder intentionally",
+              "Use recursion and iterative stack forms",
+              "Model subtree return values cleanly",
+            ],
+          },
+          {
+            id: "fallback-lesson-graph-traversal",
+            slug: "graph-traversal-toolkit",
+            title: "Graph Traversal Toolkit",
+            summary: "Visited-state, components, and shortest-path basics.",
+            orderIndex: 2,
+            estimatedMinutes: 40,
+            difficulty: "INTERMEDIATE",
+            status: "NOT_STARTED",
+            progressPercent: 0,
+            learningObjectives: [
+              "Represent graphs as adjacency lists",
+              "Use BFS for unweighted shortest paths",
+              "Detect cycles and connected components",
+            ],
+          },
+        ],
+      },
+      {
+        id: "fallback-module-heaps-tries",
+        slug: "heaps-and-tries",
+        title: "Heaps and Tries",
+        summary: "Priority queues and prefix-indexed retrieval patterns.",
+        orderIndex: 2,
+        estimatedMinutes: 65,
+        totalLessons: 2,
+        completedLessons: 0,
+        progressPercent: 0,
+        lessons: [
+          {
+            id: "fallback-lesson-heaps-priority",
+            slug: "heaps-priority-queues",
+            title: "Heaps and Priority Queues",
+            summary: "Top-k, scheduling, and streaming statistics problems.",
+            orderIndex: 1,
+            estimatedMinutes: 30,
+            difficulty: "INTERMEDIATE",
+            status: "NOT_STARTED",
+            progressPercent: 0,
+            learningObjectives: [
+              "Pick min-heap vs max-heap approaches",
+              "Maintain top-k efficiently",
+              "Use lazy deletion when needed",
+            ],
+          },
+          {
+            id: "fallback-lesson-tries-prefix",
+            slug: "tries-and-prefix-indexing",
+            title: "Tries and Prefix Indexing",
+            summary: "Prefix search, dictionary constraints, and pruning.",
+            orderIndex: 2,
+            estimatedMinutes: 30,
+            difficulty: "ADVANCED",
+            status: "NOT_STARTED",
+            progressPercent: 0,
+            learningObjectives: [
+              "Model node structure for character sets",
+              "Balance memory and lookup speed",
+              "Combine Trie with DFS backtracking",
+            ],
           },
         ],
       },
@@ -324,158 +589,71 @@ const getFallbackLearnLesson = (
   moduleSlug: string,
   lessonSlug: string,
 ) => {
-  if (
-    trackSlug !== "cpp-foundations" ||
-    moduleSlug !== "cpp-basics-for-dsa"
-  ) {
-    return null;
-  }
+  const track = FALLBACK_LEARN_TRACKS.find((t) => t.slug === trackSlug);
+  if (!track) return null;
 
-  if (lessonSlug === "cpp-setup-and-complexity") {
-    return {
-      lesson: {
-        id: "fallback-lesson-setup-complexity",
-        title: "C++ Setup and Big-O",
-        summary: "Understand compilation, STL basics, and runtime complexity.",
-        difficulty: "BEGINNER",
-        estimatedMinutes: 20,
-        learningObjectives: [
-          "Understand O(1), O(log n), O(n), O(n log n)",
-          "Write fast I/O boilerplate in C++",
-          "Know when vectors vs arrays matter",
-        ],
-        module: {
-          id: "fallback-module-cpp-basics",
-          title: "C++ Basics For DSA",
-          slug: "cpp-basics-for-dsa",
-        },
-        track: {
-          title: "C++ Foundations",
-          slug: "cpp-foundations",
-        },
-      },
-      blocks: [
-        {
-          id: "fallback-block-1",
-          blockType: "MARKDOWN",
-          orderIndex: 1,
-          content: {
-            markdown:
-              "### Why theory before problems?\\nStrong fundamentals reduce trial-and-error coding and improve interview speed.",
-          },
-          language: null,
-        },
-        {
-          id: "fallback-block-2",
-          blockType: "CODE",
-          orderIndex: 2,
-          content: {
-            title: "Fast I/O template",
-            code: "ios_base::sync_with_stdio(false);\\ncin.tie(nullptr);",
-          },
-          language: "cpp",
-        },
-      ],
-      progress: {
-        status: "NOT_STARTED",
-        progressPercent: 0,
-        timeSpentSeconds: 0,
-        completedAt: null,
-      },
-      isUnlocked: false,
-      siblings: [
-        {
-          id: "fallback-lesson-setup-complexity",
-          slug: "cpp-setup-and-complexity",
-          title: "C++ Setup and Big-O",
-          orderIndex: 1,
-          status: "NOT_STARTED",
-        },
-        {
-          id: "fallback-lesson-hashmap-two-pointer",
-          slug: "cpp-hashmap-and-two-pointer",
-          title: "HashMap and Two Pointer Patterns",
-          orderIndex: 2,
-          status: "NOT_STARTED",
-        },
-      ],
-      problems: [],
-    };
-  }
+  const module = track.modules.find((m) => m.slug === moduleSlug);
+  if (!module) return null;
 
-  if (lessonSlug === "cpp-hashmap-and-two-pointer") {
-    return {
-      lesson: {
-        id: "fallback-lesson-hashmap-two-pointer",
-        title: "HashMap and Two Pointer Patterns",
-        summary: "Theory behind two most common interview patterns.",
-        difficulty: "BEGINNER",
-        estimatedMinutes: 25,
-        learningObjectives: [
-          "Identify when to use unordered_map",
-          "Convert brute force to linear scans",
-          "Avoid common two-pointer edge cases",
-        ],
-        module: {
-          id: "fallback-module-cpp-basics",
-          title: "C++ Basics For DSA",
-          slug: "cpp-basics-for-dsa",
-        },
-        track: {
-          title: "C++ Foundations",
-          slug: "cpp-foundations",
-        },
-      },
-      blocks: [
-        {
-          id: "fallback-block-3",
-          blockType: "MARKDOWN",
-          orderIndex: 1,
-          content: {
-            markdown:
-              "### Hash map pattern\\nUse value->index maps when you need complement lookup in constant average time.",
-          },
-          language: null,
-        },
-        {
-          id: "fallback-block-4",
-          blockType: "MARKDOWN",
-          orderIndex: 2,
-          content: {
-            markdown:
-              "### Two pointer pattern\\nUse left/right pointers on sorted data when target conditions depend on pair sums or windows.",
-          },
-          language: null,
-        },
-      ],
-      progress: {
-        status: "NOT_STARTED",
-        progressPercent: 0,
-        timeSpentSeconds: 0,
-        completedAt: null,
-      },
-      isUnlocked: false,
-      siblings: [
-        {
-          id: "fallback-lesson-setup-complexity",
-          slug: "cpp-setup-and-complexity",
-          title: "C++ Setup and Big-O",
-          orderIndex: 1,
-          status: "NOT_STARTED",
-        },
-        {
-          id: "fallback-lesson-hashmap-two-pointer",
-          slug: "cpp-hashmap-and-two-pointer",
-          title: "HashMap and Two Pointer Patterns",
-          orderIndex: 2,
-          status: "NOT_STARTED",
-        },
-      ],
-      problems: [],
-    };
-  }
+  const lesson = module.lessons.find((l) => l.slug === lessonSlug);
+  if (!lesson) return null;
 
-  return null;
+  const blocks = [
+    {
+      id: `${lesson.id}-block-1`,
+      blockType: "MARKDOWN",
+      orderIndex: 1,
+      content: {
+        markdown: `### ${lesson.title}\n${lesson.summary || "Core theory lesson."}`,
+      },
+      language: null,
+    },
+    {
+      id: `${lesson.id}-block-2`,
+      blockType: "MARKDOWN",
+      orderIndex: 2,
+      content: {
+        markdown: `### Learning Objectives\n${(lesson.learningObjectives || []).map((o: string) => `- ${o}`).join("\\n")}`,
+      },
+      language: null,
+    },
+  ];
+
+  return {
+    lesson: {
+      id: lesson.id,
+      title: lesson.title,
+      summary: lesson.summary,
+      difficulty: lesson.difficulty,
+      estimatedMinutes: lesson.estimatedMinutes,
+      learningObjectives: lesson.learningObjectives || null,
+      module: {
+        id: module.id,
+        title: module.title,
+        slug: module.slug,
+      },
+      track: {
+        title: track.title,
+        slug: track.slug,
+      },
+    },
+    blocks,
+    progress: {
+      status: "NOT_STARTED",
+      progressPercent: 0,
+      timeSpentSeconds: 0,
+      completedAt: null,
+    },
+    isUnlocked: false,
+    siblings: module.lessons.map((s) => ({
+      id: s.id,
+      slug: s.slug,
+      title: s.title,
+      orderIndex: s.orderIndex,
+      status: "NOT_STARTED",
+    })),
+    problems: [],
+  };
 };
 
 const ensureTheorySchemaExists = async () => {
