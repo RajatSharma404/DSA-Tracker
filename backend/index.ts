@@ -269,6 +269,215 @@ app.get(
 
 // === THEORY / LEARN ROUTES ===
 
+const FALLBACK_LEARN_TRACKS = [
+  {
+    id: "fallback-track-cpp-foundations",
+    slug: "cpp-foundations",
+    title: "C++ Foundations",
+    description: "Learn core C++ theory before solving DSA questions.",
+    orderIndex: 1,
+    totalLessons: 2,
+    completedLessons: 0,
+    progressPercent: 0,
+    modules: [
+      {
+        id: "fallback-module-cpp-basics",
+        slug: "cpp-basics-for-dsa",
+        title: "C++ Basics For DSA",
+        summary: "Syntax, data structures, and complexity thinking with C++.",
+        orderIndex: 1,
+        estimatedMinutes: 45,
+        totalLessons: 2,
+        completedLessons: 0,
+        progressPercent: 0,
+        lessons: [
+          {
+            id: "fallback-lesson-setup-complexity",
+            slug: "cpp-setup-and-complexity",
+            title: "C++ Setup and Big-O",
+            summary: "Understand compilation, STL basics, and runtime complexity.",
+            orderIndex: 1,
+            estimatedMinutes: 20,
+            difficulty: "BEGINNER",
+            status: "NOT_STARTED",
+            progressPercent: 0,
+          },
+          {
+            id: "fallback-lesson-hashmap-two-pointer",
+            slug: "cpp-hashmap-and-two-pointer",
+            title: "HashMap and Two Pointer Patterns",
+            summary: "Theory behind two most common interview patterns.",
+            orderIndex: 2,
+            estimatedMinutes: 25,
+            difficulty: "BEGINNER",
+            status: "NOT_STARTED",
+            progressPercent: 0,
+          },
+        ],
+      },
+    ],
+  },
+];
+
+const getFallbackLearnLesson = (
+  trackSlug: string,
+  moduleSlug: string,
+  lessonSlug: string,
+) => {
+  if (
+    trackSlug !== "cpp-foundations" ||
+    moduleSlug !== "cpp-basics-for-dsa"
+  ) {
+    return null;
+  }
+
+  if (lessonSlug === "cpp-setup-and-complexity") {
+    return {
+      lesson: {
+        id: "fallback-lesson-setup-complexity",
+        title: "C++ Setup and Big-O",
+        summary: "Understand compilation, STL basics, and runtime complexity.",
+        difficulty: "BEGINNER",
+        estimatedMinutes: 20,
+        learningObjectives: [
+          "Understand O(1), O(log n), O(n), O(n log n)",
+          "Write fast I/O boilerplate in C++",
+          "Know when vectors vs arrays matter",
+        ],
+        module: {
+          id: "fallback-module-cpp-basics",
+          title: "C++ Basics For DSA",
+          slug: "cpp-basics-for-dsa",
+        },
+        track: {
+          title: "C++ Foundations",
+          slug: "cpp-foundations",
+        },
+      },
+      blocks: [
+        {
+          id: "fallback-block-1",
+          blockType: "MARKDOWN",
+          orderIndex: 1,
+          content: {
+            markdown:
+              "### Why theory before problems?\\nStrong fundamentals reduce trial-and-error coding and improve interview speed.",
+          },
+          language: null,
+        },
+        {
+          id: "fallback-block-2",
+          blockType: "CODE",
+          orderIndex: 2,
+          content: {
+            title: "Fast I/O template",
+            code: "ios_base::sync_with_stdio(false);\\ncin.tie(nullptr);",
+          },
+          language: "cpp",
+        },
+      ],
+      progress: {
+        status: "NOT_STARTED",
+        progressPercent: 0,
+        timeSpentSeconds: 0,
+        completedAt: null,
+      },
+      isUnlocked: false,
+      siblings: [
+        {
+          id: "fallback-lesson-setup-complexity",
+          slug: "cpp-setup-and-complexity",
+          title: "C++ Setup and Big-O",
+          orderIndex: 1,
+          status: "NOT_STARTED",
+        },
+        {
+          id: "fallback-lesson-hashmap-two-pointer",
+          slug: "cpp-hashmap-and-two-pointer",
+          title: "HashMap and Two Pointer Patterns",
+          orderIndex: 2,
+          status: "NOT_STARTED",
+        },
+      ],
+      problems: [],
+    };
+  }
+
+  if (lessonSlug === "cpp-hashmap-and-two-pointer") {
+    return {
+      lesson: {
+        id: "fallback-lesson-hashmap-two-pointer",
+        title: "HashMap and Two Pointer Patterns",
+        summary: "Theory behind two most common interview patterns.",
+        difficulty: "BEGINNER",
+        estimatedMinutes: 25,
+        learningObjectives: [
+          "Identify when to use unordered_map",
+          "Convert brute force to linear scans",
+          "Avoid common two-pointer edge cases",
+        ],
+        module: {
+          id: "fallback-module-cpp-basics",
+          title: "C++ Basics For DSA",
+          slug: "cpp-basics-for-dsa",
+        },
+        track: {
+          title: "C++ Foundations",
+          slug: "cpp-foundations",
+        },
+      },
+      blocks: [
+        {
+          id: "fallback-block-3",
+          blockType: "MARKDOWN",
+          orderIndex: 1,
+          content: {
+            markdown:
+              "### Hash map pattern\\nUse value->index maps when you need complement lookup in constant average time.",
+          },
+          language: null,
+        },
+        {
+          id: "fallback-block-4",
+          blockType: "MARKDOWN",
+          orderIndex: 2,
+          content: {
+            markdown:
+              "### Two pointer pattern\\nUse left/right pointers on sorted data when target conditions depend on pair sums or windows.",
+          },
+          language: null,
+        },
+      ],
+      progress: {
+        status: "NOT_STARTED",
+        progressPercent: 0,
+        timeSpentSeconds: 0,
+        completedAt: null,
+      },
+      isUnlocked: false,
+      siblings: [
+        {
+          id: "fallback-lesson-setup-complexity",
+          slug: "cpp-setup-and-complexity",
+          title: "C++ Setup and Big-O",
+          orderIndex: 1,
+          status: "NOT_STARTED",
+        },
+        {
+          id: "fallback-lesson-hashmap-two-pointer",
+          slug: "cpp-hashmap-and-two-pointer",
+          title: "HashMap and Two Pointer Patterns",
+          orderIndex: 2,
+          status: "NOT_STARTED",
+        },
+      ],
+      problems: [],
+    };
+  }
+
+  return null;
+};
+
 const ensureTheorySchemaExists = async () => {
   await prisma.$executeRawUnsafe(`
     DO $$
@@ -689,7 +898,7 @@ app.get(
         }
 
         if (tracks.length === 0) {
-          return res.json([]);
+          return res.json(FALLBACK_LEARN_TRACKS);
         }
       }
 
@@ -884,11 +1093,14 @@ app.get(
           );
         } catch (bootstrapError) {
           console.error("Learn bootstrap error:", bootstrapError);
-          return res.status(500).json({
-            error: "Failed to bootstrap learn theory schema",
-            hint: "Ensure DB user can create tables and enum types.",
-          });
+          return res.json(FALLBACK_LEARN_TRACKS);
         }
+      }
+      if (
+        message.toLowerCase().includes("permission denied") ||
+        message.toLowerCase().includes("must be owner")
+      ) {
+        return res.json(FALLBACK_LEARN_TRACKS);
       }
       res.status(500).json({
         error: "Failed to load learn tracks",
@@ -904,7 +1116,9 @@ app.get(
   async (req: Request, res: Response) => {
     try {
       const userId = req.user!.id;
-      const { trackSlug, moduleSlug, lessonSlug } = req.params;
+      const trackSlug = String(req.params.trackSlug);
+      const moduleSlug = String(req.params.moduleSlug);
+      const lessonSlug = String(req.params.lessonSlug);
 
       const lessons = await prisma.$queryRaw<
         Array<{
@@ -947,6 +1161,14 @@ app.get(
 
       const lesson = lessons[0];
       if (!lesson) {
+        const fallbackLesson = getFallbackLearnLesson(
+          trackSlug,
+          moduleSlug,
+          lessonSlug,
+        );
+        if (fallbackLesson) {
+          return res.json(fallbackLesson);
+        }
         return res.status(404).json({ error: "Lesson not found" });
       }
 
@@ -1087,6 +1309,14 @@ app.get(
       });
     } catch (error) {
       console.error("Learn lesson detail error:", error);
+      const fallbackLesson = getFallbackLearnLesson(
+        String(req.params.trackSlug),
+        String(req.params.moduleSlug),
+        String(req.params.lessonSlug),
+      );
+      if (fallbackLesson) {
+        return res.json(fallbackLesson);
+      }
       res.status(500).json({ error: "Failed to load lesson" });
     }
   },
