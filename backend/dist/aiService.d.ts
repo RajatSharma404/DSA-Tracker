@@ -102,50 +102,19 @@ export declare const getAIRecommendations: (solvedProblems: Array<{
     score: number;
     isOptimal: boolean;
 }>, weakTopics: string[], allTopics: string[]) => Promise<{
-    recommendations: {
+    weakTopics: string[];
+    suggestedProblems: {
+        title: string;
         reason: string;
         topic: string;
         difficulty: string;
-        focusArea: string;
-        estimatedTime: string;
     }[];
     weeklyPlan: {
-        monday: {
-            topic: string;
-            focus: string;
-            problemCount: number;
-        };
-        tuesday: {
-            topic: string;
-            focus: string;
-            problemCount: number;
-        };
-        wednesday: {
-            topic: string;
-            focus: string;
-            problemCount: number;
-        };
-        thursday: {
-            topic: string;
-            focus: string;
-            problemCount: number;
-        };
-        friday: {
-            topic: string;
-            focus: string;
-            problemCount: number;
-        };
-        saturday: {
-            topic: string;
-            focus: string;
-            problemCount: number;
-        };
-        sunday: {
-            topic: string;
-            focus: string;
-            problemCount: number;
-        };
-    };
-    insight: string;
+        day: string;
+        topic: string;
+        focus: string;
+        problems: string[];
+    }[];
+    tips: any[];
 }>;
 //# sourceMappingURL=aiService.d.ts.map

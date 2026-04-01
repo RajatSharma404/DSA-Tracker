@@ -29,21 +29,29 @@ export default function Dashboard() {
 
   const loadDashboardData = async (shouldAutoSync: boolean) => {
     try {
-      if (shouldAutoSync) {
-        try {
-          await dsaApi.syncLeetcode();
-        } catch (syncError) {
-          // Auto-sync is best-effort; dashboard should still load.
-          console.warn("LeetCode auto-sync skipped", syncError);
-        }
-      }
-
       const [statsData, actData] = await Promise.all([
         dsaApi.getDashboardStats(),
         dsaApi.getActivityData(),
       ]);
       setStats(statsData);
       setActivityData(actData);
+
+      if (shouldAutoSync) {
+        // Run sync in the background so initial dashboard render is fast.
+        void dsaApi
+          .syncLeetcode()
+          .then(async () => {
+            const [nextStats, nextActivity] = await Promise.all([
+              dsaApi.getDashboardStats(),
+              dsaApi.getActivityData(),
+            ]);
+            setStats(nextStats);
+            setActivityData(nextActivity);
+          })
+          .catch((syncError) => {
+            console.warn("LeetCode auto-sync skipped", syncError);
+          });
+      }
     } catch (error) {
       console.error("Failed to load dashboard data", error);
       setStats(null);

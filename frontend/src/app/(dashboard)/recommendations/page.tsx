@@ -23,6 +23,25 @@ interface DayPlan {
 
 interface Recommendation {
   weakTopics: string[];
+  strongTopics?: string[];
+  weakTopicBreakdown?: Array<{
+    name: string;
+    solved: number;
+    total: number;
+    completionPct: number;
+  }>;
+  strongTopicBreakdown?: Array<{
+    name: string;
+    solved: number;
+    total: number;
+    completionPct: number;
+  }>;
+  realTime?: {
+    generatedAt: string;
+    totalSolved: number;
+    solvedLast7d: number;
+    solvedLast30d: number;
+  };
   suggestedProblems: Array<{
     title: string;
     reason: string;
@@ -117,6 +136,12 @@ export default function RecommendationsPage() {
           <p className="text-gray-400 mt-2">
             Personalized study plan based on your progress and patterns.
           </p>
+          {data.realTime?.generatedAt && (
+            <p className="text-[10px] text-gray-500 mt-1">
+              Real-time snapshot:{" "}
+              {new Date(data.realTime.generatedAt).toLocaleString()}
+            </p>
+          )}
         </div>
         <button
           onClick={fetchRecommendations}
@@ -144,6 +169,88 @@ export default function RecommendationsPage() {
                 {topic}
               </span>
             ))}
+          </div>
+          {data.weakTopicBreakdown && data.weakTopicBreakdown.length > 0 && (
+            <div className="grid md:grid-cols-2 gap-2 mt-4">
+              {data.weakTopicBreakdown.map((topic) => (
+                <div
+                  key={topic.name}
+                  className="p-3 rounded-xl border border-red-500/20 bg-black/20"
+                >
+                  <p className="text-xs font-bold text-white">{topic.name}</p>
+                  <p className="text-[11px] text-red-300 mt-1">
+                    {topic.solved}/{topic.total} solved (
+                    {Math.round(topic.completionPct)}%)
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Strong Topics */}
+      {data.strongTopics && data.strongTopics.length > 0 && (
+        <div className="p-6 rounded-2xl bg-linear-to-br from-green-500/5 to-emerald-500/5 border border-green-500/10">
+          <h2 className="text-lg font-bold text-white flex items-center gap-2 mb-4">
+            <TrendingUp size={18} className="text-green-400" />
+            Strong Points
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {data.strongTopics.map((topic, i) => (
+              <span
+                key={i}
+                className="px-4 py-2 rounded-xl bg-green-500/10 border border-green-500/20 text-green-300 text-sm font-medium"
+              >
+                {topic}
+              </span>
+            ))}
+          </div>
+          {data.strongTopicBreakdown &&
+            data.strongTopicBreakdown.length > 0 && (
+              <div className="grid md:grid-cols-2 gap-2 mt-4">
+                {data.strongTopicBreakdown.map((topic) => (
+                  <div
+                    key={topic.name}
+                    className="p-3 rounded-xl border border-green-500/20 bg-black/20"
+                  >
+                    <p className="text-xs font-bold text-white">{topic.name}</p>
+                    <p className="text-[11px] text-green-300 mt-1">
+                      {topic.solved}/{topic.total} solved (
+                      {Math.round(topic.completionPct)}%)
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+        </div>
+      )}
+
+      {data.realTime && (
+        <div className="grid md:grid-cols-3 gap-3">
+          <div className="p-4 rounded-xl border border-white/10 bg-[#0d0d0d]">
+            <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
+              Total Solved
+            </p>
+            <p className="text-2xl font-black text-white mt-1">
+              {data.realTime.totalSolved}
+            </p>
+          </div>
+          <div className="p-4 rounded-xl border border-white/10 bg-[#0d0d0d]">
+            <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
+              Solved Last 7 Days
+            </p>
+            <p className="text-2xl font-black text-blue-300 mt-1">
+              {data.realTime.solvedLast7d}
+            </p>
+          </div>
+          <div className="p-4 rounded-xl border border-white/10 bg-[#0d0d0d]">
+            <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
+              Solved Last 30 Days
+            </p>
+            <p className="text-2xl font-black text-purple-300 mt-1">
+              {data.realTime.solvedLast30d}
+            </p>
           </div>
         </div>
       )}

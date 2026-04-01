@@ -50,6 +50,17 @@ A full-stack web application to track your Data Structures & Algorithms journey 
 | **Email Login**           | Secure credentials-based authentication via NextAuth                                                                     |
 | **Admin Panel**           | Manage users, topics, and problems                                                                                       |
 
+## 🧪 Stability & Sync Fixes (Apr 2026)
+
+The following reliability upgrades were implemented:
+
+- **Correct per-user achievements/stats:** fixed auth user-id wiring so badges and solved counts are no longer mixed across users.
+- **Faster dashboard load:** dashboard now renders first and runs LeetCode auto-sync in the background instead of blocking page load.
+- **LeetCode submit flow fixed:** in-app editor now submits to LeetCode, polls verdict, and then syncs accepted solves back to tracker.
+- **Extension sync reliability improved:** extension now supports configurable backend base URL and broader accepted-result detection.
+- **Real-time recommendation signals:** recommendations now include strong topics, weak topic breakdown, and 7d/30d trend metrics.
+- **Login notification email support:** optional SMTP-backed login alert emails can be sent to admin email whenever users authenticate.
+
 ## 🆕 Latest UI & Roadmap Improvements
 
 ### 3D Effects & Visual Polish
@@ -158,6 +169,15 @@ Create a `.env` file inside the `backend/` folder:
 PORT=3001
 DATABASE_URL="postgresql://postgres:password@localhost:5432/dsatracker?schema=public"
 NEXTAUTH_SECRET="any-long-random-string-here"
+ADMIN_EMAIL="your-admin@gmail.com"
+LOGIN_NOTIFY_EMAIL="your-admin@gmail.com"
+
+# Optional: enable login notification emails
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT="587"
+SMTP_USER="your-smtp-user"
+SMTP_PASS="your-smtp-app-password"
+NOTIFY_FROM="DSA Tracker <your-smtp-user>"
 ```
 
 > **Note:** The Docker default password is `password`. If you changed it in `docker-compose.yml`, update `DATABASE_URL` accordingly.
@@ -396,11 +416,18 @@ DSA-Tracker/
 
 ### Backend (`backend/.env`)
 
-| Variable          | Required | Description                              |
-| ----------------- | -------- | ---------------------------------------- |
-| `PORT`            | Yes      | Backend server port (default: `3001`)    |
-| `DATABASE_URL`    | Yes      | PostgreSQL connection string             |
-| `NEXTAUTH_SECRET` | Yes      | JWT signing secret (must match frontend) |
+| Variable             | Required | Description                                                        |
+| -------------------- | -------- | ------------------------------------------------------------------ |
+| `PORT`               | Yes      | Backend server port (default: `3001`)                              |
+| `DATABASE_URL`       | Yes      | PostgreSQL connection string                                       |
+| `NEXTAUTH_SECRET`    | Yes      | JWT signing secret (must match frontend)                           |
+| `ADMIN_EMAIL`        | No       | Auto-admin email match (also default login notification recipient) |
+| `LOGIN_NOTIFY_EMAIL` | No       | Override recipient for login notification emails                   |
+| `SMTP_HOST`          | No       | SMTP host for login notification emails (e.g. `smtp.gmail.com`)    |
+| `SMTP_PORT`          | No       | SMTP port (`587` TLS or `465` SSL)                                 |
+| `SMTP_USER`          | No       | SMTP username                                                      |
+| `SMTP_PASS`          | No       | SMTP password / app password                                       |
+| `NOTIFY_FROM`        | No       | Sender address for login notifications                             |
 
 ### Frontend (`frontend/.env.local`)
 
@@ -424,6 +451,25 @@ The project includes a Chrome/Edge extension (`extension/` folder) that automati
 4. Select the `extension/` folder from this repository
 
 The extension activates on LeetCode problem pages and pings your backend when you get an **Accepted** submission.
+
+### Configure Backend URL (Important for deployed environments)
+
+By default, extension sync targets `http://localhost:3001`. For deployed backend usage, set a custom base URL:
+
+1. Open extension service worker console from `chrome://extensions` (Inspect views -> Service Worker)
+2. Run:
+
+```js
+chrome.storage.sync.set({ dsaApiBaseUrl: "https://your-backend-domain.com" });
+```
+
+You can also set multiple fallback endpoints:
+
+```js
+chrome.storage.sync.set({
+  dsaApiBaseUrls: ["https://api1.example.com", "https://api2.example.com"],
+});
+```
 
 > **Sharing:** To share the extension with others, zip the `extension/` folder. They can extract it and load it the same way.
 
@@ -455,15 +501,17 @@ pm2 save && pm2 startup
 
 ## ❓ Troubleshooting
 
-| Problem                              | Solution                                                                        |
-| ------------------------------------ | ------------------------------------------------------------------------------- |
-| **Port 3000/3001 already in use**    | Kill the process: `npx kill-port 3000 3001` or change ports in `.env`           |
-| **Docker DB not starting**           | Check Docker is running: `docker ps`. Run `docker-compose up -d` again          |
-| **Prisma schema out of sync**        | Run `npx prisma db push` in both `backend/` and `frontend/`                     |
-| **AI features returning errors**     | Review backend logs for local AI heuristic fallback behavior                    |
-| **"NEXTAUTH_SECRET" mismatch**       | Ensure the secret is identical in both `backend/.env` and `frontend/.env.local` |
-| **Blank page after login**           | Make sure the backend is running on port 3001                                   |
-| **Lock file error on `npm run dev`** | Delete `frontend/.next/dev/lock` and try again                                  |
+| Problem                                      | Solution                                                                                                           |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| **Port 3000/3001 already in use**            | Kill the process: `npx kill-port 3000 3001` or change ports in `.env`                                              |
+| **Docker DB not starting**                   | Check Docker is running: `docker ps`. Run `docker-compose up -d` again                                             |
+| **Prisma schema out of sync**                | Run `npx prisma db push` in both `backend/` and `frontend/`                                                        |
+| **AI features returning errors**             | Review backend logs for local AI heuristic fallback behavior                                                       |
+| **"NEXTAUTH_SECRET" mismatch**               | Ensure the secret is identical in both `backend/.env` and `frontend/.env.local`                                    |
+| **Blank page after login**                   | Make sure the backend is running on port 3001                                                                      |
+| **Lock file error on `npm run dev`**         | Delete `frontend/.next/dev/lock` and try again                                                                     |
+| **Extension works locally but not deployed** | Set extension backend URL via `chrome.storage.sync.set({ dsaApiBaseUrl: "https://your-backend" })`                 |
+| **No login notification emails**             | Verify SMTP vars (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`) and recipient vars are set in `backend/.env` |
 
 ---
 

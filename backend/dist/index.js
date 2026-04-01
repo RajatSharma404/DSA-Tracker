@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const nodemailer_1 = __importDefault(require("nodemailer"));
 const client_1 = require("@prisma/client");
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
@@ -20,6 +21,47 @@ const app = (0, express_1.default)();
 const prisma = new client_1.PrismaClient();
 const PORT = process.env.PORT || 3001;
 const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET || "fallback_secret";
+const LOGIN_MAIL_COOLDOWN_MS = 30 * 60 * 1000;
+const loginNotificationCache = new Map();
+const smtpHost = process.env.SMTP_HOST;
+const smtpPort = parseInt(process.env.SMTP_PORT || "587", 10);
+const smtpUser = process.env.SMTP_USER;
+const smtpPass = process.env.SMTP_PASS;
+const notifyFrom = process.env.NOTIFY_FROM || smtpUser || "noreply@dsa-tracker.local";
+const notifyTo = process.env.LOGIN_NOTIFY_EMAIL || process.env.ADMIN_EMAIL || "rajat.sharma.myid1@gmail.com";
+const mailTransporter = smtpHost && smtpUser && smtpPass
+    ? nodemailer_1.default.createTransport({
+        host: smtpHost,
+        port: smtpPort,
+        secure: smtpPort === 465,
+        auth: {
+            user: smtpUser,
+            pass: smtpPass,
+        },
+    })
+    : null;
+const notifyLogin = async (email) => {
+    if (!mailTransporter) {
+        return;
+    }
+    const normalizedEmail = email.trim().toLowerCase();
+    const lastNotifiedAt = loginNotificationCache.get(normalizedEmail) || 0;
+    if (Date.now() - lastNotifiedAt < LOGIN_MAIL_COOLDOWN_MS) {
+        return;
+    }
+    try {
+        await mailTransporter.sendMail({
+            from: notifyFrom,
+            to: notifyTo,
+            subject: "DSA Tracker login alert",
+            text: `A user logged in to DSA Tracker.\n\nEmail: ${normalizedEmail}\nTime (UTC): ${new Date().toISOString()}\n`,
+        });
+        loginNotificationCache.set(normalizedEmail, Date.now());
+    }
+    catch (error) {
+        console.error("Failed to send login notification email:", error);
+    }
+};
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 // Request logger
@@ -60,6 +102,7 @@ const requireAuth = async (req, res, next) => {
             });
         }
         req.user = { id: user.id, role: user.role };
+        await notifyLogin(decoded.email);
         next();
     }
     catch (err) {
@@ -195,10 +238,759 @@ app.get("/api/problems/:problemId", requireAuth, async (req, res) => {
     }
 });
 // === THEORY / LEARN ROUTES ===
+const BASE_FALLBACK_LEARN_TRACKS = [
+    {
+        id: "fallback-track-cpp-foundations",
+        slug: "cpp-foundations",
+        title: "C++ Foundations",
+        description: "Build language fluency and complexity instincts for interviews.",
+        orderIndex: 1,
+        totalLessons: 4,
+        completedLessons: 0,
+        progressPercent: 0,
+        modules: [
+            {
+                id: "fallback-module-cpp-basics",
+                slug: "cpp-basics-for-dsa",
+                title: "C++ Basics For DSA",
+                summary: "Syntax, STL, complexity, and memory-safe patterns.",
+                orderIndex: 1,
+                estimatedMinutes: 60,
+                totalLessons: 2,
+                completedLessons: 0,
+                progressPercent: 0,
+                lessons: [
+                    {
+                        id: "fallback-lesson-setup-complexity",
+                        slug: "cpp-setup-and-complexity",
+                        title: "C++ Setup and Big-O",
+                        summary: "Understand compilation, STL basics, and runtime complexity.",
+                        orderIndex: 1,
+                        estimatedMinutes: 20,
+                        difficulty: "BEGINNER",
+                        status: "NOT_STARTED",
+                        progressPercent: 0,
+                        learningObjectives: [
+                            "Understand O(1), O(log n), O(n), O(n log n)",
+                            "Write fast I/O boilerplate in C++",
+                            "Know when vectors vs arrays matter",
+                        ],
+                    },
+                    {
+                        id: "fallback-lesson-hashmap-two-pointer",
+                        slug: "cpp-hashmap-and-two-pointer",
+                        title: "HashMap and Two Pointer Patterns",
+                        summary: "Theory behind two common interview optimization patterns.",
+                        orderIndex: 2,
+                        estimatedMinutes: 25,
+                        difficulty: "BEGINNER",
+                        status: "NOT_STARTED",
+                        progressPercent: 0,
+                        learningObjectives: [
+                            "Identify when to use unordered_map",
+                            "Convert brute force to linear scans",
+                            "Avoid common two-pointer edge cases",
+                        ],
+                    },
+                ],
+            },
+            {
+                id: "fallback-module-cpp-advanced",
+                slug: "cpp-memory-and-templates",
+                title: "Memory and Templates",
+                summary: "References, pointers, and template utilities for cleaner code.",
+                orderIndex: 2,
+                estimatedMinutes: 70,
+                totalLessons: 2,
+                completedLessons: 0,
+                progressPercent: 0,
+                lessons: [
+                    {
+                        id: "fallback-lesson-pointers-references",
+                        slug: "pointers-references-and-raii",
+                        title: "Pointers, References, and RAII",
+                        summary: "Master safe memory handling in competitive coding contexts.",
+                        orderIndex: 1,
+                        estimatedMinutes: 30,
+                        difficulty: "INTERMEDIATE",
+                        status: "NOT_STARTED",
+                        progressPercent: 0,
+                        learningObjectives: [
+                            "Differentiate stack and heap allocation",
+                            "Use references to avoid unnecessary copies",
+                            "Apply RAII for exception-safe resource management",
+                        ],
+                    },
+                    {
+                        id: "fallback-lesson-template-patterns",
+                        slug: "template-patterns-for-dsa",
+                        title: "Template Patterns for DSA",
+                        summary: "Use templates and helpers to build reusable solutions.",
+                        orderIndex: 2,
+                        estimatedMinutes: 25,
+                        difficulty: "INTERMEDIATE",
+                        status: "NOT_STARTED",
+                        progressPercent: 0,
+                        learningObjectives: [
+                            "Write generic helper functions",
+                            "Use lambda comparators with STL",
+                            "Avoid template overengineering in interviews",
+                        ],
+                    },
+                ],
+            },
+        ],
+    },
+    {
+        id: "fallback-track-algorithmic-patterns",
+        slug: "algorithmic-patterns",
+        title: "Algorithmic Patterns",
+        description: "Learn transferable patterns used across most DSA questions.",
+        orderIndex: 2,
+        totalLessons: 4,
+        completedLessons: 0,
+        progressPercent: 0,
+        modules: [
+            {
+                id: "fallback-module-linear-patterns",
+                slug: "linear-patterns",
+                title: "Linear Scan Patterns",
+                summary: "Two pointers, sliding windows, and prefix transforms.",
+                orderIndex: 1,
+                estimatedMinutes: 75,
+                totalLessons: 2,
+                completedLessons: 0,
+                progressPercent: 0,
+                lessons: [
+                    {
+                        id: "fallback-lesson-two-pointers",
+                        slug: "two-pointers-mastery",
+                        title: "Two Pointers Mastery",
+                        summary: "Sort + sweep strategy for pair and range problems.",
+                        orderIndex: 1,
+                        estimatedMinutes: 35,
+                        difficulty: "BEGINNER",
+                        status: "NOT_STARTED",
+                        progressPercent: 0,
+                        learningObjectives: [
+                            "Recognize monotonic movement opportunities",
+                            "Track invariants while moving pointers",
+                            "Handle duplicates and boundary conditions",
+                        ],
+                    },
+                    {
+                        id: "fallback-lesson-sliding-window",
+                        slug: "sliding-window-system",
+                        title: "Sliding Window System",
+                        summary: "Expand/contract windows to optimize contiguous ranges.",
+                        orderIndex: 2,
+                        estimatedMinutes: 30,
+                        difficulty: "INTERMEDIATE",
+                        status: "NOT_STARTED",
+                        progressPercent: 0,
+                        learningObjectives: [
+                            "Model fixed vs variable windows",
+                            "Track counts/frequencies efficiently",
+                            "Convert nested loops to linear scans",
+                        ],
+                    },
+                ],
+            },
+            {
+                id: "fallback-module-state-patterns",
+                slug: "state-patterns",
+                title: "State Transition Patterns",
+                summary: "Greedy choices, dynamic programming, and state compression.",
+                orderIndex: 2,
+                estimatedMinutes: 80,
+                totalLessons: 2,
+                completedLessons: 0,
+                progressPercent: 0,
+                lessons: [
+                    {
+                        id: "fallback-lesson-greedy-proof",
+                        slug: "greedy-choice-proofing",
+                        title: "Greedy Choice Proofing",
+                        summary: "When local optimum decisions lead to global optimum.",
+                        orderIndex: 1,
+                        estimatedMinutes: 30,
+                        difficulty: "INTERMEDIATE",
+                        status: "NOT_STARTED",
+                        progressPercent: 0,
+                        learningObjectives: [
+                            "Identify exchange arguments",
+                            "Prove correctness with invariants",
+                            "Spot cases where greedy fails",
+                        ],
+                    },
+                    {
+                        id: "fallback-lesson-dp-transitions",
+                        slug: "dp-state-transitions",
+                        title: "DP State Transitions",
+                        summary: "Design states, transitions, and base cases systematically.",
+                        orderIndex: 2,
+                        estimatedMinutes: 40,
+                        difficulty: "ADVANCED",
+                        status: "NOT_STARTED",
+                        progressPercent: 0,
+                        learningObjectives: [
+                            "Define minimal sufficient state",
+                            "Optimize recursion to tabulation",
+                            "Reduce dimensions when dependencies allow",
+                        ],
+                    },
+                ],
+            },
+        ],
+    },
+    {
+        id: "fallback-track-data-structures",
+        slug: "data-structures-systems",
+        title: "Data Structure Systems",
+        description: "Core structures and traversal logic used in problem solving.",
+        orderIndex: 3,
+        totalLessons: 4,
+        completedLessons: 0,
+        progressPercent: 0,
+        modules: [
+            {
+                id: "fallback-module-trees-graphs",
+                slug: "trees-and-graphs",
+                title: "Trees and Graphs",
+                summary: "Traversal strategies and path/state representations.",
+                orderIndex: 1,
+                estimatedMinutes: 90,
+                totalLessons: 2,
+                completedLessons: 0,
+                progressPercent: 0,
+                lessons: [
+                    {
+                        id: "fallback-lesson-tree-traversals",
+                        slug: "tree-traversal-playbook",
+                        title: "Tree Traversal Playbook",
+                        summary: "DFS/BFS templates and subtree decomposition methods.",
+                        orderIndex: 1,
+                        estimatedMinutes: 35,
+                        difficulty: "BEGINNER",
+                        status: "NOT_STARTED",
+                        progressPercent: 0,
+                        learningObjectives: [
+                            "Choose preorder/inorder/postorder intentionally",
+                            "Use recursion and iterative stack forms",
+                            "Model subtree return values cleanly",
+                        ],
+                    },
+                    {
+                        id: "fallback-lesson-graph-traversal",
+                        slug: "graph-traversal-toolkit",
+                        title: "Graph Traversal Toolkit",
+                        summary: "Visited-state, components, and shortest-path basics.",
+                        orderIndex: 2,
+                        estimatedMinutes: 40,
+                        difficulty: "INTERMEDIATE",
+                        status: "NOT_STARTED",
+                        progressPercent: 0,
+                        learningObjectives: [
+                            "Represent graphs as adjacency lists",
+                            "Use BFS for unweighted shortest paths",
+                            "Detect cycles and connected components",
+                        ],
+                    },
+                ],
+            },
+            {
+                id: "fallback-module-heaps-tries",
+                slug: "heaps-and-tries",
+                title: "Heaps and Tries",
+                summary: "Priority queues and prefix-indexed retrieval patterns.",
+                orderIndex: 2,
+                estimatedMinutes: 65,
+                totalLessons: 2,
+                completedLessons: 0,
+                progressPercent: 0,
+                lessons: [
+                    {
+                        id: "fallback-lesson-heaps-priority",
+                        slug: "heaps-priority-queues",
+                        title: "Heaps and Priority Queues",
+                        summary: "Top-k, scheduling, and streaming statistics problems.",
+                        orderIndex: 1,
+                        estimatedMinutes: 30,
+                        difficulty: "INTERMEDIATE",
+                        status: "NOT_STARTED",
+                        progressPercent: 0,
+                        learningObjectives: [
+                            "Pick min-heap vs max-heap approaches",
+                            "Maintain top-k efficiently",
+                            "Use lazy deletion when needed",
+                        ],
+                    },
+                    {
+                        id: "fallback-lesson-tries-prefix",
+                        slug: "tries-and-prefix-indexing",
+                        title: "Tries and Prefix Indexing",
+                        summary: "Prefix search, dictionary constraints, and pruning.",
+                        orderIndex: 2,
+                        estimatedMinutes: 30,
+                        difficulty: "ADVANCED",
+                        status: "NOT_STARTED",
+                        progressPercent: 0,
+                        learningObjectives: [
+                            "Model node structure for character sets",
+                            "Balance memory and lookup speed",
+                            "Combine Trie with DFS backtracking",
+                        ],
+                    },
+                ],
+            },
+        ],
+    },
+];
+const TARGET_FALLBACK_LESSON_COUNT = 65;
+const expandFallbackLearnTracks = (tracks) => {
+    const expanded = tracks.map((track) => ({
+        ...track,
+        modules: track.modules.map((module) => ({
+            ...module,
+            lessons: module.lessons.map((lesson) => ({ ...lesson })),
+        })),
+    }));
+    const countLessons = () => expanded.reduce((trackSum, track) => trackSum +
+        track.modules.reduce((moduleSum, module) => moduleSum + module.lessons.length, 0), 0);
+    let runningIndex = countLessons() + 1;
+    let trackCursor = 0;
+    while (countLessons() < TARGET_FALLBACK_LESSON_COUNT) {
+        const track = expanded[trackCursor % expanded.length];
+        const module = track.modules[trackCursor % track.modules.length];
+        const lessonNumber = module.lessons.length + 1;
+        module.lessons.push({
+            id: `fallback-lesson-${track.slug}-${module.slug}-${runningIndex}`,
+            slug: `lesson-${module.slug}-${runningIndex}`,
+            title: `Practice Theory ${runningIndex}`,
+            summary: `Concept reinforcement lesson ${runningIndex} for ${module.title}.`,
+            orderIndex: lessonNumber,
+            estimatedMinutes: 20 + (runningIndex % 4) * 5,
+            difficulty: runningIndex % 5 === 0
+                ? "ADVANCED"
+                : runningIndex % 2 === 0
+                    ? "INTERMEDIATE"
+                    : "BEGINNER",
+            status: "NOT_STARTED",
+            progressPercent: 0,
+            learningObjectives: [
+                `Apply pattern ${runningIndex} in interview-style constraints`,
+                "Choose the right data structure for trade-offs",
+                "Write and reason about edge cases quickly",
+            ],
+        });
+        runningIndex += 1;
+        trackCursor += 1;
+    }
+    for (const track of expanded) {
+        for (const module of track.modules) {
+            module.totalLessons = module.lessons.length;
+            module.completedLessons = 0;
+            module.progressPercent = 0;
+        }
+        track.totalLessons = track.modules.reduce((sum, module) => sum + module.lessons.length, 0);
+        track.completedLessons = 0;
+        track.progressPercent = 0;
+    }
+    return expanded;
+};
+const FALLBACK_LEARN_TRACKS = expandFallbackLearnTracks(BASE_FALLBACK_LEARN_TRACKS);
+const getFallbackLearnLesson = (trackSlug, moduleSlug, lessonSlug) => {
+    const track = FALLBACK_LEARN_TRACKS.find((t) => t.slug === trackSlug);
+    if (!track)
+        return null;
+    const module = track.modules.find((m) => m.slug === moduleSlug);
+    if (!module)
+        return null;
+    const lesson = module.lessons.find((l) => l.slug === lessonSlug);
+    if (!lesson)
+        return null;
+    const blocks = [
+        {
+            id: `${lesson.id}-block-1`,
+            blockType: "MARKDOWN",
+            orderIndex: 1,
+            content: {
+                markdown: `### ${lesson.title}\n${lesson.summary || "Core theory lesson."}`,
+            },
+            language: null,
+        },
+        {
+            id: `${lesson.id}-block-2`,
+            blockType: "MARKDOWN",
+            orderIndex: 2,
+            content: {
+                markdown: `### Learning Objectives\n${(lesson.learningObjectives || []).map((o) => `- ${o}`).join("\\n")}`,
+            },
+            language: null,
+        },
+    ];
+    return {
+        lesson: {
+            id: lesson.id,
+            title: lesson.title,
+            summary: lesson.summary,
+            difficulty: lesson.difficulty,
+            estimatedMinutes: lesson.estimatedMinutes,
+            learningObjectives: lesson.learningObjectives || null,
+            module: {
+                id: module.id,
+                title: module.title,
+                slug: module.slug,
+            },
+            track: {
+                title: track.title,
+                slug: track.slug,
+            },
+        },
+        blocks,
+        progress: {
+            status: "NOT_STARTED",
+            progressPercent: 0,
+            timeSpentSeconds: 0,
+            completedAt: null,
+        },
+        isUnlocked: false,
+        siblings: module.lessons.map((s) => ({
+            id: s.id,
+            slug: s.slug,
+            title: s.title,
+            orderIndex: s.orderIndex,
+            status: "NOT_STARTED",
+        })),
+        problems: [],
+    };
+};
+const ensureTheorySchemaExists = async () => {
+    await prisma.$executeRawUnsafe(`
+    DO $$
+    BEGIN
+      IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'TheoryDifficulty') THEN
+        CREATE TYPE "TheoryDifficulty" AS ENUM ('BEGINNER', 'INTERMEDIATE', 'ADVANCED');
+      END IF;
+    END
+    $$;
+  `);
+    await prisma.$executeRawUnsafe(`
+    DO $$
+    BEGIN
+      IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'TheoryBlockType') THEN
+        CREATE TYPE "TheoryBlockType" AS ENUM ('MARKDOWN', 'CODE', 'NOTE', 'QUIZ', 'IMAGE');
+      END IF;
+    END
+    $$;
+  `);
+    await prisma.$executeRawUnsafe(`
+    DO $$
+    BEGIN
+      IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'TheoryProgressStatus') THEN
+        CREATE TYPE "TheoryProgressStatus" AS ENUM ('NOT_STARTED', 'IN_PROGRESS', 'COMPLETED');
+      END IF;
+    END
+    $$;
+  `);
+    await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS theory_tracks (
+      id uuid PRIMARY KEY,
+      slug text UNIQUE NOT NULL,
+      title text NOT NULL,
+      description text NULL,
+      order_index integer NOT NULL DEFAULT 0,
+      is_published boolean NOT NULL DEFAULT true,
+      created_at timestamptz NOT NULL DEFAULT NOW(),
+      updated_at timestamptz NOT NULL DEFAULT NOW()
+    );
+  `);
+    await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS theory_modules (
+      id uuid PRIMARY KEY,
+      track_id uuid NOT NULL REFERENCES theory_tracks(id) ON DELETE CASCADE,
+      topic_id uuid NULL REFERENCES "Topic"(id) ON DELETE SET NULL,
+      slug text NOT NULL,
+      title text NOT NULL,
+      summary text NULL,
+      order_index integer NOT NULL DEFAULT 0,
+      estimated_minutes integer NOT NULL DEFAULT 0,
+      is_published boolean NOT NULL DEFAULT true,
+      created_at timestamptz NOT NULL DEFAULT NOW(),
+      updated_at timestamptz NOT NULL DEFAULT NOW(),
+      UNIQUE(track_id, slug)
+    );
+  `);
+    await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS theory_lessons (
+      id uuid PRIMARY KEY,
+      module_id uuid NOT NULL REFERENCES theory_modules(id) ON DELETE CASCADE,
+      slug text NOT NULL,
+      title text NOT NULL,
+      summary text NULL,
+      order_index integer NOT NULL DEFAULT 0,
+      difficulty "TheoryDifficulty" NOT NULL DEFAULT 'BEGINNER',
+      estimated_minutes integer NOT NULL DEFAULT 0,
+      learning_objectives jsonb NULL,
+      is_published boolean NOT NULL DEFAULT true,
+      created_at timestamptz NOT NULL DEFAULT NOW(),
+      updated_at timestamptz NOT NULL DEFAULT NOW(),
+      UNIQUE(module_id, slug)
+    );
+  `);
+    await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS theory_lesson_blocks (
+      id uuid PRIMARY KEY,
+      lesson_id uuid NOT NULL REFERENCES theory_lessons(id) ON DELETE CASCADE,
+      block_type "TheoryBlockType" NOT NULL,
+      order_index integer NOT NULL,
+      content jsonb NOT NULL,
+      language text NULL,
+      UNIQUE(lesson_id, order_index)
+    );
+  `);
+    await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS theory_problem_links (
+      id uuid PRIMARY KEY,
+      lesson_id uuid NULL REFERENCES theory_lessons(id) ON DELETE CASCADE,
+      module_id uuid NULL REFERENCES theory_modules(id) ON DELETE CASCADE,
+      problem_id uuid NOT NULL REFERENCES "Problem"(id) ON DELETE CASCADE,
+      required boolean NOT NULL DEFAULT true,
+      order_index integer NOT NULL DEFAULT 0
+    );
+  `);
+    await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS user_theory_lesson_progress (
+      user_id uuid NOT NULL REFERENCES "User"(id) ON DELETE CASCADE,
+      lesson_id uuid NOT NULL REFERENCES theory_lessons(id) ON DELETE CASCADE,
+      status "TheoryProgressStatus" NOT NULL DEFAULT 'NOT_STARTED',
+      progress_percent integer NOT NULL DEFAULT 0,
+      time_spent_seconds integer NOT NULL DEFAULT 0,
+      completed_at timestamptz NULL,
+      last_seen_block_id text NULL,
+      created_at timestamptz NOT NULL DEFAULT NOW(),
+      updated_at timestamptz NOT NULL DEFAULT NOW(),
+      PRIMARY KEY(user_id, lesson_id)
+    );
+  `);
+    await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS idx_theory_modules_topic_id ON theory_modules(topic_id);`);
+    await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS idx_theory_problem_links_lesson_id ON theory_problem_links(lesson_id);`);
+    await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS idx_theory_problem_links_module_id ON theory_problem_links(module_id);`);
+    await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS idx_theory_problem_links_problem_id ON theory_problem_links(problem_id);`);
+    await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS idx_user_theory_lesson_progress_lesson_id ON user_theory_lesson_progress(lesson_id);`);
+};
+const seedStarterTheoryContent = async () => {
+    await ensureTheorySchemaExists();
+    const publishedTrackCount = await prisma.$queryRaw `
+    SELECT COUNT(*)::bigint AS count FROM theory_tracks WHERE is_published = true
+  `;
+    if (Number(publishedTrackCount[0]?.count || 0) > 0) {
+        return {
+            seeded: false,
+            tracks: 0,
+            modules: 0,
+            lessons: 0,
+            message: "Published theory data already exists",
+        };
+    }
+    const totalTrackCount = await prisma.$queryRaw `
+    SELECT COUNT(*)::bigint AS count FROM theory_tracks
+  `;
+    if (Number(totalTrackCount[0]?.count || 0) > 0) {
+        await prisma.$executeRaw `
+      UPDATE theory_tracks
+      SET is_published = true, updated_at = NOW()
+      WHERE is_published = false
+    `;
+        await prisma.$executeRaw `
+      UPDATE theory_modules
+      SET is_published = true, updated_at = NOW()
+      WHERE is_published = false
+    `;
+        await prisma.$executeRaw `
+      UPDATE theory_lessons
+      SET is_published = true, updated_at = NOW()
+      WHERE is_published = false
+    `;
+        return {
+            seeded: false,
+            tracks: 0,
+            modules: 0,
+            lessons: 0,
+            message: "Published existing theory data",
+        };
+    }
+    const arraysTopic = await prisma.topic.findFirst({
+        where: { name: { contains: "Array", mode: "insensitive" } },
+    });
+    const starterProblems = await prisma.problem.findMany({
+        where: arraysTopic ? { topicId: arraysTopic.id } : undefined,
+        orderBy: [{ orderIndex: "asc" }],
+        take: 3,
+    });
+    const trackId = (0, crypto_1.randomUUID)();
+    const moduleId = (0, crypto_1.randomUUID)();
+    const lessonOneId = (0, crypto_1.randomUUID)();
+    const lessonTwoId = (0, crypto_1.randomUUID)();
+    await prisma.$executeRaw `
+    INSERT INTO theory_tracks (id, slug, title, description, order_index, is_published, created_at, updated_at)
+    VALUES (
+      ${trackId},
+      'cpp-foundations',
+      'C++ Foundations',
+      'Learn core C++ theory before solving DSA questions.',
+      1,
+      true,
+      NOW(),
+      NOW()
+    )
+  `;
+    await prisma.$executeRaw `
+    INSERT INTO theory_modules (id, track_id, topic_id, slug, title, summary, order_index, estimated_minutes, is_published, created_at, updated_at)
+    VALUES (
+      ${moduleId},
+      ${trackId},
+      ${arraysTopic?.id || null},
+      'cpp-basics-for-dsa',
+      'C++ Basics For DSA',
+      'Syntax, data structures, and complexity thinking with C++.',
+      1,
+      45,
+      true,
+      NOW(),
+      NOW()
+    )
+  `;
+    await prisma.$executeRaw `
+    INSERT INTO theory_lessons (id, module_id, slug, title, summary, order_index, difficulty, estimated_minutes, learning_objectives, is_published, created_at, updated_at)
+    VALUES (
+      ${lessonOneId},
+      ${moduleId},
+      'cpp-setup-and-complexity',
+      'C++ Setup and Big-O',
+      'Understand compilation, STL basics, and runtime complexity.',
+      1,
+      'BEGINNER',
+      20,
+      ${JSON.stringify([
+        "Understand O(1), O(log n), O(n), O(n log n)",
+        "Write fast I/O boilerplate in C++",
+        "Know when vectors vs arrays matter",
+    ])}::jsonb,
+      true,
+      NOW(),
+      NOW()
+    )
+  `;
+    await prisma.$executeRaw `
+    INSERT INTO theory_lessons (id, module_id, slug, title, summary, order_index, difficulty, estimated_minutes, learning_objectives, is_published, created_at, updated_at)
+    VALUES (
+      ${lessonTwoId},
+      ${moduleId},
+      'cpp-hashmap-and-two-pointer',
+      'HashMap and Two Pointer Patterns',
+      'Theory behind two most common interview patterns.',
+      2,
+      'BEGINNER',
+      25,
+      ${JSON.stringify([
+        "Identify when to use unordered_map",
+        "Convert brute force to linear scans",
+        "Avoid common two-pointer edge cases",
+    ])}::jsonb,
+      true,
+      NOW(),
+      NOW()
+    )
+  `;
+    const lessonOneBlocks = [
+        {
+            type: "MARKDOWN",
+            content: {
+                markdown: "### Why theory before problems?\nStrong fundamentals reduce trial-and-error coding and improve interview speed.",
+            },
+        },
+        {
+            type: "CODE",
+            content: {
+                title: "Fast I/O template",
+                code: "ios_base::sync_with_stdio(false);\\ncin.tie(nullptr);",
+            },
+            language: "cpp",
+        },
+        {
+            type: "NOTE",
+            content: {
+                markdown: "For many DSA questions, reducing nested loops to one pass is the main optimization goal.",
+            },
+        },
+    ];
+    for (let i = 0; i < lessonOneBlocks.length; i++) {
+        const block = lessonOneBlocks[i];
+        await prisma.$executeRaw `
+      INSERT INTO theory_lesson_blocks (id, lesson_id, block_type, order_index, content, language)
+      VALUES (
+        ${(0, crypto_1.randomUUID)()},
+        ${lessonOneId},
+        ${block.type}::"TheoryBlockType",
+        ${i + 1},
+        ${JSON.stringify(block.content)}::jsonb,
+        ${block.language || null}
+      )
+    `;
+    }
+    const lessonTwoBlocks = [
+        {
+            type: "MARKDOWN",
+            content: {
+                markdown: "### Hash map pattern\nUse value->index maps when you need complement lookup in constant average time.",
+            },
+        },
+        {
+            type: "MARKDOWN",
+            content: {
+                markdown: "### Two pointer pattern\nUse left/right pointers on sorted data when target conditions depend on pair sums or windows.",
+            },
+        },
+    ];
+    for (let i = 0; i < lessonTwoBlocks.length; i++) {
+        const block = lessonTwoBlocks[i];
+        await prisma.$executeRaw `
+      INSERT INTO theory_lesson_blocks (id, lesson_id, block_type, order_index, content, language)
+      VALUES (
+        ${(0, crypto_1.randomUUID)()},
+        ${lessonTwoId},
+        ${block.type}::"TheoryBlockType",
+        ${i + 1},
+        ${JSON.stringify(block.content)}::jsonb,
+        NULL
+      )
+    `;
+    }
+    for (let i = 0; i < starterProblems.length; i++) {
+        await prisma.$executeRaw `
+      INSERT INTO theory_problem_links (id, lesson_id, module_id, problem_id, required, order_index)
+      VALUES (
+        ${(0, crypto_1.randomUUID)()},
+        ${lessonTwoId},
+        NULL,
+        ${starterProblems[i].id},
+        true,
+        ${i + 1}
+      )
+    `;
+    }
+    return {
+        seeded: true,
+        tracks: 1,
+        modules: 1,
+        lessons: 2,
+    };
+};
 app.get("/api/learn/tracks", requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
-        const tracks = await prisma.$queryRaw `
+        let tracks = await prisma.$queryRaw `
       SELECT
         id,
         slug,
@@ -210,7 +1002,26 @@ app.get("/api/learn/tracks", requireAuth, async (req, res) => {
       ORDER BY order_index ASC, created_at ASC
     `;
         if (tracks.length === 0) {
-            return res.json([]);
+            try {
+                await seedStarterTheoryContent();
+                tracks = await prisma.$queryRaw `
+          SELECT
+            id,
+            slug,
+            title,
+            description,
+            order_index AS "orderIndex"
+          FROM theory_tracks
+          WHERE is_published = true
+          ORDER BY order_index ASC, created_at ASC
+        `;
+            }
+            catch (seedError) {
+                console.error("Auto-seed learn tracks failed:", seedError);
+            }
+            if (tracks.length === 0) {
+                return res.json(FALLBACK_LEARN_TRACKS);
+            }
         }
         const trackIds = tracks.map((t) => t.id);
         const modules = await prisma.$queryRaw(client_1.Prisma.sql `
@@ -307,6 +1118,42 @@ app.get("/api/learn/tracks", requireAuth, async (req, res) => {
     }
     catch (error) {
         console.error("Learn tracks error:", error);
+        const message = error instanceof Error ? error.message : String(error);
+        if (message.includes('relation "theory_tracks" does not exist') ||
+            message.includes("42P01")) {
+            try {
+                await ensureTheorySchemaExists();
+                await seedStarterTheoryContent();
+                const tracksAfterBootstrap = await prisma.$queryRaw `
+            SELECT
+              id,
+              slug,
+              title,
+              description,
+              order_index AS "orderIndex"
+            FROM theory_tracks
+            WHERE is_published = true
+            ORDER BY order_index ASC, created_at ASC
+          `;
+                return res.json(tracksAfterBootstrap.length > 0
+                    ? tracksAfterBootstrap.map((track) => ({
+                        ...track,
+                        totalLessons: 0,
+                        completedLessons: 0,
+                        progressPercent: 0,
+                        modules: [],
+                    }))
+                    : []);
+            }
+            catch (bootstrapError) {
+                console.error("Learn bootstrap error:", bootstrapError);
+                return res.json(FALLBACK_LEARN_TRACKS);
+            }
+        }
+        if (message.toLowerCase().includes("permission denied") ||
+            message.toLowerCase().includes("must be owner")) {
+            return res.json(FALLBACK_LEARN_TRACKS);
+        }
         res.status(500).json({
             error: "Failed to load learn tracks",
             hint: "Ensure theory migration has been applied.",
@@ -316,7 +1163,9 @@ app.get("/api/learn/tracks", requireAuth, async (req, res) => {
 app.get("/api/learn/tracks/:trackSlug/modules/:moduleSlug/lessons/:lessonSlug", requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
-        const { trackSlug, moduleSlug, lessonSlug } = req.params;
+        const trackSlug = String(req.params.trackSlug);
+        const moduleSlug = String(req.params.moduleSlug);
+        const lessonSlug = String(req.params.lessonSlug);
         const lessons = await prisma.$queryRaw `
         SELECT
           l.id,
@@ -343,6 +1192,10 @@ app.get("/api/learn/tracks/:trackSlug/modules/:moduleSlug/lessons/:lessonSlug", 
       `;
         const lesson = lessons[0];
         if (!lesson) {
+            const fallbackLesson = getFallbackLearnLesson(trackSlug, moduleSlug, lessonSlug);
+            if (fallbackLesson) {
+                return res.json(fallbackLesson);
+            }
             return res.status(404).json({ error: "Lesson not found" });
         }
         const blocks = await prisma.$queryRaw `
@@ -443,6 +1296,10 @@ app.get("/api/learn/tracks/:trackSlug/modules/:moduleSlug/lessons/:lessonSlug", 
     }
     catch (error) {
         console.error("Learn lesson detail error:", error);
+        const fallbackLesson = getFallbackLearnLesson(String(req.params.trackSlug), String(req.params.moduleSlug), String(req.params.lessonSlug));
+        if (fallbackLesson) {
+            return res.json(fallbackLesson);
+        }
         res.status(500).json({ error: "Failed to load lesson" });
     }
 });
@@ -519,182 +1376,10 @@ app.post("/api/learn/lessons/:lessonId/progress", requireAuth, async (req, res) 
 });
 app.post("/api/admin/learn/seed", requireAuth, requireAdmin, async (_req, res) => {
     try {
-        const existing = await prisma.$queryRaw `
-        SELECT COUNT(*)::bigint AS count FROM theory_tracks
-      `;
-        if (Number(existing[0]?.count || 0) > 0) {
-            return res.json({
-                success: true,
-                seeded: false,
-                message: "Theory data already exists",
-            });
-        }
-        const arraysTopic = await prisma.topic.findFirst({
-            where: { name: { contains: "Array", mode: "insensitive" } },
-        });
-        const starterProblems = await prisma.problem.findMany({
-            where: arraysTopic ? { topicId: arraysTopic.id } : undefined,
-            orderBy: [{ orderIndex: "asc" }],
-            take: 3,
-        });
-        const trackId = (0, crypto_1.randomUUID)();
-        const moduleId = (0, crypto_1.randomUUID)();
-        const lessonOneId = (0, crypto_1.randomUUID)();
-        const lessonTwoId = (0, crypto_1.randomUUID)();
-        await prisma.$executeRaw `
-        INSERT INTO theory_tracks (id, slug, title, description, order_index, is_published, created_at, updated_at)
-        VALUES (
-          ${trackId},
-          'cpp-foundations',
-          'C++ Foundations',
-          'Learn core C++ theory before solving DSA questions.',
-          1,
-          true,
-          NOW(),
-          NOW()
-        )
-      `;
-        await prisma.$executeRaw `
-        INSERT INTO theory_modules (id, track_id, topic_id, slug, title, summary, order_index, estimated_minutes, is_published, created_at, updated_at)
-        VALUES (
-          ${moduleId},
-          ${trackId},
-          ${arraysTopic?.id || null},
-          'cpp-basics-for-dsa',
-          'C++ Basics For DSA',
-          'Syntax, data structures, and complexity thinking with C++.',
-          1,
-          45,
-          true,
-          NOW(),
-          NOW()
-        )
-      `;
-        await prisma.$executeRaw `
-        INSERT INTO theory_lessons (id, module_id, slug, title, summary, order_index, difficulty, estimated_minutes, learning_objectives, is_published, created_at, updated_at)
-        VALUES (
-          ${lessonOneId},
-          ${moduleId},
-          'cpp-setup-and-complexity',
-          'C++ Setup and Big-O',
-          'Understand compilation, STL basics, and runtime complexity.',
-          1,
-          'BEGINNER',
-          20,
-          ${JSON.stringify([
-            "Understand O(1), O(log n), O(n), O(n log n)",
-            "Write fast I/O boilerplate in C++",
-            "Know when vectors vs arrays matter",
-        ])}::jsonb,
-          true,
-          NOW(),
-          NOW()
-        )
-      `;
-        await prisma.$executeRaw `
-        INSERT INTO theory_lessons (id, module_id, slug, title, summary, order_index, difficulty, estimated_minutes, learning_objectives, is_published, created_at, updated_at)
-        VALUES (
-          ${lessonTwoId},
-          ${moduleId},
-          'cpp-hashmap-and-two-pointer',
-          'HashMap and Two Pointer Patterns',
-          'Theory behind two most common interview patterns.',
-          2,
-          'BEGINNER',
-          25,
-          ${JSON.stringify([
-            "Identify when to use unordered_map",
-            "Convert brute force to linear scans",
-            "Avoid common two-pointer edge cases",
-        ])}::jsonb,
-          true,
-          NOW(),
-          NOW()
-        )
-      `;
-        const lessonOneBlocks = [
-            {
-                type: "MARKDOWN",
-                content: {
-                    markdown: "### Why theory before problems?\nStrong fundamentals reduce trial-and-error coding and improve interview speed.",
-                },
-            },
-            {
-                type: "CODE",
-                content: {
-                    title: "Fast I/O template",
-                    code: "ios_base::sync_with_stdio(false);\\ncin.tie(nullptr);",
-                },
-                language: "cpp",
-            },
-            {
-                type: "NOTE",
-                content: {
-                    markdown: "For many DSA questions, reducing nested loops to one pass is the main optimization goal.",
-                },
-            },
-        ];
-        for (let i = 0; i < lessonOneBlocks.length; i++) {
-            const block = lessonOneBlocks[i];
-            await prisma.$executeRaw `
-          INSERT INTO theory_lesson_blocks (id, lesson_id, block_type, order_index, content, language)
-          VALUES (
-            ${(0, crypto_1.randomUUID)()},
-            ${lessonOneId},
-            ${block.type}::"TheoryBlockType",
-            ${i + 1},
-            ${JSON.stringify(block.content)}::jsonb,
-            ${block.language || null}
-          )
-        `;
-        }
-        const lessonTwoBlocks = [
-            {
-                type: "MARKDOWN",
-                content: {
-                    markdown: "### Hash map pattern\nUse value->index maps when you need complement lookup in constant average time.",
-                },
-            },
-            {
-                type: "MARKDOWN",
-                content: {
-                    markdown: "### Two pointer pattern\nUse left/right pointers on sorted data when target conditions depend on pair sums or windows.",
-                },
-            },
-        ];
-        for (let i = 0; i < lessonTwoBlocks.length; i++) {
-            const block = lessonTwoBlocks[i];
-            await prisma.$executeRaw `
-          INSERT INTO theory_lesson_blocks (id, lesson_id, block_type, order_index, content, language)
-          VALUES (
-            ${(0, crypto_1.randomUUID)()},
-            ${lessonTwoId},
-            ${block.type}::"TheoryBlockType",
-            ${i + 1},
-            ${JSON.stringify(block.content)}::jsonb,
-            NULL
-          )
-        `;
-        }
-        for (let i = 0; i < starterProblems.length; i++) {
-            await prisma.$executeRaw `
-          INSERT INTO theory_problem_links (id, lesson_id, module_id, problem_id, required, order_index)
-          VALUES (
-            ${(0, crypto_1.randomUUID)()},
-            ${lessonTwoId},
-            NULL,
-            ${starterProblems[i].id},
-            true,
-            ${i + 1}
-          )
-        `;
-        }
+        const seededResult = await seedStarterTheoryContent();
         res.json({
             success: true,
-            seeded: true,
-            tracks: 1,
-            modules: 1,
-            lessons: 2,
+            ...seededResult,
         });
     }
     catch (error) {
@@ -1141,11 +1826,14 @@ app.post("/api/user/sync-leetcode", requireAuth, async (req, res) => {
                 }
             }
             if (problem) {
+                const completedAt = typeof sub.timestamp === "number" && sub.timestamp > 0
+                    ? new Date(sub.timestamp * 1000)
+                    : new Date();
                 await prisma.progress.upsert({
                     where: { userId_problemId: { userId, problemId: problem.id } },
                     update: {
                         status: "DONE",
-                        completedAt: new Date(sub.timestamp * 1000),
+                        completedAt,
                         ...(runtimeOpt && { leetcodeRuntime: runtimeOpt }),
                         ...(memoryOpt && { leetcodeMemory: memoryOpt }),
                     },
@@ -1153,7 +1841,7 @@ app.post("/api/user/sync-leetcode", requireAuth, async (req, res) => {
                         userId,
                         problemId: problem.id,
                         status: "DONE",
-                        completedAt: new Date(sub.timestamp * 1000),
+                        completedAt,
                         leetcodeRuntime: runtimeOpt,
                         leetcodeMemory: memoryOpt,
                     },
@@ -1200,7 +1888,9 @@ app.post("/api/user/sync-leetcode", requireAuth, async (req, res) => {
                         userId,
                         problemId: newProblem.id,
                         status: "DONE",
-                        completedAt: new Date(sub.timestamp * 1000),
+                        completedAt: typeof sub.timestamp === "number" && sub.timestamp > 0
+                            ? new Date(sub.timestamp * 1000)
+                            : new Date(),
                         leetcodeRuntime: runtimeOpt,
                         leetcodeMemory: memoryOpt,
                     },
@@ -1647,7 +2337,7 @@ app.get("/api/vault/templates", requireAuth, async (req, res) => {
 // Get notes for a specific problem
 app.get("/api/notes/:problemId", requireAuth, async (req, res) => {
     try {
-        const userId = req.userId;
+        const userId = req.user.id;
         const notes = await prisma.problemNote.findMany({
             where: { userId, problemId: req.params.problemId },
             orderBy: { createdAt: "desc" },
@@ -1662,7 +2352,7 @@ app.get("/api/notes/:problemId", requireAuth, async (req, res) => {
 // Get ALL notes for the user (for the vault page)
 app.get("/api/notes", requireAuth, async (req, res) => {
     try {
-        const userId = req.userId;
+        const userId = req.user.id;
         const notes = await prisma.problemNote.findMany({
             where: { userId },
             include: {
@@ -1680,7 +2370,7 @@ app.get("/api/notes", requireAuth, async (req, res) => {
 // Create a note
 app.post("/api/notes", requireAuth, async (req, res) => {
     try {
-        const userId = req.userId;
+        const userId = req.user.id;
         const { problemId, content, type } = req.body;
         const note = await prisma.problemNote.create({
             data: { userId, problemId, content, type: type || "LEARNING" },
@@ -1695,7 +2385,7 @@ app.post("/api/notes", requireAuth, async (req, res) => {
 // Update a note
 app.put("/api/notes/:noteId", requireAuth, async (req, res) => {
     try {
-        const userId = req.userId;
+        const userId = req.user.id;
         const { content, type } = req.body;
         const note = await prisma.problemNote.updateMany({
             where: { id: req.params.noteId, userId },
@@ -1711,7 +2401,7 @@ app.put("/api/notes/:noteId", requireAuth, async (req, res) => {
 // Delete a note
 app.delete("/api/notes/:noteId", requireAuth, async (req, res) => {
     try {
-        const userId = req.userId;
+        const userId = req.user.id;
         await prisma.problemNote.deleteMany({
             where: { id: req.params.noteId, userId },
         });
@@ -1725,7 +2415,7 @@ app.delete("/api/notes/:noteId", requireAuth, async (req, res) => {
 // === DAILY PROBLEM ===
 app.get("/api/daily-problem", requireAuth, async (req, res) => {
     try {
-        const userId = req.userId;
+        const userId = req.user.id;
         const daily = await (0, services_1.getDailyProblem)(userId);
         res.json(daily);
     }
@@ -1737,7 +2427,7 @@ app.get("/api/daily-problem", requireAuth, async (req, res) => {
 // === TIME ANALYTICS ===
 app.get("/api/analytics/time", requireAuth, async (req, res) => {
     try {
-        const userId = req.userId;
+        const userId = req.user.id;
         const analytics = await (0, services_1.getTimeAnalytics)(userId);
         res.json(analytics);
     }
@@ -1749,7 +2439,7 @@ app.get("/api/analytics/time", requireAuth, async (req, res) => {
 // === ACHIEVEMENTS ===
 app.get("/api/achievements", requireAuth, async (req, res) => {
     try {
-        const userId = req.userId;
+        const userId = req.user.id;
         const data = await (0, services_1.getAchievements)(userId);
         res.json(data);
     }
@@ -1761,7 +2451,7 @@ app.get("/api/achievements", requireAuth, async (req, res) => {
 // === WEEKLY REPORT ===
 app.get("/api/weekly-report", requireAuth, async (req, res) => {
     try {
-        const userId = req.userId;
+        const userId = req.user.id;
         const data = await (0, services_1.getWeeklyReport)(userId);
         res.json(data);
     }
@@ -2197,46 +2887,94 @@ app.get("/api/export/progress", requireAuth, async (req, res) => {
 app.get("/api/ai/recommendations", requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
-        // Get user's solved problems with scores
-        const solutions = await prisma.solutionHistory.findMany({
-            where: { userId, isCorrect: true },
-            include: { problem: { include: { topic: true } } },
-            orderBy: { createdAt: "desc" },
-            take: 20,
-        });
-        const solvedProblems = solutions.map((s) => ({
-            title: s.problem.title,
-            topic: s.problem.topic.name,
-            difficulty: s.problem.difficulty,
-            score: s.score,
-            isOptimal: s.isOptimal,
+        const [allTopicsWithProblems, solvedProgress, solutions] = await Promise.all([
+            prisma.topic.findMany({
+                include: {
+                    problems: {
+                        select: { id: true },
+                    },
+                },
+                orderBy: { orderIndex: "asc" },
+            }),
+            prisma.progress.findMany({
+                where: { userId, status: "DONE" },
+                include: { problem: { include: { topic: true } } },
+                orderBy: { completedAt: "desc" },
+            }),
+            prisma.solutionHistory.findMany({
+                where: { userId, isCorrect: true },
+                include: { problem: { include: { topic: true } } },
+                orderBy: { createdAt: "desc" },
+                take: 200,
+            }),
+        ]);
+        const allTopics = allTopicsWithProblems.map((t) => ({
+            id: t.id,
+            name: t.name,
+            total: t.problems.length,
         }));
-        // Get weak topics
-        const allTopics = await prisma.topic.findMany({
-            orderBy: { orderIndex: "asc" },
-        });
         const topicNames = allTopics.map((t) => t.name);
-        // Calculate weak topics based on progress
-        const progressByTopic = await prisma.progress.groupBy({
-            by: ["problemId"],
-            where: { userId, status: "DONE" },
-        });
-        const topicCompletionMap = {};
-        for (const topic of allTopics) {
-            const total = await prisma.problem.count({
-                where: { topicId: topic.id },
-            });
-            const solved = await prisma.progress.count({
-                where: { userId, status: "DONE", problem: { topicId: topic.id } },
-            });
-            topicCompletionMap[topic.name] = total > 0 ? (solved / total) * 100 : 0;
+        const recentSolutionByProblem = new Map();
+        for (const solution of solutions) {
+            if (!recentSolutionByProblem.has(solution.problemId)) {
+                recentSolutionByProblem.set(solution.problemId, solution);
+            }
         }
-        const weakTopics = Object.entries(topicCompletionMap)
-            .filter(([_, pct]) => pct < 50)
-            .sort(([_, a], [__, b]) => a - b)
-            .map(([name]) => name);
+        const solvedProblems = solvedProgress.map((p) => {
+            const latestSolution = recentSolutionByProblem.get(p.problemId);
+            return {
+                title: p.problem.title,
+                topic: p.problem.topic.name,
+                difficulty: p.problem.difficulty,
+                score: latestSolution?.score ?? 0,
+                isOptimal: latestSolution?.isOptimal ?? false,
+            };
+        });
+        const solvedIds = new Set(solvedProgress.map((p) => p.problemId));
+        const topicCompletion = allTopics.map((topic) => {
+            const topicProblemIds = new Set(allTopicsWithProblems
+                .find((t) => t.id === topic.id)
+                ?.problems.map((p) => p.id) || []);
+            const solvedInTopic = [...solvedIds].filter((id) => topicProblemIds.has(id)).length;
+            const completionPct = topic.total > 0 ? (solvedInTopic / topic.total) * 100 : 0;
+            return {
+                name: topic.name,
+                total: topic.total,
+                solved: solvedInTopic,
+                completionPct,
+            };
+        });
+        const weakTopics = topicCompletion
+            .filter((t) => t.total > 0 && t.completionPct < 50)
+            .sort((a, b) => a.completionPct - b.completionPct)
+            .map((t) => t.name);
+        const strongTopics = topicCompletion
+            .filter((t) => t.total > 0 && t.completionPct >= 70)
+            .sort((a, b) => b.completionPct - a.completionPct)
+            .slice(0, 5)
+            .map((t) => t.name);
+        const now = Date.now();
+        const weekAgo = now - 7 * 24 * 60 * 60 * 1000;
+        const monthAgo = now - 30 * 24 * 60 * 60 * 1000;
+        const solvedLast7d = solvedProgress.filter((p) => p.completedAt && new Date(p.completedAt).getTime() >= weekAgo).length;
+        const solvedLast30d = solvedProgress.filter((p) => p.completedAt && new Date(p.completedAt).getTime() >= monthAgo).length;
         const recommendations = await (0, aiService_1.getAIRecommendations)(solvedProblems, weakTopics, topicNames);
-        res.json(recommendations);
+        res.json({
+            ...recommendations,
+            strongTopics,
+            weakTopicBreakdown: topicCompletion
+                .filter((t) => weakTopics.includes(t.name))
+                .slice(0, 5),
+            strongTopicBreakdown: topicCompletion
+                .filter((t) => strongTopics.includes(t.name))
+                .slice(0, 5),
+            realTime: {
+                generatedAt: new Date().toISOString(),
+                totalSolved: solvedProgress.length,
+                solvedLast7d,
+                solvedLast30d,
+            },
+        });
     }
     catch (err) {
         console.error(err);

@@ -8,6 +8,7 @@ type SessionWithToken = {
 let cachedAccessToken: string | null = null;
 let lastSessionReadAt = 0;
 const SESSION_CACHE_MS = 30_000;
+let sessionReadPromise: Promise<string | null> | null = null;
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
@@ -18,25 +19,72 @@ export const api = axios.create({
   },
 });
 
-// Automatically attach JWT token to all requests
-api.interceptors.request.use(async (config) => {
+const readAccessToken = async (force = false): Promise<string | null> => {
   const now = Date.now();
-  if (now - lastSessionReadAt > SESSION_CACHE_MS) {
-    lastSessionReadAt = now;
-    try {
-      const session = (await getSession()) as SessionWithToken | null;
-      cachedAccessToken = session?.accessToken || null;
-    } catch {
-      // Avoid noisy client-fetch failures from breaking API calls.
-      cachedAccessToken = null;
-    }
+  const shouldRefresh =
+    force || !cachedAccessToken || now - lastSessionReadAt > SESSION_CACHE_MS;
+
+  if (!shouldRefresh) {
+    return cachedAccessToken;
   }
 
-  if (cachedAccessToken) {
-    config.headers.Authorization = `Bearer ${cachedAccessToken}`;
+  if (!sessionReadPromise) {
+    sessionReadPromise = (async () => {
+      try {
+        const session = (await getSession()) as SessionWithToken | null;
+        const token = session?.accessToken || null;
+        cachedAccessToken = token;
+        lastSessionReadAt = Date.now();
+        return token;
+      } catch {
+        // Avoid noisy client-fetch failures from breaking API calls.
+        cachedAccessToken = null;
+        lastSessionReadAt = Date.now();
+        return null;
+      } finally {
+        sessionReadPromise = null;
+      }
+    })();
   }
+
+  return sessionReadPromise;
+};
+
+// Automatically attach JWT token to all requests
+api.interceptors.request.use(async (config) => {
+  const accessToken = await readAccessToken();
+
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
+  } else if (config.headers?.Authorization) {
+    delete config.headers.Authorization;
+  }
+
   return config;
 });
+
+// Retry once on 401 after forcing a fresh session read.
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error?.config as any;
+    const status = error?.response?.status;
+
+    if (status !== 401 || !originalRequest || originalRequest._retry) {
+      throw error;
+    }
+
+    originalRequest._retry = true;
+    const accessToken = await readAccessToken(true);
+    if (!accessToken) {
+      throw error;
+    }
+
+    originalRequest.headers = originalRequest.headers || {};
+    originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+    return api(originalRequest);
+  },
+);
 
 export interface DashboardStats {
   totalProblems: number;

@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
+import nodemailer from "nodemailer";
 import { PrismaClient, Prisma } from "@prisma/client";
 import fs from "fs";
 import path from "path";
@@ -43,6 +44,56 @@ const app = express();
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 3001;
 const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET || "fallback_secret";
+const LOGIN_MAIL_COOLDOWN_MS = 30 * 60 * 1000;
+const loginNotificationCache = new Map<string, number>();
+
+const smtpHost = process.env.SMTP_HOST;
+const smtpPort = parseInt(process.env.SMTP_PORT || "587", 10);
+const smtpUser = process.env.SMTP_USER;
+const smtpPass = process.env.SMTP_PASS;
+const notifyFrom =
+  process.env.NOTIFY_FROM || smtpUser || "noreply@dsa-tracker.local";
+const notifyTo =
+  process.env.LOGIN_NOTIFY_EMAIL ||
+  process.env.ADMIN_EMAIL ||
+  "rajat.sharma.myid1@gmail.com";
+
+const mailTransporter =
+  smtpHost && smtpUser && smtpPass
+    ? nodemailer.createTransport({
+        host: smtpHost,
+        port: smtpPort,
+        secure: smtpPort === 465,
+        auth: {
+          user: smtpUser,
+          pass: smtpPass,
+        },
+      })
+    : null;
+
+const notifyLogin = async (email: string) => {
+  if (!mailTransporter) {
+    return;
+  }
+
+  const normalizedEmail = email.trim().toLowerCase();
+  const lastNotifiedAt = loginNotificationCache.get(normalizedEmail) || 0;
+  if (Date.now() - lastNotifiedAt < LOGIN_MAIL_COOLDOWN_MS) {
+    return;
+  }
+
+  try {
+    await mailTransporter.sendMail({
+      from: notifyFrom,
+      to: notifyTo,
+      subject: "DSA Tracker login alert",
+      text: `A user logged in to DSA Tracker.\n\nEmail: ${normalizedEmail}\nTime (UTC): ${new Date().toISOString()}\n`,
+    });
+    loginNotificationCache.set(normalizedEmail, Date.now());
+  } catch (error) {
+    console.error("Failed to send login notification email:", error);
+  }
+};
 
 app.use(cors());
 app.use(express.json());
@@ -106,6 +157,7 @@ const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     req.user = { id: user.id, role: user.role };
+    await notifyLogin(decoded.email);
     next();
   } catch (err) {
     return res.status(401).json({ error: "Unauthorized: Invalid token" });
@@ -602,7 +654,9 @@ const expandFallbackLearnTracks = (
       (trackSum, track) =>
         trackSum +
         track.modules.reduce(
-          (moduleSum, module) => moduleSum + module.lessons.length, 0),
+          (moduleSum, module) => moduleSum + module.lessons.length,
+          0,
+        ),
       0,
     );
 
@@ -2079,7 +2133,16 @@ app.get(
       const activity: Record<string, number> = {};
       progress.forEach((p) => {
         if (p.completedAt) {
-          const date = p.completedAt.toISOString().split("T")[0];
+          const completedAt = new Date(p.completedAt);
+          if (Number.isNaN(completedAt.getTime())) {
+            return;
+          }
+
+          if (completedAt.getUTCFullYear() < 2000) {
+            return;
+          }
+
+          const date = completedAt.toISOString().split("T")[0];
           activity[date] = (activity[date] || 0) + 1;
         }
       });
@@ -2242,11 +2305,16 @@ app.post(
         }
 
         if (problem) {
+          const completedAt =
+            typeof sub.timestamp === "number" && sub.timestamp > 0
+              ? new Date(sub.timestamp * 1000)
+              : new Date();
+
           await prisma.progress.upsert({
             where: { userId_problemId: { userId, problemId: problem.id } },
             update: {
               status: "DONE",
-              completedAt: new Date(sub.timestamp * 1000),
+              completedAt,
               ...(runtimeOpt && { leetcodeRuntime: runtimeOpt }),
               ...(memoryOpt && { leetcodeMemory: memoryOpt }),
             },
@@ -2254,7 +2322,7 @@ app.post(
               userId,
               problemId: problem.id,
               status: "DONE",
-              completedAt: new Date(sub.timestamp * 1000),
+              completedAt,
               leetcodeRuntime: runtimeOpt,
               leetcodeMemory: memoryOpt,
             },
@@ -2309,7 +2377,10 @@ app.post(
               userId,
               problemId: newProblem.id,
               status: "DONE",
-              completedAt: new Date(sub.timestamp * 1000),
+              completedAt:
+                typeof sub.timestamp === "number" && sub.timestamp > 0
+                  ? new Date(sub.timestamp * 1000)
+                  : new Date(),
               leetcodeRuntime: runtimeOpt,
               leetcodeMemory: memoryOpt,
             },
@@ -2897,7 +2968,7 @@ app.get(
   requireAuth,
   async (req: Request, res: Response) => {
     try {
-      const userId = (req as any).userId;
+      const userId = req.user!.id;
       const notes = await prisma.problemNote.findMany({
         where: { userId, problemId: req.params.problemId as string },
         orderBy: { createdAt: "desc" },
@@ -2913,7 +2984,7 @@ app.get(
 // Get ALL notes for the user (for the vault page)
 app.get("/api/notes", requireAuth, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).userId;
+    const userId = req.user!.id;
     const notes = await prisma.problemNote.findMany({
       where: { userId },
       include: {
@@ -2931,7 +3002,7 @@ app.get("/api/notes", requireAuth, async (req: Request, res: Response) => {
 // Create a note
 app.post("/api/notes", requireAuth, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).userId;
+    const userId = req.user!.id;
     const { problemId, content, type } = req.body;
 
     const note = await prisma.problemNote.create({
@@ -2950,7 +3021,7 @@ app.put(
   requireAuth,
   async (req: Request, res: Response) => {
     try {
-      const userId = (req as any).userId;
+      const userId = req.user!.id;
       const { content, type } = req.body;
 
       const note = await prisma.problemNote.updateMany({
@@ -2971,7 +3042,7 @@ app.delete(
   requireAuth,
   async (req: Request, res: Response) => {
     try {
-      const userId = (req as any).userId;
+      const userId = req.user!.id;
 
       await prisma.problemNote.deleteMany({
         where: { id: req.params.noteId as string, userId },
@@ -2990,7 +3061,7 @@ app.get(
   requireAuth,
   async (req: Request, res: Response) => {
     try {
-      const userId = (req as any).userId;
+      const userId = req.user!.id;
       const daily = await getDailyProblem(userId);
       res.json(daily);
     } catch (err) {
@@ -3006,7 +3077,7 @@ app.get(
   requireAuth,
   async (req: Request, res: Response) => {
     try {
-      const userId = (req as any).userId;
+      const userId = req.user!.id;
       const analytics = await getTimeAnalytics(userId);
       res.json(analytics);
     } catch (err) {
@@ -3022,7 +3093,7 @@ app.get(
   requireAuth,
   async (req: Request, res: Response) => {
     try {
-      const userId = (req as any).userId;
+      const userId = req.user!.id;
       const data = await getAchievements(userId);
       res.json(data);
     } catch (err) {
@@ -3038,7 +3109,7 @@ app.get(
   requireAuth,
   async (req: Request, res: Response) => {
     try {
-      const userId = (req as any).userId;
+      const userId = req.user!.id;
       const data = await getWeeklyReport(userId);
       res.json(data);
     } catch (err) {
@@ -3566,56 +3637,120 @@ app.get(
     try {
       const userId = req.user!.id;
 
-      // Get user's solved problems with scores
-      const solutions = await prisma.solutionHistory.findMany({
-        where: { userId, isCorrect: true },
-        include: { problem: { include: { topic: true } } },
-        orderBy: { createdAt: "desc" },
-        take: 20,
-      });
+      const [allTopicsWithProblems, solvedProgress, solutions] =
+        await Promise.all([
+          prisma.topic.findMany({
+            include: {
+              problems: {
+                select: { id: true },
+              },
+            },
+            orderBy: { orderIndex: "asc" },
+          }),
+          prisma.progress.findMany({
+            where: { userId, status: "DONE" },
+            include: { problem: { include: { topic: true } } },
+            orderBy: { completedAt: "desc" },
+          }),
+          prisma.solutionHistory.findMany({
+            where: { userId, isCorrect: true },
+            include: { problem: { include: { topic: true } } },
+            orderBy: { createdAt: "desc" },
+            take: 200,
+          }),
+        ]);
 
-      const solvedProblems = solutions.map((s) => ({
-        title: s.problem.title,
-        topic: s.problem.topic.name,
-        difficulty: s.problem.difficulty,
-        score: s.score,
-        isOptimal: s.isOptimal,
+      const allTopics = allTopicsWithProblems.map((t) => ({
+        id: t.id,
+        name: t.name,
+        total: t.problems.length,
       }));
-
-      // Get weak topics
-      const allTopics = await prisma.topic.findMany({
-        orderBy: { orderIndex: "asc" },
-      });
       const topicNames = allTopics.map((t) => t.name);
 
-      // Calculate weak topics based on progress
-      const progressByTopic = await prisma.progress.groupBy({
-        by: ["problemId"],
-        where: { userId, status: "DONE" },
-      });
-
-      const topicCompletionMap: Record<string, number> = {};
-      for (const topic of allTopics) {
-        const total = await prisma.problem.count({
-          where: { topicId: topic.id },
-        });
-        const solved = await prisma.progress.count({
-          where: { userId, status: "DONE", problem: { topicId: topic.id } },
-        });
-        topicCompletionMap[topic.name] = total > 0 ? (solved / total) * 100 : 0;
+      const recentSolutionByProblem = new Map<
+        string,
+        (typeof solutions)[number]
+      >();
+      for (const solution of solutions) {
+        if (!recentSolutionByProblem.has(solution.problemId)) {
+          recentSolutionByProblem.set(solution.problemId, solution);
+        }
       }
 
-      const weakTopics = Object.entries(topicCompletionMap)
-        .filter(([_, pct]) => pct < 50)
-        .sort(([_, a], [__, b]) => a - b)
-        .map(([name]) => name);
+      const solvedProblems = solvedProgress.map((p) => {
+        const latestSolution = recentSolutionByProblem.get(p.problemId);
+        return {
+          title: p.problem.title,
+          topic: p.problem.topic.name,
+          difficulty: p.problem.difficulty,
+          score: latestSolution?.score ?? 0,
+          isOptimal: latestSolution?.isOptimal ?? false,
+        };
+      });
+
+      const solvedIds = new Set(solvedProgress.map((p) => p.problemId));
+      const topicCompletion = allTopics.map((topic) => {
+        const topicProblemIds = new Set(
+          allTopicsWithProblems
+            .find((t) => t.id === topic.id)
+            ?.problems.map((p) => p.id) || [],
+        );
+        const solvedInTopic = [...solvedIds].filter((id) =>
+          topicProblemIds.has(id),
+        ).length;
+        const completionPct =
+          topic.total > 0 ? (solvedInTopic / topic.total) * 100 : 0;
+        return {
+          name: topic.name,
+          total: topic.total,
+          solved: solvedInTopic,
+          completionPct,
+        };
+      });
+
+      const weakTopics = topicCompletion
+        .filter((t) => t.total > 0 && t.completionPct < 50)
+        .sort((a, b) => a.completionPct - b.completionPct)
+        .map((t) => t.name);
+
+      const strongTopics = topicCompletion
+        .filter((t) => t.total > 0 && t.completionPct >= 70)
+        .sort((a, b) => b.completionPct - a.completionPct)
+        .slice(0, 5)
+        .map((t) => t.name);
+
+      const now = Date.now();
+      const weekAgo = now - 7 * 24 * 60 * 60 * 1000;
+      const monthAgo = now - 30 * 24 * 60 * 60 * 1000;
+      const solvedLast7d = solvedProgress.filter(
+        (p) => p.completedAt && new Date(p.completedAt).getTime() >= weekAgo,
+      ).length;
+      const solvedLast30d = solvedProgress.filter(
+        (p) => p.completedAt && new Date(p.completedAt).getTime() >= monthAgo,
+      ).length;
 
       const recommendations = await getAIRecommendations(
         solvedProblems,
         weakTopics,
         topicNames,
       );
-      res.json(recommendations);
+
+      res.json({
+        ...recommendations,
+        strongTopics,
+        weakTopicBreakdown: topicCompletion
+          .filter((t) => weakTopics.includes(t.name))
+          .slice(0, 5),
+        strongTopicBreakdown: topicCompletion
+          .filter((t) => strongTopics.includes(t.name))
+          .slice(0, 5),
+        realTime: {
+          generatedAt: new Date().toISOString(),
+          totalSolved: solvedProgress.length,
+          solvedLast7d,
+          solvedLast30d,
+        },
+      });
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Failed to get recommendations" });

@@ -21,15 +21,27 @@ export default function ActivityHeatmap({ data }: ActivityHeatmapProps) {
   const currentYear = getYear(today);
   const [selectedYear, setSelectedYear] = useState<number>(currentYear);
 
+  const isValidActivityYear = (year: number) =>
+    year >= 2000 && year <= currentYear;
+
   // Determine available years from data and current year
   const availableYears = useMemo(() => {
     const years = new Set<number>();
     years.add(currentYear);
     data.forEach((entry) => {
-      years.add(getYear(new Date(entry.date)));
+      const parsedYear = getYear(new Date(entry.date));
+      if (isValidActivityYear(parsedYear)) {
+        years.add(parsedYear);
+      }
     });
     return Array.from(years).sort((a, b) => b - a);
   }, [data, currentYear]);
+
+  React.useEffect(() => {
+    if (!availableYears.includes(selectedYear)) {
+      setSelectedYear(availableYears[0] ?? currentYear);
+    }
+  }, [availableYears, selectedYear, currentYear]);
 
   // Always show Jan 1 → Dec 31 (clamp future days to today for current year)
   const { startDate, endDate } = useMemo(() => {

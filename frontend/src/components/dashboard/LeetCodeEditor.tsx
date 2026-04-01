@@ -159,6 +159,39 @@ export function LeetCodeEditor({
 
     try {
       const langConfig = LANGUAGES[selectedLang];
+      const submitResult = await dsaApi.submitToLeetCode(
+        problemSlug,
+        code,
+        langConfig.leetcodeLang,
+      );
+
+      const submissionId =
+        submitResult?.submission_id ||
+        submitResult?.submissionId ||
+        submitResult?.id;
+
+      if (!submissionId) {
+        throw new Error(
+          submitResult?.error ||
+            "LeetCode did not return a submission id. Check your session cookie in settings.",
+        );
+      }
+
+      let leetcodeVerdict: any = null;
+      for (let attempt = 0; attempt < 20; attempt += 1) {
+        // LeetCode check endpoint is eventually consistent right after submit.
+        await new Promise((resolve) => setTimeout(resolve, 1200));
+        const status = await dsaApi.checkSubmission(String(submissionId));
+        const isPending =
+          status?.state === "PENDING" ||
+          status?.state === "STARTED" ||
+          status?.status_msg === "Pending";
+        if (!isPending) {
+          leetcodeVerdict = status;
+          break;
+        }
+      }
+
       const result = await dsaApi.evaluateCode(
         problemId,
         code,
@@ -166,7 +199,25 @@ export function LeetCodeEditor({
       );
 
       const evalResult = result.evaluation;
-      setEvaluation(evalResult);
+      const acceptedOnLeetCode =
+        leetcodeVerdict?.status_code === 10 ||
+        String(leetcodeVerdict?.status_msg || "").toLowerCase() === "accepted";
+
+      const mergedEvaluation = {
+        ...evalResult,
+        isCorrect: Boolean(evalResult?.isCorrect || acceptedOnLeetCode),
+        verdict:
+          evalResult?.verdict ||
+          (acceptedOnLeetCode ? "ACCEPTED" : "WRONG_ANSWER"),
+        verdictMessage:
+          evalResult?.verdictMessage ||
+          (acceptedOnLeetCode
+            ? "Accepted on LeetCode"
+            : String(
+                leetcodeVerdict?.status_msg || "LeetCode submission finished.",
+              )),
+      };
+      setEvaluation(mergedEvaluation);
 
       // Save solution to backend
       try {
@@ -174,12 +225,13 @@ export function LeetCodeEditor({
           problemId,
           code,
           language: langConfig.leetcodeLang,
-          isCorrect: evalResult?.isCorrect || false,
-          score: evalResult?.score || 0,
-          verdict: evalResult?.verdict || "UNKNOWN",
-          timeComplexity: evalResult?.complexity?.time || null,
-          spaceComplexity: evalResult?.complexity?.space || null,
-          isOptimal: evalResult?.optimalComplexity?.isCurrentOptimal || false,
+          isCorrect: mergedEvaluation?.isCorrect || false,
+          score: mergedEvaluation?.score || 0,
+          verdict: mergedEvaluation?.verdict || "UNKNOWN",
+          timeComplexity: mergedEvaluation?.complexity?.time || null,
+          spaceComplexity: mergedEvaluation?.complexity?.space || null,
+          isOptimal:
+            mergedEvaluation?.optimalComplexity?.isCurrentOptimal || false,
         });
         // Update local saved code cache
         setSavedCode((prev) => ({ ...prev, [selectedLang]: code }));
@@ -187,8 +239,16 @@ export function LeetCodeEditor({
         console.error("Failed to save solution:", saveErr);
       }
 
-      if (evalResult?.isCorrect && onSubmissionSuccess) {
-        onSubmissionSuccess();
+      if (mergedEvaluation?.isCorrect) {
+        try {
+          await dsaApi.syncLeetcode();
+        } catch (syncError) {
+          console.warn("Post-submit LeetCode sync failed", syncError);
+        }
+
+        if (onSubmissionSuccess) {
+          onSubmissionSuccess();
+        }
       }
     } catch (error: any) {
       console.error("Evaluation error:", error);
