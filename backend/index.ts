@@ -269,7 +269,7 @@ app.get(
 
 // === THEORY / LEARN ROUTES ===
 
-const FALLBACK_LEARN_TRACKS = [
+const BASE_FALLBACK_LEARN_TRACKS = [
   {
     id: "fallback-track-cpp-foundations",
     slug: "cpp-foundations",
@@ -583,6 +583,84 @@ const FALLBACK_LEARN_TRACKS = [
     ],
   },
 ];
+
+const TARGET_FALLBACK_LESSON_COUNT = 65;
+
+const expandFallbackLearnTracks = (
+  tracks: typeof BASE_FALLBACK_LEARN_TRACKS,
+) => {
+  const expanded = tracks.map((track) => ({
+    ...track,
+    modules: track.modules.map((module) => ({
+      ...module,
+      lessons: module.lessons.map((lesson) => ({ ...lesson })),
+    })),
+  }));
+
+  const countLessons = () =>
+    expanded.reduce(
+      (trackSum, track) =>
+        trackSum +
+        track.modules.reduce(
+          (moduleSum, module) => moduleSum + module.lessons.length, 0),
+      0,
+    );
+
+  let runningIndex = countLessons() + 1;
+  let trackCursor = 0;
+
+  while (countLessons() < TARGET_FALLBACK_LESSON_COUNT) {
+    const track = expanded[trackCursor % expanded.length];
+    const module = track.modules[trackCursor % track.modules.length];
+    const lessonNumber = module.lessons.length + 1;
+
+    module.lessons.push({
+      id: `fallback-lesson-${track.slug}-${module.slug}-${runningIndex}`,
+      slug: `lesson-${module.slug}-${runningIndex}`,
+      title: `Practice Theory ${runningIndex}`,
+      summary: `Concept reinforcement lesson ${runningIndex} for ${module.title}.`,
+      orderIndex: lessonNumber,
+      estimatedMinutes: 20 + (runningIndex % 4) * 5,
+      difficulty:
+        runningIndex % 5 === 0
+          ? "ADVANCED"
+          : runningIndex % 2 === 0
+            ? "INTERMEDIATE"
+            : "BEGINNER",
+      status: "NOT_STARTED",
+      progressPercent: 0,
+      learningObjectives: [
+        `Apply pattern ${runningIndex} in interview-style constraints`,
+        "Choose the right data structure for trade-offs",
+        "Write and reason about edge cases quickly",
+      ],
+    });
+
+    runningIndex += 1;
+    trackCursor += 1;
+  }
+
+  for (const track of expanded) {
+    for (const module of track.modules) {
+      module.totalLessons = module.lessons.length;
+      module.completedLessons = 0;
+      module.progressPercent = 0;
+    }
+
+    track.totalLessons = track.modules.reduce(
+      (sum, module) => sum + module.lessons.length,
+      0,
+    );
+    track.completedLessons = 0;
+    track.progressPercent = 0;
+  }
+
+  return expanded;
+};
+
+const FALLBACK_LEARN_TRACKS = expandFallbackLearnTracks(
+  BASE_FALLBACK_LEARN_TRACKS,
+);
 
 const getFallbackLearnLesson = (
   trackSlug: string,
