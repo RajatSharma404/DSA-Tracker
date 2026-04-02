@@ -44,6 +44,13 @@ const app = express();
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 3001;
 const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET || "fallback_secret";
+const NEXTAUTH_SECRETS = Array.from(
+  new Set(
+    [process.env.NEXTAUTH_SECRET, process.env.AUTH_SECRET, "fallback_secret"]
+      .map((s) => (typeof s === "string" ? s.trim() : ""))
+      .filter(Boolean),
+  ),
+);
 const LOGIN_MAIL_COOLDOWN_MS = 30 * 60 * 1000;
 const loginNotificationCache = new Map<string, number>();
 
@@ -127,10 +134,23 @@ const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
 
   const token = authHeader.split(" ")[1];
   try {
-    const decoded = jwt.verify(token, NEXTAUTH_SECRET) as {
-      email: string;
-      role: string;
-    };
+    let decoded: { email: string; role: string } | null = null;
+
+    for (const secret of NEXTAUTH_SECRETS) {
+      try {
+        decoded = jwt.verify(token, secret) as {
+          email: string;
+          role: string;
+        };
+        break;
+      } catch {
+        // Try next secret candidate.
+      }
+    }
+
+    if (!decoded) {
+      return res.status(401).json({ error: "Unauthorized: Invalid token" });
+    }
 
     if (!decoded.email) {
       return res

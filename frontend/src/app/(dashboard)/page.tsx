@@ -22,6 +22,7 @@ import BadgeShowcase from "@/components/dashboard/BadgeShowcase";
 export default function Dashboard() {
   const { data: session, status } = useSession();
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [dashboardError, setDashboardError] = useState<string | null>(null);
   const [activityData, setActivityData] = useState<
     Array<{ date: string; count: number }>
   >([]);
@@ -35,6 +36,7 @@ export default function Dashboard() {
       ]);
       setStats(statsData);
       setActivityData(actData);
+      setDashboardError(null);
 
       if (shouldAutoSync) {
         // Run sync in the background so initial dashboard render is fast.
@@ -54,6 +56,16 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error("Failed to load dashboard data", error);
+      const err = error as any;
+      const message =
+        err?.response?.data?.error ||
+        err?.response?.data?.details ||
+        err?.message ||
+        "Unknown API error";
+      const statusCode = err?.response?.status;
+      setDashboardError(
+        statusCode ? `${statusCode}: ${String(message)}` : String(message),
+      );
       setStats(null);
       setActivityData([]);
     } finally {
@@ -102,6 +114,11 @@ export default function Dashboard() {
           Make sure the backend is running and <code>NEXT_PUBLIC_API_URL</code>{" "}
           is set correctly.
         </p>
+        {dashboardError ? (
+          <p className="text-red-400/80 text-xs max-w-2xl wrap-break-word">
+            API Error: {dashboardError}
+          </p>
+        ) : null}
       </div>
     );
 
