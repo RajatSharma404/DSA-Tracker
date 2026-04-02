@@ -10,7 +10,14 @@ let lastSessionReadAt = 0;
 const SESSION_CACHE_MS = 30_000;
 let sessionReadPromise: Promise<string | null> | null = null;
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
+const isBrowser = typeof window !== "undefined";
+const isLocalHost =
+  isBrowser && /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
+
+// In production, always use same-origin /api so Next.js rewrites can proxy to BACKEND_URL.
+const API_BASE_URL = isLocalHost
+  ? process.env.NEXT_PUBLIC_API_URL || "/api"
+  : "/api";
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
