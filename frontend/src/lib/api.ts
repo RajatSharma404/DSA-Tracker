@@ -129,6 +129,28 @@ export interface Problem {
   nextReviewDate?: string | Date;
 }
 
+export interface UserTag {
+  id: string;
+  name: string;
+  color: string;
+  problems?: Array<{ id: string }>;
+}
+
+export interface SearchProblem {
+  id: string;
+  title: string;
+  link: string | null;
+  difficulty: "EASY" | "MEDIUM" | "HARD";
+  topicId: string;
+  topicName: string;
+  orderIndex: number;
+  status: "TODO" | "DOING" | "DONE";
+  timeSpent: number;
+  nextReviewDate?: string | Date;
+  isBookmarked: boolean;
+  tags: UserTag[];
+}
+
 export interface MockInterview {
   id: string;
   date: string;
@@ -485,7 +507,7 @@ export const dsaApi = {
     topicId?: string;
     bookmarked?: boolean;
     tagId?: string;
-  }) => {
+  }): Promise<SearchProblem[]> => {
     const query = new URLSearchParams();
     if (params.q) query.set("q", params.q);
     if (params.difficulty) query.set("difficulty", params.difficulty);

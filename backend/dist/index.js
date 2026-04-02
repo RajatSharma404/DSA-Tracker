@@ -21,6 +21,9 @@ const app = (0, express_1.default)();
 const prisma = new client_1.PrismaClient();
 const PORT = process.env.PORT || 3001;
 const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET || "fallback_secret";
+const NEXTAUTH_SECRETS = Array.from(new Set([process.env.NEXTAUTH_SECRET, process.env.AUTH_SECRET, "fallback_secret"]
+    .map((s) => (typeof s === "string" ? s.trim() : ""))
+    .filter(Boolean)));
 const LOGIN_MAIL_COOLDOWN_MS = 30 * 60 * 1000;
 const loginNotificationCache = new Map();
 const smtpHost = process.env.SMTP_HOST;
@@ -28,7 +31,9 @@ const smtpPort = parseInt(process.env.SMTP_PORT || "587", 10);
 const smtpUser = process.env.SMTP_USER;
 const smtpPass = process.env.SMTP_PASS;
 const notifyFrom = process.env.NOTIFY_FROM || smtpUser || "noreply@dsa-tracker.local";
-const notifyTo = process.env.LOGIN_NOTIFY_EMAIL || process.env.ADMIN_EMAIL || "rajat.sharma.myid1@gmail.com";
+const notifyTo = process.env.LOGIN_NOTIFY_EMAIL ||
+    process.env.ADMIN_EMAIL ||
+    "rajat.sharma.myid1@gmail.com";
 const mailTransporter = smtpHost && smtpUser && smtpPass
     ? nodemailer_1.default.createTransport({
         host: smtpHost,
@@ -79,7 +84,19 @@ const requireAuth = async (req, res, next) => {
     }
     const token = authHeader.split(" ")[1];
     try {
-        const decoded = jsonwebtoken_1.default.verify(token, NEXTAUTH_SECRET);
+        let decoded = null;
+        for (const secret of NEXTAUTH_SECRETS) {
+            try {
+                decoded = jsonwebtoken_1.default.verify(token, secret);
+                break;
+            }
+            catch {
+                // Try next secret candidate.
+            }
+        }
+        if (!decoded) {
+            return res.status(401).json({ error: "Unauthorized: Invalid token" });
+        }
         if (!decoded.email) {
             return res
                 .status(401)
@@ -1701,7 +1718,17 @@ app.get("/api/analytics/activity", requireAuth, async (req, res) => {
         const activity = {};
         progress.forEach((p) => {
             if (p.completedAt) {
-                const date = p.completedAt.toISOString().split("T")[0];
+                const completedAt = new Date(p.completedAt);
+                if (Number.isNaN(completedAt.getTime())) {
+                    return;
+                }
+                if (completedAt.getFullYear() < 2000) {
+                    return;
+                }
+                const yyyy = completedAt.getFullYear();
+                const mm = String(completedAt.getMonth() + 1).padStart(2, "0");
+                const dd = String(completedAt.getDate()).padStart(2, "0");
+                const date = `${yyyy}-${mm}-${dd}`;
                 activity[date] = (activity[date] || 0) + 1;
             }
         });
@@ -1811,14 +1838,25 @@ app.post("/api/user/sync-leetcode", requireAuth, async (req, res) => {
             // Attempt to get runtime and memory details if user.leetcodeSession is set
             let runtimeOpt = null;
             let memoryOpt = null;
+            let timestampOpt = typeof sub.timestamp === "number" && sub.timestamp > 0
+                ? sub.timestamp
+                : null;
             if (syncSource === "session" && user.leetcodeSession) {
                 try {
                     const subs = await (0, leetcodeService_1.fetchProblemSubmissions)(slug, user.leetcodeSession);
-                    const theSub = subs?.questionSubmissionList?.submissions?.find((s) => s.statusDisplay === "Accepted");
+                    const acceptedSubs = subs?.questionSubmissionList?.submissions?.filter((s) => s.statusDisplay === "Accepted") || [];
+                    const theSub = acceptedSubs[0];
                     if (theSub) {
                         // These strings look like: "45 ms" or "16.4 MB"
                         runtimeOpt = theSub.runtime;
                         memoryOpt = theSub.memory;
+                    }
+                    // Prefer the earliest known accepted timestamp for a stable historical heatmap.
+                    const acceptedTimestamps = acceptedSubs
+                        .map((s) => Number(s?.timestamp))
+                        .filter((t) => Number.isFinite(t) && t > 0);
+                    if (acceptedTimestamps.length > 0) {
+                        timestampOpt = Math.min(...acceptedTimestamps);
                     }
                 }
                 catch (e) {
@@ -1826,9 +1864,20 @@ app.post("/api/user/sync-leetcode", requireAuth, async (req, res) => {
                 }
             }
             if (problem) {
-                const completedAt = typeof sub.timestamp === "number" && sub.timestamp > 0
-                    ? new Date(sub.timestamp * 1000)
-                    : new Date();
+                const existingProgress = await prisma.progress.findUnique({
+                    where: {
+                        userId_problemId: {
+                            userId,
+                            problemId: problem.id,
+                        },
+                    },
+                    select: {
+                        completedAt: true,
+                    },
+                });
+                const completedAt = timestampOpt
+                    ? new Date(timestampOpt * 1000)
+                    : existingProgress?.completedAt || new Date();
                 await prisma.progress.upsert({
                     where: { userId_problemId: { userId, problemId: problem.id } },
                     update: {
@@ -1888,8 +1937,8 @@ app.post("/api/user/sync-leetcode", requireAuth, async (req, res) => {
                         userId,
                         problemId: newProblem.id,
                         status: "DONE",
-                        completedAt: typeof sub.timestamp === "number" && sub.timestamp > 0
-                            ? new Date(sub.timestamp * 1000)
+                        completedAt: timestampOpt
+                            ? new Date(timestampOpt * 1000)
                             : new Date(),
                         leetcodeRuntime: runtimeOpt,
                         leetcodeMemory: memoryOpt,
