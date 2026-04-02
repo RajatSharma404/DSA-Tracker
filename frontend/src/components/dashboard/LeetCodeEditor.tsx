@@ -171,13 +171,8 @@ export function LeetCodeEditor({
         submitResult?.id;
 
       if (!submissionId) {
-        const submitDetails =
-          submitResult?.details || submitResult?.message || submitResult;
         throw new Error(
           submitResult?.error ||
-            (typeof submitDetails === "string"
-              ? submitDetails
-              : JSON.stringify(submitDetails)) ||
             "LeetCode did not return a submission id. Check your session cookie in settings.",
         );
       }
@@ -257,17 +252,12 @@ export function LeetCodeEditor({
       }
     } catch (error: any) {
       console.error("Evaluation error:", error);
-      const apiErrorMessage =
-        error?.response?.data?.details?.error ||
-        error?.response?.data?.details?.message ||
-        error?.response?.data?.details ||
-        error?.response?.data?.error ||
-        error?.message ||
-        "Failed to evaluate code. Please try again.";
       setEvaluation({
         isCorrect: false,
         verdict: "RUNTIME_ERROR",
-        verdictMessage: String(apiErrorMessage),
+        verdictMessage:
+          error.response?.data?.error ||
+          "Failed to evaluate code. Please try again.",
         score: 0,
         complexity: {
           time: "N/A",
