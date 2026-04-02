@@ -2138,11 +2138,14 @@ app.get(
             return;
           }
 
-          if (completedAt.getUTCFullYear() < 2000) {
+          if (completedAt.getFullYear() < 2000) {
             return;
           }
 
-          const date = completedAt.toISOString().split("T")[0];
+          const yyyy = completedAt.getFullYear();
+          const mm = String(completedAt.getMonth() + 1).padStart(2, "0");
+          const dd = String(completedAt.getDate()).padStart(2, "0");
+          const date = `${yyyy}-${mm}-${dd}`;
           activity[date] = (activity[date] || 0) + 1;
         }
       });
@@ -2284,6 +2287,10 @@ app.post(
         // Attempt to get runtime and memory details if user.leetcodeSession is set
         let runtimeOpt = null;
         let memoryOpt = null;
+        let timestampOpt: number | null =
+          typeof sub.timestamp === "number" && sub.timestamp > 0
+            ? sub.timestamp
+            : null;
 
         if (syncSource === "session" && user.leetcodeSession) {
           try {
@@ -2291,13 +2298,24 @@ app.post(
               slug,
               user.leetcodeSession,
             );
-            const theSub = subs?.questionSubmissionList?.submissions?.find(
-              (s: any) => s.statusDisplay === "Accepted",
-            );
+            const acceptedSubs =
+              subs?.questionSubmissionList?.submissions?.filter(
+                (s: any) => s.statusDisplay === "Accepted",
+              ) || [];
+            const theSub = acceptedSubs[0];
             if (theSub) {
               // These strings look like: "45 ms" or "16.4 MB"
               runtimeOpt = theSub.runtime;
               memoryOpt = theSub.memory;
+            }
+
+            // Prefer the earliest known accepted timestamp for a stable historical heatmap.
+            const acceptedTimestamps = acceptedSubs
+              .map((s: any) => Number(s?.timestamp))
+              .filter((t: number) => Number.isFinite(t) && t > 0);
+
+            if (acceptedTimestamps.length > 0) {
+              timestampOpt = Math.min(...acceptedTimestamps);
             }
           } catch (e) {
             // Silent fallback, could be invalid session or quota limits
@@ -2305,10 +2323,21 @@ app.post(
         }
 
         if (problem) {
-          const completedAt =
-            typeof sub.timestamp === "number" && sub.timestamp > 0
-              ? new Date(sub.timestamp * 1000)
-              : new Date();
+          const existingProgress = await prisma.progress.findUnique({
+            where: {
+              userId_problemId: {
+                userId,
+                problemId: problem.id,
+              },
+            },
+            select: {
+              completedAt: true,
+            },
+          });
+
+          const completedAt = timestampOpt
+            ? new Date(timestampOpt * 1000)
+            : existingProgress?.completedAt || new Date();
 
           await prisma.progress.upsert({
             where: { userId_problemId: { userId, problemId: problem.id } },
@@ -2377,10 +2406,9 @@ app.post(
               userId,
               problemId: newProblem.id,
               status: "DONE",
-              completedAt:
-                typeof sub.timestamp === "number" && sub.timestamp > 0
-                  ? new Date(sub.timestamp * 1000)
-                  : new Date(),
+              completedAt: timestampOpt
+                ? new Date(timestampOpt * 1000)
+                : new Date(),
               leetcodeRuntime: runtimeOpt,
               leetcodeMemory: memoryOpt,
             },

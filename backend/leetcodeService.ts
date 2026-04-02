@@ -375,11 +375,11 @@ const getCsrfToken = async (leetcodeSession: string): Promise<string> => {
 /**
  * Get numeric question ID from slug using GraphQL
  */
-const getQuestionId = async (
+const getQuestionIds = async (
   titleSlug: string,
   leetcodeSession: string,
   csrfToken: string,
-): Promise<string> => {
+): Promise<string[]> => {
   try {
     const response = await axios.post(
       "https://leetcode.com/graphql",
@@ -405,10 +405,15 @@ const getQuestionId = async (
       },
     );
 
-    return response.data?.data?.question?.questionId || titleSlug;
+    const question = response.data?.data?.question || {};
+    const ids = [question.questionId, question.questionFrontendId]
+      .map((id: unknown) => String(id || "").trim())
+      .filter(Boolean);
+
+    return ids.length > 0 ? [...new Set(ids)] : [titleSlug];
   } catch (err: any) {
-    console.error("Failed to get question ID:", err.message);
-    return titleSlug;
+    console.error("Failed to get question IDs:", err.message);
+    return [titleSlug];
   }
 };
 
@@ -430,47 +435,65 @@ export const submitCodeToLeetCode = async (
     }
     console.log("Got CSRF token:", csrfToken.substring(0, 10) + "...");
 
-    const questionId = await getQuestionId(
+    const questionIds = await getQuestionIds(
       questionSlug,
       leetcodeSession,
       csrfToken,
     );
-    console.log("Got question ID:", questionId, "for slug:", questionSlug);
-
-    const response = await axios.post(
-      `https://leetcode.com/problems/${questionSlug}/submit/`,
-      {
-        lang: lang,
-        question_id: questionId,
-        typed_code: code,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Cookie: `LEETCODE_SESSION=${leetcodeSession}; csrftoken=${csrfToken};`,
-          "x-csrftoken": csrfToken,
-          Referer: `https://leetcode.com/problems/${questionSlug}/`,
-          Origin: "https://leetcode.com",
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-        },
-        // Don't throw for 4xx/5xx errors here, we want to see the body
-        validateStatus: () => true,
-      },
+    console.log(
+      "Got question IDs:",
+      questionIds.join(", "),
+      "for slug:",
+      questionSlug,
     );
 
-    if (response.status >= 400) {
-      console.error(
-        `LeetCode Submission Failed (${response.status}):`,
-        JSON.stringify(response.data, null, 2),
+    let lastFailure: { status: number; data: any; questionId: string } | null =
+      null;
+
+    for (const questionId of questionIds) {
+      const response = await axios.post(
+        `https://leetcode.com/problems/${questionSlug}/submit/`,
+        {
+          lang: lang,
+          question_id: questionId,
+          typed_code: code,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Cookie: `LEETCODE_SESSION=${leetcodeSession}; csrftoken=${csrfToken};`,
+            "x-csrftoken": csrfToken,
+            Referer: `https://leetcode.com/problems/${questionSlug}/description/`,
+            Origin: "https://leetcode.com",
+            "X-Requested-With": "XMLHttpRequest",
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+          },
+          // Don't throw for 4xx/5xx errors here, we want to see the body
+          validateStatus: () => true,
+        },
       );
-      throw new Error(
-        `LeetCode rejected the submission with status ${response.status}: ${JSON.stringify(response.data)}`,
+
+      if (response.status < 400 && response.data) {
+        console.log("LeetCode submission response:", response.data);
+        return response.data;
+      }
+
+      lastFailure = {
+        status: response.status,
+        data: response.data,
+        questionId,
+      };
+
+      console.error(
+        `LeetCode Submission Failed (${response.status}) using question_id=${questionId}:`,
+        JSON.stringify(response.data, null, 2),
       );
     }
 
-    console.log("LeetCode submission response:", response.data);
-    return response.data;
+    throw new Error(
+      `LeetCode rejected submission for all question IDs: ${JSON.stringify(lastFailure)}`,
+    );
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
       console.error(
@@ -493,11 +516,16 @@ export const checkSubmissionResult = async (
   leetcodeSession: string,
 ) => {
   try {
+    const csrfToken = await getCsrfToken(leetcodeSession);
     const response = await axios.get(
       `https://leetcode.com/submissions/detail/${submissionId}/check/`,
       {
         headers: {
-          Cookie: `LEETCODE_SESSION=${leetcodeSession}; csrftoken=dummy;`,
+          Cookie: `LEETCODE_SESSION=${leetcodeSession}; csrftoken=${csrfToken || "dummy"};`,
+          "x-csrftoken": csrfToken || "dummy",
+          Referer: "https://leetcode.com/",
+          Origin: "https://leetcode.com",
+          "X-Requested-With": "XMLHttpRequest",
           "User-Agent":
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         },

@@ -4,7 +4,6 @@ import React, { useMemo, useState } from "react";
 import {
   format,
   eachDayOfInterval,
-  isFirstDayOfMonth,
   getYear,
   startOfYear,
   endOfYear,
@@ -61,6 +60,16 @@ export default function ActivityHeatmap({ data }: ActivityHeatmapProps) {
     });
   }, [startDate, endDate]);
 
+  const activityByDate = useMemo(() => {
+    const map = new Map<string, number>();
+    data.forEach((entry) => {
+      const normalizedDate = String(entry.date).split("T")[0];
+      if (!normalizedDate) return;
+      map.set(normalizedDate, (map.get(normalizedDate) || 0) + entry.count);
+    });
+    return map;
+  }, [data]);
+
   const getColor = (count: number) => {
     if (count === 0) return "bg-[#1a1a1a]";
     if (count <= 2) return "bg-blue-900/40";
@@ -69,24 +78,44 @@ export default function ActivityHeatmap({ data }: ActivityHeatmapProps) {
     return "bg-blue-400";
   };
 
-  // Group days into weeks
-  const weeks: Date[][] = [];
-  let currentWeek: Date[] = [];
+  // Group days into Monday-first weeks, padded with null placeholders.
+  const weeks = useMemo(() => {
+    const paddedDays: Array<Date | null> = [];
+    const mondayFirstOffset = (startDate.getDay() + 6) % 7;
 
-  days.forEach((day, i) => {
-    currentWeek.push(day);
-    if (currentWeek.length === 7 || i === days.length - 1) {
-      weeks.push(currentWeek);
-      currentWeek = [];
+    for (let i = 0; i < mondayFirstOffset; i += 1) {
+      paddedDays.push(null);
     }
-  });
+
+    paddedDays.push(...days);
+
+    while (paddedDays.length % 7 !== 0) {
+      paddedDays.push(null);
+    }
+
+    const grouped: Array<Array<Date | null>> = [];
+    for (let i = 0; i < paddedDays.length; i += 7) {
+      grouped.push(paddedDays.slice(i, i + 7));
+    }
+
+    return grouped;
+  }, [days, startDate]);
 
   // Calculate month labels and their positions
   const monthLabels = useMemo(() => {
     const labels: Array<{ label: string; index: number }> = [];
     weeks.forEach((week, index) => {
-      const firstDay = week[0];
-      if (index === 0 || !isSameMonth(firstDay, weeks[index - 1][0])) {
+      const firstDay = week.find((d) => d !== null);
+      if (!firstDay) return;
+
+      const prevFirstDay =
+        index > 0 ? weeks[index - 1].find((d) => d !== null) : null;
+
+      if (
+        index === 0 ||
+        !prevFirstDay ||
+        !isSameMonth(firstDay, prevFirstDay)
+      ) {
         // Avoid overlapping labels if too close
         if (
           labels.length === 0 ||
@@ -175,21 +204,22 @@ export default function ActivityHeatmap({ data }: ActivityHeatmapProps) {
               <div className="flex gap-[4px] flex-1">
                 {weeks.map((week, weekIdx) => (
                   <div key={weekIdx} className="flex flex-col gap-[4px]">
-                    {week.map((day) => {
-                      const dateStr = format(day, "yyyy-MM-dd");
-                      const entry = data.find((d) => d.date === dateStr);
-                      const count = entry ? entry.count : 0;
-                      const isOutside = getYear(day) !== selectedYear;
+                    {week.map((day, dayIdx) => {
+                      const dateStr = day ? format(day, "yyyy-MM-dd") : "";
+                      const count = dateStr
+                        ? (activityByDate.get(dateStr) ?? 0)
+                        : 0;
+                      const isPlaceholder = !day;
 
                       return (
                         <div
-                          key={dateStr}
+                          key={dateStr || `placeholder-${weekIdx}-${dayIdx}`}
                           title={
-                            isOutside
+                            isPlaceholder
                               ? undefined
                               : `${count} problems on ${format(day, "MMM d, yyyy")}`
                           }
-                          className={`w-[11px] h-[11px] rounded-[2px] transition-all hover:scale-125 hover:z-10 ${isOutside ? "opacity-0" : getColor(count)}`}
+                          className={`w-[11px] h-[11px] rounded-[2px] transition-all ${isPlaceholder ? "opacity-0" : `hover:scale-125 hover:z-10 ${getColor(count)}`}`}
                         />
                       );
                     })}
