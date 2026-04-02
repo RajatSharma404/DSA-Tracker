@@ -10,15 +10,7 @@ let lastSessionReadAt = 0;
 const SESSION_CACHE_MS = 30_000;
 let sessionReadPromise: Promise<string | null> | null = null;
 
-const isBrowser = typeof window !== "undefined";
-const isLocalHost =
-  isBrowser && /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
-
-// In hosted environments, force same-origin /api so requests always flow through
-// the Next.js runtime proxy route.
-const API_BASE_URL = isLocalHost
-  ? process.env.NEXT_PUBLIC_API_URL || "/api"
-  : "/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 export const api = axios.create({
   baseURL: API_BASE_URL,

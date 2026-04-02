@@ -41,27 +41,16 @@ const proxyRequest = async (
     init.body = await request.text();
   }
 
-  try {
-    const response = await fetch(targetUrl, init);
-    const responseHeaders = new Headers(response.headers);
-    responseHeaders.delete("content-encoding");
-    responseHeaders.delete("transfer-encoding");
+  const response = await fetch(targetUrl, init);
+  const responseHeaders = new Headers(response.headers);
+  responseHeaders.delete("content-encoding");
+  responseHeaders.delete("transfer-encoding");
 
-    return new NextResponse(response.body, {
-      status: response.status,
-      statusText: response.statusText,
-      headers: responseHeaders,
-    });
-  } catch (error: any) {
-    return NextResponse.json(
-      {
-        error: "Failed to reach backend API from frontend proxy.",
-        details: error?.message || "Unknown proxy error",
-        target: targetUrl.toString(),
-      },
-      { status: 502 },
-    );
-  }
+  return new NextResponse(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: responseHeaders,
+  });
 };
 
 export async function GET(
