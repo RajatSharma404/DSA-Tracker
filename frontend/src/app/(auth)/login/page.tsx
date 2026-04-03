@@ -52,8 +52,14 @@ export default function LoginPage() {
 
   if (status === "loading") {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-[#050505]">
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-white/10 border-t-white"></div>
+      <div className="flex h-screen w-full items-center justify-center bg-[#050505] px-6">
+        <div className="w-full max-w-110 space-y-4 animate-pulse">
+          <div className="mx-auto h-14 w-14 rounded-2xl bg-white/10" />
+          <div className="mx-auto h-8 w-56 rounded-full bg-white/10" />
+          <div className="mx-auto h-4 w-72 max-w-full rounded-full bg-white/10" />
+          <div className="h-12 w-full rounded-2xl bg-white/10" />
+          <div className="h-12 w-full rounded-2xl bg-white/10" />
+        </div>
       </div>
     );
   }
@@ -61,10 +67,10 @@ export default function LoginPage() {
   return (
     <div className="relative min-h-screen w-full bg-[#050505] flex items-center justify-center overflow-hidden p-6 font-sans">
       {/* Balanced Radial Glows */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none"></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-purple-500/5 rounded-full blur-[160px] pointer-events-none"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-150 w-150 rounded-full bg-blue-500/10 blur-[120px] pointer-events-none"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-200 w-200 rounded-full bg-purple-500/5 blur-[160px] pointer-events-none"></div>
 
-      <div className="relative w-full max-w-[440px] flex flex-col items-center">
+      <div className="relative w-full max-w-110 flex flex-col items-center">
         {/* Logo Section */}
         <div className="mb-10 flex flex-col items-center space-y-4">
           <div className="h-14 w-14 bg-white text-black rounded-2xl flex items-center justify-center shadow-[0_0_40px_rgba(255,255,255,0.1)]">

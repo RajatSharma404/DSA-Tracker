@@ -71,8 +71,14 @@ export default function LearnPage() {
 
   if (loading) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-300" />
+      <div className="mx-auto mt-4 w-full max-w-6xl space-y-6 animate-pulse">
+        <div className="h-10 w-80 rounded-xl bg-white/8" />
+        <div className="h-40 rounded-3xl bg-white/6" />
+        <div className="space-y-4">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div key={index} className="h-44 rounded-3xl bg-white/6" />
+          ))}
+        </div>
       </div>
     );
   }

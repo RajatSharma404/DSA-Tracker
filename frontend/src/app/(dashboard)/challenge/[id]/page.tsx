@@ -170,8 +170,13 @@ export default function ChallengeSimulator() {
 
   if (!session)
     return (
-      <div className="flex items-center justify-center h-full min-h-screen bg-[#050505] -m-6 md:-m-10">
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-white/10 border-t-white" />
+      <div className="space-y-6 animate-pulse bg-[#050505] -m-6 md:-m-10 p-6 md:p-10 min-h-screen">
+        <div className="h-10 w-72 rounded-xl bg-white/8" />
+        <div className="h-16 rounded-2xl bg-white/6" />
+        <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
+          <div className="h-[70vh] rounded-4xl bg-white/6" />
+          <div className="h-[70vh] rounded-4xl bg-white/6" />
+        </div>
       </div>
     );
 

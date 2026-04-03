@@ -116,13 +116,13 @@ export default function AnalyticsPage() {
 
   if (loading) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <div className="flex items-center gap-3">
-          <Loader2 size={20} className="animate-spin text-indigo-400" />
-          <span className="text-sm font-bold text-gray-500">
-            Loading analytics...
-          </span>
+      <div className="max-w-6xl mx-auto space-y-6 animate-pulse">
+        <div className="h-10 w-80 rounded-xl bg-white/8" />
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="h-72 rounded-4xl bg-white/6" />
+          <div className="h-72 rounded-4xl bg-white/6" />
         </div>
+        <div className="h-96 rounded-4xl bg-white/6" />
       </div>
     );
   }
@@ -543,42 +543,46 @@ export default function AnalyticsPage() {
 
             {/* Difficulty Distribution */}
             {productivity.difficultyDistribution &&
-  Array.isArray(productivity.difficultyDistribution) &&
-  productivity.difficultyDistribution.length > 0 &&  (
-              <div className="p-6 bg-[#0a0a0f] border border-white/5 rounded-2xl">
-                <h3 className="text-xs font-black text-gray-400 uppercase tracking-wider mb-4">
-                  Difficulty Distribution
-                </h3>
-                <div className="space-y-4">
-                  {productivity.difficultyDistribution.map((d: any) => {
-                    const total = productivity.difficultyDistribution.reduce(
-                      (s: number, x: any) => s + (x._count || 0),
-                      0,
-                    );
-                    const pct = total > 0 ? ((d._count || 0) / total) * 100 : 0;
-                    const style = DIFF_STYLES[d.difficulty] || DIFF_STYLES.EASY;
-                    return (
-                      <div key={d.difficulty}>
-                        <div className="flex items-center justify-between mb-1">
-                          <span className={`text-xs font-black ${style.text}`}>
-                            {d.difficulty}
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            {d._count} ({Math.round(pct)}%)
-                          </span>
+              Array.isArray(productivity.difficultyDistribution) &&
+              productivity.difficultyDistribution.length > 0 && (
+                <div className="p-6 bg-[#0a0a0f] border border-white/5 rounded-2xl">
+                  <h3 className="text-xs font-black text-gray-400 uppercase tracking-wider mb-4">
+                    Difficulty Distribution
+                  </h3>
+                  <div className="space-y-4">
+                    {productivity.difficultyDistribution.map((d: any) => {
+                      const total = productivity.difficultyDistribution.reduce(
+                        (s: number, x: any) => s + (x._count || 0),
+                        0,
+                      );
+                      const pct =
+                        total > 0 ? ((d._count || 0) / total) * 100 : 0;
+                      const style =
+                        DIFF_STYLES[d.difficulty] || DIFF_STYLES.EASY;
+                      return (
+                        <div key={d.difficulty}>
+                          <div className="flex items-center justify-between mb-1">
+                            <span
+                              className={`text-xs font-black ${style.text}`}
+                            >
+                              {d.difficulty}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              {d._count} ({Math.round(pct)}%)
+                            </span>
+                          </div>
+                          <div className="w-full h-2.5 bg-white/5 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full ${style.bar} rounded-full transition-all duration-700`}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
                         </div>
-                        <div className="w-full h-2.5 bg-white/5 rounded-full overflow-hidden">
-                          <div
-                            className={`h-full ${style.bar} rounded-full transition-all duration-700`}
-                            style={{ width: `${pct}%` }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
           </div>
 
           {/* Score Trends */}

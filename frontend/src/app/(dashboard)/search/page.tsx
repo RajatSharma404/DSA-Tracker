@@ -434,7 +434,9 @@ export default function SearchPage() {
           <span>
             {results.length} problem{results.length !== 1 ? "s" : ""} found
           </span>
-          {loading && <Loader2 size={14} className="animate-spin" />}
+          {loading && (
+            <span className="inline-flex h-3 w-3 rounded-full bg-gray-500 animate-pulse" />
+          )}
         </div>
 
         {results.map((problem) => (

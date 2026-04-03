@@ -78,8 +78,18 @@ export default function ReviewQueuePage() {
 
   if (loading) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <Loader2 className="animate-spin text-white" size={32} />
+      <div className="space-y-6 animate-pulse max-w-5xl mx-auto">
+        <div className="h-10 w-72 rounded-xl bg-white/8" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div key={index} className="h-32 rounded-2xl bg-white/6" />
+          ))}
+        </div>
+        <div className="space-y-3">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div key={index} className="h-28 rounded-2xl bg-white/6" />
+          ))}
+        </div>
       </div>
     );
   }

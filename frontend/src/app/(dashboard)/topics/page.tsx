@@ -83,8 +83,19 @@ export default function TopicsPage() {
 
   if (loading) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-600 border-t-white"></div>
+      <div className="mx-auto mt-4 max-w-4xl space-y-8 animate-pulse">
+        <div className="space-y-3">
+          <div className="h-8 w-56 rounded-full bg-white/5" />
+          <div className="h-4 w-96 max-w-full rounded-full bg-white/5" />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div
+              key={index}
+              className="h-40 rounded-2xl border border-white/5 bg-white/5"
+            />
+          ))}
+        </div>
       </div>
     );
   }

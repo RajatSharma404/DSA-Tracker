@@ -34,8 +34,21 @@ export default function AdminLayout({
 
   if (status === "loading") {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#0a0a0a]">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-800 border-t-white"></div>
+      <div className="flex h-screen bg-[#050505] text-white">
+        <aside className="hidden md:block w-64 shrink-0 border-r border-white/5 bg-[#0a0a0a] animate-pulse" />
+        <main className="flex-1 overflow-y-auto p-8 md:p-12">
+          <div className="space-y-6 animate-pulse">
+            <div className="h-10 w-36 rounded-full bg-white/5" />
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="h-32 rounded-2xl border border-white/5 bg-white/5"
+                />
+              ))}
+            </div>
+          </div>
+        </main>
       </div>
     );
   }

@@ -9,7 +9,6 @@ import {
   CheckCircle2,
   Circle,
   Clock3,
-  Loader2,
   Lock,
   PlayCircle,
   Rocket,
@@ -147,8 +146,36 @@ export default function LearnLessonPage() {
 
   if (loading) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-300" />
+      <div className="mx-auto mt-4 grid max-w-7xl gap-6 lg:grid-cols-[minmax(0,1fr)_360px] animate-pulse">
+        <section className="space-y-5">
+          <div className="rounded-3xl border border-white/10 bg-[#0d0d0d] p-6 space-y-4">
+            <div className="h-3 w-44 rounded-full bg-white/5" />
+            <div className="h-8 w-2/3 rounded-full bg-white/5" />
+            <div className="h-4 w-full rounded-full bg-white/5" />
+            <div className="flex flex-wrap gap-3">
+              <div className="h-8 w-24 rounded-full bg-white/5" />
+              <div className="h-8 w-24 rounded-full bg-white/5" />
+              <div className="h-8 w-28 rounded-full bg-white/5" />
+            </div>
+          </div>
+          <div className="rounded-3xl border border-white/10 bg-[#0d0d0d] p-6 space-y-4">
+            <div className="h-5 w-48 rounded-full bg-white/5" />
+            <div className="space-y-3">
+              <div className="h-4 w-full rounded-full bg-white/5" />
+              <div className="h-4 w-11/12 rounded-full bg-white/5" />
+              <div className="h-4 w-10/12 rounded-full bg-white/5" />
+            </div>
+            <div className="h-56 rounded-2xl bg-white/5" />
+          </div>
+        </section>
+        <aside className="space-y-4 rounded-3xl border border-white/10 bg-[#0d0d0d] p-5">
+          <div className="h-5 w-32 rounded-full bg-white/5" />
+          <div className="space-y-3">
+            <div className="h-24 rounded-2xl bg-white/5" />
+            <div className="h-24 rounded-2xl bg-white/5" />
+            <div className="h-24 rounded-2xl bg-white/5" />
+          </div>
+        </aside>
       </div>
     );
   }

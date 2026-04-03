@@ -163,8 +163,22 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-600 border-t-white"></div>
+      <div className="space-y-6 animate-pulse">
+        <div className="h-10 w-72 rounded-xl bg-white/8" />
+        <div className="h-28 rounded-[2.5rem] bg-white/6" />
+        <div className="grid gap-6 md:grid-cols-12">
+          <div className="md:col-span-8 h-72 rounded-[2.5rem] bg-white/6" />
+          <div className="md:col-span-4 space-y-4">
+            <div className="h-28 rounded-3xl bg-white/6" />
+            <div className="h-28 rounded-3xl bg-white/6" />
+            <div className="h-28 rounded-3xl bg-white/6" />
+          </div>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div key={index} className="h-28 rounded-2xl bg-white/6" />
+          ))}
+        </div>
       </div>
     );
   }

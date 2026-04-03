@@ -15,7 +15,7 @@ export default function AdminTopics() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    orderIndex: 0
+    orderIndex: 0,
   });
 
   const loadTopics = async () => {
@@ -38,7 +38,7 @@ export default function AdminTopics() {
     setFormData({
       name: topic.name,
       description: topic.description || "",
-      orderIndex: topic.id === topic.id ? topics.indexOf(topic) : 0 // Fallback
+      orderIndex: topic.id === topic.id ? topics.indexOf(topic) : 0, // Fallback
     });
   };
 
@@ -62,19 +62,38 @@ export default function AdminTopics() {
     loadTopics();
   };
 
-  if (loading) return <div className="p-8">Loading topics...</div>;
+  if (loading) {
+    return (
+      <div className="space-y-4 animate-pulse">
+        <div className="h-10 w-72 rounded-xl bg-white/8" />
+        <div className="h-24 rounded-2xl bg-white/6" />
+        <div className="h-[60vh] rounded-4xl bg-white/6" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/admin" className="p-2 hover:bg-white/5 rounded-full transition-colors">
+          <Link
+            href="/admin"
+            className="p-2 hover:bg-white/5 rounded-full transition-colors"
+          >
             <ArrowLeft size={20} />
           </Link>
           <h1 className="text-2xl font-bold">Manage Topics</h1>
         </div>
-        <button 
-          onClick={() => { setIsAdding(true); setEditingId(null); setFormData({ name: "", description: "", orderIndex: topics.length }); }}
+        <button
+          onClick={() => {
+            setIsAdding(true);
+            setEditingId(null);
+            setFormData({
+              name: "",
+              description: "",
+              orderIndex: topics.length,
+            });
+          }}
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-bold transition-colors"
         >
           <Plus size={18} />
@@ -83,40 +102,70 @@ export default function AdminTopics() {
       </div>
 
       {(isAdding || editingId) && (
-        <form onSubmit={handleSubmit} className="p-6 bg-[#111] border border-blue-500/30 rounded-2xl space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
+        <form
+          onSubmit={handleSubmit}
+          className="p-6 bg-[#111] border border-blue-500/30 rounded-2xl space-y-4 animate-in fade-in slide-in-from-top-4 duration-300"
+        >
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-gray-500 uppercase">Topic Name</label>
-              <input 
+              <label className="text-xs font-bold text-gray-500 uppercase">
+                Topic Name
+              </label>
+              <input
                 value={formData.name}
-                onChange={e => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 className="w-full bg-[#050505] border border-[#222] rounded-xl px-4 py-3 focus:border-blue-500 outline-none"
                 placeholder="e.g. Arrays & Hashing"
                 required
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-bold text-gray-500 uppercase">Order Index</label>
-              <input 
+              <label className="text-xs font-bold text-gray-500 uppercase">
+                Order Index
+              </label>
+              <input
                 type="number"
                 value={formData.orderIndex}
-                onChange={e => setFormData({ ...formData, orderIndex: parseInt(e.target.value) })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    orderIndex: parseInt(e.target.value),
+                  })
+                }
                 className="w-full bg-[#050505] border border-[#222] rounded-xl px-4 py-3 focus:border-blue-500 outline-none"
               />
             </div>
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-bold text-gray-500 uppercase">Description</label>
-            <textarea 
+            <label className="text-xs font-bold text-gray-500 uppercase">
+              Description
+            </label>
+            <textarea
               value={formData.description}
-              onChange={e => setFormData({ ...formData, description: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
               className="w-full bg-[#050505] border border-[#222] rounded-xl px-4 py-3 focus:border-blue-500 outline-none h-24"
               placeholder="Short description of this module..."
             />
           </div>
           <div className="flex justify-end gap-3">
-            <button type="button" onClick={() => { setIsAdding(false); setEditingId(null); }} className="px-4 py-2 text-sm text-gray-400 hover:text-white">Cancel</button>
-            <button type="submit" className="flex items-center gap-2 px-6 py-2 bg-white text-black rounded-xl font-bold hover:bg-gray-200 transition-colors text-sm">
+            <button
+              type="button"
+              onClick={() => {
+                setIsAdding(false);
+                setEditingId(null);
+              }}
+              className="px-4 py-2 text-sm text-gray-400 hover:text-white"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex items-center gap-2 px-6 py-2 bg-white text-black rounded-xl font-bold hover:bg-gray-200 transition-colors text-sm"
+            >
               <Save size={18} />
               {editingId ? "Update Topic" : "Create Topic"}
             </button>
@@ -128,24 +177,42 @@ export default function AdminTopics() {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-[#222] bg-white/5">
-              <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Order</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Name</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Description</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest text-right">Actions</th>
+              <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">
+                Order
+              </th>
+              <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">
+                Name
+              </th>
+              <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">
+                Description
+              </th>
+              <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest text-right">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#222]">
             {topics.map((topic, index) => (
-              <tr key={topic.id} className="hover:bg-white/[0.02] transition-colors">
-                <td className="px-6 py-4 font-mono text-gray-500">{index + 1}</td>
+              <tr key={topic.id} className="hover:bg-white/5 transition-colors">
+                <td className="px-6 py-4 font-mono text-gray-500">
+                  {index + 1}
+                </td>
                 <td className="px-6 py-4 font-bold text-white">{topic.name}</td>
-                <td className="px-6 py-4 text-gray-400 text-sm">{topic.description || "-"}</td>
+                <td className="px-6 py-4 text-gray-400 text-sm">
+                  {topic.description || "-"}
+                </td>
                 <td className="px-6 py-4 text-right">
                   <div className="flex justify-end gap-2">
-                    <button onClick={() => handleEdit(topic)} className="p-2 hover:bg-blue-500/10 text-blue-400 rounded-lg transition-colors">
+                    <button
+                      onClick={() => handleEdit(topic)}
+                      className="p-2 hover:bg-blue-500/10 text-blue-400 rounded-lg transition-colors"
+                    >
                       <Edit2 size={18} />
                     </button>
-                    <button onClick={() => handleDelete(topic.id)} className="p-2 hover:bg-red-500/10 text-red-400 rounded-lg transition-colors">
+                    <button
+                      onClick={() => handleDelete(topic.id)}
+                      className="p-2 hover:bg-red-500/10 text-red-400 rounded-lg transition-colors"
+                    >
                       <Trash2 size={18} />
                     </button>
                   </div>

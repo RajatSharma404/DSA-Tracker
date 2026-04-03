@@ -164,8 +164,12 @@ export default function ProblemSolvePage() {
 
   if (loading) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-600 border-t-white"></div>
+      <div className="space-y-6 animate-pulse">
+        <div className="h-10 w-80 rounded-xl bg-white/8" />
+        <div className="grid gap-6 lg:grid-cols-2">
+          <div className="h-[75vh] rounded-4xl bg-white/6" />
+          <div className="h-[75vh] rounded-4xl bg-white/6" />
+        </div>
       </div>
     );
   }

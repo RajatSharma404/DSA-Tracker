@@ -5,7 +5,6 @@ import { dsaApi } from "@/lib/api";
 import Link from "next/link";
 import {
   Brain,
-  Loader2,
   RefreshCw,
   Target,
   Calendar,
@@ -85,21 +84,26 @@ export default function RecommendationsPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 animate-in fade-in duration-300">
-        <div className="relative">
-          <Brain size={48} className="text-purple-400 animate-pulse" />
-          <Loader2
-            size={20}
-            className="absolute -right-1 -bottom-1 text-blue-400 animate-spin"
-          />
+      <div className="mx-auto max-w-6xl space-y-8 animate-pulse">
+        <div className="flex items-center justify-between gap-4">
+          <div className="space-y-3">
+            <div className="h-8 w-72 rounded-full bg-white/5" />
+            <div className="h-4 w-96 max-w-full rounded-full bg-white/5" />
+          </div>
+          <div className="h-10 w-40 rounded-xl bg-white/5" />
         </div>
-        <h2 className="text-xl font-bold text-white">
-          AI is analyzing your progress...
-        </h2>
-        <p className="text-gray-400 text-sm text-center max-w-md">
-          Generating personalized recommendations based on your solve history,
-          weak areas, and learning patterns.
-        </p>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <div className="h-48 rounded-3xl border border-white/5 bg-white/5" />
+          <div className="h-48 rounded-3xl border border-white/5 bg-white/5" />
+        </div>
+        <div className="grid gap-4 lg:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div
+              key={index}
+              className="h-36 rounded-2xl border border-white/5 bg-white/5"
+            />
+          ))}
+        </div>
       </div>
     );
   }
