@@ -3,8 +3,21 @@ import crypto from "crypto";
 
 // On Render / any cloud platform set BACKEND_URL to the backend service URL
 // e.g. https://dsa-tracker-backend.onrender.com
+// Backward compatibility: NEXT_PUBLIC_API_URL is also accepted.
 // Locally it falls back to http://localhost:3001
-const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:3001";
+const RAW_BACKEND_URL =
+  process.env.BACKEND_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:3001";
+
+// Normalize env value to an origin-like base so both:
+// - https://service.onrender.com
+// - https://service.onrender.com/api
+// work correctly with the rewrite destination below.
+const BACKEND_BASE_URL = RAW_BACKEND_URL.replace(/\/+$/, "").replace(
+  /\/api$/,
+  "",
+);
 
 const nextConfig: NextConfig = {
   // Unique build ID per deploy — busts CDN / browser caches on every redeploy
@@ -24,7 +37,7 @@ const nextConfig: NextConfig = {
       fallback: [
         {
           source: "/api/:path*",
-          destination: `${BACKEND_URL}/api/:path*`,
+          destination: `${BACKEND_BASE_URL}/api/:path*`,
         },
       ],
     };
