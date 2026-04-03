@@ -328,11 +328,11 @@ sudo certbot renew --dry-run
 
 ### Frontend (`frontend/.env.local`)
 
-| Variable               | Production Value          |
-| ---------------------- | ------------------------- |
-| `DATABASE_URL`         | Same as backend           |
-| `NEXTAUTH_URL`         | `https://yourdomain.com`  |
-| `NEXTAUTH_SECRET`      | Same as backend           |
+| Variable          | Production Value         |
+| ----------------- | ------------------------ |
+| `DATABASE_URL`    | Same as backend          |
+| `NEXTAUTH_URL`    | `https://yourdomain.com` |
+| `NEXTAUTH_SECRET` | Same as backend          |
 
 ---
 
@@ -430,16 +430,16 @@ pm2 restart all
 
 ## 12. Troubleshooting
 
-| Problem                            | Solution                                                            |
-| ---------------------------------- | ------------------------------------------------------------------- |
-| **Service won't start**            | Check logs: `journalctl -u dsa-tracker -n 50`                       |
-| **Database connection refused**    | Verify Docker is running: `docker ps`. Check `DATABASE_URL` matches |
-| **Port already in use**            | Find the process: `sudo lsof -i :3000` and kill it                  |
-| **Nginx 502 Bad Gateway**          | App isn't running; start it first, then reload Nginx                |
-| **SSL certificate expired**        | Run `sudo certbot renew` and reload Nginx                           |
-| **Prisma schema drift**            | Run `npx prisma db push` in both `backend/` and `frontend/`         |
-| **Out of memory**                  | Check with `free -h`; consider adding swap or increasing server RAM |
-| **PM2 not starting on reboot**     | Re-run `pm2 startup` and `pm2 save`                                 |
+| Problem                         | Solution                                                            |
+| ------------------------------- | ------------------------------------------------------------------- |
+| **Service won't start**         | Check logs: `journalctl -u dsa-tracker -n 50`                       |
+| **Database connection refused** | Verify Docker is running: `docker ps`. Check `DATABASE_URL` matches |
+| **Port already in use**         | Find the process: `sudo lsof -i :3000` and kill it                  |
+| **Nginx 502 Bad Gateway**       | App isn't running; start it first, then reload Nginx                |
+| **SSL certificate expired**     | Run `sudo certbot renew` and reload Nginx                           |
+| **Prisma schema drift**         | Run `npx prisma db push` in both `backend/` and `frontend/`         |
+| **Out of memory**               | Check with `free -h`; consider adding swap or increasing server RAM |
+| **PM2 not starting on reboot**  | Re-run `pm2 startup` and `pm2 save`                                 |
 
 ---
 
@@ -473,7 +473,7 @@ Render hosts the frontend (Next.js) and backend (Express) as two separate Web Se
    | `NODE_ENV`        | `production`                      |
    | `DATABASE_URL`    | Internal Database URL from Step 1 |
    | `NEXTAUTH_SECRET` | A long random string (64+ chars)  |
-   
+
 4. Deploy. Once live, copy the backend's public URL (e.g. `https://dsa-tracker-backend.onrender.com`)
 
 ### Step 3 — Deploy the Frontend
@@ -490,12 +490,13 @@ Render hosts the frontend (Next.js) and backend (Express) as two separate Web Se
 
 3. Add environment variables:
 
-   | Variable               | Value                                                                     |
-   | ---------------------- | ------------------------------------------------------------------------- |
-   | `DATABASE_URL`         | Internal Database URL from Step 1 (for NextAuth)                          |
-   | `NEXTAUTH_URL`         | Your frontend Render URL (e.g. `https://dsa-tracker.onrender.com`)        |
-   | `NEXTAUTH_SECRET`      | Same secret as the backend                                                |
-         | `BACKEND_URL`          | Your backend Render URL (e.g. `https://dsa-tracker-backend.onrender.com`) |
+   | Variable              | Value                                                                     |
+   | --------------------- | ------------------------------------------------------------------------- |
+   | `DATABASE_URL`        | Internal Database URL from Step 1 (for NextAuth)                          |
+   | `NEXTAUTH_URL`        | Your frontend Render URL (e.g. `https://dsa-tracker.onrender.com`)        |
+   | `NEXTAUTH_SECRET`     | Same secret as the backend                                                |
+   | `BACKEND_URL`         | Your backend Render URL (e.g. `https://dsa-tracker-backend.onrender.com`) |
+   | `NEXT_PUBLIC_API_URL` | Optional fallback; can also point to backend URL (with or without `/api`) |
 
 ### How `BACKEND_URL` works
 
@@ -517,4 +518,3 @@ render deploys create --service-id <your-service-id> --clear-cache
 ```
 
 > The `generateBuildId` in `next.config.ts` also ensures each deploy gets a unique build ID so browser and CDN caches are busted automatically.
-
