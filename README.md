@@ -14,14 +14,13 @@ A full-stack web application to track your Data Structures & Algorithms journey 
 4. [Step-by-Step Setup](#-step-by-step-setup)
 5. [Running the App](#-running-the-app)
 6. [How to Use](#-how-to-use)
-7. [Detailed Project Handbook](#-detailed-project-handbook)
-8. [Project Structure](#-project-structure)
-9. [Environment Variables Reference](#-environment-variables-reference)
-10. [Browser Extension](#-browser-extension)
-11. [Deployment](#-deployment)
-12. [Troubleshooting](#-troubleshooting)
-13. [Contributing](#-contributing)
-14. [License](#-license)
+7. [Project Structure](#-project-structure)
+8. [Environment Variables Reference](#-environment-variables-reference)
+9. [Browser Extension](#-browser-extension)
+10. [Deployment](#-deployment)
+11. [Troubleshooting](#-troubleshooting)
+12. [Contributing](#-contributing)
+13. [License](#-license)
 
 ---
 
@@ -104,16 +103,6 @@ The AI Recommendations engine now provides personalized suggestions based on you
 - Difficulty and focus areas are chosen to match your experience level
 
 > For best results, keep solving and submitting problems — the more you use the tracker, the smarter the recommendations become!
-
----
-
-## 📘 Detailed Project Handbook
-
-For complete, deep technical documentation of this repository (architecture, models, APIs, modules, extension internals, troubleshooting, and study path), read:
-
-- **[ABOUT.md](ABOUT.md)**
-
-This file is intended for contributors and advanced users who want to understand the project end-to-end in detail.
 
 ---
 
@@ -493,8 +482,7 @@ chrome.storage.sync.set({
 
 ## 🖥 Deployment
 
-For full production deployment instructions — including server setup, Nginx reverse proxy, SSL, database backups, running with systemd or PM2, and **deploying on Render** or **Google App Engine**, see the **[Deployment Guide](DEPLOYMENT.md)**.
-You can use the provided scripts and `GOOGLE_APP_ENGINE_DEPLOYMENT.md` for easy GAE deployment.
+For full production deployment instructions — including server setup, Nginx reverse proxy, SSL, database backups, and running with systemd or PM2 — see the **[Deployment Guide](DEPLOYMENT.md)**.
 
 **Quick start (systemd):**
 
