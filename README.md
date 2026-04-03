@@ -249,6 +249,11 @@ This starts both servers simultaneously:
 | **Frontend**    | [http://localhost:3000](http://localhost:3000) |
 | **Backend API** | [http://localhost:3001](http://localhost:3001) |
 
+Important:
+
+- Use only one startup path at a time. If root `npm run dev` is running, do not run `frontend/npm run dev` again in another terminal.
+- Running a second frontend dev server causes Next.js lock conflicts at `frontend/.next/dev/lock`.
+
 > You can also start them individually:
 >
 > ```bash
@@ -520,7 +525,8 @@ pm2 save && pm2 startup
 | **AI features returning errors**             | Review backend logs for local AI heuristic fallback behavior                                                       |
 | **"NEXTAUTH_SECRET" mismatch**               | Ensure the secret is identical in both `backend/.env` and `frontend/.env.local`                                    |
 | **Blank page after login**                   | Make sure the backend is running on port 3001                                                                      |
-| **Lock file error on `npm run dev`**         | Delete `frontend/.next/dev/lock` and try again                                                                     |
+| **Lock file error on `npm run dev`**         | Stop duplicate frontend `next dev` processes, delete `frontend/.next/dev/lock`, then run only one startup command  |
+| **Looks like API error but app is up**       | Verify health first: backend `GET http://localhost:3001/health` and frontend `GET http://localhost:3000`           |
 | **Extension works locally but not deployed** | Set extension backend URL via `chrome.storage.sync.set({ dsaApiBaseUrl: "https://your-backend" })`                 |
 | **No login notification emails**             | Verify SMTP vars (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`) and recipient vars are set in `backend/.env` |
 

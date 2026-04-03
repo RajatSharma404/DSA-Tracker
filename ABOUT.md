@@ -485,6 +485,13 @@ Files with notable lazy-loading updates include:
   - remove lock file
   - rerun `npm run dev`
 
+Practical diagnostic note:
+
+- This often looks like an API outage, but it is a frontend process collision.
+- Confirm before debugging API/DB:
+  - frontend: `http://localhost:3000` returns 200
+  - backend: `http://localhost:3001/health` returns `{ "status": "healthy" }`
+
 ### Multiple lockfiles warning
 
 - Next may infer workspace root using root-level lockfile while detecting another in `frontend/`.
@@ -508,6 +515,11 @@ Files with notable lazy-loading updates include:
   - validate `backend/.env`
   - run `npx prisma generate`
   - confirm DB connectivity
+- Duplicate dev startup / lock errors:
+  - avoid running root `npm run dev` and `frontend/npm run dev` at the same time
+  - stop duplicate `node`/`next dev` processes
+  - remove `frontend/.next/dev/lock` if present
+  - restart using one command path only
 - Frontend API 401:
   - check NextAuth session
   - verify secret alignment backend/frontend
