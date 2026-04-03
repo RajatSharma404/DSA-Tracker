@@ -14,10 +14,22 @@ const isBrowser = typeof window !== "undefined";
 const isLocalHost =
   isBrowser && /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
 
-// In production, always use same-origin /api so Next.js rewrites can proxy to BACKEND_URL.
-const API_BASE_URL = isLocalHost
-  ? process.env.NEXT_PUBLIC_API_URL || "/api"
-  : "/api";
+const configuredPublicApiBase =
+  process.env.NEXT_PUBLIC_API_URL?.trim().replace(/\/+$/, "") || "";
+const hasAbsolutePublicApiBase = /^https?:\/\//i.test(configuredPublicApiBase);
+const normalizedPublicApiBase = hasAbsolutePublicApiBase
+  ? configuredPublicApiBase.endsWith("/api")
+    ? configuredPublicApiBase
+    : `${configuredPublicApiBase}/api`
+  : "";
+
+// Prefer direct public API URL when explicitly configured.
+// This avoids relying on platform rewrites and is resilient on Render.
+const API_BASE_URL = hasAbsolutePublicApiBase
+  ? normalizedPublicApiBase
+  : isLocalHost
+    ? process.env.NEXT_PUBLIC_API_URL || "/api"
+    : "/api";
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -86,6 +98,18 @@ api.interceptors.response.use(
     if (status === 429 && originalRequest) {
       const method = String(originalRequest.method || "get").toLowerCase();
       const retries = Number(originalRequest._retry429Count || 0);
+
+      if (
+        method === "get" &&
+        normalizedPublicApiBase &&
+        originalRequest.baseURL === "/api" &&
+        !originalRequest._retryViaPublicApiBase
+      ) {
+        originalRequest._retryViaPublicApiBase = true;
+        originalRequest.baseURL = normalizedPublicApiBase;
+        await sleep(150);
+        return api(originalRequest);
+      }
 
       if (RETRYABLE_METHODS.has(method) && retries < MAX_429_RETRIES) {
         originalRequest._retry429Count = retries + 1;
