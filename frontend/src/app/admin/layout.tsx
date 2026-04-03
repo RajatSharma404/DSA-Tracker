@@ -1,9 +1,19 @@
 "use client";
 
-import { Sidebar } from "@/components/layout/Sidebar";
+import dynamic from "next/dynamic";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+
+const Sidebar = dynamic(
+  () => import("@/components/layout/Sidebar").then((mod) => mod.Sidebar),
+  {
+    ssr: false,
+    loading: () => (
+      <aside className="hidden md:block w-64 shrink-0 border-r border-white/5 bg-[#0a0a0a]" />
+    ),
+  },
+);
 
 export default function AdminLayout({
   children,
@@ -14,7 +24,10 @@ export default function AdminLayout({
   const router = useRouter();
 
   useEffect(() => {
-    if (status === "unauthenticated" || (session?.user && (session.user as any).role !== "ADMIN")) {
+    if (
+      status === "unauthenticated" ||
+      (session?.user && (session.user as any).role !== "ADMIN")
+    ) {
       router.push("/");
     }
   }, [session, status, router]);
@@ -32,9 +45,9 @@ export default function AdminLayout({
       <Sidebar />
       <main className="flex-1 overflow-y-auto p-8 md:p-12 relative">
         <div className="absolute top-0 right-0 p-4">
-           <span className="px-3 py-1 bg-red-500/10 border border-red-500/20 rounded-full text-red-500 text-[10px] font-bold uppercase tracking-wider">
-             Admin Mode
-           </span>
+          <span className="px-3 py-1 bg-red-500/10 border border-red-500/20 rounded-full text-red-500 text-[10px] font-bold uppercase tracking-wider">
+            Admin Mode
+          </span>
         </div>
         {children}
       </main>

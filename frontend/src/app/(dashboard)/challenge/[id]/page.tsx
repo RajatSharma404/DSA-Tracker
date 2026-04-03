@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
+import dynamic from "next/dynamic";
 import { dsaApi } from "@/lib/api";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -15,7 +16,17 @@ import {
   Tag,
   Cpu,
 } from "lucide-react";
-import { CodeEditor } from "@/components/dashboard/CodeEditor";
+
+const CodeEditor = dynamic(
+  () =>
+    import("@/components/dashboard/CodeEditor").then((mod) => mod.CodeEditor),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-full min-h-96 animate-pulse rounded-3xl border border-white/5 bg-white/3" />
+    ),
+  },
+);
 
 export default function ChallengeSimulator() {
   const { id } = useParams();

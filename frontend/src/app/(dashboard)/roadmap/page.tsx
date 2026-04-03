@@ -1,9 +1,32 @@
 "use client";
 
-import RoadmapGraph from "@/components/roadmap/RoadmapGraph";
-import CustomRoadmapBuilder from "@/components/roadmap/CustomRoadmapBuilder";
+import dynamic from "next/dynamic";
 import { Network, Activity, Info, Grid2X2, PencilLine } from "lucide-react";
 import { useState } from "react";
+
+const CustomRoadmapBuilder = dynamic(
+  () => import("@/components/roadmap/CustomRoadmapBuilder"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex min-h-[60vh] items-center justify-center rounded-4xl border border-white/5 bg-[#050505] text-sm font-medium text-gray-400">
+        Loading roadmap builder...
+      </div>
+    ),
+  },
+);
+
+const RoadmapGraph = dynamic(
+  () => import("@/components/roadmap/RoadmapGraph"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex min-h-[60vh] items-center justify-center rounded-4xl border border-white/5 bg-[#050505] text-sm font-medium text-gray-400">
+        Loading visual roadmap...
+      </div>
+    ),
+  },
+);
 
 export default function RoadmapPage() {
   const [mode, setMode] = useState<"custom" | "visual">("custom");

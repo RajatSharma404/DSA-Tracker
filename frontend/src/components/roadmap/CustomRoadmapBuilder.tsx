@@ -10,6 +10,7 @@ import React, {
 } from "react";
 import ReactFlow, {
   Background,
+  ConnectionMode,
   Controls,
   Handle,
   MarkerType,
@@ -61,7 +62,22 @@ type DragPayload =
 
 const STORAGE_KEY = "dsa-custom-roadmap-text-v1";
 
-function RoadmapBuilderNode({ data, selected }: NodeProps<RoadmapNodeData>) {
+function RoadmapBuilderNode({
+  id,
+  data,
+  selected,
+}: NodeProps<RoadmapNodeData>) {
+  const { deleteElements } = useReactFlow();
+
+  const deleteNode = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      event.preventDefault();
+      event.stopPropagation();
+      void deleteElements({ nodes: [{ id }] });
+    },
+    [deleteElements, id],
+  );
+
   const commonBorder = selected
     ? "border-white/50 shadow-[0_0_0_1px_rgba(255,255,255,0.25),0_20px_60px_rgba(0,0,0,0.45)]"
     : "border-white/10";
@@ -96,8 +112,22 @@ function RoadmapBuilderNode({ data, selected }: NodeProps<RoadmapNodeData>) {
         }}
       />
 
-      <HandleBubble position={Position.Left} accent={data.accent} />
-      <HandleBubble position={Position.Right} accent={data.accent} source />
+      <button
+        type="button"
+        onClick={deleteNode}
+        className={`absolute right-2 top-2 z-20 inline-flex h-6 w-6 items-center justify-center rounded-lg border border-red-500/20 bg-red-500/10 text-red-200 transition-all hover:bg-red-500/20 ${
+          selected
+            ? "opacity-100"
+            : "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"
+        }`}
+        title="Delete node"
+        aria-label="Delete node"
+      >
+        <Trash2 size={12} />
+      </button>
+
+      <DualHandle position={Position.Left} accent={data.accent} />
+      <DualHandle position={Position.Right} accent={data.accent} />
 
       <div className="relative z-10 flex items-start gap-3">
         <div
@@ -165,28 +195,50 @@ function RoadmapBuilderNode({ data, selected }: NodeProps<RoadmapNodeData>) {
 function HandleBubble({
   position,
   accent,
-  source = false,
+  type,
+  offsetY,
 }: {
   position: Position;
   accent: string;
-  source?: boolean;
+  type: "source" | "target";
+  offsetY: string;
+}) {
+  return (
+    <Handle
+      id={`${position}-${type}`}
+      type={type}
+      position={position}
+      className="h-3! w-3! border-none!"
+      style={{
+        top: offsetY,
+        transform: "translateY(-50%)",
+        background: accent,
+        boxShadow: `0 0 0 4px ${accent}22`,
+      }}
+    />
+  );
+}
+
+function DualHandle({
+  position,
+  accent,
+}: {
+  position: Position;
+  accent: string;
 }) {
   return (
     <>
-      <div
-        className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2"
-        style={{ opacity: 0 }}
-      >
-        <Handle type={source ? "source" : "target"} position={position} />
-      </div>
-      <Handle
-        type={source ? "source" : "target"}
+      <HandleBubble
         position={position}
-        className="h-3! w-3! border-none!"
-        style={{
-          background: accent,
-          boxShadow: `0 0 0 4px ${accent}22`,
-        }}
+        accent={accent}
+        type="target"
+        offsetY="43%"
+      />
+      <HandleBubble
+        position={position}
+        accent={accent}
+        type="source"
+        offsetY="57%"
       />
     </>
   );
@@ -485,18 +537,27 @@ function BuilderWorkspace() {
       if (!connection.source || !connection.target) return;
       const source = connection.source;
       const target = connection.target;
+      const sourceHandle = connection.sourceHandle || null;
+      const targetHandle = connection.targetHandle || null;
+
       setEdges((current) => {
         const alreadyLinked = current.some(
-          (edge) => edge.source === source && edge.target === target,
+          (edge) =>
+            edge.source === source &&
+            edge.target === target &&
+            (edge.sourceHandle || null) === sourceHandle &&
+            (edge.targetHandle || null) === targetHandle,
         );
         if (alreadyLinked) return current;
 
         return [
           ...current,
           {
-            id: `edge-${source}-${target}`,
+            id: `edge-${source}-${sourceHandle || "default"}-${target}-${targetHandle || "default"}`,
             source,
             target,
+            sourceHandle,
+            targetHandle,
             type: "default",
             markerEnd: {
               type: MarkerType.ArrowClosed,
@@ -617,6 +678,55 @@ function BuilderWorkspace() {
     );
     setSelectedNodeId(null);
   };
+
+  const removeSelectedElements = useCallback(() => {
+    const selectedNodeIds = new Set(
+      nodes
+        .filter((node) => node.selected || node.id === selectedNodeId)
+        .map((node) => node.id),
+    );
+
+    if (selectedNodeIds.size === 0) return;
+
+    setNodes((currentNodes) =>
+      currentNodes.filter((node) => !selectedNodeIds.has(node.id)),
+    );
+    setEdges((currentEdges) =>
+      currentEdges.filter(
+        (edge) =>
+          !selectedNodeIds.has(edge.source) &&
+          !selectedNodeIds.has(edge.target) &&
+          !edge.selected,
+      ),
+    );
+
+    if (selectedNodeId && selectedNodeIds.has(selectedNodeId)) {
+      setSelectedNodeId(null);
+    }
+  }, [nodes, selectedNodeId, setEdges, setNodes]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) return;
+      if (event.key !== "Delete" && event.key !== "Backspace") return;
+
+      const target = event.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      removeSelectedElements();
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [removeSelectedElements]);
 
   const clearCanvas = () => {
     setNodes([]);
@@ -782,6 +892,7 @@ function BuilderWorkspace() {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={handleConnect}
+            connectionMode={ConnectionMode.Loose}
             nodeTypes={nodeTypes}
             onNodeClick={(_, node) => {
               setSelectedNodeId(node.id);
@@ -789,6 +900,15 @@ function BuilderWorkspace() {
               if (node.data.kind === "tag") {
                 setActiveTab("tags");
                 setSelectedTagIds(node.data.tagIds || []);
+              }
+            }}
+            onSelectionChange={({ nodes: selectedNodes }) => {
+              if (selectedNodes.length === 1) {
+                setSelectedNodeId(selectedNodes[0].id);
+                return;
+              }
+              if (selectedNodes.length === 0) {
+                setSelectedNodeId(null);
               }
             }}
             onPaneClick={() => setSelectedNodeId(null)}
@@ -1204,6 +1324,14 @@ function TagsTab({
     payload: DragPayload,
   ) => (event: DragEvent<HTMLElement>) => void;
 }) {
+  const [tagQuery, setTagQuery] = useState("");
+
+  const filteredTags = useMemo(() => {
+    const query = tagQuery.trim().toLowerCase();
+    if (!query) return tags;
+    return tags.filter((tag) => tag.name.toLowerCase().includes(query));
+  }, [tagQuery, tags]);
+
   const toggleTag = (tagId: string) => {
     if (selectedTagIds.includes(tagId)) {
       setSelectedTagIds(selectedTagIds.filter((id) => id !== tagId));
@@ -1230,8 +1358,21 @@ function TagsTab({
             </span>
           </div>
 
+          <div className="relative mt-4">
+            <Search
+              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+              size={14}
+            />
+            <input
+              value={tagQuery}
+              onChange={(event) => setTagQuery(event.target.value)}
+              className="w-full rounded-xl border border-white/10 bg-black/40 py-3 pl-10 pr-4 text-sm text-white outline-none focus:border-sky-400/40"
+              placeholder="Search tags"
+            />
+          </div>
+
           <div className="mt-4 flex flex-wrap gap-2">
-            {tags.map((tag) => {
+            {filteredTags.map((tag) => {
               const active = selectedTagIds.includes(tag.id);
               return (
                 <button
@@ -1252,6 +1393,9 @@ function TagsTab({
                 </button>
               );
             })}
+            {filteredTags.length === 0 ? (
+              <p className="text-sm text-gray-500">No tags found.</p>
+            ) : null}
           </div>
         </div>
 

@@ -1,4 +1,13 @@
-import { Sidebar } from "@/components/layout/Sidebar";
+import dynamic from "next/dynamic";
+
+const Sidebar = dynamic(
+  () => import("@/components/layout/Sidebar").then((mod) => mod.Sidebar),
+  {
+    loading: () => (
+      <aside className="hidden md:block w-64 shrink-0 border-r border-white/5 bg-[#0a0a0a]" />
+    ),
+  },
+);
 
 export default function DashboardLayout({
   children,

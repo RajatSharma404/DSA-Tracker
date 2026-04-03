@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { dsaApi, DashboardStats } from "@/lib/api";
 import { useSession } from "next-auth/react";
-import { StatCard } from "@/components/ui/StatCard";
+import dynamic from "next/dynamic";
 import {
   CheckCircle2,
   Flame,
@@ -13,11 +13,60 @@ import {
   Calendar,
 } from "lucide-react";
 import Link from "next/link";
-import ActivityHeatmap from "@/components/dashboard/ActivityHeatmap";
-import LeetCodeSync from "@/components/dashboard/LeetCodeSync";
-import SkillRadar from "@/components/dashboard/SkillRadar";
-import DailyFocus from "@/components/dashboard/DailyFocus";
-import BadgeShowcase from "@/components/dashboard/BadgeShowcase";
+
+const ActivityHeatmap = dynamic(
+  () => import("@/components/dashboard/ActivityHeatmap"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-48 animate-pulse rounded-2xl border border-white/5 bg-white/3" />
+    ),
+  },
+);
+
+const LeetCodeSync = dynamic(
+  () => import("@/components/dashboard/LeetCodeSync"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-28 animate-pulse rounded-2xl border border-white/5 bg-white/3" />
+    ),
+  },
+);
+
+const SkillRadar = dynamic(() => import("@/components/dashboard/SkillRadar"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-52 animate-pulse rounded-2xl border border-white/5 bg-white/3" />
+  ),
+});
+
+const DailyFocus = dynamic(() => import("@/components/dashboard/DailyFocus"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-36 animate-pulse rounded-2xl border border-white/5 bg-white/3" />
+  ),
+});
+
+const BadgeShowcase = dynamic(
+  () => import("@/components/dashboard/BadgeShowcase"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-44 animate-pulse rounded-2xl border border-white/5 bg-white/3" />
+    ),
+  },
+);
+
+const StatCard = dynamic(
+  () => import("@/components/ui/StatCard").then((mod) => mod.StatCard),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-32 animate-pulse rounded-2xl border border-white/5 bg-white/3" />
+    ),
+  },
+);
 
 export default function Dashboard() {
   const { data: session, status } = useSession();

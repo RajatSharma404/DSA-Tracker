@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { dsaApi, Topic, Problem } from "@/lib/api";
 import {
   ChevronDown,
@@ -16,10 +17,46 @@ import {
 import Link from "next/link";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import AIMentorHint from "@/components/dashboard/AIMentorHint";
-import AICodeArchitect from "@/components/dashboard/AICodeArchitect";
-import ProblemNotes from "@/components/dashboard/ProblemNotes";
-import TopicStudyGuide from "@/components/dashboard/TopicStudyGuide";
+
+const AIMentorHint = dynamic(
+  () => import("@/components/dashboard/AIMentorHint"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-36 animate-pulse rounded-2xl border border-white/5 bg-white/3" />
+    ),
+  },
+);
+
+const AICodeArchitect = dynamic(
+  () => import("@/components/dashboard/AICodeArchitect"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-36 animate-pulse rounded-2xl border border-white/5 bg-white/3" />
+    ),
+  },
+);
+
+const ProblemNotes = dynamic(
+  () => import("@/components/dashboard/ProblemNotes"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-36 animate-pulse rounded-2xl border border-white/5 bg-white/3" />
+    ),
+  },
+);
+
+const TopicStudyGuide = dynamic(
+  () => import("@/components/dashboard/TopicStudyGuide"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-28 animate-pulse rounded-2xl border border-white/5 bg-white/3" />
+    ),
+  },
+);
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

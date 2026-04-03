@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { useRouter, useParams } from "next/navigation";
 import { dsaApi, Problem } from "@/lib/api";
 import {
@@ -12,11 +13,62 @@ import {
   TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
-import { LeetCodeEditor } from "@/components/dashboard/LeetCodeEditor";
-import AIMentorHint from "@/components/dashboard/AIMentorHint";
-import AICodeArchitect from "@/components/dashboard/AICodeArchitect";
-import ProblemNotes from "@/components/dashboard/ProblemNotes";
-import { SolutionHistory } from "@/components/dashboard/SolutionHistory";
+
+const LeetCodeEditor = dynamic(
+  () =>
+    import("@/components/dashboard/LeetCodeEditor").then(
+      (mod) => mod.LeetCodeEditor,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-104 animate-pulse rounded-2xl border border-white/5 bg-white/3" />
+    ),
+  },
+);
+
+const AIMentorHint = dynamic(
+  () => import("@/components/dashboard/AIMentorHint"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-56 animate-pulse rounded-2xl border border-white/5 bg-white/3" />
+    ),
+  },
+);
+
+const AICodeArchitect = dynamic(
+  () => import("@/components/dashboard/AICodeArchitect"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-56 animate-pulse rounded-2xl border border-white/5 bg-white/3" />
+    ),
+  },
+);
+
+const ProblemNotes = dynamic(
+  () => import("@/components/dashboard/ProblemNotes"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-56 animate-pulse rounded-2xl border border-white/5 bg-white/3" />
+    ),
+  },
+);
+
+const SolutionHistory = dynamic(
+  () =>
+    import("@/components/dashboard/SolutionHistory").then(
+      (mod) => mod.SolutionHistory,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-36 animate-pulse rounded-2xl border border-white/5 bg-white/3" />
+    ),
+  },
+);
 
 export default function ProblemSolvePage() {
   const params = useParams();
