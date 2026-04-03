@@ -1,16 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { dsaApi, DashboardStats } from "@/lib/api";
+import { dsaApi, DashboardStats, Topic } from "@/lib/api";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import {
+  ArrowRight,
   CheckCircle2,
   Flame,
-  Target,
   BookOpen,
   LayoutGrid,
-  Calendar,
+  Network,
+  Target,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -75,6 +76,7 @@ export default function Dashboard() {
   const [activityData, setActivityData] = useState<
     Array<{ date: string; count: number }>
   >([]);
+  const [topicsSnapshot, setTopicsSnapshot] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
 
   const formatApiError = (error: unknown) => {
@@ -102,6 +104,14 @@ export default function Dashboard() {
         setActivityData([]);
       }
 
+      try {
+        const topicsData = await dsaApi.getTopics();
+        setTopicsSnapshot(topicsData);
+      } catch (topicsError) {
+        console.warn("Topic snapshot unavailable", topicsError);
+        setTopicsSnapshot([]);
+      }
+
       setDashboardError(null);
 
       if (shouldAutoSync) {
@@ -119,6 +129,16 @@ export default function Dashboard() {
               console.warn(
                 "Activity refresh unavailable after sync",
                 nextActivityError,
+              );
+            }
+
+            try {
+              const nextTopics = await dsaApi.getTopics();
+              setTopicsSnapshot(nextTopics);
+            } catch (nextTopicsError) {
+              console.warn(
+                "Topic snapshot unavailable after sync",
+                nextTopicsError,
               );
             }
           })
@@ -232,6 +252,210 @@ export default function Dashboard() {
               </div>
             </div>
             <ActivityHeatmap data={activityData} />
+
+            <div className="mt-8 pt-6 border-t border-white/5">
+              <div className="flex items-center justify-between gap-4 mb-4">
+                <div>
+                  <h3 className="text-sm font-black uppercase tracking-widest text-white flex items-center gap-2">
+                    <Network size={14} className="text-cyan-400" />
+                    Roadmap Progress Mini-Map
+                  </h3>
+                  <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">
+                    Current position and next unlock target
+                  </p>
+                </div>
+                <Link
+                  href="/roadmap"
+                  className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-cyan-300 hover:text-white transition-colors"
+                >
+                  Open Visual Roadmap
+                  <ArrowRight size={12} />
+                </Link>
+              </div>
+
+              {topicsSnapshot.length > 0 ? (
+                <>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                    <div className="rounded-2xl border border-white/5 bg-white/3 px-4 py-3">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+                        Total Topics
+                      </p>
+                      <p className="text-lg font-black text-white mt-1">
+                        {topicsSnapshot.length}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-green-500/20 bg-green-500/10 px-4 py-3">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-green-300/80">
+                        Completed
+                      </p>
+                      <p className="text-lg font-black text-green-300 mt-1">
+                        {
+                          topicsSnapshot.filter(
+                            (topic) => topic.progressPercentage >= 100,
+                          ).length
+                        }
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-blue-500/20 bg-blue-500/10 px-4 py-3">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-blue-300/80">
+                        In Progress
+                      </p>
+                      <p className="text-lg font-black text-blue-300 mt-1">
+                        {
+                          topicsSnapshot.filter(
+                            (topic) =>
+                              topic.progressPercentage > 0 &&
+                              topic.progressPercentage < 100,
+                          ).length
+                        }
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-amber-300/80">
+                        Next Unlock
+                      </p>
+                      <p className="text-xs font-black text-amber-300 mt-1 truncate">
+                        {topicsSnapshot.find(
+                          (topic) => topic.progressPercentage < 100,
+                        )?.name || "Roadmap Complete"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-white/5 bg-[#0a0a0f] p-4">
+                    <div className="grid grid-cols-10 gap-2">
+                      {topicsSnapshot.slice(0, 30).map((topic) => {
+                        const progress = topic.progressPercentage;
+                        const tone =
+                          progress >= 100
+                            ? "bg-green-400/80 border-green-300/80"
+                            : progress > 0
+                              ? "bg-blue-400/70 border-blue-300/70"
+                              : "bg-[#1a1a1a] border-white/10";
+
+                        return (
+                          <div
+                            key={topic.id}
+                            title={`${topic.name}: ${progress}%`}
+                            className={`h-5 rounded-sm border ${tone} transition-transform hover:scale-110`}
+                          />
+                        );
+                      })}
+                    </div>
+                    <div className="mt-3 flex items-center justify-between text-[9px] font-black uppercase tracking-widest text-gray-500">
+                      <span>Locked</span>
+                      <span>In Progress</span>
+                      <span>Completed</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                    <div className="rounded-2xl border border-white/5 bg-[#0a0a0f] p-4">
+                      <div className="flex items-center justify-between gap-3 mb-3">
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-cyan-300">
+                          Up Next Topic Queue
+                        </h4>
+                        <span className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+                          Next 5
+                        </span>
+                      </div>
+
+                      <div className="space-y-2.5">
+                        {topicsSnapshot
+                          .filter((topic) => topic.progressPercentage < 100)
+                          .slice(0, 5)
+                          .map((topic) => (
+                            <div
+                              key={`queue-${topic.id}`}
+                              className="rounded-xl border border-white/5 bg-white/3 px-3 py-2"
+                            >
+                              <div className="flex items-center justify-between gap-2 mb-1.5">
+                                <p className="text-[11px] font-bold text-gray-200 truncate">
+                                  {topic.name}
+                                </p>
+                                <span className="text-[10px] font-black text-blue-300 shrink-0">
+                                  {topic.progressPercentage}%
+                                </span>
+                              </div>
+                              <div className="h-1.5 rounded-full bg-white/8 overflow-hidden">
+                                <div
+                                  className="h-full rounded-full bg-blue-400/80 transition-all duration-500"
+                                  style={{
+                                    width: `${topic.progressPercentage}%`,
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-white/5 bg-[#0a0a0f] p-4">
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-cyan-300 mb-3">
+                        Roadmap Distribution
+                      </h4>
+
+                      {(() => {
+                        const total = topicsSnapshot.length || 1;
+                        const completed = topicsSnapshot.filter(
+                          (topic) => topic.progressPercentage >= 100,
+                        ).length;
+                        const active = topicsSnapshot.filter(
+                          (topic) =>
+                            topic.progressPercentage > 0 &&
+                            topic.progressPercentage < 100,
+                        ).length;
+                        const locked = Math.max(0, total - completed - active);
+
+                        const completedPct = Math.round(
+                          (completed / total) * 100,
+                        );
+                        const activePct = Math.round((active / total) * 100);
+                        const lockedPct = Math.max(
+                          0,
+                          100 - completedPct - activePct,
+                        );
+
+                        return (
+                          <>
+                            <div className="h-3 rounded-full overflow-hidden border border-white/5 bg-[#131313] flex">
+                              <div
+                                className="bg-[#1a1a1a]"
+                                style={{ width: `${lockedPct}%` }}
+                              />
+                              <div
+                                className="bg-blue-400/80"
+                                style={{ width: `${activePct}%` }}
+                              />
+                              <div
+                                className="bg-green-400/80"
+                                style={{ width: `${completedPct}%` }}
+                              />
+                            </div>
+
+                            <div className="mt-4 grid grid-cols-3 gap-2 text-[10px] font-black uppercase tracking-widest">
+                              <div className="rounded-xl border border-white/5 bg-white/3 p-2.5 text-gray-400">
+                                Locked {lockedPct}%
+                              </div>
+                              <div className="rounded-xl border border-blue-500/20 bg-blue-500/10 p-2.5 text-blue-300">
+                                Active {activePct}%
+                              </div>
+                              <div className="rounded-xl border border-green-500/20 bg-green-500/10 p-2.5 text-green-300">
+                                Done {completedPct}%
+                              </div>
+                            </div>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="rounded-2xl border border-white/5 bg-white/3 p-5 text-center text-[10px] font-black uppercase tracking-widest text-gray-500">
+                  Roadmap snapshot unavailable right now
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <div className="md:col-span-4 flex flex-col gap-6">
