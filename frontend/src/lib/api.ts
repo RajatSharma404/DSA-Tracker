@@ -26,6 +26,12 @@ export const api = axios.create({
   },
 });
 
+const RETRYABLE_METHODS = new Set(["get", "head", "options"]);
+const MAX_429_RETRIES = 2;
+
+const sleep = (ms: number) =>
+  new Promise<void>((resolve) => setTimeout(resolve, ms));
+
 const readAccessToken = async (force = false): Promise<string | null> => {
   const now = Date.now();
   const shouldRefresh =
@@ -76,6 +82,19 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error?.config as any;
     const status = error?.response?.status;
+
+    if (status === 429 && originalRequest) {
+      const method = String(originalRequest.method || "get").toLowerCase();
+      const retries = Number(originalRequest._retry429Count || 0);
+
+      if (RETRYABLE_METHODS.has(method) && retries < MAX_429_RETRIES) {
+        originalRequest._retry429Count = retries + 1;
+        const jitterMs = Math.floor(Math.random() * 120);
+        const backoffMs = 350 * Math.pow(2, retries) + jitterMs;
+        await sleep(backoffMs);
+        return api(originalRequest);
+      }
+    }
 
     if (status !== 401 || !originalRequest || originalRequest._retry) {
       throw error;

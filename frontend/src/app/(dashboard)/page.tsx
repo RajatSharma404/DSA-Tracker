@@ -28,14 +28,31 @@ export default function Dashboard() {
   >([]);
   const [loading, setLoading] = useState(true);
 
+  const formatApiError = (error: unknown) => {
+    const err = error as any;
+    const message =
+      err?.response?.data?.error ||
+      err?.response?.data?.details ||
+      err?.message ||
+      "Unknown API error";
+    const statusCode = err?.response?.status;
+    return statusCode ? `${statusCode}: ${String(message)}` : String(message);
+  };
+
   const loadDashboardData = async (shouldAutoSync: boolean) => {
     try {
-      const [statsData, actData] = await Promise.all([
-        dsaApi.getDashboardStats(),
-        dsaApi.getActivityData(),
-      ]);
+      const statsData = await dsaApi.getDashboardStats();
       setStats(statsData);
-      setActivityData(actData);
+
+      try {
+        const actData = await dsaApi.getActivityData();
+        setActivityData(actData);
+      } catch (activityError) {
+        // Keep dashboard usable if activity endpoint is rate limited.
+        console.warn("Activity data unavailable", activityError);
+        setActivityData([]);
+      }
+
       setDashboardError(null);
 
       if (shouldAutoSync) {
@@ -43,12 +60,18 @@ export default function Dashboard() {
         void dsaApi
           .syncLeetcode()
           .then(async () => {
-            const [nextStats, nextActivity] = await Promise.all([
-              dsaApi.getDashboardStats(),
-              dsaApi.getActivityData(),
-            ]);
+            const nextStats = await dsaApi.getDashboardStats();
             setStats(nextStats);
-            setActivityData(nextActivity);
+
+            try {
+              const nextActivity = await dsaApi.getActivityData();
+              setActivityData(nextActivity);
+            } catch (nextActivityError) {
+              console.warn(
+                "Activity refresh unavailable after sync",
+                nextActivityError,
+              );
+            }
           })
           .catch((syncError) => {
             console.warn("LeetCode auto-sync skipped", syncError);
@@ -56,16 +79,7 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error("Failed to load dashboard data", error);
-      const err = error as any;
-      const message =
-        err?.response?.data?.error ||
-        err?.response?.data?.details ||
-        err?.message ||
-        "Unknown API error";
-      const statusCode = err?.response?.status;
-      setDashboardError(
-        statusCode ? `${statusCode}: ${String(message)}` : String(message),
-      );
+      setDashboardError(formatApiError(error));
       setStats(null);
       setActivityData([]);
     } finally {
@@ -113,6 +127,10 @@ export default function Dashboard() {
         <p className="text-gray-600 text-sm">
           Make sure the backend is running and <code>NEXT_PUBLIC_API_URL</code>{" "}
           is set correctly.
+        </p>
+        <p className="text-gray-600 text-xs max-w-2xl">
+          Render can also return temporary 429 during traffic spikes. Refresh in
+          a few seconds if this persists.
         </p>
         {dashboardError ? (
           <p className="text-red-400/80 text-xs max-w-2xl wrap-break-word">
