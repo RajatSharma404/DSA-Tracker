@@ -39,6 +39,7 @@ export default function ReviewQueuePage() {
   const [loading, setLoading] = useState(true);
   const [reviewingId, setReviewingId] = useState<string | null>(null);
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
+  const [reviewNotice, setReviewNotice] = useState<string | null>(null);
 
   useEffect(() => {
     loadReviewQueue();
@@ -59,8 +60,14 @@ export default function ReviewQueuePage() {
   const handleReview = async (problemId: string, quality: number) => {
     setReviewingId(problemId);
     try {
-      await dsaApi.completeReview(problemId, quality);
+      const result = await dsaApi.completeReview(problemId, quality);
       setCompletedIds((prev) => new Set([...prev, problemId]));
+      setReviewNotice(
+        result.nextReviewIn
+          ? `Review saved. Next review in ${result.nextReviewIn}.`
+          : "Review saved and rescheduled.",
+      );
+      await loadReviewQueue();
     } catch (err) {
       console.error("Failed to complete review:", err);
     } finally {
@@ -115,6 +122,25 @@ export default function ReviewQueuePage() {
           <RefreshCw size={14} />
           Refresh
         </button>
+      </div>
+
+      <div className="rounded-2xl border border-cyan-500/15 bg-cyan-500/5 p-5">
+        <div className="flex items-center gap-2 mb-2">
+          <Zap className="text-cyan-400" size={18} />
+          <span className="text-sm font-bold text-cyan-300 uppercase tracking-wider">
+            Adaptive Spaced Repetition
+          </span>
+        </div>
+        <p className="text-sm text-gray-300 leading-relaxed">
+          Your recall quality controls the next interval. Hard recalls shorten
+          the gap, strong recalls stretch it, and the queue re-ranks the next
+          session automatically.
+        </p>
+        {reviewNotice && (
+          <p className="mt-3 text-xs font-medium text-cyan-200">
+            {reviewNotice}
+          </p>
+        )}
       </div>
 
       {/* Stats Cards */}

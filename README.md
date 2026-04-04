@@ -84,6 +84,8 @@ The following reliability upgrades were implemented:
 - **Consistent Dark Theme:** All navigation, overlays, and controls are styled for a cohesive dark mode experience.
 - **Animated Transitions:** Smooth transitions and subtle animations throughout the dashboard and roadmap.
 - **Accessibility:** Improved contrast, focus states, and keyboard navigation for better accessibility.
+- **Smoother Scrolling:** The main dashboard scroll container now uses momentum scrolling and smoother reveal animations.
+- **Faster Dashboard Load:** Core stats render first, while activity and topic snapshots continue loading in the background.
 
 These improvements make the DSA Tracker more engaging, visually appealing, and user-friendly. For details on customizing or extending these effects, see the relevant components in `frontend/src/components/roadmap/`, `dashboard/`, and `ui/`.
 

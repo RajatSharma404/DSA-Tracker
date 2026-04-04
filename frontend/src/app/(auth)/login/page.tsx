@@ -65,7 +65,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative min-h-screen w-full bg-[#050505] flex items-center justify-center overflow-hidden p-6 font-sans">
+    <div
+      className="relative min-h-screen w-full bg-[#050505] flex items-center justify-center overflow-hidden p-6 font-sans"
+      data-scroll-reveal
+    >
       {/* Balanced Radial Glows */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-150 w-150 rounded-full bg-blue-500/10 blur-[120px] pointer-events-none"></div>
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-200 w-200 rounded-full bg-purple-500/5 blur-[160px] pointer-events-none"></div>
@@ -87,7 +90,10 @@ export default function LoginPage() {
         </div>
 
         {/* Main Card */}
-        <div className="w-full bg-[#0d0d0d] border border-white/10 p-10 rounded-[2.5rem] shadow-2xl backdrop-blur-xl">
+        <div
+          className="w-full bg-[#0d0d0d] border border-white/10 p-10 rounded-[2.5rem] shadow-2xl backdrop-blur-xl"
+          data-scroll-reveal
+        >
           <div className="space-y-8">
             <div className="text-center space-y-2">
               <h2 className="text-xl font-semibold text-white">Welcome back</h2>

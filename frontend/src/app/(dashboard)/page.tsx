@@ -79,6 +79,47 @@ export default function Dashboard() {
   const [topicsSnapshot, setTopicsSnapshot] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const recentSolvedCount = (days: number) => {
+    if (activityData.length === 0) return 0;
+    const cutoff = new Date();
+    cutoff.setHours(0, 0, 0, 0);
+    cutoff.setDate(cutoff.getDate() - (days - 1));
+    return activityData
+      .filter((item) => new Date(item.date) >= cutoff)
+      .reduce((sum, item) => sum + item.count, 0);
+  };
+
+  const solvedLast7d = recentSolvedCount(7);
+  const solvedLast30d = recentSolvedCount(30);
+  const weeklyPace = solvedLast7d / 7;
+  const projected30d = Math.round(weeklyPace * 30);
+  const remainingToFinish = stats
+    ? Math.max(0, stats.totalProblems - stats.solvedProblems)
+    : 0;
+  const projectedDaysToFinish =
+    weeklyPace > 0
+      ? Math.max(1, Math.ceil(remainingToFinish / weeklyPace))
+      : null;
+  const nextMilestonePct = !stats
+    ? null
+    : stats.progressPercentage < 50
+      ? 50
+      : stats.progressPercentage < 75
+        ? 75
+        : 100;
+  const problemsToNextMilestone =
+    stats && nextMilestonePct !== null
+      ? Math.max(
+          0,
+          Math.ceil((stats.totalProblems * nextMilestonePct) / 100) -
+            stats.solvedProblems,
+        )
+      : 0;
+  const projectedDaysToNextMilestone =
+    weeklyPace > 0 && nextMilestonePct !== null
+      ? Math.max(1, Math.ceil(problemsToNextMilestone / weeklyPace))
+      : null;
+
   const formatApiError = (error: unknown) => {
     const err = error as any;
     const message =
@@ -95,22 +136,26 @@ export default function Dashboard() {
       const statsData = await dsaApi.getDashboardStats();
       setStats(statsData);
 
-      try {
-        const actData = await dsaApi.getActivityData();
-        setActivityData(actData);
-      } catch (activityError) {
-        // Keep dashboard usable if activity endpoint is rate limited.
-        console.warn("Activity data unavailable", activityError);
-        setActivityData([]);
-      }
+      setLoading(false);
 
-      try {
-        const topicsData = await dsaApi.getTopics();
-        setTopicsSnapshot(topicsData);
-      } catch (topicsError) {
-        console.warn("Topic snapshot unavailable", topicsError);
-        setTopicsSnapshot([]);
-      }
+      void Promise.allSettled([
+        dsaApi.getActivityData(),
+        dsaApi.getTopics(),
+      ]).then(([activityResult, topicsResult]) => {
+        if (activityResult.status === "fulfilled") {
+          setActivityData(activityResult.value);
+        } else {
+          console.warn("Activity data unavailable", activityResult.reason);
+          setActivityData([]);
+        }
+
+        if (topicsResult.status === "fulfilled") {
+          setTopicsSnapshot(topicsResult.value);
+        } else {
+          console.warn("Topic snapshot unavailable", topicsResult.reason);
+          setTopicsSnapshot([]);
+        }
+      });
 
       setDashboardError(null);
 
@@ -234,6 +279,170 @@ export default function Dashboard() {
 
       {/* Daily Focus — Problem of the Day */}
       <DailyFocus />
+
+      <div className="grid gap-4 lg:grid-cols-12">
+        <div className="lg:col-span-7 rounded-[2.25rem] border border-cyan-500/15 bg-linear-to-br from-cyan-500/10 via-blue-500/5 to-[#0d0d0d] p-6 relative overflow-hidden">
+          <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.18),transparent_40%)]" />
+          <div className="relative flex items-start justify-between gap-4">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-cyan-300">
+                <Target size={12} />
+                Today&apos;s Action
+              </div>
+              <h2 className="mt-4 text-2xl font-black tracking-tight text-white">
+                {stats.nextAction?.title || "Keep moving forward"}
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm text-gray-300">
+                {stats.nextAction?.reason ||
+                  "The tracker will surface a review, weakness, or momentum task here as your data grows."}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-right">
+              <p className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+                Mode
+              </p>
+              <p className="mt-1 text-xs font-black uppercase tracking-widest text-cyan-300">
+                {stats.nextAction?.mode?.replaceAll("_", " ") || "Balanced"}
+              </p>
+            </div>
+          </div>
+
+          <div className="relative mt-5 grid gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl border border-white/5 bg-black/20 px-4 py-3">
+              <p className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+                Topic
+              </p>
+              <p className="mt-1 text-sm font-bold text-white">
+                {stats.nextAction?.topic || "Warm-up"}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-white/5 bg-black/20 px-4 py-3">
+              <p className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+                Difficulty
+              </p>
+              <p className="mt-1 text-sm font-bold text-white">
+                {stats.nextAction?.difficulty || "EASY"}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-white/5 bg-black/20 px-4 py-3">
+              <p className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+                Estimate
+              </p>
+              <p className="mt-1 text-sm font-bold text-white">
+                {stats.nextAction?.estimatedMinutes || 20} min
+              </p>
+            </div>
+          </div>
+
+          <div className="relative mt-5 flex flex-wrap gap-3">
+            <Link
+              href={
+                stats.nextAction?.mode === "REVISION"
+                  ? "/review"
+                  : "/recommendations"
+              }
+              className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-black transition-transform hover:scale-[1.02] active:scale-[0.98]"
+            >
+              {stats.nextAction?.cta || "Open next step"}
+              <ArrowRight size={12} />
+            </Link>
+            <Link
+              href="/recommendations"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/5 bg-white/5 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-gray-300 transition-colors hover:bg-white/10"
+            >
+              View full plan
+            </Link>
+          </div>
+        </div>
+
+        <div className="lg:col-span-5 grid gap-4 sm:grid-cols-2">
+          <div
+            className="border border-white/5 bg-[#0d0d0d] p-5"
+            style={{ borderRadius: "2rem" }}
+          >
+            <p className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+              Next Review
+            </p>
+            <p className="mt-2 text-sm font-bold text-white">
+              {stats.revisions[0]?.title || "No review due right now"}
+            </p>
+            <p className="mt-1 text-[11px] text-gray-500">
+              {stats.revisions[0]
+                ? `${stats.revisions[0].topicName} - ${stats.revisions[0].daysSince} days since solve`
+                : "Spaced repetition will surface stale problems here."}
+            </p>
+          </div>
+
+          <div
+            className="border border-white/5 bg-[#0d0d0d] p-5"
+            style={{ borderRadius: "2rem" }}
+          >
+            <p className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+              Weakest Topic
+            </p>
+            <p className="mt-2 text-sm font-bold text-white">
+              {stats.weakTopics[0]?.name || "None detected"}
+            </p>
+            <p className="mt-1 text-[11px] text-gray-500">
+              {stats.weakTopics[0]
+                ? `${stats.weakTopics[0].avgTimeSpent} min avg solve time`
+                : "Weak-topic coaching will appear once the tracker has enough data."}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-2xl border border-white/5 bg-[#0d0d0d] p-5">
+          <p className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+            Recent Pace
+          </p>
+          <p className="mt-2 text-2xl font-black text-white">
+            {solvedLast7d} in 7d
+          </p>
+          <p className="mt-1 text-[11px] text-gray-500">
+            {solvedLast30d} solved in the last 30 days
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-white/5 bg-[#0d0d0d] p-5">
+          <p className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+            30-Day Projection
+          </p>
+          <p className="mt-2 text-2xl font-black text-white">
+            {projected30d} solves
+          </p>
+          <p className="mt-1 text-[11px] text-gray-500">
+            Based on your current weekly pace
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-white/5 bg-[#0d0d0d] p-5">
+          <p className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+            Finish Forecast
+          </p>
+          <p className="mt-2 text-2xl font-black text-white">
+            {projectedDaysToFinish ? `${projectedDaysToFinish}d` : "—"}
+          </p>
+          <p className="mt-1 text-[11px] text-gray-500">
+            Estimated time to clear the roadmap at current pace
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-white/5 bg-[#0d0d0d] p-5">
+          <p className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+            Next Milestone
+          </p>
+          <p className="mt-2 text-2xl font-black text-white">
+            {nextMilestonePct ? `${nextMilestonePct}%` : "—"}
+          </p>
+          <p className="mt-1 text-[11px] text-gray-500">
+            {projectedDaysToNextMilestone
+              ? `${projectedDaysToNextMilestone}d to reach this milestone`
+              : "Keep solving to unlock a forecast"}
+          </p>
+        </div>
+      </div>
 
       <div className="grid gap-6 md:grid-cols-12">
         <div className="md:col-span-8">

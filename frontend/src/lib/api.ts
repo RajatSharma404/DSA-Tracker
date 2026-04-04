@@ -149,6 +149,17 @@ export interface DashboardStats {
     topicName: string;
     daysSince: number;
   }>;
+  nextAction?: NextAction;
+}
+
+export interface NextAction {
+  mode: "REVISION" | "WEAKNESS" | "BUILD_MOMENTUM" | "BALANCED";
+  title: string;
+  topic: string;
+  reason: string;
+  cta: string;
+  difficulty: string;
+  estimatedMinutes: number;
 }
 
 export interface Topic {
@@ -567,7 +578,14 @@ export const dsaApi = {
     const res = await api.get("/review-queue");
     return res.data;
   },
-  completeReview: async (problemId: string, quality: number) => {
+  completeReview: async (
+    problemId: string,
+    quality: number,
+  ): Promise<{
+    nextReviewIn?: string;
+    interval?: number;
+    easinessFactor?: number;
+  }> => {
     const res = await api.post("/review-queue/complete", {
       problemId,
       quality,

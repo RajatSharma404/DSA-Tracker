@@ -261,6 +261,21 @@ export const getAIRecommendations = async (
   }>,
   weakTopics: string[],
   allTopics: string[],
+  context?: {
+    revisionReminders?: Array<{
+      id: string;
+      title: string;
+      topicName: string;
+      daysSince: number;
+    }>;
+    weakTopicBreakdown?: Array<{
+      name: string;
+      avgTimeSpent?: number;
+      completionPct?: number;
+    }>;
+    solvedLast7d?: number;
+    solvedLast30d?: number;
+  },
 ) => {
   // Calculate experience metrics
   const totalSolved = solvedProblems.length;
@@ -294,6 +309,68 @@ export const getAIRecommendations = async (
       difficulty,
     };
   });
+
+  const latestRevision = context?.revisionReminders?.[0];
+  const weakestTopicName =
+    weakTopics[0] || context?.weakTopicBreakdown?.[0]?.name;
+  const weakestTopicStats =
+    weakestTopicName && context?.weakTopicBreakdown
+      ? context.weakTopicBreakdown.find(
+          (topic) => topic.name === weakestTopicName,
+        )
+      : undefined;
+  const hasMomentumGap = (context?.solvedLast7d ?? 0) === 0 && totalSolved >= 1;
+
+  const nextAction = latestRevision
+    ? {
+        mode: "REVISION" as const,
+        title: `Review ${latestRevision.title}`,
+        topic: latestRevision.topicName,
+        reason: `This problem is already due for review after ${latestRevision.daysSince} days.`,
+        cta: "Open review queue",
+        difficulty: "REVIEW",
+        estimatedMinutes: Math.max(
+          10,
+          Math.min(45, latestRevision.daysSince * 5),
+        ),
+      }
+    : weakestTopicName
+      ? {
+          mode: "WEAKNESS" as const,
+          title: `Practice ${weakestTopicName}`,
+          topic: weakestTopicName,
+          reason: weakestTopicStats
+            ? weakestTopicStats.avgTimeSpent
+              ? `This topic is slowing you down at about ${weakestTopicStats.avgTimeSpent} minutes per solved problem.`
+              : weakestTopicStats.completionPct !== undefined
+                ? `This topic is only ${Math.round(weakestTopicStats.completionPct)}% complete.`
+                : "This is one of your weakest topics right now."
+            : "This is one of your weakest topics right now.",
+          cta: "Start practice",
+          difficulty: suggestedProblems[0]?.difficulty || "EASY",
+          estimatedMinutes: Math.max(20, weakestTopicStats?.avgTimeSpent || 20),
+        }
+      : hasMomentumGap
+        ? {
+            mode: "BUILD_MOMENTUM" as const,
+            title: "Solve one easy problem",
+            topic: allTopics[0] || "Warm-up",
+            reason:
+              "You have recent activity, but not enough momentum this week. Keep the streak alive with a short warm-up.",
+            cta: "Pick an easy win",
+            difficulty: "EASY",
+            estimatedMinutes: 20,
+          }
+        : {
+            mode: "BALANCED" as const,
+            title: "Mix review with new practice",
+            topic: allTopics[0] || "Balanced practice",
+            reason:
+              "You are in a steady state. Blend one review problem with one new problem to keep both recall and growth active.",
+            cta: "Open recommendations",
+            difficulty: suggestedProblems[0]?.difficulty || "EASY",
+            estimatedMinutes: 30,
+          };
 
   // Weekly plan (same as before)
   const weekdayTopics = candidateTopics.length
@@ -367,5 +444,6 @@ export const getAIRecommendations = async (
     suggestedProblems,
     weeklyPlan,
     tips,
+    nextAction,
   };
 };

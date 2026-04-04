@@ -1,14 +1,27 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { dsaApi, MockInterview } from "@/lib/api";
-import { Plus, Target, CalendarDays, MessageSquare } from "lucide-react";
+import { dsaApi, MockInterview, Topic } from "@/lib/api";
+import {
+  Plus,
+  Target,
+  CalendarDays,
+  MessageSquare,
+  Timer,
+  Zap,
+} from "lucide-react";
 import { format } from "date-fns";
+import { useRouter } from "next/navigation";
 
 export default function InterviewsPage() {
   const [interviews, setInterviews] = useState<MockInterview[]>([]);
+  const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
+  const [challengeTopicId, setChallengeTopicId] = useState("");
+  const [challengeDuration, setChallengeDuration] = useState(30);
+  const [startingChallenge, setStartingChallenge] = useState(false);
+  const router = useRouter();
 
   // Form State
   const [date, setDate] = useState("");
@@ -17,6 +30,10 @@ export default function InterviewsPage() {
 
   useEffect(() => {
     loadInterviews();
+    dsaApi
+      .getTopics()
+      .then(setTopics)
+      .catch((err) => console.error("Failed to load topics", err));
   }, []);
 
   async function loadInterviews() {
@@ -29,6 +46,22 @@ export default function InterviewsPage() {
       setLoading(false);
     }
   }
+
+  const startMockInterview = async () => {
+    if (!challengeTopicId) return;
+    setStartingChallenge(true);
+    try {
+      const session = await dsaApi.startChallenge(
+        challengeTopicId,
+        challengeDuration,
+      );
+      router.push(`/challenge/${session.id}`);
+    } catch (err) {
+      console.error("Failed to start interview mode", err);
+    } finally {
+      setStartingChallenge(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,6 +130,75 @@ export default function InterviewsPage() {
         >
           <Plus size={18} /> Add Session
         </button>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-12">
+        <div className="lg:col-span-7 rounded-2xl border border-cyan-500/15 bg-cyan-500/5 p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Zap className="text-cyan-400" size={18} />
+            <h2 className="text-lg font-bold text-white">
+              Start Interview Mode
+            </h2>
+          </div>
+          <p className="text-sm text-gray-400 mb-4">
+            Launch a timed challenge from the topic you want to practice most.
+          </p>
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="space-y-2">
+              <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">
+                Topic
+              </span>
+              <select
+                value={challengeTopicId}
+                onChange={(e) => setChallengeTopicId(e.target.value)}
+                className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none focus:border-cyan-400"
+              >
+                <option value="">Choose a topic</option>
+                {topics.map((topic) => (
+                  <option key={topic.id} value={topic.id}>
+                    {topic.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="space-y-2">
+              <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">
+                Duration
+              </span>
+              <div className="grid grid-cols-3 gap-2">
+                {[20, 30, 45].map((minutes) => (
+                  <button
+                    key={minutes}
+                    type="button"
+                    onClick={() => setChallengeDuration(minutes)}
+                    className={`rounded-xl border px-3 py-3 text-sm font-bold transition-colors ${challengeDuration === minutes ? "border-cyan-400 bg-cyan-400/10 text-cyan-300" : "border-white/10 bg-black/20 text-gray-400 hover:text-white"}`}
+                  >
+                    {minutes}m
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={startMockInterview}
+            disabled={!challengeTopicId || startingChallenge}
+            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-black transition-transform hover:scale-[1.02] disabled:opacity-50"
+          >
+            <Timer size={12} />
+            {startingChallenge ? "Launching..." : "Enter Arena"}
+          </button>
+        </div>
+
+        <div className="lg:col-span-5 rounded-2xl border border-white/5 bg-[#0d0d0d] p-6">
+          <h3 className="text-sm font-black uppercase tracking-widest text-gray-400">
+            Why it helps
+          </h3>
+          <div className="mt-3 space-y-3 text-sm text-gray-300">
+            <p>Timed practice improves recall under pressure.</p>
+            <p>Topic selection keeps sessions focused on your weak spots.</p>
+            <p>The result can be logged right below after the run.</p>
+          </div>
+        </div>
       </div>
 
       {isAdding && (
@@ -182,7 +284,7 @@ export default function InterviewsPage() {
               key={interview.id}
               className="bg-[#111] border border-[#222] p-6 rounded-xl flex flex-col sm:flex-row gap-6"
             >
-              <div className="flex-shrink-0 flex flex-col items-center justify-center p-4 bg-[#1a1a1a] rounded-lg w-24">
+              <div className="shrink-0 flex flex-col items-center justify-center p-4 bg-[#1a1a1a] rounded-lg w-24">
                 <span className="text-3xl font-bold text-white">
                   {interview.score || "-"}
                 </span>
@@ -199,7 +301,7 @@ export default function InterviewsPage() {
                   <div className="flex gap-3">
                     <MessageSquare
                       size={18}
-                      className="text-gray-500 flex-shrink-0 mt-0.5"
+                      className="text-gray-500 shrink-0 mt-0.5"
                     />
                     <p className="text-gray-300 leading-relaxed text-sm">
                       {interview.feedback}
