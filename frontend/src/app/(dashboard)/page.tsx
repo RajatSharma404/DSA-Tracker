@@ -14,14 +14,19 @@ import {
   Target,
 } from "lucide-react";
 import Link from "next/link";
+import {
+  Skeleton,
+  ActivityCardSkeleton,
+  StatsCardSkeleton,
+} from "@/components/ui/Skeleton";
+import { DESIGN_TOKENS } from "@/lib/design-tokens";
+import { useToastNotification } from "@/components/providers/ToastProvider";
 
 const ActivityHeatmap = dynamic(
   () => import("@/components/dashboard/ActivityHeatmap"),
   {
     ssr: false,
-    loading: () => (
-      <div className="h-48 animate-pulse rounded-2xl border border-white/5 bg-white/3" />
-    ),
+    loading: () => <ActivityCardSkeleton />,
   },
 );
 
@@ -29,33 +34,25 @@ const LeetCodeSync = dynamic(
   () => import("@/components/dashboard/LeetCodeSync"),
   {
     ssr: false,
-    loading: () => (
-      <div className="h-28 animate-pulse rounded-2xl border border-white/5 bg-white/3" />
-    ),
+    loading: () => <Skeleton variant="card" className="h-28" />,
   },
 );
 
 const SkillRadar = dynamic(() => import("@/components/dashboard/SkillRadar"), {
   ssr: false,
-  loading: () => (
-    <div className="h-52 animate-pulse rounded-2xl border border-white/5 bg-white/3" />
-  ),
+  loading: () => <Skeleton variant="chart" />,
 });
 
 const DailyFocus = dynamic(() => import("@/components/dashboard/DailyFocus"), {
   ssr: false,
-  loading: () => (
-    <div className="h-36 animate-pulse rounded-2xl border border-white/5 bg-white/3" />
-  ),
+  loading: () => <Skeleton variant="card" className="h-36" />,
 });
 
 const BadgeShowcase = dynamic(
   () => import("@/components/dashboard/BadgeShowcase"),
   {
     ssr: false,
-    loading: () => (
-      <div className="h-44 animate-pulse rounded-2xl border border-white/5 bg-white/3" />
-    ),
+    loading: () => <Skeleton variant="card" className="h-44" />,
   },
 );
 
@@ -63,14 +60,13 @@ const StatCard = dynamic(
   () => import("@/components/ui/StatCard").then((mod) => mod.StatCard),
   {
     ssr: false,
-    loading: () => (
-      <div className="h-32 animate-pulse rounded-2xl border border-white/5 bg-white/3" />
-    ),
+    loading: () => <StatsCardSkeleton />,
   },
 );
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
+  const { error: errorToast } = useToastNotification();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [dashboardError, setDashboardError] = useState<string | null>(null);
   const [activityData, setActivityData] = useState<
@@ -193,9 +189,11 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error("Failed to load dashboard data", error);
-      setDashboardError(formatApiError(error));
+      const errorMsg = formatApiError(error);
+      setDashboardError(errorMsg);
       setStats(null);
       setActivityData([]);
+      errorToast("Failed to load dashboard data. Please try again.");
     } finally {
       setLoading(false);
     }

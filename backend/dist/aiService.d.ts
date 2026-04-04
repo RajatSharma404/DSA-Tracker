@@ -101,7 +101,21 @@ export declare const getAIRecommendations: (solvedProblems: Array<{
     difficulty: string;
     score: number;
     isOptimal: boolean;
-}>, weakTopics: string[], allTopics: string[]) => Promise<{
+}>, weakTopics: string[], allTopics: string[], context?: {
+    revisionReminders?: Array<{
+        id: string;
+        title: string;
+        topicName: string;
+        daysSince: number;
+    }>;
+    weakTopicBreakdown?: Array<{
+        name: string;
+        avgTimeSpent?: number;
+        completionPct?: number;
+    }>;
+    solvedLast7d?: number;
+    solvedLast30d?: number;
+}) => Promise<{
     weakTopics: string[];
     suggestedProblems: {
         title: string;
@@ -116,5 +130,38 @@ export declare const getAIRecommendations: (solvedProblems: Array<{
         problems: string[];
     }[];
     tips: any[];
+    nextAction: {
+        mode: "REVISION";
+        title: string;
+        topic: string;
+        reason: string;
+        cta: string;
+        difficulty: string;
+        estimatedMinutes: number;
+    } | {
+        mode: "WEAKNESS";
+        title: string;
+        topic: string;
+        reason: string;
+        cta: string;
+        difficulty: string;
+        estimatedMinutes: number;
+    } | {
+        mode: "BUILD_MOMENTUM";
+        title: string;
+        topic: string;
+        reason: string;
+        cta: string;
+        difficulty: string;
+        estimatedMinutes: number;
+    } | {
+        mode: "BALANCED";
+        title: string;
+        topic: string;
+        reason: string;
+        cta: string;
+        difficulty: string;
+        estimatedMinutes: number;
+    };
 }>;
 //# sourceMappingURL=aiService.d.ts.map

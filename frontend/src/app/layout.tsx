@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import NextAuthProvider from "@/components/providers/NextAuthProvider";
+import { ToastProvider } from "@/components/providers/ToastProvider";
+import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 
 export const metadata: Metadata = {
   title: "DSA Tracker Pro",
@@ -15,7 +17,12 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className="antialiased bg-[#0a0a0a] text-gray-100 flex h-screen overflow-hidden">
-        <NextAuthProvider>{children}</NextAuthProvider>
+        <ErrorBoundary>
+          <NextAuthProvider>
+            <ToastProvider />
+            {children}
+          </NextAuthProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

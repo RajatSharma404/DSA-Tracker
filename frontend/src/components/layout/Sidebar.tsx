@@ -65,6 +65,8 @@ export function Sidebar() {
       className={`flex flex-col h-screen bg-[#111111] text-gray-400 border-r border-[#222] transition-all duration-300 ${
         effectiveCollapsed ? "w-16" : "w-64"
       }`}
+      role="navigation"
+      aria-label="Main navigation"
     >
       <div className="flex items-center justify-between p-4 border-b border-[#222]">
         {!effectiveCollapsed && (
@@ -73,12 +75,16 @@ export function Sidebar() {
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="p-1 rounded hover:bg-[#222] text-gray-400 hover:text-white transition-colors ml-auto"
+          aria-label={
+            effectiveCollapsed ? "Expand navigation" : "Collapse navigation"
+          }
+          aria-expanded={!effectiveCollapsed}
         >
           <Menu size={20} />
         </button>
       </div>
 
-      <nav className="flex-1 py-4 space-y-1">
+      <nav className="flex-1 py-4 space-y-1" aria-label="Navigation menu">
         {displayItems.map((item) => {
           const isActive =
             pathname === item.href ||
@@ -92,6 +98,8 @@ export function Sidebar() {
                   ? "bg-[#222] text-white border-r-2 border-white"
                   : "hover:bg-[#1a1a1a] hover:text-gray-200"
               }`}
+              aria-current={isActive ? "page" : undefined}
+              title={effectiveCollapsed ? item.label : undefined}
             >
               <item.icon size={20} className={isActive ? "text-white" : ""} />
               {!effectiveCollapsed && (
@@ -108,11 +116,14 @@ export function Sidebar() {
             {session.user.image ? (
               <img
                 src={session.user.image}
-                alt="Profile"
+                alt={`${session.user.name}'s profile picture`}
                 className="w-8 h-8 rounded-full"
               />
             ) : (
-              <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-white text-xs">
+              <div
+                className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-white text-xs"
+                aria-label="Profile initials"
+              >
                 {session.user.name?.charAt(0) || "U"}
               </div>
             )}
@@ -130,6 +141,7 @@ export function Sidebar() {
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
           className={`flex items-center w-full px-2 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-[#222] rounded-lg transition-colors ${effectiveCollapsed ? "justify-center" : ""}`}
+          aria-label="Sign out"
         >
           <LogOut size={20} />
           {!effectiveCollapsed && <span className="ml-3">Sign Out</span>}

@@ -67,6 +67,56 @@ const notifyLogin = async (email) => {
         console.error("Failed to send login notification email:", error);
     }
 };
+const buildNextAction = (weakTopics, revisions, solvedLast7d = 0) => {
+    const revision = revisions[0];
+    if (revision) {
+        return {
+            mode: "REVISION",
+            title: `Review ${revision.title}`,
+            topic: revision.topicName,
+            reason: `This problem is already due for spaced repetition after ${revision.daysSince} days.`,
+            cta: "Open review queue",
+            difficulty: "REVIEW",
+            estimatedMinutes: Math.max(10, Math.min(45, revision.daysSince * 5)),
+        };
+    }
+    const weakTopic = weakTopics[0];
+    if (weakTopic) {
+        return {
+            mode: "WEAKNESS",
+            title: `Practice ${weakTopic.name}`,
+            topic: weakTopic.name,
+            reason: weakTopic.avgTimeSpent
+                ? `This is slowing you down at about ${weakTopic.avgTimeSpent} minutes per solved problem.`
+                : weakTopic.completionPct !== undefined
+                    ? `This topic is only ${Math.round(weakTopic.completionPct)}% complete.`
+                    : "This is one of your weakest topics right now.",
+            cta: "Start practice",
+            difficulty: "EASY",
+            estimatedMinutes: Math.max(20, weakTopic.avgTimeSpent || 20),
+        };
+    }
+    if (solvedLast7d === 0) {
+        return {
+            mode: "BUILD_MOMENTUM",
+            title: "Solve one easy problem",
+            topic: "Warm-up",
+            reason: "There is not enough recent activity this week. A short warm-up keeps the streak alive.",
+            cta: "Pick an easy win",
+            difficulty: "EASY",
+            estimatedMinutes: 20,
+        };
+    }
+    return {
+        mode: "BALANCED",
+        title: "Mix review with new practice",
+        topic: "Balanced practice",
+        reason: "You are in a steady state. Blend one review problem with one new problem to keep recall and growth active.",
+        cta: "Open recommendations",
+        difficulty: "MEDIUM",
+        estimatedMinutes: 30,
+    };
+};
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 // Request logger
@@ -136,16 +186,18 @@ const requireAdmin = (req, res, next) => {
 app.get("/api/dashboard", requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
-        const totalProblems = await prisma.problem.count();
-        const solvedProblems = await prisma.progress.count({
-            where: { userId, status: "DONE" },
-        });
-        const streak = await prisma.streak.findUnique({
-            where: { userId },
-        });
-        // Pass userId to services if they require it, adjusting as needed
-        const weakTopics = await (0, services_1.getWeakTopics)(userId);
-        const revisions = await (0, services_1.getRevisionReminders)(userId);
+        const [totalProblems, solvedProblems, streak, weakTopics, revisions] = await Promise.all([
+            prisma.problem.count(),
+            prisma.progress.count({
+                where: { userId, status: "DONE" },
+            }),
+            prisma.streak.findUnique({
+                where: { userId },
+            }),
+            (0, services_1.getWeakTopics)(userId),
+            (0, services_1.getRevisionReminders)(userId),
+        ]);
+        const nextAction = buildNextAction(weakTopics, revisions);
         res.json({
             totalProblems,
             solvedProblems,
@@ -156,6 +208,7 @@ app.get("/api/dashboard", requireAuth, async (req, res) => {
             longestStreak: streak?.longestStreak || 0,
             weakTopics,
             revisions,
+            nextAction,
         });
     }
     catch (error) {
@@ -2936,7 +2989,7 @@ app.get("/api/export/progress", requireAuth, async (req, res) => {
 app.get("/api/ai/recommendations", requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
-        const [allTopicsWithProblems, solvedProgress, solutions] = await Promise.all([
+        const [allTopicsWithProblems, solvedProgress, solutions, revisions] = await Promise.all([
             prisma.topic.findMany({
                 include: {
                     problems: {
@@ -2956,6 +3009,7 @@ app.get("/api/ai/recommendations", requireAuth, async (req, res) => {
                 orderBy: { createdAt: "desc" },
                 take: 200,
             }),
+            (0, services_1.getRevisionReminders)(userId),
         ]);
         const allTopics = allTopicsWithProblems.map((t) => ({
             id: t.id,
@@ -3007,7 +3061,18 @@ app.get("/api/ai/recommendations", requireAuth, async (req, res) => {
         const monthAgo = now - 30 * 24 * 60 * 60 * 1000;
         const solvedLast7d = solvedProgress.filter((p) => p.completedAt && new Date(p.completedAt).getTime() >= weekAgo).length;
         const solvedLast30d = solvedProgress.filter((p) => p.completedAt && new Date(p.completedAt).getTime() >= monthAgo).length;
-        const recommendations = await (0, aiService_1.getAIRecommendations)(solvedProblems, weakTopics, topicNames);
+        const recommendations = await (0, aiService_1.getAIRecommendations)(solvedProblems, weakTopics, topicNames, {
+            revisionReminders: revisions,
+            weakTopicBreakdown: topicCompletion
+                .filter((t) => weakTopics.includes(t.name))
+                .slice(0, 5)
+                .map((topic) => ({
+                name: topic.name,
+                completionPct: topic.completionPct,
+            })),
+            solvedLast7d,
+            solvedLast30d,
+        });
         res.json({
             ...recommendations,
             strongTopics,
@@ -3023,6 +3088,13 @@ app.get("/api/ai/recommendations", requireAuth, async (req, res) => {
                 solvedLast7d,
                 solvedLast30d,
             },
+            nextAction: buildNextAction(topicCompletion
+                .filter((t) => weakTopics.includes(t.name))
+                .slice(0, 5)
+                .map((topic) => ({
+                name: topic.name,
+                completionPct: topic.completionPct,
+            })), revisions, solvedLast7d),
         });
     }
     catch (err) {

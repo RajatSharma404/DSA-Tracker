@@ -161,7 +161,7 @@ export default function ActivityHeatmap({ data }: ActivityHeatmapProps) {
         </div>
       </div>
 
-      <div className="relative border border-white/5 bg-white/[0.01] p-6 rounded-[2rem] overflow-hidden group/heatmap">
+      <div className="relative border border-white/5 bg-white/1 p-6 rounded-4xl overflow-hidden group/heatmap">
         {/* Watermark Icon */}
         <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none group-hover/heatmap:opacity-[0.05] transition-opacity duration-700">
           <Calendar size={120} className="text-white" />
@@ -191,19 +191,19 @@ export default function ActivityHeatmap({ data }: ActivityHeatmapProps) {
             <div className="flex gap-4">
               {/* Day labels */}
               <div className="flex flex-col justify-between text-[8px] text-gray-600 font-black uppercase py-1 w-10 shrink-0">
-                <span className="h-[11px] leading-[11px]">Mon</span>
-                <span className="h-[11px] leading-[11px] opacity-0">Tue</span>
-                <span className="h-[11px] leading-[11px]">Wed</span>
-                <span className="h-[11px] leading-[11px] opacity-0">Thu</span>
-                <span className="h-[11px] leading-[11px]">Fri</span>
-                <span className="h-[11px] leading-[11px] opacity-0">Sat</span>
-                <span className="h-[11px] leading-[11px] opacity-0">Sun</span>
+                <span className="h-2.75 leading-2.75">Mon</span>
+                <span className="h-2.75 leading-2.75 opacity-0">Tue</span>
+                <span className="h-2.75 leading-2.75">Wed</span>
+                <span className="h-2.75 leading-2.75 opacity-0">Thu</span>
+                <span className="h-2.75 leading-2.75">Fri</span>
+                <span className="h-2.75 leading-2.75 opacity-0">Sat</span>
+                <span className="h-2.75 leading-2.75 opacity-0">Sun</span>
               </div>
 
               {/* The Grid */}
-              <div className="flex gap-[4px] flex-1">
+              <div className="flex gap-1 flex-1">
                 {weeks.map((week, weekIdx) => (
-                  <div key={weekIdx} className="flex flex-col gap-[4px]">
+                  <div key={weekIdx} className="flex flex-col gap-1">
                     {week.map((day, dayIdx) => {
                       const dateStr = day ? format(day, "yyyy-MM-dd") : "";
                       const count = dateStr
@@ -219,7 +219,7 @@ export default function ActivityHeatmap({ data }: ActivityHeatmapProps) {
                               ? undefined
                               : `${count} problems on ${format(day, "MMM d, yyyy")}`
                           }
-                          className={`w-[11px] h-[11px] rounded-[2px] transition-all ${isPlaceholder ? "opacity-0" : `hover:scale-125 hover:z-10 ${getColor(count)}`}`}
+                          className={`w-2.75 h-2.75 rounded-xs transition-all ${isPlaceholder ? "opacity-0" : `hover:scale-125 hover:z-10 ${getColor(count)}`}`}
                         />
                       );
                     })}
@@ -237,12 +237,12 @@ export default function ActivityHeatmap({ data }: ActivityHeatmapProps) {
           </div>
           <div className="flex items-center gap-2">
             <span className="opacity-50">Less</span>
-            <div className="flex gap-[4px]">
-              <div className="w-[10px] h-[10px] bg-[#1a1a1a] rounded-[2px]" />
-              <div className="w-[10px] h-[10px] bg-blue-900/40 rounded-[2px]" />
-              <div className="w-[10px] h-[10px] bg-blue-700/60 rounded-[2px]" />
-              <div className="w-[10px] h-[10px] bg-blue-500/80 rounded-[2px]" />
-              <div className="w-[10px] h-[10px] bg-blue-400 rounded-[2px]" />
+            <div className="flex gap-1">
+              <div className="w-2.5 h-2.5 bg-[#1a1a1a] rounded-xs" />
+              <div className="w-2.5 h-2.5 bg-blue-900/40 rounded-xs" />
+              <div className="w-2.5 h-2.5 bg-blue-700/60 rounded-xs" />
+              <div className="w-2.5 h-2.5 bg-blue-500/80 rounded-xs" />
+              <div className="w-2.5 h-2.5 bg-blue-400 rounded-xs" />
             </div>
             <span className="opacity-50">More</span>
           </div>
