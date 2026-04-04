@@ -39,7 +39,7 @@ export default function SkillRadar() {
 
   if (loading) {
     return (
-      <div className="h-[300px] w-full flex items-center justify-center bg-[#0d0d0d] border border-white/5 rounded-[2rem]">
+      <div className="h-75 w-full flex items-center justify-center bg-[#0d0d0d] border border-white/5 rounded-4xl">
         <Loader2 className="animate-spin text-blue-500" />
       </div>
     );
@@ -51,7 +51,7 @@ export default function SkillRadar() {
       : 0;
 
   return (
-    <div className="relative p-8 rounded-[2rem] bg-[#0d0d0d] border border-white/5 overflow-hidden group">
+    <div className="relative p-8 rounded-4xl bg-[#0d0d0d] border border-white/5 overflow-hidden group">
       {/* Background Glow */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-[60px] rounded-full pointer-events-none -mr-16 -mt-16 group-hover:bg-blue-500/20 transition-all duration-700" />
 
@@ -75,8 +75,13 @@ export default function SkillRadar() {
         </div>
       </div>
 
-      <div className="h-[300px] w-full mt-4">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="h-75 w-full min-w-0 mt-4">
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+          minWidth={320}
+          minHeight={300}
+        >
           <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
             <PolarGrid stroke="#222" strokeDasharray="3 3" />
             <PolarAngleAxis

@@ -85,6 +85,7 @@ The following reliability upgrades were implemented:
 - **Animated Transitions:** Smooth transitions and subtle animations throughout the dashboard and roadmap.
 - **Accessibility:** Improved contrast, focus states, and keyboard navigation for better accessibility.
 - **Smoother Scrolling:** The main dashboard scroll container now uses momentum scrolling and smoother reveal animations.
+- **Anime.js Scroll Reveal:** Sections and cards fade, lift, and sharpen in with an anime.js-powered scroll reveal effect.
 - **Faster Dashboard Load:** Core stats render first, while activity and topic snapshots continue loading in the background.
 
 These improvements make the DSA Tracker more engaging, visually appealing, and user-friendly. For details on customizing or extending these effects, see the relevant components in `frontend/src/components/roadmap/`, `dashboard/`, and `ui/`.

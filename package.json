@@ -9,6 +9,7 @@
     "start": "concurrently \"cd backend && npm start\" \"cd frontend && npm start\""
   },
   "dependencies": {
+    "animejs": "^4.3.6",
     "concurrently": "^8.2.2"
   }
 }

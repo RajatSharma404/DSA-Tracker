@@ -2,25 +2,35 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { animate } from "animejs";
 
 export default function ScrollRevealProvider() {
   const pathname = usePathname();
 
   useEffect(() => {
-    const scrollRoot =
-      document.querySelector<HTMLElement>('[data-scroll-root="true"]') ||
-      document.scrollingElement ||
-      document.documentElement;
+    const scrollRoot = document.querySelector<HTMLElement>(
+      '[data-scroll-root="true"]',
+    );
 
     const explicitElements = Array.from(
-      scrollRoot.querySelectorAll<HTMLElement>("[data-scroll-reveal]"),
+      (scrollRoot || document).querySelectorAll<HTMLElement>(
+        "[data-scroll-reveal]",
+      ),
     );
-    const directChildren = Array.from(scrollRoot.children).filter(
-      (child): child is HTMLElement => child instanceof HTMLElement,
-    );
-    const elements = Array.from(
-      new Set([...explicitElements, ...directChildren]),
-    );
+
+    const autoTargets = scrollRoot
+      ? Array.from(scrollRoot.children).filter(
+          (child): child is HTMLElement =>
+            child instanceof HTMLElement &&
+            !child.classList.contains("animate-pulse"),
+        )
+      : Array.from(document.querySelectorAll("main > *")).filter(
+          (node): node is HTMLElement =>
+            node instanceof HTMLElement &&
+            !node.classList.contains("animate-pulse"),
+        );
+
+    const elements = Array.from(new Set([...explicitElements, ...autoTargets]));
 
     if (elements.length === 0) {
       return;
@@ -32,6 +42,7 @@ export default function ScrollRevealProvider() {
 
     if (reducedMotion) {
       elements.forEach((element) => {
+        element.classList.remove("scroll-reveal");
         element.classList.add("scroll-reveal-visible");
       });
       return;
@@ -43,24 +54,37 @@ export default function ScrollRevealProvider() {
           if (entry.isIntersecting) {
             const target = entry.target as HTMLElement;
             target.classList.add("scroll-reveal-visible");
+            animate(target, {
+              opacity: [0, 1],
+              translateY: [34, 0],
+              scale: [0.985, 1],
+              filter: ["blur(10px)", "blur(0px)"],
+              duration: 760,
+              delay: Number(
+                target.style
+                  .getPropertyValue("--scroll-reveal-delay")
+                  ?.replace("ms", "") || 0,
+              ),
+              easing: "cubicBezier(0.22, 0.82, 0.22, 1)",
+            });
             observer.unobserve(target);
           }
         });
       },
       {
-        threshold: 0.14,
-        rootMargin: "0px 0px -8% 0px",
-        root:
-          scrollRoot === document.scrollingElement ||
-          scrollRoot === document.documentElement
-            ? null
-            : scrollRoot,
+        threshold: 0.16,
+        rootMargin: "0px 0px -10% 0px",
+        root: scrollRoot || null,
       },
     );
 
     elements.forEach((element, index) => {
+      element.classList.remove("scroll-reveal-visible");
       element.classList.add("scroll-reveal");
-      element.style.setProperty("--scroll-reveal-delay", `${index * 70}ms`);
+      element.style.setProperty(
+        "--scroll-reveal-delay",
+        `${Math.min(index, 8) * 75}ms`,
+      );
       observer.observe(element);
     });
 
