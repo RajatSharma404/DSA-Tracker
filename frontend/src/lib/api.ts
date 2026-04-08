@@ -186,6 +186,24 @@ export interface NextAction {
   estimatedMinutes: number;
 }
 
+export interface InterviewReadiness {
+  score: number;
+  level: string;
+  metrics: {
+    timedMediumHard: number;
+    consistency14d: number;
+    revisionReliability: number;
+    topicCoverage: number;
+  };
+  snapshot: {
+    solvedLast14d: number;
+    solvedTotal: number;
+    mediumHardSolved: number;
+    coveredTopics: number;
+    totalTopics: number;
+  };
+}
+
 export interface Topic {
   id: string;
   name: string;
@@ -644,6 +662,10 @@ export const dsaApi = {
   },
   getTimeAnalytics: async () => {
     const res = await api.get("/analytics/time");
+    return res.data;
+  },
+  getInterviewReadiness: async (): Promise<InterviewReadiness> => {
+    const res = await api.get("/analytics/readiness");
     return res.data;
   },
   getAchievements: async () => {

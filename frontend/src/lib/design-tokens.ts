@@ -137,6 +137,28 @@ export function getStatusStyle(
   return DESIGN_TOKENS.colors.status[key];
 }
 
+export function getDifficultyStyle(difficulty: "EASY" | "MEDIUM" | "HARD") {
+  if (difficulty === "EASY") {
+    return {
+      text: "text-green-400",
+      bg: "bg-green-500/10",
+      border: "border-green-500/20",
+    };
+  }
+  if (difficulty === "MEDIUM") {
+    return {
+      text: "text-yellow-400",
+      bg: "bg-yellow-500/10",
+      border: "border-yellow-500/20",
+    };
+  }
+  return {
+    text: "text-red-400",
+    bg: "bg-red-500/10",
+    border: "border-red-500/20",
+  };
+}
+
 /**
  * Card base styles - use for all card/container elements
  */

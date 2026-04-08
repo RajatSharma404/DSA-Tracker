@@ -44,21 +44,20 @@ async function main() {
     });
 
     for (const problemData of topicData.problems) {
-      // Find matches by title within this topic to avoid duplicates
+      // Find matches by link globally to avoid duplicates across topics
       const existingProblem = await prisma.problem.findFirst({
         where: {
-          title: problemData.title,
-          topicId: topic.id,
+          link: problemData.leetcode,
         }
       });
 
       if (existingProblem) {
+        // Update existing problem info but keep its original topic
         await prisma.problem.update({
           where: { id: existingProblem.id },
           data: {
-            link: problemData.leetcode,
+            title: problemData.title, // Update title if needed
             difficulty: problemData.difficulty.toUpperCase() as any,
-            orderIndex: problemData.order,
           }
         });
       } else {

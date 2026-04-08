@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { dsaApi } from "@/lib/api";
+import { dsaApi, type InterviewReadiness } from "@/lib/api";
+import Link from "next/link";
+import { trackEvent, getKpiSnapshot, clearEventLog } from "@/lib/analytics";
 import {
   Timer,
   TrendingUp,
@@ -94,19 +96,30 @@ export default function AnalyticsPage() {
   const [data, setData] = useState<TimeAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
   const [productivity, setProductivity] = useState<any>(null);
+  const [readiness, setReadiness] = useState<InterviewReadiness | null>(null);
+  const [range, setRange] = useState<14 | 30 | 56>(56);
+  const [kpiRange, setKpiRange] = useState<7 | 14>(7);
+  const [kpiSnapshot, setKpiSnapshot] = useState(() => getKpiSnapshot(7));
 
   useEffect(() => {
+    trackEvent("analytics_viewed");
     loadAnalytics();
   }, []);
 
+  useEffect(() => {
+    setKpiSnapshot(getKpiSnapshot(kpiRange));
+  }, [kpiRange]);
+
   const loadAnalytics = async () => {
     try {
-      const [analytics, prod] = await Promise.all([
+      const [analytics, prod, readinessData] = await Promise.all([
         dsaApi.getTimeAnalytics(),
         dsaApi.getProductivityAnalytics().catch(() => null),
+        dsaApi.getInterviewReadiness().catch(() => null),
       ]);
       setData(analytics);
       setProductivity(prod);
+      setReadiness(readinessData);
     } catch (err) {
       console.error(err);
     } finally {
@@ -147,6 +160,19 @@ export default function AnalyticsPage() {
     ...data.topicBreakdown.map((t) => t.totalTime),
     1,
   );
+  const weeksToShow = range === 14 ? 2 : range === 30 ? 4 : 8;
+  const weeklyTrendData = data.weeklyTrends.slice(-weeksToShow);
+  const maxWeeklyAvgFiltered = Math.max(
+    ...weeklyTrendData.map((w) => w.avgTime),
+    1,
+  );
+  const bestSpeedInsight = data.speedInsights
+    .filter((insight) => insight.recentAvg > 0 && insight.olderAvg > 0)
+    .sort((a, b) => b.change - a.change)[0];
+  const focusTopic = data.topicBreakdown[0];
+  const readinessGap = readiness
+    ? 100 - readiness.metrics.revisionReliability
+    : null;
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 min-w-0">
@@ -163,6 +189,183 @@ export default function AnalyticsPage() {
             Speed · Trends · Insights
           </p>
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="p-5 bg-[#0a0a0f] border border-white/5 rounded-2xl">
+          <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">
+            Priority Insight
+          </p>
+          <p className="mt-2 text-sm font-bold text-white">
+            {bestSpeedInsight
+              ? `${bestSpeedInsight.difficulty} got ${Math.abs(bestSpeedInsight.change)}% ${bestSpeedInsight.change >= 0 ? "faster" : "slower"}`
+              : "Keep solving this week to unlock trend insights"}
+          </p>
+          <p className="mt-1 text-[10px] text-gray-600">
+            {bestSpeedInsight
+              ? `${bestSpeedInsight.olderAvg}m to ${bestSpeedInsight.recentAvg}m over the last 4 weeks`
+              : "Your time-trend comparison appears after enough weekly activity"}
+          </p>
+        </div>
+
+        <div className="p-5 bg-[#0a0a0f] border border-white/5 rounded-2xl">
+          <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">
+            Highest Time Investment
+          </p>
+          <p className="mt-2 text-sm font-bold text-white">
+            {focusTopic ? focusTopic.name : "No topic data yet"}
+          </p>
+          <p className="mt-1 text-[10px] text-gray-600">
+            {focusTopic
+              ? `${formatTime(focusTopic.totalTime)} total across ${focusTopic.count} solved problems`
+              : "Solve a few problems to reveal topic-level time concentration"}
+          </p>
+        </div>
+
+        <div className="p-5 bg-[#0a0a0f] border border-white/5 rounded-2xl">
+          <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">
+            Readiness Risk
+          </p>
+          <p className="mt-2 text-sm font-bold text-white">
+            {readiness
+              ? readinessGap && readinessGap > 0
+                ? `${readinessGap}% review reliability gap`
+                : "Review reliability is on track"
+              : "Readiness data unavailable"}
+          </p>
+          <p className="mt-1 text-[10px] text-gray-600">
+            {readiness
+              ? "Prioritize due reviews to keep retention stable and raise readiness"
+              : "Open review queue regularly to improve long-term recall"}
+          </p>
+        </div>
+      </div>
+
+      <div className="p-5 bg-[#0a0a0f] border border-white/5 rounded-2xl">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <div>
+            <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
+              KPI Snapshot
+            </p>
+            <p className="text-sm text-gray-300 mt-1">
+              Lightweight before/after metrics from local event tracking.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setKpiRange(7)}
+              aria-pressed={kpiRange === 7}
+              className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 ${
+                kpiRange === 7
+                  ? "bg-white text-black"
+                  : "bg-white/5 text-gray-400 hover:bg-white/10"
+              }`}
+            >
+              7d
+            </button>
+            <button
+              onClick={() => setKpiRange(14)}
+              aria-pressed={kpiRange === 14}
+              className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 ${
+                kpiRange === 14
+                  ? "bg-white text-black"
+                  : "bg-white/5 text-gray-400 hover:bg-white/10"
+              }`}
+            >
+              14d
+            </button>
+            <button
+              onClick={() => {
+                clearEventLog();
+                setKpiSnapshot(getKpiSnapshot(kpiRange));
+              }}
+              className="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-white/5 text-gray-400 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
+            >
+              Clear Log
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="p-3 rounded-xl border border-white/10 bg-white/[0.02]">
+            <p className="text-[9px] text-gray-500 uppercase font-bold tracking-widest">
+              Dashboard Action Rate
+            </p>
+            <p className="text-lg font-black text-white mt-1">
+              {kpiSnapshot.dashboardActionRate}%
+            </p>
+          </div>
+          <div className="p-3 rounded-xl border border-white/10 bg-white/[0.02]">
+            <p className="text-[9px] text-gray-500 uppercase font-bold tracking-widest">
+              Review Completion Rate
+            </p>
+            <p className="text-lg font-black text-white mt-1">
+              {kpiSnapshot.reviewCompletionRate}%
+            </p>
+          </div>
+          <div className="p-3 rounded-xl border border-white/10 bg-white/[0.02]">
+            <p className="text-[9px] text-gray-500 uppercase font-bold tracking-widest">
+              Focus Sessions
+            </p>
+            <p className="text-lg font-black text-white mt-1">
+              {kpiSnapshot.focusModeEnabled}
+            </p>
+          </div>
+          <div className="p-3 rounded-xl border border-white/10 bg-white/[0.02]">
+            <p className="text-[9px] text-gray-500 uppercase font-bold tracking-widest">
+              Total Tracked Events
+            </p>
+            <p className="text-lg font-black text-white mt-1">
+              {kpiSnapshot.totalEvents}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">
+          Trend Range
+        </span>
+        {(
+          [
+            { label: "14d", value: 14 },
+            { label: "30d", value: 30 },
+            { label: "8w", value: 56 },
+          ] as const
+        ).map((option) => (
+          <button
+            key={option.value}
+            onClick={() => {
+              setRange(option.value);
+              trackEvent("analytics_time_range_changed", {
+                range: option.label,
+              });
+            }}
+            className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 ${
+              range === option.value
+                ? "bg-white text-black"
+                : "bg-white/5 text-gray-400 hover:bg-white/10"
+            }`}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <Link
+          href="/review"
+          className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-[10px] font-black uppercase tracking-widest text-black transition-transform hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
+        >
+          Open Review Queue
+          <ArrowUpRight size={12} />
+        </Link>
+        <Link
+          href="/recommendations"
+          className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-gray-300 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
+        >
+          Practice Weak Areas
+        </Link>
       </div>
 
       {/* Summary Cards */}
@@ -208,6 +411,62 @@ export default function AnalyticsPage() {
           );
         })}
       </div>
+
+      {readiness && (
+        <div className="p-6 bg-[#0a0a0f] border border-white/5 rounded-2xl">
+          <div className="flex items-center justify-between gap-4 mb-5">
+            <div>
+              <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">
+                Interview Readiness
+              </p>
+              <h2 className="text-xl font-black text-white tracking-tight mt-1">
+                {readiness.level}
+              </h2>
+            </div>
+            <div className="text-right">
+              <p className="text-3xl font-black text-white">
+                {readiness.score}%
+              </p>
+              <p className="text-[10px] text-gray-500">Composite score</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="p-3 rounded-xl border border-white/10 bg-white/[0.02]">
+              <p className="text-[9px] text-gray-500 uppercase font-bold tracking-widest">
+                Timed M/H
+              </p>
+              <p className="text-lg font-black text-white mt-1">
+                {readiness.metrics.timedMediumHard}%
+              </p>
+            </div>
+            <div className="p-3 rounded-xl border border-white/10 bg-white/[0.02]">
+              <p className="text-[9px] text-gray-500 uppercase font-bold tracking-widest">
+                14d Consistency
+              </p>
+              <p className="text-lg font-black text-white mt-1">
+                {readiness.metrics.consistency14d}%
+              </p>
+            </div>
+            <div className="p-3 rounded-xl border border-white/10 bg-white/[0.02]">
+              <p className="text-[9px] text-gray-500 uppercase font-bold tracking-widest">
+                Revision Reliability
+              </p>
+              <p className="text-lg font-black text-white mt-1">
+                {readiness.metrics.revisionReliability}%
+              </p>
+            </div>
+            <div className="p-3 rounded-xl border border-white/10 bg-white/[0.02]">
+              <p className="text-[9px] text-gray-500 uppercase font-bold tracking-widest">
+                Topic Coverage
+              </p>
+              <p className="text-lg font-black text-white mt-1">
+                {readiness.metrics.topicCoverage}%
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Speed Insights */}
       <div className="p-6 bg-[#0a0a0f] border border-white/5 rounded-2xl">
@@ -292,9 +551,11 @@ export default function AnalyticsPage() {
 
         {/* Custom Bar Chart */}
         <div className="flex items-end gap-3 h-48">
-          {data.weeklyTrends.map((w, i) => {
+          {weeklyTrendData.map((w, i) => {
             const barHeight =
-              maxWeeklyAvg > 0 ? (w.avgTime / maxWeeklyAvg) * 100 : 0;
+              maxWeeklyAvgFiltered > 0
+                ? (w.avgTime / maxWeeklyAvgFiltered) * 100
+                : 0;
             const hasSolves = w.solved > 0;
             return (
               <div
@@ -334,12 +595,12 @@ export default function AnalyticsPage() {
 
         {/* Legend */}
         <div className="flex flex-wrap gap-6 mt-4 pt-4 border-t border-white/5">
-          {data.weeklyTrends.filter((w) => w.solved > 0).length > 0 && (
+          {weeklyTrendData.filter((w) => w.solved > 0).length > 0 && (
             <>
               <div className="text-[10px] text-gray-500">
                 <span className="font-bold text-gray-400">Best week:</span>{" "}
                 {(() => {
-                  const best = data.weeklyTrends
+                  const best = weeklyTrendData
                     .filter((w) => w.solved > 0)
                     .sort((a, b) => a.avgTime - b.avgTime)[0];
                   return best ? `${best.week} (${best.avgTime}m avg)` : "—";
@@ -348,7 +609,7 @@ export default function AnalyticsPage() {
               <div className="text-[10px] text-gray-500">
                 <span className="font-bold text-gray-400">Most active:</span>{" "}
                 {(() => {
-                  const most = [...data.weeklyTrends].sort(
+                  const most = [...weeklyTrendData].sort(
                     (a, b) => b.solved - a.solved,
                   )[0];
                   return most ? `${most.week} (${most.solved} problems)` : "—";

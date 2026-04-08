@@ -26,29 +26,34 @@ A full-stack web application to track your Data Structures & Algorithms journey 
 
 ## ✨ Features
 
-| Feature                   | Description                                                                                                              |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| **500-Problem Roadmap**   | 500 hand-picked LeetCode problems across 25 topics — from C++ Basics to Advanced DP and Graphs                           |
-| **Visual Roadmap**        | Interactive ReactFlow graph with dark-themed navigation controls, minimap, and live progress colours                     |
-| **3D UI Effects**         | Mouse-tracking 3D tilt on stat cards, 3D pop on roadmap nodes, perspective hover on panels, and 3D badge flip animations |
-| **AI Code Evaluation**    | Submit code and get instant correctness verdict, complexity analysis, optimal approaches, edge case checks, and a score  |
-| **Solution Persistence**  | Your submitted code is saved — come back later and it's still there                                                      |
-| **AI Mentor Hints**       | Get contextual hints without spoilers                                                                                    |
-| **AI Code Review**        | Paste any code and receive a detailed review                                                                             |
-| **Algorithm Visualizer**  | Step-by-step dry run of your code with variable tracking                                                                 |
-| **Topic Study Guides**    | In-depth guides for each DSA topic                                                                                       |
-| **Spaced Repetition**     | Review queue that resurfaces problems at optimal intervals                                                               |
-| **Explore & Search**      | Filter problems by difficulty, status, topic, bookmarks, and custom tags                                                 |
-| **AI Recommendations**    | Personalized problem suggestions based on your weaknesses                                                                |
-| **Analytics Dashboard**   | Full-year activity heatmap (Jan – Dec), skill radar, streak tracking, productivity insights                              |
-| **Achievements & Badges** | Unlock badges as you hit milestones                                                                                      |
-| **Weekly Reports**        | Auto-generated summary of your weekly progress                                                                           |
-| **The Vault**             | DSA pattern templates and personal notes per problem                                                                     |
-| **Learn (Theory First)**  | C++ mastery track with topic-wise theory modules, structured lesson blocks, and per-module linked practice               |
-| **The Arena**             | Full-screen timed arena: multi-language editor with Vim mode, collapsible problem panel, per-problem tabs                |
-| **Mock Interviews**       | Track your mock interview scores and feedback                                                                            |
-| **Email Login**           | Secure credentials-based authentication via NextAuth                                                                     |
-| **Admin Panel**           | Manage users, topics, and problems                                                                                       |
+| Feature                                   | Description                                                                                                              |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| **500-Problem Roadmap**                   | 500 hand-picked LeetCode problems across 25 topics — from C++ Basics to Advanced DP and Graphs                           |
+| **Visual Roadmap**                        | Interactive ReactFlow graph with dark-themed navigation controls, minimap, and live progress colours                     |
+| **3D UI Effects**                         | Mouse-tracking 3D tilt on stat cards, 3D pop on roadmap nodes, perspective hover on panels, and 3D badge flip animations |
+| **AI Code Evaluation**                    | Submit code and get instant correctness verdict, complexity analysis, optimal approaches, edge case checks, and a score  |
+| **Solution Persistence**                  | Your submitted code is saved — come back later and it's still there                                                      |
+| **AI Mentor Hints**                       | Get contextual hints without spoilers                                                                                    |
+| **AI Code Review**                        | Paste any code and receive a detailed review                                                                             |
+| **Algorithm Visualizer**                  | Step-by-step dry run of your code with variable tracking                                                                 |
+| **Topic Study Guides**                    | In-depth guides for each DSA topic                                                                                       |
+| **Mastery Scoring**                       | Every problem gets a 0–100 mastery score; track overall mastery per topic and globally                                   |
+| **Spaced Repetition**                     | Review queue resurfaces problems at optimal intervals (2d, 7d, 21d) to strengthen retention                              |
+| **Readiness Index**                       | Real-time calculation showing which topics you're ready to advance from and which need more focus                        |
+| **Weakness-First Planning**               | Daily plan automatically prioritizes problems from your weakest topics for targeted practice                             |
+| **Explore & Search**                      | Filter problems by difficulty, status, topic, bookmarks, and custom tags                                                 |
+| **AI Recommendations**                    | Personalized problem suggestions based on your weaknesses                                                                |
+| **Event Instrumentation & KPI Reporting** | Activity log with 7d/14d snapshots: action rate, review completion rate, focus sessions, and more                        |
+| **Analytics Dashboard**                   | Full-year activity heatmap (Jan – Dec), skill radar, streak tracking, productivity insights, and KPI metrics             |
+| **Achievements & Badges**                 | Unlock badges as you hit milestones                                                                                      |
+| **Weekly Reports**                        | Auto-generated summary of your weekly progress                                                                           |
+| **The Vault**                             | DSA pattern templates and personal notes per problem                                                                     |
+| **Learn (Theory First)**                  | C++ mastery track with topic-wise theory modules, structured lesson blocks, and per-module linked practice               |
+| **The Arena**                             | Full-screen timed arena: multi-language editor with Vim mode, collapsible problem panel, per-problem tabs                |
+| **Mock Interviews**                       | Track your mock interview scores and feedback                                                                            |
+| **Email Login**                           | Secure credentials-based authentication via NextAuth                                                                     |
+| **Admin Panel**                           | Manage users, topics, and problems                                                                                       |
+| **Accessibility & Design Tokens**         | focus-visible rings on all controls, ARIA labels, keyboard operability, and unified difficulty/status styling            |
 
 ## 🧪 Stability & Sync Fixes (Apr 2026)
 
@@ -87,6 +92,48 @@ The following reliability upgrades were implemented:
 - **Smoother Scrolling:** The main dashboard scroll container now uses momentum scrolling and smoother reveal animations.
 - **Anime.js Scroll Reveal:** Sections and cards fade, lift, and sharpen in with an anime.js-powered scroll reveal effect.
 - **Faster Dashboard Load:** Core stats render first, while activity and topic snapshots continue loading in the background.
+
+## 🎯 Spaced Repetition & Mastery Scoring (Apr 2026)
+
+The tracker now intelligently manages your learning pace with spaced repetition and continuous mastery tracking:
+
+- **Mastery Scoring:** Every problem gets a mastery score (0–100) based on correctness, optimality, and code quality. Your overall mastery per topic and globally is computed from all submitted solutions.
+- **Spaced Review Scheduling:** Problems are automatically scheduled for review at optimal intervals — 2 days, 7 days, and 21 days after you solve them. The **Review Queue** resurfaces these problems to strengthen retention.
+- **Readiness Index:** A real-time calculation shows which topics you're "ready" to move on from (based on solved count, mastery average, and recent review performance) and which need more work.
+- **Weakness-First Planning:** The **Daily Plan** (visible on Dashboard and via `/api/daily-plan` endpoint) prioritizes problems from your weakest topics first, ensuring targeted practice.
+- **Review Completion Rate:** Track how many due-for-review problems you actually complete; this metric is shown in the **Analytics** dashboard and in the KPI snapshot.
+
+## 📊 Event Instrumentation & KPI Reporting (Apr 2026)
+
+The tracker now logs all your learning activities and provides real-time performance snapshots:
+
+- **Event Tracking:** Every significant action (dashboard view, review selection, focus mode toggle, problem solved, etc.) is logged locally in the browser with a timestamp.
+- **Event Log Management:** Access and clear your event log from the **Analytics** page. The system automatically caps event storage at 300 entries to prevent excessive bloat.
+- **KPI Snapshots:** Use the built-in `getKpiSnapshot(days)` helper (or via the **Analytics – KPI Range** toggle) to generate 7-day and 14-day performance metrics:
+  - **Dashboard Action Rate:** % of days where you visited the dashboard (indicator of consistency).
+  - **Review Completion Rate:** % of due reviews you completed (indicator of retention focus).
+  - **Focus Sessions:** Number of times you enabled focus mode.
+  - **Total Events:** Raw count of actions logged in the window.
+- **In-App Metric Cards:** The **Analytics** page displays KPI cards with visual indicators so you can see your effort and progress at a glance.
+
+## ♿ Accessibility & Design Token Hardening (Apr 2026)
+
+Major accessibility and visual consistency improvements across all dashboard pages:
+
+### Accessibility Enhancements
+
+- **Focus Indicators:** All interactive controls (buttons, toggles, links, inputs, accordion headers) now have visible `focus-visible` rings for keyboard navigation.
+- **ARIA Labels & Roles:** Icon-only buttons have descriptive `aria-label` attributes; toggles, dropdowns, and tabs have `aria-pressed`, `aria-expanded`, and `role="tab"` semantics for screen readers.
+- **Keyboard Operability:** Accordion headers and tab controls now respond to **Enter** and **Space** key presses for full keyboard navigation.
+- **Semantic HTML:** All interactive elements use proper semantic markup (buttons, inputs, links) instead of generic divs.
+
+### Design Token Unification
+
+- **Centralized Design Tokens:** All difficulty and status badge colors are now pulled from a single source (`design-tokens.ts`) with helper functions:
+  - `getDifficultyStyle(difficulty)` — returns `{text, bg, border}` Tailwind classes for EASY / MEDIUM / HARD.
+  - `getStatusStyle(status)` — returns `{text, bg, border}` Tailwind classes for TODO / DOING / DONE.
+- **Consistent Styling:** Every page that displays difficulty or status badges (Search, Topics, Recommendations, Review, Vault, etc.) now uses these helpers, eliminating hardcoded colors and ensuring visual harmony.
+- **Easier Maintenance:** Future theme changes only require updates to `design-tokens.ts` rather than hunting through multiple component files.
 
 These improvements make the DSA Tracker more engaging, visually appealing, and user-friendly. For details on customizing or extending these effects, see the relevant components in `frontend/src/components/roadmap/`, `dashboard/`, and `ui/`.
 
@@ -270,8 +317,10 @@ After login, you land on the **Dashboard** showing:
 
 - Total progress (solved / total problems)
 - Current & longest streak
-- Weak topics that need attention
-- Problems due for revision
+- **Weak topics** that need attention (sorted by lowest mastery score)
+- **Daily Plan** — auto-generated list of problems from your weakest topics to practice
+- **Problems due for revision** — problems scheduled by spaced repetition
+- **Readiness Index** — which topics you're ready to advance from vs which need more focus
 
 ### 3. Learn (Theory First)
 
@@ -295,7 +344,7 @@ Open **Learn** from the sidebar to follow a theory-first workflow before solving
 - Write your solution and click the purple **Submit** button
 - The AI evaluates your code and shows:
   - **Verdict** — Accepted, Wrong Answer, TLE, etc.
-  - **Score** — 0–100 based on correctness, optimality, and code quality
+  - **Mastery Score** — 0–100 based on correctness, optimality, and code quality; your cumulative score for this problem updates on every submission
   - **Your complexity** — Time and Space with explanations
   - **Optimal complexity** — What the best solution achieves
   - **Better approaches** — Alternative algorithms with pseudocode (if your solution isn't optimal)
@@ -322,8 +371,14 @@ Access **The Vault** for:
 The **Analytics** page shows:
 
 - **Activity heatmap** — displays a full calendar year (January to December) for whichever year you select; use the year buttons to switch between years
-- Skill radar across all topics
-- Productivity insights and score trends
+- **Skill radar** across all topics
+- **Productivity insights** and score trends
+- **KPI snapshots** — toggle between 7-day and 14-day windows to see:
+  - **Dashboard Action Rate:** % of days you visited the dashboard
+  - **Review Completion Rate:** % of due reviews you completed
+  - **Focus Sessions:** Count of focus mode activations
+  - **Total Events:** Raw action count in the selected time window
+- **Event Log Management:** View and clear your activity log; events are stored locally and capped at 300 entries
 
 ### 9. Explore & Search
 
@@ -336,7 +391,12 @@ Use **Explore** to filter problems across all topics by:
 
 ### 10. Review Queue
 
-**Review Queue** uses spaced repetition to resurface problems you've solved. Problems appear when they're due for review to strengthen long-term retention.
+**Review Queue** uses spaced repetition to resurface problems you've solved based on mastery and timing:
+
+- Problems reappear 2 days, 7 days, and 21 days after you first solve them
+- Each problem shows your current mastery score — re-solve it to improve and lock in long-term retention
+- Your review completion frequency is tracked in the **KPI snapshot** (visible in Analytics)
+- Review strategically to strengthen weak areas and boost your overall mastery score
 
 ### 11. AI Recommendations
 

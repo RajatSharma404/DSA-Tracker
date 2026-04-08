@@ -77,6 +77,7 @@ export default function ChallengeSelection() {
                 <button
                   key={m}
                   onClick={() => setDuration(m)}
+                  aria-pressed={duration === m}
                   className={`py-3 rounded-xl border font-bold transition-all ${duration === m ? "bg-white text-black border-white" : "bg-transparent border-[#222] text-gray-400 hover:border-gray-600"}`}
                 >
                   {m}m
@@ -88,7 +89,7 @@ export default function ChallengeSelection() {
           <button
             onClick={handleStart}
             disabled={loading || !selectedTopic}
-            className="w-full py-5 bg-yellow-500 hover:bg-yellow-400 text-black font-black uppercase tracking-tighter rounded-2xl transition-all shadow-xl shadow-yellow-500/10 disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full py-5 bg-yellow-500 hover:bg-yellow-400 text-black font-black uppercase tracking-tighter rounded-2xl transition-all shadow-xl shadow-yellow-500/10 disabled:opacity-50 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
           >
             {loading ? "Generating Challenge..." : "Enter the Arena"}
             <Zap size={18} fill="currentColor" />

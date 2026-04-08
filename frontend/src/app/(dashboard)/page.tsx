@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/Skeleton";
 import { DESIGN_TOKENS } from "@/lib/design-tokens";
 import { useToastNotification } from "@/components/providers/ToastProvider";
+import { trackEvent } from "@/lib/analytics";
 
 const ActivityHeatmap = dynamic(
   () => import("@/components/dashboard/ActivityHeatmap"),
@@ -131,6 +132,11 @@ export default function Dashboard() {
     try {
       const statsData = await dsaApi.getDashboardStats();
       setStats(statsData);
+      trackEvent("dashboard_viewed", {
+        solvedProblems: statsData.solvedProblems,
+        progressPercentage: statsData.progressPercentage,
+        dueReviews: statsData.revisions?.length || 0,
+      });
 
       setLoading(false);
 
@@ -263,8 +269,42 @@ export default function Dashboard() {
             API Error: {dashboardError}
           </p>
         ) : null}
+        <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
+          <button
+            onClick={() => {
+              setLoading(true);
+              const canSync = status === "authenticated";
+              loadDashboardData(canSync);
+            }}
+            className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-[10px] font-black uppercase tracking-widest text-black transition-transform hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
+          >
+            Retry Dashboard
+            <ArrowRight size={12} />
+          </button>
+          <Link
+            href="/review"
+            className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-gray-300 transition-colors hover:bg-white/10"
+          >
+            Open Review Queue
+          </Link>
+          <Link
+            href="/topics"
+            className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-gray-300 transition-colors hover:bg-white/10"
+          >
+            Open Topics
+          </Link>
+        </div>
       </div>
     );
+
+  const dueNowCount = stats.revisions?.length || 0;
+  const weakTopicCount = stats.weakTopics?.length || 0;
+  const sessionFocus =
+    dueNowCount > 0
+      ? "Clear due reviews first"
+      : weakTopicCount > 0
+        ? "Target weakest topic"
+        : "Build momentum with one quick solve";
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -332,6 +372,24 @@ export default function Dashboard() {
             </div>
           </div>
 
+          <div className="relative mt-4 rounded-2xl border border-white/5 bg-black/20 px-4 py-3">
+            <p className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+              Today Blueprint
+            </p>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-blue-300">
+                Due {dueNowCount}
+              </span>
+              <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-amber-300">
+                Weak {weakTopicCount}
+              </span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-gray-300">
+                Pace {solvedLast7d}/7d
+              </span>
+            </div>
+            <p className="mt-2 text-[11px] text-gray-400">{sessionFocus}</p>
+          </div>
+
           <div className="relative mt-5 flex flex-wrap gap-3">
             <Link
               href={
@@ -339,16 +397,22 @@ export default function Dashboard() {
                   ? "/review"
                   : "/recommendations"
               }
-              className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-black transition-transform hover:scale-[1.02] active:scale-[0.98]"
+              onClick={() =>
+                trackEvent("dashboard_primary_cta_clicked", {
+                  mode: stats.nextAction?.mode || "BALANCED",
+                  cta: stats.nextAction?.cta || "Open next step",
+                })
+              }
+              className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-black transition-transform hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
             >
               {stats.nextAction?.cta || "Open next step"}
               <ArrowRight size={12} />
             </Link>
             <Link
               href="/recommendations"
-              className="inline-flex items-center gap-2 rounded-xl border border-white/5 bg-white/5 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-gray-300 transition-colors hover:bg-white/10"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/5 bg-white/5 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-gray-300 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
             >
-              View full plan
+              Why this pick
             </Link>
           </div>
         </div>
@@ -473,7 +537,7 @@ export default function Dashboard() {
                 </div>
                 <Link
                   href="/roadmap"
-                  className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-cyan-300 hover:text-white transition-colors"
+                  className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-cyan-300 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 rounded-md"
                 >
                   Open Visual Roadmap
                   <ArrowRight size={12} />

@@ -26,7 +26,7 @@ interface LeetCodeEditorProps {
   problemSlug: string;
   problemTitle: string;
   problemId: string;
-  onSubmissionSuccess?: () => void;
+  onSubmissionSuccess?: (timeSpent: number) => void;
 }
 
 interface LanguageConfig {
@@ -106,6 +106,7 @@ export function LeetCodeEditor({
   >("IDLE");
   const [extensionHealth, setExtensionHealth] =
     useState<ExtensionHealthState>("NOT_INSTALLED");
+  const [startTime] = useState<number>(Date.now());
 
   // Load problem details and code snippets, then override with saved code
   const loadProblemSnippets = useCallback(async () => {
@@ -231,7 +232,7 @@ export function LeetCodeEditor({
             details: isSignedOut
               ? "Your LeetCode is not signed in. Please sign in to LeetCode and try again."
               : errorMessage ||
-                "Extension submit failed. Ensure extension is enabled and try again.",
+              "Extension submit failed. Ensure extension is enabled and try again.",
           });
           console.error("LeetCode extension submit error:", extensionError);
         }
@@ -264,7 +265,8 @@ export function LeetCodeEditor({
         }
 
         if (onSubmissionSuccess) {
-          onSubmissionSuccess();
+          const duration = Math.round((Date.now() - startTime) / 60000);
+          onSubmissionSuccess(Math.max(1, duration));
         }
       }
     } catch (error: any) {
@@ -281,8 +283,8 @@ export function LeetCodeEditor({
         verdictMessage: isExtensionTimeout
           ? "Extension is not responding. Reload the extension and ensure it is enabled for this site."
           : error.response?.data?.error ||
-            error.message ||
-            "Failed to evaluate code. Please try again.",
+          error.message ||
+          "Failed to evaluate code. Please try again.",
         score: 0,
         complexity: {
           time: "N/A",
@@ -383,24 +385,22 @@ export function LeetCodeEditor({
               <button
                 key={key}
                 onClick={() => handleLanguageChange(key)}
-                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-                  selectedLang === key
+                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${selectedLang === key
                     ? "bg-white text-black"
                     : "bg-white/5 text-gray-400 hover:bg-white/10"
-                }`}
+                  }`}
               >
                 {config.label}
               </button>
             ))}
           </div>
           <div
-            className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
-              submitPath === "EXTENSION"
+            className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${submitPath === "EXTENSION"
                 ? "border-green-500/30 bg-green-500/10 text-green-400"
                 : extensionHealth === "READY"
                   ? "border-green-500/30 bg-green-500/10 text-green-400"
                   : "border-gray-600/40 bg-gray-700/20 text-gray-300"
-            }`}
+              }`}
           >
             {submitPath === "EXTENSION"
               ? "Extension: Connected"

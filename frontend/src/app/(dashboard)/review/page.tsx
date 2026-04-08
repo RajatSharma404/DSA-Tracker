@@ -14,6 +14,8 @@ import {
   Brain,
   Loader2,
 } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
+import { getDifficultyStyle } from "@/lib/design-tokens";
 
 interface ReviewItem {
   progressId: string;
@@ -34,6 +36,38 @@ interface ReviewData {
   stats: { totalDue: number; totalUpcoming: number };
 }
 
+const QUALITY_OPTIONS: Array<{
+  q: number;
+  label: string;
+  next: string;
+  color: string;
+}> = [
+  {
+    q: 1,
+    label: "Forgot",
+    next: "Resets to 2d",
+    color: "bg-red-500/10 text-red-400 hover:bg-red-500/20",
+  },
+  {
+    q: 3,
+    label: "Hard",
+    next: "Short interval",
+    color: "bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20",
+  },
+  {
+    q: 4,
+    label: "Good",
+    next: "Moves ahead",
+    color: "bg-blue-500/10 text-blue-400 hover:bg-blue-500/20",
+  },
+  {
+    q: 5,
+    label: "Easy",
+    next: "Longest jump",
+    color: "bg-green-500/10 text-green-400 hover:bg-green-500/20",
+  },
+];
+
 export default function ReviewQueuePage() {
   const [data, setData] = useState<ReviewData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -42,8 +76,36 @@ export default function ReviewQueuePage() {
   const [reviewNotice, setReviewNotice] = useState<string | null>(null);
 
   useEffect(() => {
+    trackEvent("review_queue_viewed");
     loadReviewQueue();
   }, []);
+
+  const firstDueProblemId =
+    data?.due?.find((item) => !completedIds.has(item.problemId))?.problemId ||
+    null;
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!firstDueProblemId || reviewingId) return;
+      if (event.target instanceof HTMLInputElement) return;
+      if (event.target instanceof HTMLTextAreaElement) return;
+
+      const keyMap: Record<string, number> = {
+        "1": 1,
+        "2": 3,
+        "3": 4,
+        "4": 5,
+      };
+      const quality = keyMap[event.key];
+      if (!quality) return;
+
+      event.preventDefault();
+      void handleReview(firstDueProblemId, quality);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [firstDueProblemId, reviewingId]);
 
   const loadReviewQueue = async () => {
     try {
@@ -58,9 +120,15 @@ export default function ReviewQueuePage() {
   };
 
   const handleReview = async (problemId: string, quality: number) => {
+    trackEvent("review_quality_selected", { problemId, quality });
     setReviewingId(problemId);
     try {
       const result = await dsaApi.completeReview(problemId, quality);
+      trackEvent("review_completed", {
+        problemId,
+        quality,
+        nextReviewIn: result.nextReviewIn || null,
+      });
       setCompletedIds((prev) => new Set([...prev, problemId]));
       setReviewNotice(
         result.nextReviewIn
@@ -76,11 +144,8 @@ export default function ReviewQueuePage() {
   };
 
   const getDifficultyColor = (d: string) => {
-    if (d === "EASY")
-      return "text-green-400 bg-green-500/10 border-green-500/20";
-    if (d === "MEDIUM")
-      return "text-yellow-400 bg-yellow-500/10 border-yellow-500/20";
-    return "text-red-400 bg-red-500/10 border-red-500/20";
+    const style = getDifficultyStyle(d as "EASY" | "MEDIUM" | "HARD");
+    return `${style.text} ${style.bg} ${style.border}`;
   };
 
   if (loading) {
@@ -117,7 +182,7 @@ export default function ReviewQueuePage() {
         </div>
         <button
           onClick={loadReviewQueue}
-          className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-gray-300 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
         >
           <RefreshCw size={14} />
           Refresh
@@ -229,49 +294,34 @@ export default function ReviewQueuePage() {
                     </div>
 
                     {/* Review Quality Buttons */}
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] text-gray-600 mr-2">
+                    <div className="flex flex-col items-end gap-2">
+                      <span className="text-[10px] text-gray-600">
                         How well do you remember?
                       </span>
-                      {[
-                        {
-                          q: 1,
-                          label: "Forgot",
-                          color:
-                            "bg-red-500/10 text-red-400 hover:bg-red-500/20",
-                        },
-                        {
-                          q: 3,
-                          label: "Hard",
-                          color:
-                            "bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20",
-                        },
-                        {
-                          q: 4,
-                          label: "Good",
-                          color:
-                            "bg-blue-500/10 text-blue-400 hover:bg-blue-500/20",
-                        },
-                        {
-                          q: 5,
-                          label: "Easy",
-                          color:
-                            "bg-green-500/10 text-green-400 hover:bg-green-500/20",
-                        },
-                      ].map((btn) => (
-                        <button
-                          key={btn.q}
-                          onClick={() => handleReview(item.problemId, btn.q)}
-                          disabled={reviewingId === item.problemId}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${btn.color} disabled:opacity-50`}
-                        >
-                          {reviewingId === item.problemId ? (
-                            <Loader2 size={12} className="animate-spin" />
-                          ) : (
-                            btn.label
-                          )}
-                        </button>
-                      ))}
+                      <div className="flex items-center gap-2 flex-wrap justify-end">
+                        {QUALITY_OPTIONS.map((btn) => (
+                          <button
+                            key={btn.q}
+                            onClick={() => handleReview(item.problemId, btn.q)}
+                            disabled={reviewingId === item.problemId}
+                            className={`min-h-10 px-4 py-2 rounded-lg text-xs font-bold transition-all ${btn.color} disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60`}
+                            aria-label={`${btn.label}. ${btn.next}`}
+                            title={btn.next}
+                          >
+                            {reviewingId === item.problemId ? (
+                              <Loader2 size={14} className="animate-spin" />
+                            ) : (
+                              btn.label
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                      <span className="text-[10px] text-gray-600">
+                        Forgot resets to 2 days. Good/Easy increases spacing.
+                      </span>
+                      <span className="text-[10px] text-gray-600">
+                        Keyboard: 1 Forgot, 2 Hard, 3 Good, 4 Easy.
+                      </span>
                     </div>
                   </div>
                 </div>

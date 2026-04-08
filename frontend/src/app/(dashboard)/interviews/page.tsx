@@ -126,7 +126,8 @@ export default function InterviewsPage() {
         </div>
         <button
           onClick={() => setIsAdding(!isAdding)}
-          className="bg-white text-black px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors flex items-center gap-2"
+          aria-pressed={isAdding}
+          className="bg-white text-black px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
         >
           <Plus size={18} /> Add Session
         </button>
@@ -171,6 +172,7 @@ export default function InterviewsPage() {
                     key={minutes}
                     type="button"
                     onClick={() => setChallengeDuration(minutes)}
+                    aria-pressed={challengeDuration === minutes}
                     className={`rounded-xl border px-3 py-3 text-sm font-bold transition-colors ${challengeDuration === minutes ? "border-cyan-400 bg-cyan-400/10 text-cyan-300" : "border-white/10 bg-black/20 text-gray-400 hover:text-white"}`}
                   >
                     {minutes}m
@@ -182,7 +184,7 @@ export default function InterviewsPage() {
           <button
             onClick={startMockInterview}
             disabled={!challengeTopicId || startingChallenge}
-            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-black transition-transform hover:scale-[1.02] disabled:opacity-50"
+            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-black transition-transform hover:scale-[1.02] disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
           >
             <Timer size={12} />
             {startingChallenge ? "Launching..." : "Enter Arena"}
@@ -253,13 +255,13 @@ export default function InterviewsPage() {
             <button
               type="button"
               onClick={() => setIsAdding(false)}
-              className="px-4 py-2 rounded-lg font-medium text-gray-400 hover:text-white transition-colors"
+              className="px-4 py-2 rounded-lg font-medium text-gray-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="bg-white text-black px-6 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+              className="bg-white text-black px-6 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
             >
               Save Notes
             </button>

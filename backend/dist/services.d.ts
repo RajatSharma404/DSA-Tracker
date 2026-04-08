@@ -6,12 +6,20 @@ export declare const getRevisionReminders: (userId: string) => Promise<{
 }[]>;
 export declare const getWeakTopics: (userId: string) => Promise<{
     name: string;
+    totalProblems: number;
+    solvedProblems: number;
     avgTimeSpent: number;
+    completionPct: number;
+    overdueReviews: number;
+    masteryScore: number;
+    weaknessScore: number;
 }[]>;
 export declare const getMasteryStats: (userId: string) => Promise<{
     subject: string;
     A: number;
     fullMark: number;
+    solved: number;
+    total: number;
 }[]>;
 export declare const getDailyProblem: (userId: string) => Promise<{
     source: "REVISION";
@@ -24,6 +32,53 @@ export declare const getDailyProblem: (userId: string) => Promise<{
         topicName: any;
         topicId: any;
     };
+    plan: {
+        mode: string;
+        mix: {
+            weakness: number;
+            medium: number;
+            strong: number;
+            revision: number;
+        };
+        items: {
+            source: string;
+            id: any;
+            title: any;
+            difficulty: any;
+            topicName: any;
+            topicId: any;
+            link: any;
+        }[];
+    };
+} | {
+    source: "WEAKNESS";
+    reason: string;
+    problem: {
+        id: string;
+        title: string;
+        difficulty: string;
+        link: string;
+        topicName: string;
+        topicId: string;
+    };
+    plan: {
+        mode: string;
+        mix: {
+            weakness: number;
+            medium: number;
+            strong: number;
+            revision: number;
+        };
+        items: {
+            source: "WEAKNESS" | "BUILD";
+            id: string;
+            title: string;
+            difficulty: string;
+            topicName: string;
+            topicId: string;
+            link: string | null;
+        }[];
+    };
 } | {
     source: "WEAKNESS";
     reason: string;
@@ -34,6 +89,41 @@ export declare const getDailyProblem: (userId: string) => Promise<{
         link: string;
         topicName: string;
         topicId: string;
+    };
+    plan: {
+        mode: string;
+        mix: {
+            weakness: number;
+            medium: number;
+            strong: number;
+            revision: number;
+        };
+        items: {
+            source: string;
+            id: string;
+            title: string;
+            difficulty: import(".prisma/client").$Enums.Difficulty;
+            topicName: string;
+            topicId: string;
+            link: string;
+        }[];
+    };
+}>;
+export declare const getInterviewReadinessIndex: (userId: string) => Promise<{
+    score: number;
+    level: string;
+    metrics: {
+        timedMediumHard: number;
+        consistency14d: number;
+        revisionReliability: number;
+        topicCoverage: number;
+    };
+    snapshot: {
+        solvedLast14d: number;
+        solvedTotal: number;
+        mediumHardSolved: number;
+        coveredTopics: number;
+        totalTopics: number;
     };
 }>;
 export declare const getTimeAnalytics: (userId: string) => Promise<{

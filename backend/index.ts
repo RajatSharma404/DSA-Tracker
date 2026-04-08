@@ -12,6 +12,7 @@ import {
   getWeakTopics,
   getMasteryStats,
   getDailyProblem,
+  getInterviewReadinessIndex,
   getTimeAnalytics,
   getAchievements,
   getWeeklyReport,
@@ -55,14 +56,16 @@ if (NEXTAUTH_SECRETS.length === 0) {
 }
 const LOGIN_MAIL_COOLDOWN_MS = 30 * 60 * 1000;
 const loginNotificationCache = new Map<string, number>();
+const userCache = new Map<
+  string,
+  { id: string; email: string; role: string }
+>();
 const corsOrigins = (process.env.CORS_ORIGINS || "")
   .split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);
 
-const isProgressStatus = (
-  value: unknown,
-): value is "TODO" | "DOING" | "DONE" =>
+const isProgressStatus = (value: unknown): value is "TODO" | "DOING" | "DONE" =>
   value === "TODO" || value === "DOING" || value === "DONE";
 
 const isDifficulty = (value: unknown): value is "EASY" | "MEDIUM" | "HARD" =>
@@ -200,6 +203,13 @@ const buildNextAction = (
   };
 };
 
+const getNextRevisionInterval = (currentInterval: number) => {
+  if (currentInterval <= 0) return 2;
+  if (currentInterval <= 2) return 7;
+  if (currentInterval <= 7) return 21;
+  return Math.max(21, Math.round(currentInterval * 1.6));
+};
+
 app.use(
   cors(
     corsOrigins.length > 0
@@ -265,22 +275,36 @@ const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
         .json({ error: "Unauthorized: Invalid token payload" });
     }
 
-    // Upsert user by email so they're created on first request
-    let user = (await prisma.user.upsert({
-      where: { email: decoded.email },
-      update: {},
-      create: {
-        email: decoded.email,
-        role: "USER",
-      },
-    })) as any;
+    // Check cache first
+    let user = userCache.get(decoded.email.toLowerCase());
 
-    // Auto-promote to ADMIN if email matches
-    if (ADMIN_EMAIL && user.email.toLowerCase() === ADMIN_EMAIL && user.role !== "ADMIN") {
-      user = await prisma.user.update({
-        where: { id: user.id },
-        data: { role: "ADMIN" } as any,
-      });
+    if (!user) {
+      // Upsert user by email so they're created on first request
+      const dbUser = (await prisma.user.upsert({
+        where: { email: decoded.email },
+        update: {},
+        create: {
+          email: decoded.email,
+          role: "USER",
+        },
+      })) as any;
+
+      user = { id: dbUser.id, email: dbUser.email, role: dbUser.role };
+
+      // Auto-promote to ADMIN if email matches
+      if (
+        ADMIN_EMAIL &&
+        user.email.toLowerCase() === ADMIN_EMAIL &&
+        user.role !== "ADMIN"
+      ) {
+        const promoted = await prisma.user.update({
+          where: { id: user.id },
+          data: { role: "ADMIN" } as any,
+        });
+        user.role = promoted.role;
+      }
+
+      userCache.set(user.email.toLowerCase(), user);
     }
 
     req.user = { id: user.id, role: user.role };
@@ -1925,16 +1949,10 @@ app.post("/api/progress", requireAuth, async (req: Request, res: Response) => {
         where: { userId_problemId: { userId, problemId: normalizedProblemId } },
       })) as any;
 
-      let nextInterval = 1;
+      let nextInterval = 2;
       let nextEF = existing?.easinessFactor || 2.5;
 
-      if (!existing || existing.interval === 0) {
-        nextInterval = 1;
-      } else if (existing.interval === 1) {
-        nextInterval = 6;
-      } else {
-        nextInterval = Math.round(existing.interval * nextEF);
-      }
+      nextInterval = getNextRevisionInterval(existing?.interval || 0);
 
       const nextReview = new Date();
       nextReview.setDate(nextReview.getDate() + nextInterval);
@@ -2651,7 +2669,10 @@ app.post("/api/extension/sync", async (req: Request, res: Response) => {
         .json({ error: "No user linked to this LeetCode session" });
     }
 
-    const data = await fetchProblemSubmissions(normalizedSlug, normalizedSession);
+    const data = await fetchProblemSubmissions(
+      normalizedSlug,
+      normalizedSession,
+    );
     const submissions = data?.questionSubmissionList?.submissions || [];
     const acceptedSub = submissions.find(
       (s: any) => s.statusDisplay === "Accepted",
@@ -3592,7 +3613,37 @@ app.get("/api/search", requireAuth, async (req: Request, res: Response) => {
       where.topicId = topicId as string;
     }
 
-    let problems = await prisma.problem.findMany({
+    // Add status filtering directly in SQL via Prisma
+    if (status) {
+      if (status === "TODO") {
+        where.progress = {
+          none: { userId },
+        };
+      } else {
+        where.progress = {
+          some: {
+            userId,
+            status: status as any,
+          },
+        };
+      }
+    }
+
+    // Add bookmark filtering directly in SQL
+    if (bookmarked === "true") {
+      where.bookmarks = {
+        some: { userId },
+      };
+    }
+
+    // Add tag filtering directly in SQL
+    if (tagId) {
+      where.problemTags = {
+        some: { tagId: tagId as string },
+      };
+    }
+
+    const problems = await prisma.problem.findMany({
       where,
       include: {
         topic: true,
@@ -3602,27 +3653,6 @@ app.get("/api/search", requireAuth, async (req: Request, res: Response) => {
       },
       orderBy: [{ topic: { orderIndex: "asc" } }, { orderIndex: "asc" }],
     });
-
-    // Filter by progress status (post-query since it's a relation)
-    if (status) {
-      problems = problems.filter((p) => {
-        const prog = p.progress[0];
-        if (status === "TODO") return !prog || prog.status === "TODO";
-        return prog?.status === status;
-      });
-    }
-
-    // Filter by bookmarked
-    if (bookmarked === "true") {
-      problems = problems.filter((p) => p.bookmarks.length > 0);
-    }
-
-    // Filter by tag
-    if (tagId) {
-      problems = problems.filter((p) =>
-        p.problemTags.some((pt: any) => pt.tagId === tagId),
-      );
-    }
 
     const result = problems.map((p) => ({
       id: p.id,
@@ -3736,22 +3766,14 @@ app.post(
       if (!progress)
         return res.status(404).json({ error: "Progress not found" });
 
-      // SM-2 Algorithm
+      // Quality-adaptive 2-7-21 progression with reset on weak recall.
       let { easinessFactor, interval } = progress;
       const q = Math.min(5, Math.max(0, quality));
 
       if (q >= 3) {
-        // Correct response
-        if (interval === 0) {
-          interval = 1;
-        } else if (interval === 1) {
-          interval = 6;
-        } else {
-          interval = Math.round(interval * easinessFactor);
-        }
+        interval = getNextRevisionInterval(interval);
       } else {
-        // Incorrect — reset
-        interval = 1;
+        interval = 2;
       }
 
       easinessFactor =
@@ -3773,6 +3795,20 @@ app.post(
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Failed to complete review" });
+    }
+  },
+);
+
+app.get(
+  "/api/analytics/readiness",
+  requireAuth,
+  async (req: Request, res: Response) => {
+    try {
+      const readiness = await getInterviewReadinessIndex(req.user!.id);
+      res.json(readiness);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to get interview readiness" });
     }
   },
 );

@@ -2,6 +2,21 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+const clamp = (value: number, min: number, max: number) =>
+  Math.max(min, Math.min(max, value));
+
+const difficultyWeight: Record<string, number> = {
+  EASY: 1,
+  MEDIUM: 2,
+  HARD: 3,
+};
+
+const targetSolveMinutes: Record<string, number> = {
+  EASY: 20,
+  MEDIUM: 35,
+  HARD: 55,
+};
+
 export const getRevisionReminders = async (userId: string) => {
   // In a real Spaced Repetition logic, this would check intervals.
   // simplistic approach: Find problems completed more than 3 days ago
@@ -36,89 +51,185 @@ export const getRevisionReminders = async (userId: string) => {
 };
 
 export const getWeakTopics = async (userId: string) => {
-  // Logic: calculate average time spent per problem per topic among DONE problems
-  const progressRecords = await prisma.progress.findMany({
-    where: { userId, status: "DONE" },
-    include: { problem: { include: { topic: true } } },
-  });
+  const now = new Date();
+  const [topics, solvedProgress] = await Promise.all([
+    prisma.topic.findMany({
+      include: {
+        problems: {
+          include: {
+            progress: {
+              where: { userId },
+            },
+          },
+        },
+      },
+      orderBy: { orderIndex: "asc" },
+    }),
+    prisma.progress.findMany({
+      where: { userId, status: "DONE" },
+      include: {
+        problem: {
+          include: { topic: true },
+        },
+      },
+    }),
+  ]);
 
-  const topicStats: Record<
+  const byTopic = new Map<
     string,
-    { totalTime: number; count: number; name: string }
-  > = {};
-
-  progressRecords.forEach((p) => {
-    const tId = p.problem.topicId;
-    if (!topicStats[tId]) {
-      topicStats[tId] = { totalTime: 0, count: 0, name: p.problem.topic.name };
+    {
+      name: string;
+      totalProblems: number;
+      solvedProblems: number;
+      avgTimeSpent: number;
+      completionPct: number;
+      overdueReviews: number;
+      masteryScore: number;
+      weaknessScore: number;
     }
-    topicStats[tId].totalTime += p.timeSpent;
-    topicStats[tId].count += 1;
+  >();
+
+  topics.forEach((topic) => {
+    const totalProblems = topic.problems.length;
+    const doneProgress = topic.problems
+      .map((problem) => problem.progress[0])
+      .filter((progress) => progress?.status === "DONE") as Array<{
+      timeSpent: number;
+      nextReviewDate: Date | null;
+    }>;
+
+    const solvedProblems = doneProgress.length;
+    const avgTimeSpent =
+      solvedProblems > 0
+        ? Math.round(
+            doneProgress.reduce(
+              (sum, progress) => sum + progress.timeSpent,
+              0,
+            ) / solvedProblems,
+          )
+        : 0;
+    const completionPct =
+      totalProblems > 0 ? (solvedProblems / totalProblems) * 100 : 0;
+    const overdueReviews = doneProgress.filter(
+      (progress) =>
+        progress.nextReviewDate && new Date(progress.nextReviewDate) <= now,
+    ).length;
+
+    const coverageComponent = completionPct;
+    const speedPenalty =
+      solvedProblems > 0 ? clamp((avgTimeSpent / 45) * 30, 0, 30) : 20;
+    const overduePenalty = clamp(overdueReviews * 5, 0, 25);
+    const masteryScore = Math.round(
+      clamp(coverageComponent - speedPenalty - overduePenalty, 0, 100),
+    );
+    const weaknessScore = 100 - masteryScore;
+
+    byTopic.set(topic.id, {
+      name: topic.name,
+      totalProblems,
+      solvedProblems,
+      avgTimeSpent,
+      completionPct: Math.round(completionPct),
+      overdueReviews,
+      masteryScore,
+      weaknessScore,
+    });
   });
 
-  return (
-    Object.values(topicStats)
-      .map((t) => ({
-        name: t.name,
-        avgTimeSpent: t.count > 0 ? Math.round(t.totalTime / t.count) : 0,
-      }))
-      // Topics with average time > 30 mins are considered weak
-      .filter((t) => t.avgTimeSpent > 30)
-      .sort((a, b) => b.avgTimeSpent - a.avgTimeSpent)
-  );
+  solvedProgress.forEach((progress) => {
+    if (!byTopic.has(progress.problem.topicId)) {
+      byTopic.set(progress.problem.topicId, {
+        name: progress.problem.topic.name,
+        totalProblems: 0,
+        solvedProblems: 0,
+        avgTimeSpent: 0,
+        completionPct: 0,
+        overdueReviews: 0,
+        masteryScore: 0,
+        weaknessScore: 100,
+      });
+    }
+  });
+
+  return Array.from(byTopic.values())
+    .filter((topic) => topic.totalProblems > 0)
+    .sort((a, b) => b.weaknessScore - a.weaknessScore)
+    .slice(0, 8);
 };
 
 export const getMasteryStats = async (userId: string) => {
-  // Get all topics and their problems
+  const now = new Date();
   const topics = await prisma.topic.findMany({
-    include: { problems: true },
+    include: {
+      problems: {
+        include: {
+          progress: {
+            where: { userId },
+          },
+        },
+      },
+    },
   });
-
-  const userProgress = await prisma.progress.findMany({
-    where: { userId, status: "DONE" },
-  });
-
-  const solvedProblemIds = new Set(userProgress.map((p) => p.problemId));
-
-  const difficultyWeights = {
-    EASY: 1,
-    MEDIUM: 2,
-    HARD: 3,
-  };
 
   const stats = topics.map((topic) => {
     let totalPossibleScore = 0;
     let userScore = 0;
+    let solvedCount = 0;
 
     topic.problems.forEach((prob) => {
-      const weight = difficultyWeights[prob.difficulty] || 1;
+      const weight = difficultyWeight[prob.difficulty] || 1;
       totalPossibleScore += weight;
-      if (solvedProblemIds.has(prob.id)) {
-        userScore += weight;
+
+      const progress = prob.progress[0];
+      if (progress?.status === "DONE") {
+        solvedCount += 1;
+
+        const solveTarget = targetSolveMinutes[prob.difficulty] || 30;
+        const safeTime = Math.max(10, progress.timeSpent || solveTarget);
+        const speedFactor = clamp(solveTarget / safeTime, 0.7, 1.2);
+
+        const daysSinceSolved = progress.completedAt
+          ? Math.floor(
+              (now.getTime() - new Date(progress.completedAt).getTime()) /
+                (1000 * 60 * 60 * 24),
+            )
+          : 365;
+        const recencyFactor = clamp(1.1 - daysSinceSolved / 180, 0.8, 1.1);
+
+        const reviewFactor = progress.nextReviewDate
+          ? new Date(progress.nextReviewDate) <= now
+            ? 0.9
+            : 1.05
+          : 1;
+
+        userScore += weight * speedFactor * recencyFactor * reviewFactor;
       }
     });
 
-    // Calculate mastery as a percentage (0-100)
     const masteryBoost =
       totalPossibleScore > 0 ? (userScore / totalPossibleScore) * 100 : 0;
 
     return {
       subject: topic.name,
-      A: Math.round(masteryBoost), // Our current mastery
+      A: Math.round(clamp(masteryBoost, 0, 100)),
       fullMark: 100,
+      solved: solvedCount,
+      total: topic.problems.length,
     };
   });
 
-  // Sort by name or mastery
   return stats.sort((a, b) => a.subject.localeCompare(b.subject));
 };
 
 export const getDailyProblem = async (userId: string) => {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const daySeed =
+    today.getFullYear() * 10000 +
+    (today.getMonth() + 1) * 100 +
+    today.getDate();
 
-  // Priority 1: Problem due for spaced repetition review
-  const dueForReview = (await prisma.progress.findFirst({
+  const dueForReview = (await prisma.progress.findMany({
     where: {
       userId,
       status: "DONE",
@@ -128,27 +239,175 @@ export const getDailyProblem = async (userId: string) => {
       problem: { include: { topic: true } },
     } as any,
     orderBy: { nextReviewDate: "asc" } as any,
-  })) as any;
+    take: 3,
+  })) as any[];
 
-  if (dueForReview) {
+  if (dueForReview.length > 0) {
+    const primaryReview = dueForReview[0];
     return {
       source: "REVISION" as const,
-      reason: `This problem is due for spaced repetition review. You solved it ${Math.floor((now.getTime() - (dueForReview.completedAt?.getTime() || now.getTime())) / (1000 * 3600 * 24))} days ago.`,
+      reason: `You have ${dueForReview.length} problem${dueForReview.length > 1 ? "s" : ""} due for review. Start with the oldest due item to protect retention.`,
       problem: {
-        id: dueForReview.problem.id,
-        title: dueForReview.problem.title,
-        difficulty: dueForReview.problem.difficulty,
-        link: dueForReview.problem.link,
-        topicName: dueForReview.problem.topic.name,
-        topicId: dueForReview.problem.topicId,
+        id: primaryReview.problem.id,
+        title: primaryReview.problem.title,
+        difficulty: primaryReview.problem.difficulty,
+        link: primaryReview.problem.link,
+        topicName: primaryReview.problem.topic.name,
+        topicId: primaryReview.problem.topicId,
+      },
+      plan: {
+        mode: "RETENTION_FIRST",
+        mix: { weakness: 0, medium: 0, strong: 0, revision: 100 },
+        items: dueForReview.map((review) => ({
+          source: "REVISION",
+          id: review.problem.id,
+          title: review.problem.title,
+          difficulty: review.problem.difficulty,
+          topicName: review.problem.topic.name,
+          topicId: review.problem.topicId,
+          link: review.problem.link,
+        })),
       },
     };
   }
 
-  // Priority 2: Unsolved problem from the weakest topic
   const topics = await prisma.topic.findMany({
-    include: { problems: true },
+    include: {
+      problems: {
+        include: {
+          progress: {
+            where: { userId },
+          },
+        },
+      },
+    },
   });
+
+  const weakTopics = (await getWeakTopics(userId)) as Array<{
+    name: string;
+    masteryScore?: number;
+  }>;
+
+  const weakTopicNames = new Set(
+    weakTopics
+      .filter((topic) => (topic.masteryScore || 0) < 45)
+      .map((t) => t.name),
+  );
+
+  const mediumTopicNames = new Set(
+    weakTopics
+      .filter((topic) => {
+        const score = topic.masteryScore || 0;
+        return score >= 45 && score < 70;
+      })
+      .map((t) => t.name),
+  );
+
+  const strongTopicNames = new Set(
+    weakTopics
+      .filter((topic) => (topic.masteryScore || 0) >= 70)
+      .map((t) => t.name),
+  );
+
+  const unsolvedByTopic = topics
+    .map((topic) => {
+      const unsolved = topic.problems.filter(
+        (problem) => problem.progress[0]?.status !== "DONE",
+      );
+      return {
+        topicId: topic.id,
+        topicName: topic.name,
+        problems: unsolved,
+      };
+    })
+    .filter((entry) => entry.problems.length > 0);
+
+  const byName = new Map(
+    unsolvedByTopic.map((entry) => [entry.topicName, entry]),
+  );
+
+  const pickItems = (
+    topicNames: string[],
+    count: number,
+    fallback: Array<{ topicId: string; topicName: string; problems: any[] }>,
+  ) => {
+    const selected: Array<{
+      source: "WEAKNESS" | "BUILD";
+      id: string;
+      title: string;
+      difficulty: string;
+      topicName: string;
+      topicId: string;
+      link: string | null;
+    }> = [];
+
+    const topicPool = topicNames
+      .map((name) => byName.get(name))
+      .filter(
+        (
+          entry,
+        ): entry is { topicId: string; topicName: string; problems: any[] } =>
+          Boolean(entry),
+      );
+    const workingPool = topicPool.length > 0 ? topicPool : fallback;
+
+    for (let i = 0; i < count; i++) {
+      if (workingPool.length === 0) break;
+      const topicIndex = (daySeed + i) % workingPool.length;
+      const topic = workingPool[topicIndex];
+      if (!topic || topic.problems.length === 0) continue;
+
+      const problemIndex = (daySeed + i * 3) % topic.problems.length;
+      const picked = topic.problems[problemIndex];
+      selected.push({
+        source: "WEAKNESS",
+        id: picked.id,
+        title: picked.title,
+        difficulty: picked.difficulty,
+        topicName: topic.topicName,
+        topicId: topic.topicId,
+        link: picked.link,
+      });
+    }
+
+    return selected;
+  };
+
+  const weakItems = pickItems(Array.from(weakTopicNames), 3, unsolvedByTopic);
+  const mediumItems = pickItems(
+    Array.from(mediumTopicNames),
+    1,
+    unsolvedByTopic,
+  );
+  const strongItems = pickItems(
+    Array.from(strongTopicNames),
+    1,
+    unsolvedByTopic,
+  );
+
+  const planItems = [...weakItems, ...mediumItems, ...strongItems].slice(0, 5);
+
+  if (planItems.length > 0) {
+    const primary = planItems[0];
+    return {
+      source: "WEAKNESS" as const,
+      reason:
+        "Today is weakness-first day: 60% weak topics, 30% medium-confidence, 10% strong-topic retention.",
+      problem: {
+        id: primary.id,
+        title: primary.title,
+        difficulty: primary.difficulty,
+        link: primary.link,
+        topicName: primary.topicName,
+        topicId: primary.topicId,
+      },
+      plan: {
+        mode: "WEAKNESS_FIRST",
+        mix: { weakness: 60, medium: 30, strong: 10, revision: 0 },
+        items: planItems,
+      },
+    };
+  }
 
   const userProgress = await prisma.progress.findMany({
     where: { userId },
@@ -196,11 +455,131 @@ export const getDailyProblem = async (userId: string) => {
         topicName: weakest.topic.name,
         topicId: weakest.topic.id,
       },
+      plan: {
+        mode: "SINGLE_PICK",
+        mix: { weakness: 100, medium: 0, strong: 0, revision: 0 },
+        items: [
+          {
+            source: "WEAKNESS",
+            id: picked.id,
+            title: picked.title,
+            difficulty: picked.difficulty,
+            topicName: weakest.topic.name,
+            topicId: weakest.topic.id,
+            link: picked.link,
+          },
+        ],
+      },
     };
   }
 
   // Priority 3: All done — no problems left
   return null;
+};
+
+export const getInterviewReadinessIndex = async (userId: string) => {
+  const now = new Date();
+  const last14d = new Date(now);
+  last14d.setDate(last14d.getDate() - 14);
+
+  const [progress, topics] = await Promise.all([
+    prisma.progress.findMany({
+      where: { userId, status: "DONE" },
+      include: { problem: true },
+    }),
+    prisma.topic.findMany({ include: { problems: true } }),
+  ]);
+
+  if (progress.length === 0) {
+    return {
+      score: 0,
+      level: "Not Ready",
+      metrics: {
+        timedMediumHard: 0,
+        consistency14d: 0,
+        revisionReliability: 0,
+        topicCoverage: 0,
+      },
+      snapshot: {
+        solvedLast14d: 0,
+        solvedTotal: 0,
+        mediumHardSolved: 0,
+        coveredTopics: 0,
+        totalTopics: topics.length,
+      },
+    };
+  }
+
+  const mediumHard = progress.filter(
+    (entry) =>
+      entry.problem.difficulty === "MEDIUM" ||
+      entry.problem.difficulty === "HARD",
+  );
+  const mediumHardTimed = mediumHard.filter((entry) => {
+    const limit = entry.problem.difficulty === "MEDIUM" ? 45 : 70;
+    return entry.timeSpent > 0 && entry.timeSpent <= limit;
+  });
+  const timedMediumHard =
+    mediumHard.length > 0
+      ? Math.round((mediumHardTimed.length / mediumHard.length) * 100)
+      : 0;
+
+  const solvedLast14d = progress.filter(
+    (entry) => entry.completedAt && new Date(entry.completedAt) >= last14d,
+  ).length;
+  const consistency14d = Math.round(clamp((solvedLast14d / 14) * 100, 0, 100));
+
+  const reviewTracked = progress.filter(
+    (entry) => entry.nextReviewDate !== null,
+  );
+  const reviewOnTrack = reviewTracked.filter(
+    (entry) => entry.nextReviewDate && new Date(entry.nextReviewDate) > now,
+  );
+  const revisionReliability =
+    reviewTracked.length > 0
+      ? Math.round((reviewOnTrack.length / reviewTracked.length) * 100)
+      : 100;
+
+  const solvedSet = new Set(progress.map((entry) => entry.problemId));
+  const coveredTopics = topics.filter((topic) =>
+    topic.problems.some((problem) => solvedSet.has(problem.id)),
+  ).length;
+  const topicCoverage =
+    topics.length > 0 ? Math.round((coveredTopics / topics.length) * 100) : 0;
+
+  const score = Math.round(
+    timedMediumHard * 0.35 +
+      consistency14d * 0.25 +
+      revisionReliability * 0.2 +
+      topicCoverage * 0.2,
+  );
+
+  const level =
+    score >= 80
+      ? "Interview Ready"
+      : score >= 60
+        ? "Nearly Ready"
+        : score >= 40
+          ? "Developing"
+          : "Foundational";
+
+  return {
+    score,
+    level,
+    metrics: {
+      timedMediumHard,
+      consistency14d,
+      revisionReliability,
+      topicCoverage,
+    },
+    snapshot: {
+      solvedLast14d,
+      solvedTotal: progress.length,
+      mediumHardSolved: mediumHard.length,
+      coveredTopics,
+      totalTopics: topics.length,
+    },
+  };
 };
 
 export const getTimeAnalytics = async (userId: string) => {

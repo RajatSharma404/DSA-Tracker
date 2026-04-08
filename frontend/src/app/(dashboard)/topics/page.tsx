@@ -17,6 +17,7 @@ import {
 import Link from "next/link";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { getDifficultyStyle } from "@/lib/design-tokens";
 
 const AIMentorHint = dynamic(
   () => import("@/components/dashboard/AIMentorHint"),
@@ -222,7 +223,17 @@ function TopicAccordion({
         }}
       />
       <div
+        role="button"
+        tabIndex={0}
+        aria-expanded={isExpanded}
+        aria-label={`${isExpanded ? "Collapse" : "Expand"} topic ${topic.name}`}
         onClick={onToggle}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            onToggle();
+          }
+        }}
         className="relative z-10 flex items-center justify-between p-5 cursor-pointer hover:bg-[#1a1a1a] transition-colors"
       >
         <div className="flex items-center gap-4">
@@ -288,7 +299,12 @@ function TopicAccordion({
                         e.stopPropagation();
                         handleProgressUpdate(problem.id, problem.status);
                       }}
-                      className="mt-1 sm:mt-0 shrink-0 focus:outline-none transition-transform active:scale-90"
+                      aria-label={
+                        problem.status === "DONE"
+                          ? "Mark as not done"
+                          : "Mark as done"
+                      }
+                      className="mt-1 sm:mt-0 shrink-0 transition-transform active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 rounded-lg"
                     >
                       {problem.status === "DONE" ? (
                         <CheckCircle2 size={20} className="text-green-500" />
@@ -313,12 +329,15 @@ function TopicAccordion({
                         <span
                           className={cn(
                             "text-xs px-2 py-0.5 rounded-full font-medium tracking-wide",
-                            problem.difficulty === "EASY" &&
-                              "bg-green-500/10 text-green-500",
-                            problem.difficulty === "MEDIUM" &&
-                              "bg-yellow-500/10 text-yellow-500",
-                            problem.difficulty === "HARD" &&
-                              "bg-red-500/10 text-red-500",
+                            (() => {
+                              const style = getDifficultyStyle(
+                                problem.difficulty as
+                                  | "EASY"
+                                  | "MEDIUM"
+                                  | "HARD",
+                              );
+                              return `${style.bg} ${style.text}`;
+                            })(),
                           )}
                         >
                           {problem.difficulty}
@@ -359,7 +378,7 @@ function TopicAccordion({
                   <div className="flex gap-2 mt-4 sm:mt-0">
                     <Link
                       href={`/problems/${problem.id}`}
-                      className="flex items-center gap-1.5 text-sm text-white font-medium hover:text-white transition-colors bg-linear-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 px-4 py-2 rounded-lg shadow-lg shadow-blue-500/20"
+                      className="flex items-center gap-1.5 text-sm text-white font-medium hover:text-white transition-colors bg-linear-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 px-4 py-2 rounded-lg shadow-lg shadow-blue-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
                     >
                       <Code2 size={14} />
                       Solve
@@ -369,7 +388,8 @@ function TopicAccordion({
                         href={problem.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-300 transition-colors bg-white/5 hover:bg-white/10 px-3 py-2 rounded-lg"
+                        aria-label="Open on LeetCode"
+                        className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-300 transition-colors bg-white/5 hover:bg-white/10 px-3 py-2 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
                         title="Open in LeetCode"
                       >
                         <ExternalLink size={14} />
@@ -412,7 +432,8 @@ function TopicStrategy({ topicId }: { topicId: string }) {
     <div className="mb-6">
       <button
         onClick={fetchStrategy}
-        className="flex items-center gap-2 text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors"
+        aria-expanded={isOpen}
+        className="flex items-center gap-2 text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 rounded-lg"
       >
         <Sparkles size={14} />
         {isOpen

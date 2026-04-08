@@ -20,25 +20,52 @@ import {
   RotateCcw,
   Brain,
   GraduationCap,
+  type LucideIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 
-const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard", href: "/" },
-  { icon: GraduationCap, label: "Learn", href: "/learn" },
-  { icon: Network, label: "Visual Roadmap", href: "/roadmap" },
-  { icon: BookOpen, label: "Topics", href: "/topics" },
-  { icon: Library, label: "The Vault", href: "/vault" },
-  { icon: BarChart3, label: "Analytics", href: "/analytics" },
-  { icon: Trophy, label: "Achievements", href: "/achievements" },
-  { icon: FileText, label: "Weekly Report", href: "/weekly-report" },
-  { icon: Search, label: "Explore", href: "/search" },
-  { icon: RotateCcw, label: "Review Queue", href: "/review" },
-  { icon: Brain, label: "AI Recommend", href: "/recommendations" },
-  { icon: Zap, label: "The Arena", href: "/challenge" },
-  { icon: Target, label: "Mock Interviews", href: "/interviews" },
-  { icon: Settings, label: "Settings", href: "/settings" },
+type NavItem = {
+  icon: LucideIcon;
+  label: string;
+  href: string;
+};
+
+const navSections: Array<{ title: string; items: NavItem[] }> = [
+  {
+    title: "Practice",
+    items: [
+      { icon: LayoutDashboard, label: "Dashboard", href: "/" },
+      { icon: GraduationCap, label: "Learn", href: "/learn" },
+      { icon: Network, label: "Visual Roadmap", href: "/roadmap" },
+      { icon: BookOpen, label: "Topics", href: "/topics" },
+      { icon: Zap, label: "The Arena", href: "/challenge" },
+      { icon: Target, label: "Mock Interviews", href: "/interviews" },
+    ],
+  },
+  {
+    title: "Review",
+    items: [
+      { icon: RotateCcw, label: "Review Queue", href: "/review" },
+      { icon: Brain, label: "AI Recommend", href: "/recommendations" },
+      { icon: Search, label: "Explore", href: "/search" },
+    ],
+  },
+  {
+    title: "Analyze",
+    items: [
+      { icon: BarChart3, label: "Analytics", href: "/analytics" },
+      { icon: Trophy, label: "Achievements", href: "/achievements" },
+      { icon: FileText, label: "Weekly Report", href: "/weekly-report" },
+    ],
+  },
+  {
+    title: "Manage",
+    items: [
+      { icon: Library, label: "The Vault", href: "/vault" },
+      { icon: Settings, label: "Settings", href: "/settings" },
+    ],
+  },
 ];
 
 export function Sidebar() {
@@ -57,13 +84,21 @@ export function Sidebar() {
     hasMounted &&
     ((session?.user as { role?: string } | undefined)?.role || "USER") ===
       "ADMIN";
-  const displayItems = [...navItems];
+  const displaySections = navSections.map((section) => ({
+    ...section,
+    items: [...section.items],
+  }));
   if (isAdmin) {
-    displayItems.push({
-      icon: ShieldCheck,
-      label: "Admin Panel",
-      href: "/admin",
-    });
+    const manageSection = displaySections.find(
+      (section) => section.title === "Manage",
+    );
+    if (manageSection) {
+      manageSection.items.push({
+        icon: ShieldCheck,
+        label: "Admin Panel",
+        href: "/admin",
+      });
+    }
   }
 
   return (
@@ -90,30 +125,44 @@ export function Sidebar() {
         </button>
       </div>
 
-      <nav className="flex-1 py-4 space-y-1" aria-label="Navigation menu">
-        {displayItems.map((item) => {
-          const isActive =
-            pathname === item.href ||
-            (item.href !== "/" && pathname.startsWith(item.href));
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center px-4 py-3 cursor-pointer transition-colors ${
-                isActive
-                  ? "bg-[#222] text-white border-r-2 border-white"
-                  : "hover:bg-[#1a1a1a] hover:text-gray-200"
-              }`}
-              aria-current={isActive ? "page" : undefined}
-              title={effectiveCollapsed ? item.label : undefined}
-            >
-              <item.icon size={20} className={isActive ? "text-white" : ""} />
-              {!effectiveCollapsed && (
-                <span className="ml-3 font-medium">{item.label}</span>
-              )}
-            </Link>
-          );
-        })}
+      <nav className="flex-1 overflow-y-auto py-3" aria-label="Navigation menu">
+        {displaySections.map((section) => (
+          <div key={section.title} className="mb-4">
+            {!effectiveCollapsed && (
+              <p className="px-4 mb-1 text-[10px] font-black uppercase tracking-widest text-gray-600">
+                {section.title}
+              </p>
+            )}
+            <div className="space-y-1">
+              {section.items.map((item) => {
+                const isActive =
+                  pathname === item.href ||
+                  (item.href !== "/" && pathname.startsWith(item.href));
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center px-4 py-3 cursor-pointer transition-colors ${
+                      isActive
+                        ? "bg-[#222] text-white border-r-2 border-white"
+                        : "hover:bg-[#1a1a1a] hover:text-gray-200"
+                    }`}
+                    aria-current={isActive ? "page" : undefined}
+                    title={effectiveCollapsed ? item.label : undefined}
+                  >
+                    <item.icon
+                      size={20}
+                      className={isActive ? "text-white" : ""}
+                    />
+                    {!effectiveCollapsed && (
+                      <span className="ml-3 font-medium">{item.label}</span>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
       <div className="p-4 border-t border-[#222]">

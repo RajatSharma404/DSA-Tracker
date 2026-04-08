@@ -16,6 +16,7 @@ import {
   Download,
   ExternalLink,
 } from "lucide-react";
+import { getDifficultyStyle, getStatusStyle } from "@/lib/design-tokens";
 
 interface SearchResult {
   id: string;
@@ -163,18 +164,21 @@ export default function SearchPage() {
   };
 
   const getDifficultyColor = (d: string) => {
-    if (d === "EASY")
-      return "text-green-400 bg-green-500/10 border-green-500/20";
-    if (d === "MEDIUM")
-      return "text-yellow-400 bg-yellow-500/10 border-yellow-500/20";
-    return "text-red-400 bg-red-500/10 border-red-500/20";
+    const style = getDifficultyStyle(d as "EASY" | "MEDIUM" | "HARD");
+    return `${style.text} ${style.bg} ${style.border}`;
   };
 
   const getStatusColor = (s: string) => {
-    if (s === "DONE")
-      return "text-green-400 bg-green-500/10 border-green-500/20";
-    if (s === "DOING") return "text-blue-400 bg-blue-500/10 border-blue-500/20";
-    return "text-gray-400 bg-gray-500/10 border-gray-500/20";
+    if (s === "DONE") {
+      const style = getStatusStyle("success");
+      return `${style.text} ${style.bg} ${style.border}`;
+    }
+    if (s === "DOING") {
+      const style = getStatusStyle("info");
+      return `${style.text} ${style.bg} ${style.border}`;
+    }
+    const style = getStatusStyle("warning");
+    return `${style.text} ${style.bg} ${style.border}`;
   };
 
   const TAG_COLORS = [
@@ -205,7 +209,7 @@ export default function SearchPage() {
           <button
             onClick={() => handleExport("csv")}
             disabled={exporting}
-            className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-bold text-gray-300 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-bold text-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
           >
             <Download size={14} />
             {exporting ? "Exporting..." : "Export CSV"}
@@ -213,7 +217,7 @@ export default function SearchPage() {
           <button
             onClick={() => handleExport("json")}
             disabled={exporting}
-            className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-bold text-gray-300 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-bold text-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
           >
             <Download size={14} />
             JSON
@@ -239,7 +243,9 @@ export default function SearchPage() {
       {/* Filters Toggle */}
       <button
         onClick={() => setShowFilters(!showFilters)}
-        className="flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-white transition-colors"
+        aria-expanded={showFilters}
+        aria-controls="search-filters-panel"
+        className="flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 rounded-lg"
       >
         <Filter size={14} />
         Filters & Tags
@@ -251,7 +257,10 @@ export default function SearchPage() {
 
       {/* Filters Panel */}
       {showFilters && (
-        <div className="p-6 rounded-2xl bg-[#0d0d0d] border border-white/5 space-y-6">
+        <div
+          id="search-filters-panel"
+          className="p-6 rounded-2xl bg-[#0d0d0d] border border-white/5 space-y-6"
+        >
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Difficulty */}
             <div>
@@ -313,6 +322,7 @@ export default function SearchPage() {
               </label>
               <button
                 onClick={() => setBookmarkedOnly(!bookmarkedOnly)}
+                aria-pressed={bookmarkedOnly}
                 className={`w-full px-3 py-2 rounded-lg border text-sm font-bold transition-all ${
                   bookmarkedOnly
                     ? "bg-yellow-500/10 border-yellow-500/30 text-yellow-400"
@@ -338,7 +348,8 @@ export default function SearchPage() {
               </label>
               <button
                 onClick={() => setShowTagCreate(!showTagCreate)}
-                className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1"
+                aria-expanded={showTagCreate}
+                className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 rounded-lg"
               >
                 <Plus size={12} /> New Tag
               </button>
@@ -360,6 +371,7 @@ export default function SearchPage() {
                     <button
                       key={c}
                       onClick={() => setNewTagColor(c)}
+                      aria-label={`Select tag color ${c}`}
                       className={`w-5 h-5 rounded-full transition-transform ${newTagColor === c ? "scale-125 ring-2 ring-white/30" : ""}`}
                       style={{ backgroundColor: c }}
                     />
@@ -367,7 +379,7 @@ export default function SearchPage() {
                 </div>
                 <button
                   onClick={handleCreateTag}
-                  className="px-3 py-1.5 rounded-lg bg-purple-500/20 text-purple-400 text-xs font-bold hover:bg-purple-500/30"
+                  className="px-3 py-1.5 rounded-lg bg-purple-500/20 text-purple-400 text-xs font-bold hover:bg-purple-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
                 >
                   Create
                 </button>
@@ -378,6 +390,7 @@ export default function SearchPage() {
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setSelectedTag("")}
+                aria-pressed={!selectedTag}
                 className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${
                   !selectedTag
                     ? "bg-white/10 border-white/20 text-white"
@@ -392,6 +405,7 @@ export default function SearchPage() {
                     onClick={() =>
                       setSelectedTag(selectedTag === tag.id ? "" : tag.id)
                     }
+                    aria-pressed={selectedTag === tag.id}
                     className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all border flex items-center gap-1.5 ${
                       selectedTag === tag.id
                         ? "border-white/20 text-white"
@@ -417,7 +431,8 @@ export default function SearchPage() {
                   </button>
                   <button
                     onClick={() => handleDeleteTag(tag.id)}
-                    className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                    aria-label={`Delete tag ${tag.name}`}
+                    className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
                   >
                     <X size={8} />
                   </button>
@@ -448,7 +463,10 @@ export default function SearchPage() {
               {/* Bookmark Button */}
               <button
                 onClick={() => handleToggleBookmark(problem.id)}
-                className="shrink-0 transition-colors"
+                aria-label={
+                  problem.isBookmarked ? "Remove bookmark" : "Add bookmark"
+                }
+                className="shrink-0 transition-colors rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
               >
                 {problem.isBookmarked ? (
                   <BookmarkCheck
@@ -507,7 +525,10 @@ export default function SearchPage() {
             <div className="flex items-center gap-2">
               {tags.length > 0 && (
                 <div className="relative group/tag">
-                  <button className="p-1.5 rounded-lg hover:bg-white/5 text-gray-600 hover:text-gray-300 transition-colors">
+                  <button
+                    aria-label="Manage tags"
+                    className="p-1.5 rounded-lg hover:bg-white/5 text-gray-600 hover:text-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
+                  >
                     <Tag size={14} />
                   </button>
                   <div className="absolute right-0 top-full mt-1 w-40 bg-[#1a1a1a] border border-white/10 rounded-xl p-2 hidden group-hover/tag:block z-10 shadow-xl">
@@ -524,6 +545,7 @@ export default function SearchPage() {
                               ? "bg-white/10 text-white"
                               : "text-gray-400 hover:bg-white/5 hover:text-white"
                           }`}
+                          aria-label={`${isTagged ? "Remove" : "Apply"} ${tag.name} tag`}
                         >
                           <span
                             className="w-2 h-2 rounded-full"
@@ -544,7 +566,8 @@ export default function SearchPage() {
                   href={problem.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-1.5 rounded-lg hover:bg-white/5 text-gray-600 hover:text-gray-300 transition-colors"
+                  aria-label="Open on LeetCode"
+                  className="p-1.5 rounded-lg hover:bg-white/5 text-gray-600 hover:text-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
                 >
                   <ExternalLink size={14} />
                 </a>

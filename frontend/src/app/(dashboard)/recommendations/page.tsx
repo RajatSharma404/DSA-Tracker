@@ -13,6 +13,7 @@ import {
   TrendingUp,
   BookOpen,
 } from "lucide-react";
+import { getDifficultyStyle } from "@/lib/design-tokens";
 
 interface NextAction {
   mode: "REVISION" | "WEAKNESS" | "BUILD_MOMENTUM" | "BALANCED";
@@ -104,11 +105,13 @@ export default function RecommendationsPage() {
 
   const getDifficultyColor = (d: string) => {
     const lower = d.toLowerCase();
-    if (lower.includes("easy"))
-      return "text-green-400 bg-green-500/10 border-green-500/20";
-    if (lower.includes("medium"))
-      return "text-yellow-400 bg-yellow-500/10 border-yellow-500/20";
-    return "text-red-400 bg-red-500/10 border-red-500/20";
+    const mapped = lower.includes("easy")
+      ? "EASY"
+      : lower.includes("medium")
+        ? "MEDIUM"
+        : "HARD";
+    const style = getDifficultyStyle(mapped);
+    return `${style.text} ${style.bg} ${style.border}`;
   };
 
   if (loading) {
@@ -147,7 +150,7 @@ export default function RecommendationsPage() {
         <p className="text-gray-400 text-sm">{error}</p>
         <button
           onClick={fetchRecommendations}
-          className="flex items-center gap-2 px-4 py-2 bg-purple-500/20 text-purple-400 rounded-xl text-sm font-bold hover:bg-purple-500/30 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-purple-500/20 text-purple-400 rounded-xl text-sm font-bold hover:bg-purple-500/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
         >
           <RefreshCw size={14} /> Try Again
         </button>
@@ -179,7 +182,7 @@ export default function RecommendationsPage() {
         <button
           onClick={fetchRecommendations}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2.5 bg-purple-500/20 text-purple-400 rounded-xl text-sm font-bold hover:bg-purple-500/30 transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5 bg-purple-500/20 text-purple-400 rounded-xl text-sm font-bold hover:bg-purple-500/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
         >
           <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
           Refresh
@@ -269,7 +272,7 @@ export default function RecommendationsPage() {
           </div>
           <button
             onClick={saveGoalPlan}
-            className="mt-4 inline-flex items-center justify-center rounded-xl bg-white px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-black transition-transform hover:scale-[1.02]"
+            className="mt-4 inline-flex items-center justify-center rounded-xl bg-white px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-black transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
           >
             Save goal
           </button>

@@ -1,15 +1,23 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { dsaApi } from '@/lib/api';
+import React, { useState, useEffect } from "react";
+import { dsaApi } from "@/lib/api";
 import {
-  Crosshair, ExternalLink, RotateCcw, Zap, Brain,
-  ArrowRight, Loader2, Trophy, Sparkles
-} from 'lucide-react';
-import Link from 'next/link';
+  Crosshair,
+  ExternalLink,
+  RotateCcw,
+  Zap,
+  Brain,
+  ArrowRight,
+  Loader2,
+  Trophy,
+  Sparkles,
+} from "lucide-react";
+import Link from "next/link";
+import { trackEvent } from "@/lib/analytics";
 
 interface DailyProblem {
-  source: 'REVISION' | 'WEAKNESS';
+  source: "REVISION" | "WEAKNESS";
   reason: string;
   problem: {
     id: string;
@@ -19,32 +27,65 @@ interface DailyProblem {
     topicName: string;
     topicId: string;
   };
+  plan?: {
+    mode: string;
+    mix: {
+      weakness: number;
+      medium: number;
+      strong: number;
+      revision: number;
+    };
+    items: Array<{
+      source: string;
+      id: string;
+      title: string;
+      difficulty: string;
+      topicName: string;
+      topicId: string;
+      link: string | null;
+    }>;
+  };
 }
 
-const DIFFICULTY_STYLES: Record<string, { bg: string; text: string; border: string }> = {
-  EASY:   { bg: 'bg-green-500/10', text: 'text-green-400', border: 'border-green-500/30' },
-  MEDIUM: { bg: 'bg-yellow-500/10', text: 'text-yellow-400', border: 'border-yellow-500/30' },
-  HARD:   { bg: 'bg-red-500/10', text: 'text-red-400', border: 'border-red-500/30' },
+const DIFFICULTY_STYLES: Record<
+  string,
+  { bg: string; text: string; border: string }
+> = {
+  EASY: {
+    bg: "bg-green-500/10",
+    text: "text-green-400",
+    border: "border-green-500/30",
+  },
+  MEDIUM: {
+    bg: "bg-yellow-500/10",
+    text: "text-yellow-400",
+    border: "border-yellow-500/30",
+  },
+  HARD: {
+    bg: "bg-red-500/10",
+    text: "text-red-400",
+    border: "border-red-500/30",
+  },
 };
 
 const SOURCE_CONFIG = {
   REVISION: {
-    gradient: 'from-blue-600/20 via-cyan-600/10 to-transparent',
-    accent: 'text-blue-400',
-    accentBg: 'bg-blue-500/10',
-    accentBorder: 'border-blue-500/20',
+    gradient: "from-blue-600/20 via-cyan-600/10 to-transparent",
+    accent: "text-blue-400",
+    accentBg: "bg-blue-500/10",
+    accentBorder: "border-blue-500/20",
     icon: <RotateCcw size={16} />,
-    label: 'REVISION DUE',
-    glow: 'shadow-[0_0_60px_rgba(59,130,246,0.15)]',
+    label: "REVISION DUE",
+    glow: "shadow-[0_0_60px_rgba(59,130,246,0.15)]",
   },
   WEAKNESS: {
-    gradient: 'from-amber-600/20 via-orange-600/10 to-transparent',
-    accent: 'text-amber-400',
-    accentBg: 'bg-amber-500/10',
-    accentBorder: 'border-amber-500/20',
+    gradient: "from-amber-600/20 via-orange-600/10 to-transparent",
+    accent: "text-amber-400",
+    accentBg: "bg-amber-500/10",
+    accentBorder: "border-amber-500/20",
     icon: <Crosshair size={16} />,
-    label: 'WEAKNESS TARGET',
-    glow: 'shadow-[0_0_60px_rgba(245,158,11,0.15)]',
+    label: "WEAKNESS TARGET",
+    glow: "shadow-[0_0_60px_rgba(245,158,11,0.15)]",
   },
 };
 
@@ -62,16 +103,16 @@ export default function DailyFocus() {
     try {
       const [regularData, lcData] = await Promise.allSettled([
         dsaApi.getDailyProblem(),
-        dsaApi.getLeetcodeDailyChallenge()
+        dsaApi.getLeetcodeDailyChallenge(),
       ]);
 
       let hasData = false;
-      if (regularData.status === 'fulfilled' && regularData.value) {
+      if (regularData.status === "fulfilled" && regularData.value) {
         setDaily(regularData.value);
         hasData = true;
       }
-      
-      if (lcData.status === 'fulfilled' && lcData.value) {
+
+      if (lcData.status === "fulfilled" && lcData.value) {
         setDailyLc(lcData.value);
         hasData = true;
       }
@@ -91,7 +132,9 @@ export default function DailyFocus() {
       <div className="p-8 rounded-[2.5rem] bg-[#0d0d0d] border border-white/5 flex items-center justify-center h-48">
         <div className="flex items-center gap-3">
           <Loader2 size={18} className="animate-spin text-gray-600" />
-          <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">Loading today&apos;s focus...</span>
+          <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">
+            Loading today&apos;s focus...
+          </span>
         </div>
       </div>
     );
@@ -105,9 +148,12 @@ export default function DailyFocus() {
           <div className="p-4 rounded-2xl bg-green-500/10 text-green-400 border border-green-500/20 mb-4">
             <Trophy size={28} />
           </div>
-          <h3 className="text-lg font-black text-white uppercase tracking-tight">All Problems Conquered</h3>
+          <h3 className="text-lg font-black text-white uppercase tracking-tight">
+            All Problems Conquered
+          </h3>
           <p className="text-[11px] text-gray-500 font-medium mt-1 max-w-sm">
-            You&apos;ve solved every problem in your roadmap. Keep reviewing to maintain your edge!
+            You&apos;ve solved every problem in your roadmap. Keep reviewing to
+            maintain your edge!
           </p>
         </div>
       </div>
@@ -115,16 +161,25 @@ export default function DailyFocus() {
   }
 
   const now = new Date();
-  const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  const dateStr = now.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
 
   // If daily is present, use its config, else use a default glow
   const config = daily ? SOURCE_CONFIG[daily.source] : SOURCE_CONFIG.REVISION;
+  const planItems = daily?.plan?.items?.slice(0, 3) || [];
 
   return (
-    <div className={`p-8 rounded-[2.5rem] bg-[#0d0d0d] border border-white/5 relative overflow-hidden ${config.glow} group transition-all duration-700 hover:border-white/10`}>
+    <div
+      className={`p-8 rounded-[2.5rem] bg-[#0d0d0d] border border-white/5 relative overflow-hidden ${config.glow} group transition-all duration-700 hover:border-white/10`}
+    >
       {/* Background gradient */}
-      <div className={`absolute inset-0 bg-gradient-to-r ${config.gradient} pointer-events-none opacity-60 group-hover:opacity-100 transition-opacity duration-700`} />
-      
+      <div
+        className={`absolute inset-0 bg-gradient-to-r ${config.gradient} pointer-events-none opacity-60 group-hover:opacity-100 transition-opacity duration-700`}
+      />
+
       {/* Floating sparkle */}
       <div className="absolute top-6 right-6 text-white/[0.03]">
         <Sparkles size={80} />
@@ -134,14 +189,18 @@ export default function DailyFocus() {
         {/* Top Bar */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className={`p-2.5 rounded-xl ${config.accentBg} ${config.accent} border ${config.accentBorder}`}>
-              <Crosshair size={18} />
+            <div
+              className={`p-2.5 rounded-xl ${config.accentBg} ${config.accent} border ${config.accentBorder}`}
+            >
+              {config.icon}
             </div>
             <div>
               <h3 className="text-lg font-black text-white uppercase tracking-tight flex items-center gap-2">
                 Today&apos;s Focus
               </h3>
-              <p className="text-[9px] text-gray-600 font-bold uppercase tracking-widest">{dateStr}</p>
+              <p className="text-[9px] text-gray-600 font-bold uppercase tracking-widest">
+                {dateStr}
+              </p>
             </div>
           </div>
         </div>
@@ -153,21 +212,51 @@ export default function DailyFocus() {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase ${DIFFICULTY_STYLES[daily.problem.difficulty]?.bg || DIFFICULTY_STYLES.MEDIUM.bg} ${DIFFICULTY_STYLES[daily.problem.difficulty]?.text || DIFFICULTY_STYLES.MEDIUM.text} border ${DIFFICULTY_STYLES[daily.problem.difficulty]?.border || DIFFICULTY_STYLES.MEDIUM.border}`}>
+                    <span
+                      className={`px-2 py-0.5 rounded text-[9px] font-black uppercase ${DIFFICULTY_STYLES[daily.problem.difficulty]?.bg || DIFFICULTY_STYLES.MEDIUM.bg} ${DIFFICULTY_STYLES[daily.problem.difficulty]?.text || DIFFICULTY_STYLES.MEDIUM.text} border ${DIFFICULTY_STYLES[daily.problem.difficulty]?.border || DIFFICULTY_STYLES.MEDIUM.border}`}
+                    >
                       {daily.problem.difficulty}
                     </span>
-                    <span className="text-[9px] font-bold text-gray-600 uppercase tracking-widest">{daily.problem.topicName}</span>
+                    <span className="text-[9px] font-bold text-gray-600 uppercase tracking-widest">
+                      {daily.problem.topicName}
+                    </span>
                   </div>
-                  <div className={`flex items-center gap-1 px-2 py-0.5 ${config.accentBg} ${config.accent} border ${config.accentBorder} rounded-full`}>
+                  <div
+                    className={`flex items-center gap-1 px-2 py-0.5 ${config.accentBg} ${config.accent} border ${config.accentBorder} rounded-full`}
+                  >
                     {config.icon}
-                    <span className="text-[8px] font-black uppercase tracking-widest">{config.label}</span>
+                    <span className="text-[8px] font-black uppercase tracking-widest">
+                      {config.label}
+                    </span>
                   </div>
                 </div>
-                <h4 className="text-base font-black text-white mb-2 break-words">{daily.problem.title}</h4>
+                <h4 className="text-base font-black text-white mb-2 break-words">
+                  {daily.problem.title}
+                </h4>
                 <p className="text-[11px] text-gray-400 leading-relaxed mb-4">
                   <Brain size={11} className="inline mr-1 -mt-0.5" />
                   {daily.reason}
                 </p>
+                {planItems.length > 1 && (
+                  <div className="rounded-xl border border-white/5 bg-black/20 p-3 mb-4">
+                    <p className="text-[9px] font-black uppercase tracking-widest text-gray-500 mb-2">
+                      Session Plan
+                    </p>
+                    <div className="space-y-1.5">
+                      {planItems.map((item, index) => (
+                        <p
+                          key={`${item.id}-${index}`}
+                          className="text-[11px] text-gray-300 truncate"
+                        >
+                          <span className="text-gray-500 mr-1">
+                            {index + 1}.
+                          </span>
+                          {item.title}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center gap-2">
@@ -176,6 +265,13 @@ export default function DailyFocus() {
                     href={daily.problem.link}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() =>
+                      trackEvent("today_plan_item_opened", {
+                        source: daily.source,
+                        type: "regular-daily",
+                        problemId: daily.problem.id,
+                      })
+                    }
                     className="flex-1 flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg shadow-white/10"
                   >
                     Solve Now
@@ -184,6 +280,13 @@ export default function DailyFocus() {
                 )}
                 <Link
                   href="/topics"
+                  onClick={() =>
+                    trackEvent("today_plan_item_opened", {
+                      source: daily.source,
+                      type: "view-topic",
+                      topicId: daily.problem.topicId,
+                    })
+                  }
                   className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white/5 text-gray-300 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all border border-white/5"
                 >
                   View
@@ -199,22 +302,35 @@ export default function DailyFocus() {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase ${DIFFICULTY_STYLES[dailyLc.question.difficulty.toUpperCase()]?.bg || DIFFICULTY_STYLES.MEDIUM.bg} ${DIFFICULTY_STYLES[dailyLc.question.difficulty.toUpperCase()]?.text || DIFFICULTY_STYLES.MEDIUM.text} border ${DIFFICULTY_STYLES[dailyLc.question.difficulty.toUpperCase()]?.border || DIFFICULTY_STYLES.MEDIUM.border}`}>
+                    <span
+                      className={`px-2 py-0.5 rounded text-[9px] font-black uppercase ${DIFFICULTY_STYLES[dailyLc.question.difficulty.toUpperCase()]?.bg || DIFFICULTY_STYLES.MEDIUM.bg} ${DIFFICULTY_STYLES[dailyLc.question.difficulty.toUpperCase()]?.text || DIFFICULTY_STYLES.MEDIUM.text} border ${DIFFICULTY_STYLES[dailyLc.question.difficulty.toUpperCase()]?.border || DIFFICULTY_STYLES.MEDIUM.border}`}
+                    >
                       {dailyLc.question.difficulty}
                     </span>
                     <span className="text-[9px] font-bold text-gray-600 uppercase tracking-widest">
-                      {dailyLc.question.topicTags?.[0]?.name || 'LeetCode'}
+                      {dailyLc.question.topicTags?.[0]?.name || "LeetCode"}
                     </span>
                   </div>
-                  <div className={`flex items-center gap-1 px-2 py-0.5 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 rounded-full`}>
+                  <div
+                    className={`flex items-center gap-1 px-2 py-0.5 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 rounded-full`}
+                  >
                     <Zap size={10} />
-                    <span className="text-[8px] font-black uppercase tracking-widest">Global Daily</span>
+                    <span className="text-[8px] font-black uppercase tracking-widest">
+                      Global Daily
+                    </span>
                   </div>
                 </div>
-                <h4 className="text-base font-black text-white mb-2 break-words">{dailyLc.question.title}</h4>
+                <h4 className="text-base font-black text-white mb-2 break-words">
+                  {dailyLc.question.title}
+                </h4>
                 <p className="text-[11px] text-gray-400 leading-relaxed mb-4">
-                  <img src="https://leetcode.com/static/images/LeetCode_logo_rvs.png" className="inline w-3 h-3 mr-1.5 grayscale opacity-70" alt="" />
-                  LeetCode's official problem of the day. Keep your streak alive!
+                  <img
+                    src="https://leetcode.com/static/images/LeetCode_logo_rvs.png"
+                    className="inline w-3 h-3 mr-1.5 grayscale opacity-70"
+                    alt=""
+                  />
+                  LeetCode's official problem of the day. Keep your streak
+                  alive!
                 </p>
               </div>
 
@@ -223,6 +339,13 @@ export default function DailyFocus() {
                   href={`https://leetcode.com${dailyLc.link}`}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() =>
+                    trackEvent("today_plan_item_opened", {
+                      source: "WEAKNESS",
+                      type: "leetcode-daily",
+                      title: dailyLc.question?.title,
+                    })
+                  }
                   className="flex-1 flex items-center justify-center gap-2 px-5 py-2.5 bg-[#ffa116] text-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#ffb84d] hover:scale-105 active:scale-95 transition-all shadow-lg shadow-[#ffa116]/20"
                 >
                   Attempt Challenge
