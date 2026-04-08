@@ -15,7 +15,11 @@ function ErrorMessage() {
         ? "This email is already linked to another account."
         : error === "AccessDenied"
           ? "Access denied. Please try again."
-          : `Sign in error: ${error}`}
+          : error === "Callback"
+            ? "Auth callback failed. Please contact support with the exact time of failure."
+            : error === "Configuration"
+              ? "Sign-in is temporarily unavailable due to server auth configuration."
+              : `Sign in error: ${error}`}
     </div>
   );
 }

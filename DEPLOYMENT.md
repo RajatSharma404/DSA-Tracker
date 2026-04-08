@@ -328,11 +328,13 @@ sudo certbot renew --dry-run
 
 ### Frontend (`frontend/.env.local`)
 
-| Variable          | Production Value         |
-| ----------------- | ------------------------ |
-| `DATABASE_URL`    | Same as backend          |
-| `NEXTAUTH_URL`    | `https://yourdomain.com` |
-| `NEXTAUTH_SECRET` | Same as backend          |
+| Variable               | Production Value           |
+| ---------------------- | -------------------------- |
+| `DATABASE_URL`         | Same as backend            |
+| `NEXTAUTH_URL`         | `https://yourdomain.com`   |
+| `NEXTAUTH_SECRET`      | Same as backend            |
+| `GOOGLE_CLIENT_ID`     | Google OAuth client ID     |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret |
 
 ---
 
@@ -490,13 +492,15 @@ Render hosts the frontend (Next.js) and backend (Express) as two separate Web Se
 
 3. Add environment variables:
 
-   | Variable              | Value                                                                     |
-   | --------------------- | ------------------------------------------------------------------------- |
-   | `DATABASE_URL`        | Internal Database URL from Step 1 (for NextAuth)                          |
-   | `NEXTAUTH_URL`        | Your frontend Render URL (e.g. `https://dsa-tracker.onrender.com`)        |
-   | `NEXTAUTH_SECRET`     | Same secret as the backend                                                |
-   | `BACKEND_URL`         | Your backend Render URL (e.g. `https://dsa-tracker-backend.onrender.com`) |
-   | `NEXT_PUBLIC_API_URL` | Optional fallback; can also point to backend URL (with or without `/api`) |
+   | Variable               | Value                                                                     |
+   | ---------------------- | ------------------------------------------------------------------------- |
+   | `DATABASE_URL`         | Internal Database URL from Step 1 (for NextAuth)                          |
+   | `NEXTAUTH_URL`         | Your frontend Render URL (e.g. `https://dsa-tracker.onrender.com`)        |
+   | `NEXTAUTH_SECRET`      | Same secret as the backend                                                |
+   | `GOOGLE_CLIENT_ID`     | Google OAuth client ID                                                    |
+   | `GOOGLE_CLIENT_SECRET` | Google OAuth client secret                                                |
+   | `BACKEND_URL`          | Your backend Render URL (e.g. `https://dsa-tracker-backend.onrender.com`) |
+   | `NEXT_PUBLIC_API_URL`  | Optional fallback; can also point to backend URL (with or without `/api`) |
 
 ### How `BACKEND_URL` works
 

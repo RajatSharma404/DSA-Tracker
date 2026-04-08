@@ -4,22 +4,61 @@ import GoogleProvider from "next-auth/providers/google";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
+const prisma = process.env.DATABASE_URL ? new PrismaClient() : null;
 
 const nextAuthSecret = process.env.NEXTAUTH_SECRET?.trim();
 if (!nextAuthSecret) {
   throw new Error("NEXTAUTH_SECRET is required");
 }
 
+const googleClientId = process.env.GOOGLE_CLIENT_ID?.trim();
+const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET?.trim();
+const hasGoogleOAuth = Boolean(googleClientId && googleClientSecret);
+
+if (!hasGoogleOAuth) {
+  console.warn(
+    "[auth] Google OAuth is disabled because GOOGLE_CLIENT_ID/GOOGLE_CLIENT_SECRET are missing.",
+  );
+}
+
+if (!prisma) {
+  console.warn(
+    "[auth] DATABASE_URL is missing in frontend runtime. User upsert is disabled.",
+  );
+}
+
 const allowInsecureCredentialsLogin =
   process.env.ALLOW_INSECURE_CREDENTIALS_LOGIN === "true";
 
+async function upsertAuthUser(email: string, name: string | null) {
+  if (!prisma) return null;
+
+  try {
+    return await prisma.user.upsert({
+      where: { email },
+      update: {},
+      create: {
+        email,
+        role: "USER",
+        name,
+      },
+    });
+  } catch (error) {
+    console.error("[auth] Failed to upsert user during JWT callback", error);
+    return null;
+  }
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-    }),
+    ...(hasGoogleOAuth
+      ? [
+          GoogleProvider({
+            clientId: googleClientId!,
+            clientSecret: googleClientSecret!,
+          }),
+        ]
+      : []),
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -65,17 +104,18 @@ export const authOptions: NextAuthOptions = {
       }
 
       if (tokenEmail) {
-        const dbUser = await prisma.user.upsert({
-          where: { email: tokenEmail },
-          update: {},
-          create: {
-            email: tokenEmail,
-            role: "USER",
-            name: token.name?.toString() || null,
-          },
-        });
-        token.sub = dbUser.id;
-        token.role = dbUser.role;
+        const dbUser = await upsertAuthUser(
+          tokenEmail,
+          token.name?.toString() || null,
+        );
+
+        if (dbUser) {
+          token.sub = dbUser.id;
+          token.role = dbUser.role;
+        } else {
+          token.sub = token.sub ?? tokenEmail;
+          token.role = token.role ?? "USER";
+        }
       } else {
         token.role = "USER";
       }
@@ -99,6 +139,19 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/login",
     error: "/login",
+  },
+  logger: {
+    error(code, ...message) {
+      console.error("[next-auth][error]", code, ...message);
+    },
+    warn(code) {
+      console.warn("[next-auth][warn]", code);
+    },
+    debug(code, ...message) {
+      if (process.env.NODE_ENV === "development") {
+        console.debug("[next-auth][debug]", code, ...message);
+      }
+    },
   },
   debug: process.env.NODE_ENV === "development",
 };
