@@ -125,11 +125,14 @@ export function Sidebar() {
         </button>
       </div>
 
-      <nav className="flex-1 overflow-y-auto py-3" aria-label="Navigation menu">
+      <nav
+        className="flex-1 overflow-y-auto py-2 sm:py-3"
+        aria-label="Navigation menu"
+      >
         {displaySections.map((section) => (
-          <div key={section.title} className="mb-4">
+          <div key={section.title} className="mb-2 sm:mb-3">
             {!effectiveCollapsed && (
-              <p className="px-4 mb-1 text-[10px] font-black uppercase tracking-widest text-gray-600">
+              <p className="hidden md:block px-4 mb-1 text-[9px] font-black uppercase tracking-widest text-gray-600 line-clamp-1">
                 {section.title}
               </p>
             )}
@@ -142,7 +145,7 @@ export function Sidebar() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`flex items-center px-4 py-3 cursor-pointer transition-colors ${
+                    className={`flex items-center px-3 sm:px-4 py-2.5 sm:py-3 cursor-pointer transition-colors text-[14px] sm:text-base ${
                       isActive
                         ? "bg-[#222] text-white border-r-2 border-white"
                         : "hover:bg-[#1a1a1a] hover:text-gray-200"
@@ -151,11 +154,13 @@ export function Sidebar() {
                     title={effectiveCollapsed ? item.label : undefined}
                   >
                     <item.icon
-                      size={20}
-                      className={isActive ? "text-white" : ""}
+                      size={18}
+                      className={`sm:w-5 sm:h-5 shrink-0 ${isActive ? "text-white" : ""}`}
                     />
                     {!effectiveCollapsed && (
-                      <span className="ml-3 font-medium">{item.label}</span>
+                      <span className="ml-2 sm:ml-3 font-medium truncate">
+                        {item.label}
+                      </span>
                     )}
                   </Link>
                 );
