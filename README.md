@@ -424,32 +424,53 @@ DSA-Tracker/
 
 ### Backend (`backend/.env`)
 
-| Variable             | Required | Description                                                        |
-| -------------------- | -------- | ------------------------------------------------------------------ |
-| `PORT`               | Yes      | Backend server port (default: `3001`)                              |
-| `DATABASE_URL`       | Yes      | PostgreSQL connection string                                       |
-| `NEXTAUTH_SECRET`    | Yes      | JWT signing secret (must match frontend)                           |
-| `ADMIN_EMAIL`        | No       | Auto-admin email match (also default login notification recipient) |
-| `LOGIN_NOTIFY_EMAIL` | No       | Override recipient for login notification emails                   |
-| `SMTP_HOST`          | No       | SMTP host for login notification emails (e.g. `smtp.gmail.com`)    |
-| `SMTP_PORT`          | No       | SMTP port (`587` TLS or `465` SSL)                                 |
-| `SMTP_USER`          | No       | SMTP username                                                      |
-| `SMTP_PASS`          | No       | SMTP password / app password                                       |
-| `NOTIFY_FROM`        | No       | Sender address for login notifications                             |
+| Variable                           | Required | Description                                                        |
+| ---------------------------------- | -------- | ------------------------------------------------------------------ |
+| `PORT`                             | Yes      | Backend server port (default: `3001`)                              |
+| `DATABASE_URL`                     | Yes      | PostgreSQL connection string                                       |
+| `NEXTAUTH_SECRET`                  | Yes      | JWT signing secret (must match frontend)                           |
+| `AUTH_SECRET`                      | No       | Alternate secret name accepted by backend auth verifier            |
+| `ADMIN_EMAIL`                      | No       | Auto-admin email match (also default login notification recipient) |
+| `CORS_ORIGINS`                     | No       | Comma-separated origin allowlist for CORS (recommended in prod)    |
+| `LOGIN_NOTIFY_EMAIL`               | No       | Override recipient for login notification emails                   |
+| `SMTP_HOST`                        | No       | SMTP host for login notification emails (e.g. `smtp.gmail.com`)    |
+| `SMTP_PORT`                        | No       | SMTP port (`587` TLS or `465` SSL)                                 |
+| `SMTP_USER`                        | No       | SMTP username                                                      |
+| `SMTP_PASS`                        | No       | SMTP password / app password                                       |
+| `NOTIFY_FROM`                      | No       | Sender address for login notifications                             |
+| `ALLOW_INSECURE_CREDENTIALS_LOGIN` | No       | Enables legacy email-only login (unsafe; keep `false`)             |
 
 ### Frontend (`frontend/.env.local`)
 
-| Variable          | Required | Description                                                |
-| ----------------- | -------- | ---------------------------------------------------------- |
-| `DATABASE_URL`    | Yes      | PostgreSQL connection string (for NextAuth Prisma adapter) |
-| `NEXTAUTH_URL`    | Yes      | Your app URL (`http://localhost:3000` for local)           |
-| `NEXTAUTH_SECRET` | Yes      | JWT signing secret (must match backend)                    |
+| Variable                                       | Required | Description                                                |
+| ---------------------------------------------- | -------- | ---------------------------------------------------------- |
+| `DATABASE_URL`                                 | Yes      | PostgreSQL connection string (for NextAuth Prisma adapter) |
+| `NEXTAUTH_URL`                                 | Yes      | Your app URL (`http://localhost:3000` for local)           |
+| `NEXTAUTH_SECRET`                              | Yes      | JWT signing secret (must match backend)                    |
+| `NEXT_PUBLIC_ALLOW_INSECURE_CREDENTIALS_LOGIN` | No       | Shows legacy email-only login UI (unsafe)                  |
 
 ---
 
 ## 🧩 Browser Extension
 
-The project includes a Chrome/Edge extension (`extension/` folder) that automatically syncs your LeetCode accepted submissions to the tracker.
+The project includes a Chrome/Edge extension (`extension/` folder) for two jobs:
+
+- Sync accepted LeetCode submissions back to tracker.
+- Submit tracker code to LeetCode from the tracker editor flow.
+
+### Tracker -> LeetCode Submit Flow
+
+When you click **Submit** in tracker:
+
+1. Tracker runs its own evaluation first.
+2. If tracker tests pass, extension opens a hidden LeetCode problem tab.
+3. Extension sets language to match tracker language.
+4. Extension pastes your exact tracker code into LeetCode editor.
+5. Extension verifies pasted code matches before clicking LeetCode Submit.
+6. If verdict is non-accepted (WA/TLE/RE/CE) or timeout, the LeetCode tab is brought to front.
+7. If accepted, tab is closed and tracker continues normal sync flow.
+
+If LeetCode session is not logged in, submit fails fast with a user-facing message.
 
 ### Installation
 
@@ -481,6 +502,13 @@ chrome.storage.sync.set({
 
 > **Sharing:** To share the extension with others, zip the `extension/` folder. They can extract it and load it the same way.
 
+### Extension Runtime Notes
+
+- Reload extension after any code change in `extension/`.
+- Keep exactly one loaded copy of this extension in browser.
+- Keep LeetCode logged in on same browser profile.
+- Grant extension site access to LeetCode pages.
+
 ---
 
 ## 🖥 Deployment
@@ -508,18 +536,20 @@ pm2 save && pm2 startup
 
 ## ❓ Troubleshooting
 
-| Problem                                      | Solution                                                                                                           |
-| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| **Port 3000/3001 already in use**            | Kill the process: `npx kill-port 3000 3001` or change ports in `.env`                                              |
-| **Docker DB not starting**                   | Check Docker is running: `docker ps`. Run `docker-compose up -d` again                                             |
-| **Prisma schema out of sync**                | Run `npx prisma db push` in both `backend/` and `frontend/`                                                        |
-| **AI features returning errors**             | Review backend logs for local AI heuristic fallback behavior                                                       |
-| **"NEXTAUTH_SECRET" mismatch**               | Ensure the secret is identical in both `backend/.env` and `frontend/.env.local`                                    |
-| **Blank page after login**                   | Make sure the backend is running on port 3001                                                                      |
-| **Lock file error on `npm run dev`**         | Stop duplicate frontend `next dev` processes, delete `frontend/.next/dev/lock`, then run only one startup command  |
-| **Looks like API error but app is up**       | Verify health first: backend `GET http://localhost:3001/health` and frontend `GET http://localhost:3000`           |
-| **Extension works locally but not deployed** | Set extension backend URL via `chrome.storage.sync.set({ dsaApiBaseUrl: "https://your-backend" })`                 |
-| **No login notification emails**             | Verify SMTP vars (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`) and recipient vars are set in `backend/.env` |
+| Problem                                       | Solution                                                                                                                         |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| **Port 3000/3001 already in use**             | Kill the process: `npx kill-port 3000 3001` or change ports in `.env`                                                            |
+| **Docker DB not starting**                    | Check Docker is running: `docker ps`. Run `docker-compose up -d` again                                                           |
+| **Prisma schema out of sync**                 | Run `npx prisma db push` in both `backend/` and `frontend/`                                                                      |
+| **AI features returning errors**              | Review backend logs for local AI heuristic fallback behavior                                                                     |
+| **"NEXTAUTH_SECRET" mismatch**                | Ensure the secret is identical in both `backend/.env` and `frontend/.env.local`                                                  |
+| **Blank page after login**                    | Make sure the backend is running on port 3001                                                                                    |
+| **Lock file error on `npm run dev`**          | Stop duplicate frontend `next dev` processes, delete `frontend/.next/dev/lock`, then run only one startup command                |
+| **Looks like API error but app is up**        | Verify health first: backend `GET http://localhost:3001/health` and frontend `GET http://localhost:3000`                         |
+| **Extension works locally but not deployed**  | Set extension backend URL via `chrome.storage.sync.set({ dsaApiBaseUrl: "https://your-backend" })`                               |
+| **No login notification emails**              | Verify SMTP vars (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`) and recipient vars are set in `backend/.env`               |
+| **LeetCode submits boilerplate, not my code** | Reload extension from `chrome://extensions`, ensure only one copy is enabled, verify language matches tracker, then retry submit |
+| **LeetCode tab opens but no submit happens**  | Extension blocked submit because paste verification failed; inspect LeetCode tab/editor state and retry                          |
 
 ---
 

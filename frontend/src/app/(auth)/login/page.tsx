@@ -26,6 +26,8 @@ export default function LoginPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [submitError, setSubmitError] = useState("");
+  const allowInsecureCredentialsLogin =
+    process.env.NEXT_PUBLIC_ALLOW_INSECURE_CREDENTIALS_LOGIN === "true";
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -118,37 +120,41 @@ export default function LoginPage() {
                 Continue with Google
               </button>
 
-              <div className="relative py-1">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-white/10" />
-                </div>
-                <div className="relative flex justify-center">
-                  <span className="bg-[#0d0d0d] px-3 text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                    or use email
-                  </span>
-                </div>
-              </div>
+              {allowInsecureCredentialsLogin ? (
+                <>
+                  <div className="relative py-1">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t border-white/10" />
+                    </div>
+                    <div className="relative flex justify-center">
+                      <span className="bg-[#0d0d0d] px-3 text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                        or use email
+                      </span>
+                    </div>
+                  </div>
 
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Name (optional)"
-                className="w-full rounded-2xl border border-white/15 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-gray-500 outline-none focus:border-white/30"
-              />
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email"
-                className="w-full rounded-2xl border border-white/15 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-gray-500 outline-none focus:border-white/30"
-              />
-              <button
-                onClick={handleSignIn}
-                className="group relative w-full py-4 px-6 bg-white text-black rounded-2xl font-bold text-sm tracking-tight hover:bg-gray-200 transition-all active:scale-[0.98] shadow-lg"
-              >
-                Continue
-              </button>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Name (optional)"
+                    className="w-full rounded-2xl border border-white/15 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-gray-500 outline-none focus:border-white/30"
+                  />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Email"
+                    className="w-full rounded-2xl border border-white/15 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-gray-500 outline-none focus:border-white/30"
+                  />
+                  <button
+                    onClick={handleSignIn}
+                    className="group relative w-full py-4 px-6 bg-white text-black rounded-2xl font-bold text-sm tracking-tight hover:bg-gray-200 transition-all active:scale-[0.98] shadow-lg"
+                  >
+                    Continue
+                  </button>
+                </>
+              ) : null}
             </div>
 
             {submitError ? (

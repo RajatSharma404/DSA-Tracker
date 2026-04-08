@@ -43,16 +43,33 @@ dotenv.config();
 const app = express();
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 3001;
-const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET || "fallback_secret";
 const NEXTAUTH_SECRETS = Array.from(
   new Set(
-    [process.env.NEXTAUTH_SECRET, process.env.AUTH_SECRET, "fallback_secret"]
+    [process.env.NEXTAUTH_SECRET, process.env.AUTH_SECRET]
       .map((s) => (typeof s === "string" ? s.trim() : ""))
       .filter(Boolean),
   ),
 );
+if (NEXTAUTH_SECRETS.length === 0) {
+  throw new Error("NEXTAUTH_SECRET (or AUTH_SECRET) is required");
+}
 const LOGIN_MAIL_COOLDOWN_MS = 30 * 60 * 1000;
 const loginNotificationCache = new Map<string, number>();
+const corsOrigins = (process.env.CORS_ORIGINS || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const isProgressStatus = (
+  value: unknown,
+): value is "TODO" | "DOING" | "DONE" =>
+  value === "TODO" || value === "DOING" || value === "DONE";
+
+const isDifficulty = (value: unknown): value is "EASY" | "MEDIUM" | "HARD" =>
+  value === "EASY" || value === "MEDIUM" || value === "HARD";
+
+const isNonEmptyString = (value: unknown): value is string =>
+  typeof value === "string" && value.trim().length > 0;
 
 const smtpHost = process.env.SMTP_HOST;
 const smtpPort = parseInt(process.env.SMTP_PORT || "587", 10);
@@ -183,7 +200,16 @@ const buildNextAction = (
   };
 };
 
-app.use(cors());
+app.use(
+  cors(
+    corsOrigins.length > 0
+      ? {
+          origin: corsOrigins,
+          credentials: true,
+        }
+      : undefined,
+  ),
+);
 app.use(express.json());
 
 // Request logger
@@ -195,7 +221,7 @@ app.use((req, res, next) => {
 });
 
 // Auto-admin hook for specific email
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "rajat.sharma.myid1@gmail.com"; // Defaulting to your email
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL?.trim().toLowerCase() || "";
 
 // Extend Express Request object
 declare global {
@@ -250,7 +276,7 @@ const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
     })) as any;
 
     // Auto-promote to ADMIN if email matches
-    if (user.email === ADMIN_EMAIL && user.role !== "ADMIN") {
+    if (ADMIN_EMAIL && user.email.toLowerCase() === ADMIN_EMAIL && user.role !== "ADMIN") {
       user = await prisma.user.update({
         where: { id: user.id },
         data: { role: "ADMIN" } as any,
@@ -1854,24 +1880,41 @@ app.post("/api/progress", requireAuth, async (req: Request, res: Response) => {
   try {
     const { problemId, status, timeSpent } = req.body;
     const userId = req.user!.id;
+    const normalizedProblemId =
+      typeof problemId === "string" ? problemId.trim() : "";
+    const normalizedTimeSpent = Number(timeSpent);
+
+    if (!isNonEmptyString(normalizedProblemId)) {
+      return res.status(400).json({ error: "Invalid problemId" });
+    }
+    if (!isProgressStatus(status)) {
+      return res.status(400).json({ error: "Invalid status" });
+    }
+    if (
+      !Number.isFinite(normalizedTimeSpent) ||
+      normalizedTimeSpent < 0 ||
+      normalizedTimeSpent > 24 * 60
+    ) {
+      return res.status(400).json({ error: "Invalid timeSpent" });
+    }
 
     const progress = await prisma.progress.upsert({
       where: {
         userId_problemId: {
           userId,
-          problemId,
+          problemId: normalizedProblemId,
         },
       },
       update: {
         status,
-        timeSpent,
+        timeSpent: Math.round(normalizedTimeSpent),
         completedAt: status === "DONE" ? new Date() : null,
       },
       create: {
         userId,
-        problemId,
+        problemId: normalizedProblemId,
         status,
-        timeSpent,
+        timeSpent: Math.round(normalizedTimeSpent),
         completedAt: status === "DONE" ? new Date() : null,
       },
     });
@@ -1879,7 +1922,7 @@ app.post("/api/progress", requireAuth, async (req: Request, res: Response) => {
     // Spaced Repetition logic (SM-2 simplified)
     if (status === "DONE") {
       const existing = (await prisma.progress.findUnique({
-        where: { userId_problemId: { userId, problemId } },
+        where: { userId_problemId: { userId, problemId: normalizedProblemId } },
       })) as any;
 
       let nextInterval = 1;
@@ -1897,7 +1940,9 @@ app.post("/api/progress", requireAuth, async (req: Request, res: Response) => {
       nextReview.setDate(nextReview.getDate() + nextInterval);
 
       await prisma.progress.update({
-        where: { userId_problemId: { userId, problemId } },
+        where: {
+          userId_problemId: { userId, problemId: normalizedProblemId },
+        },
         data: {
           interval: nextInterval,
           easinessFactor: nextEF,
@@ -2027,6 +2072,9 @@ app.patch(
     try {
       const { role } = req.body;
       const userId = req.params.id as string;
+      if (role !== "USER" && role !== "ADMIN") {
+        return res.status(400).json({ error: "Invalid role value" });
+      }
       const user = await prisma.user.update({
         where: { id: userId },
         data: { role: role as any } as any,
@@ -2289,13 +2337,20 @@ app.patch(
     try {
       const { leetcodeUsername } = req.body;
       const userId = req.user!.id;
+      const normalizedUsername =
+        typeof leetcodeUsername === "string"
+          ? leetcodeUsername.trim().toLowerCase()
+          : "";
+      if (!/^[a-z0-9_-]{1,30}$/i.test(normalizedUsername)) {
+        return res.status(400).json({ error: "Invalid LeetCode username" });
+      }
 
       await prisma.user.update({
         where: { id: userId },
-        data: { leetcodeUsername } as any,
+        data: { leetcodeUsername: normalizedUsername } as any,
       });
 
-      res.json({ success: true, leetcodeUsername });
+      res.json({ success: true, leetcodeUsername: normalizedUsername });
     } catch (error) {
       res.status(500).json({ error: "Failed to update username" });
     }
@@ -2548,10 +2603,18 @@ app.patch(
     try {
       const { leetcodeSession } = req.body;
       const userId = req.user!.id;
+      const normalizedSession =
+        typeof leetcodeSession === "string" ? leetcodeSession.trim() : "";
+      if (
+        normalizedSession.length > 0 &&
+        (normalizedSession.length < 20 || normalizedSession.length > 256)
+      ) {
+        return res.status(400).json({ error: "Invalid leetcode session" });
+      }
 
       await prisma.user.update({
         where: { id: userId },
-        data: { leetcodeSession } as any,
+        data: { leetcodeSession: normalizedSession } as any,
       });
 
       res.json({ success: true });
@@ -2565,12 +2628,21 @@ app.patch(
 app.post("/api/extension/sync", async (req: Request, res: Response) => {
   try {
     const { problemSlug, leetcodeSession } = req.body;
-    if (!problemSlug || !leetcodeSession) {
+    const normalizedSlug =
+      typeof problemSlug === "string" ? problemSlug.trim().toLowerCase() : "";
+    const normalizedSession =
+      typeof leetcodeSession === "string" ? leetcodeSession.trim() : "";
+    if (
+      !normalizedSlug ||
+      !/^[a-z0-9-]+$/.test(normalizedSlug) ||
+      !normalizedSession ||
+      normalizedSession.length < 20
+    ) {
       return res.status(400).json({ error: "Missing problemSlug or session" });
     }
 
     const user = (await prisma.user.findFirst({
-      where: { leetcodeSession },
+      where: { leetcodeSession: normalizedSession },
     })) as any;
 
     if (!user) {
@@ -2579,7 +2651,7 @@ app.post("/api/extension/sync", async (req: Request, res: Response) => {
         .json({ error: "No user linked to this LeetCode session" });
     }
 
-    const data = await fetchProblemSubmissions(problemSlug, leetcodeSession);
+    const data = await fetchProblemSubmissions(normalizedSlug, normalizedSession);
     const submissions = data?.questionSubmissionList?.submissions || [];
     const acceptedSub = submissions.find(
       (s: any) => s.statusDisplay === "Accepted",
@@ -2621,8 +2693,10 @@ app.post("/api/extension/sync", async (req: Request, res: Response) => {
       problem = await prisma.problem.create({
         data: {
           title: acceptedSub.title,
-          link: `https://leetcode.com/problems/${problemSlug}/`,
-          difficulty: "MEDIUM",
+          link: `https://leetcode.com/problems/${normalizedSlug}/`,
+          difficulty: isDifficulty(acceptedSub.difficulty)
+            ? acceptedSub.difficulty
+            : "MEDIUM",
           topicId: miscTopic.id,
           orderIndex: (maxOrderProblem?.orderIndex || 0) + 1,
         },

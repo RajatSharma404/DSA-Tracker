@@ -2,6 +2,17 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import jwt from "jsonwebtoken";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+const nextAuthSecret = process.env.NEXTAUTH_SECRET?.trim();
+if (!nextAuthSecret) {
+  throw new Error("NEXTAUTH_SECRET is required");
+}
+
+const allowInsecureCredentialsLogin =
+  process.env.ALLOW_INSECURE_CREDENTIALS_LOGIN === "true";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -16,6 +27,11 @@ export const authOptions: NextAuthOptions = {
         name: { label: "Name", type: "text" },
       },
       async authorize(credentials) {
+        // This legacy email-only flow is intentionally disabled by default.
+        if (!allowInsecureCredentialsLogin) {
+          return null;
+        }
+
         const email = credentials?.email?.toString().trim().toLowerCase();
         const name = credentials?.name?.toString().trim() || "DSA User";
 
@@ -38,15 +54,35 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, user }) {
+      const tokenEmail =
+        user?.email?.toString().trim().toLowerCase() ??
+        token.email?.toString().trim().toLowerCase();
+
       if (user) {
-        token.email = user.email;
+        token.email = tokenEmail;
         token.name = user.name;
         token.picture = user.image;
-        token.role = (user as any).role ?? "USER";
       }
+
+      if (tokenEmail) {
+        const dbUser = await prisma.user.upsert({
+          where: { email: tokenEmail },
+          update: {},
+          create: {
+            email: tokenEmail,
+            role: "USER",
+            name: token.name?.toString() || null,
+          },
+        });
+        token.sub = dbUser.id;
+        token.role = dbUser.role;
+      } else {
+        token.role = "USER";
+      }
+
       token.accessToken = jwt.sign(
-        { email: token.email, role: token.role ?? "USER" },
-        process.env.NEXTAUTH_SECRET || "fallback_secret",
+        { email: token.email, role: token.role ?? "USER", sub: token.sub },
+        nextAuthSecret,
         { expiresIn: "7d" },
       );
       return token;
@@ -59,7 +95,7 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: nextAuthSecret,
   pages: {
     signIn: "/login",
     error: "/login",

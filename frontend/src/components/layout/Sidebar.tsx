@@ -21,7 +21,7 @@ import {
   Brain,
   GraduationCap,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 
 const navItems = [
@@ -44,13 +44,19 @@ const navItems = [
 export function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
   const { data: session } = useSession();
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   const routeCollapsed = pathname.startsWith("/challenge/");
   const effectiveCollapsed = routeCollapsed || collapsed;
   const isAdmin =
+    hasMounted &&
     ((session?.user as { role?: string } | undefined)?.role || "USER") ===
-    "ADMIN";
+      "ADMIN";
   const displayItems = [...navItems];
   if (isAdmin) {
     displayItems.push({
@@ -111,7 +117,7 @@ export function Sidebar() {
       </nav>
 
       <div className="p-4 border-t border-[#222]">
-        {session?.user && !effectiveCollapsed && (
+        {hasMounted && session?.user && !effectiveCollapsed && (
           <div className="flex items-center gap-3 mb-4">
             {session.user.image ? (
               <img

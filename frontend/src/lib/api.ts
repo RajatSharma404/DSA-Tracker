@@ -40,6 +40,12 @@ export const api = axios.create({
 
 const RETRYABLE_METHODS = new Set(["get", "head", "options"]);
 const MAX_429_RETRIES = 2;
+const NETWORK_ERROR_CODES = new Set([
+  "ERR_NETWORK",
+  "ENOTFOUND",
+  "ECONNREFUSED",
+  "EAI_AGAIN",
+]);
 
 const sleep = (ms: number) =>
   new Promise<void>((resolve) => setTimeout(resolve, ms));
@@ -94,6 +100,24 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error?.config as any;
     const status = error?.response?.status;
+    const code = String(error?.code || "");
+    const hasNetworkResolutionFailure =
+      !status &&
+      originalRequest &&
+      hasAbsolutePublicApiBase &&
+      originalRequest.baseURL === normalizedPublicApiBase &&
+      !originalRequest._retryViaRelativeApi &&
+      (NETWORK_ERROR_CODES.has(code) ||
+        /Failed to fetch|Network Error|ERR_NAME_NOT_RESOLVED/i.test(
+          String(error?.message || ""),
+        ));
+
+    if (hasNetworkResolutionFailure) {
+      originalRequest._retryViaRelativeApi = true;
+      originalRequest.baseURL = "/api";
+      await sleep(120);
+      return api(originalRequest);
+    }
 
     if (status === 429 && originalRequest) {
       const method = String(originalRequest.method || "get").toLowerCase();

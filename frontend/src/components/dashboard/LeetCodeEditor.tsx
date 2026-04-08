@@ -16,6 +16,11 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { dsaApi } from "@/lib/api";
+import {
+  submitViaExtension,
+  getExtensionHealth,
+  ExtensionHealthState,
+} from "@/lib/extensionBridge";
 
 interface LeetCodeEditorProps {
   problemSlug: string;
@@ -73,6 +78,12 @@ interface EvaluationResult {
   feedback: string;
 }
 
+interface LeetCodeSubmissionState {
+  verdict: string;
+  accepted: boolean;
+  details?: string;
+}
+
 export function LeetCodeEditor({
   problemSlug,
   problemTitle,
@@ -88,6 +99,13 @@ export function LeetCodeEditor({
   const [showApproaches, setShowApproaches] = useState(false);
   const [showEdgeCases, setShowEdgeCases] = useState(false);
   const [savedCode, setSavedCode] = useState<Record<string, string>>({});
+  const [leetcodeSubmission, setLeetcodeSubmission] =
+    useState<LeetCodeSubmissionState | null>(null);
+  const [submitPath, setSubmitPath] = useState<
+    "IDLE" | "EXTENSION" | "UNAVAILABLE"
+  >("IDLE");
+  const [extensionHealth, setExtensionHealth] =
+    useState<ExtensionHealthState>("NOT_INSTALLED");
 
   // Load problem details and code snippets, then override with saved code
   const loadProblemSnippets = useCallback(async () => {
@@ -142,6 +160,21 @@ export function LeetCodeEditor({
     loadProblemSnippets();
   }, [loadProblemSnippets]);
 
+  useEffect(() => {
+    let mounted = true;
+    const refreshHealth = async () => {
+      const health = await getExtensionHealth();
+      if (!mounted) return;
+      setExtensionHealth(health.state);
+    };
+    refreshHealth();
+    const timer = window.setInterval(refreshHealth, 15000);
+    return () => {
+      mounted = false;
+      window.clearInterval(timer);
+    };
+  }, []);
+
   const handleLanguageChange = (lang: string) => {
     setSelectedLang(lang);
     // Prefer saved code for this language, then snippet
@@ -154,43 +187,14 @@ export function LeetCodeEditor({
   };
 
   const handleSubmit = async () => {
+    if (isSubmitting) return;
     setIsSubmitting(true);
     setEvaluation(null);
+    setLeetcodeSubmission(null);
+    setSubmitPath("IDLE");
 
     try {
       const langConfig = LANGUAGES[selectedLang];
-      const submitResult = await dsaApi.submitToLeetCode(
-        problemSlug,
-        code,
-        langConfig.leetcodeLang,
-      );
-
-      const submissionId =
-        submitResult?.submission_id ||
-        submitResult?.submissionId ||
-        submitResult?.id;
-
-      if (!submissionId) {
-        throw new Error(
-          submitResult?.error ||
-            "LeetCode did not return a submission id. Check your session cookie in settings.",
-        );
-      }
-
-      let leetcodeVerdict: any = null;
-      for (let attempt = 0; attempt < 20; attempt += 1) {
-        // LeetCode check endpoint is eventually consistent right after submit.
-        await new Promise((resolve) => setTimeout(resolve, 1200));
-        const status = await dsaApi.checkSubmission(String(submissionId));
-        const isPending =
-          status?.state === "PENDING" ||
-          status?.state === "STARTED" ||
-          status?.status_msg === "Pending";
-        if (!isPending) {
-          leetcodeVerdict = status;
-          break;
-        }
-      }
 
       const result = await dsaApi.evaluateCode(
         problemId,
@@ -199,25 +203,39 @@ export function LeetCodeEditor({
       );
 
       const evalResult = result.evaluation;
-      const acceptedOnLeetCode =
-        leetcodeVerdict?.status_code === 10 ||
-        String(leetcodeVerdict?.status_msg || "").toLowerCase() === "accepted";
+      setEvaluation(evalResult);
 
-      const mergedEvaluation = {
-        ...evalResult,
-        isCorrect: Boolean(evalResult?.isCorrect || acceptedOnLeetCode),
-        verdict:
-          evalResult?.verdict ||
-          (acceptedOnLeetCode ? "ACCEPTED" : "WRONG_ANSWER"),
-        verdictMessage:
-          evalResult?.verdictMessage ||
-          (acceptedOnLeetCode
-            ? "Accepted on LeetCode"
-            : String(
-                leetcodeVerdict?.status_msg || "LeetCode submission finished.",
-              )),
-      };
-      setEvaluation(mergedEvaluation);
+      let leetAccepted = false;
+      if (evalResult?.isCorrect) {
+        try {
+          const extensionResult = await submitViaExtension({
+            problemSlug,
+            code,
+            language: langConfig.leetcodeLang,
+            timeoutMs: 45_000,
+          });
+          setSubmitPath("EXTENSION");
+          setLeetcodeSubmission({
+            verdict: extensionResult.verdict,
+            accepted: extensionResult.accepted,
+            details: extensionResult.details,
+          });
+          leetAccepted = extensionResult.accepted;
+        } catch (extensionError: any) {
+          const errorMessage = String(extensionError?.message || "");
+          const isSignedOut = /not signed in|sign in/i.test(errorMessage);
+          setSubmitPath("UNAVAILABLE");
+          setLeetcodeSubmission({
+            verdict: "SUBMIT_FAILED",
+            accepted: false,
+            details: isSignedOut
+              ? "Your LeetCode is not signed in. Please sign in to LeetCode and try again."
+              : errorMessage ||
+                "Extension submit failed. Ensure extension is enabled and try again.",
+          });
+          console.error("LeetCode extension submit error:", extensionError);
+        }
+      }
 
       // Save solution to backend
       try {
@@ -225,13 +243,12 @@ export function LeetCodeEditor({
           problemId,
           code,
           language: langConfig.leetcodeLang,
-          isCorrect: mergedEvaluation?.isCorrect || false,
-          score: mergedEvaluation?.score || 0,
-          verdict: mergedEvaluation?.verdict || "UNKNOWN",
-          timeComplexity: mergedEvaluation?.complexity?.time || null,
-          spaceComplexity: mergedEvaluation?.complexity?.space || null,
-          isOptimal:
-            mergedEvaluation?.optimalComplexity?.isCurrentOptimal || false,
+          isCorrect: evalResult?.isCorrect || false,
+          score: evalResult?.score || 0,
+          verdict: evalResult?.verdict || "UNKNOWN",
+          timeComplexity: evalResult?.complexity?.time || null,
+          spaceComplexity: evalResult?.complexity?.space || null,
+          isOptimal: evalResult?.optimalComplexity?.isCurrentOptimal || false,
         });
         // Update local saved code cache
         setSavedCode((prev) => ({ ...prev, [selectedLang]: code }));
@@ -239,7 +256,7 @@ export function LeetCodeEditor({
         console.error("Failed to save solution:", saveErr);
       }
 
-      if (mergedEvaluation?.isCorrect) {
+      if (evalResult?.isCorrect && leetAccepted) {
         try {
           await dsaApi.syncLeetcode();
         } catch (syncError) {
@@ -252,12 +269,20 @@ export function LeetCodeEditor({
       }
     } catch (error: any) {
       console.error("Evaluation error:", error);
+      const isExtensionTimeout = String(error?.message || "")
+        .toLowerCase()
+        .includes("extension request timed out");
+      if (isExtensionTimeout) {
+        setSubmitPath("UNAVAILABLE");
+      }
       setEvaluation({
         isCorrect: false,
         verdict: "RUNTIME_ERROR",
-        verdictMessage:
-          error.response?.data?.error ||
-          "Failed to evaluate code. Please try again.",
+        verdictMessage: isExtensionTimeout
+          ? "Extension is not responding. Reload the extension and ensure it is enabled for this site."
+          : error.response?.data?.error ||
+            error.message ||
+            "Failed to evaluate code. Please try again.",
         score: 0,
         complexity: {
           time: "N/A",
@@ -352,7 +377,7 @@ export function LeetCodeEditor({
     <div className="flex flex-col w-full bg-[#0a0a0a] rounded-3xl border border-white/10 overflow-hidden">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between px-6 py-4 bg-white/5 border-b border-white/5 gap-4 shrink-0">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <div className="flex gap-2">
             {Object.entries(LANGUAGES).map(([key, config]) => (
               <button
@@ -367,6 +392,21 @@ export function LeetCodeEditor({
                 {config.label}
               </button>
             ))}
+          </div>
+          <div
+            className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+              submitPath === "EXTENSION"
+                ? "border-green-500/30 bg-green-500/10 text-green-400"
+                : extensionHealth === "READY"
+                  ? "border-green-500/30 bg-green-500/10 text-green-400"
+                  : "border-gray-600/40 bg-gray-700/20 text-gray-300"
+            }`}
+          >
+            {submitPath === "EXTENSION"
+              ? "Extension: Connected"
+              : extensionHealth === "READY"
+                ? "Extension: Connected"
+                : "Extension: Unavailable"}
           </div>
         </div>
 
@@ -474,6 +514,28 @@ export function LeetCodeEditor({
               </div>
             )}
           </div>
+
+          {leetcodeSubmission && (
+            <div className="px-6 py-3 border-b border-white/5 bg-white/5 text-sm">
+              <span className="font-semibold text-gray-200">
+                LeetCode verdict:
+              </span>{" "}
+              <span
+                className={
+                  leetcodeSubmission.accepted
+                    ? "text-green-400 font-semibold"
+                    : "text-red-400 font-semibold"
+                }
+              >
+                {leetcodeSubmission.verdict}
+              </span>
+              {leetcodeSubmission.details ? (
+                <p className="text-xs text-gray-400 mt-1">
+                  {leetcodeSubmission.details}
+                </p>
+              ) : null}
+            </div>
+          )}
 
           {/* Failing Test Case */}
           {evaluation.failingCase && evaluation.failingCase.input && (

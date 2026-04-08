@@ -7,6 +7,9 @@ import { animate } from "animejs";
 export default function ScrollRevealProvider() {
   const pathname = usePathname();
 
+  const isRevealExcluded = (element: HTMLElement) =>
+    element.hasAttribute("data-scroll-reveal-ignore");
+
   useEffect(() => {
     const scrollRoot = document.querySelector<HTMLElement>(
       '[data-scroll-root="true"]',
@@ -16,18 +19,20 @@ export default function ScrollRevealProvider() {
       (scrollRoot || document).querySelectorAll<HTMLElement>(
         "[data-scroll-reveal]",
       ),
-    );
+    ).filter((element) => !isRevealExcluded(element));
 
     const autoTargets = scrollRoot
       ? Array.from(scrollRoot.children).filter(
           (child): child is HTMLElement =>
             child instanceof HTMLElement &&
-            !child.classList.contains("animate-pulse"),
+            !child.classList.contains("animate-pulse") &&
+            !isRevealExcluded(child),
         )
       : Array.from(document.querySelectorAll("main > *")).filter(
           (node): node is HTMLElement =>
             node instanceof HTMLElement &&
-            !node.classList.contains("animate-pulse"),
+            !node.classList.contains("animate-pulse") &&
+            !isRevealExcluded(node),
         );
 
     const elements = Array.from(new Set([...explicitElements, ...autoTargets]));
