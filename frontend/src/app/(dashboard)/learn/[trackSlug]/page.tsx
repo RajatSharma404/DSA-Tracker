@@ -61,7 +61,7 @@ export default function LearnTrackPage() {
     return (
       <div className="mx-auto mt-4 max-w-7xl space-y-6 animate-pulse">
         <div className="h-12 w-80 rounded-2xl bg-white/8" />
-        <div className="h-56 rounded-[2rem] bg-white/6" />
+        <div className="h-56 rounded-4xl bg-white/6" />
         <div className="grid gap-4 lg:grid-cols-2">
           <div className="h-64 rounded-[2rem] bg-white/6" />
           <div className="h-64 rounded-[2rem] bg-white/6" />
@@ -80,7 +80,7 @@ export default function LearnTrackPage() {
 
   return (
     <div className="mx-auto mt-4 max-w-7xl space-y-8">
-      <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#0b0b0b] p-8 shadow-2xl shadow-cyan-950/20">
+      <section className="relative overflow-hidden rounded-4xl border border-white/10 bg-[#0b0b0b] p-8 shadow-2xl shadow-cyan-950/20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(34,211,238,0.15),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(16,185,129,0.10),transparent_30%)]" />
         <div className="relative grid gap-8 lg:grid-cols-[1fr_320px]">
           <div>
@@ -116,7 +116,7 @@ export default function LearnTrackPage() {
             </div>
           </div>
 
-          <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-5 backdrop-blur-sm">
+          <div className="rounded-3xl border border-white/10 bg-black/30 p-5 backdrop-blur-sm">
             <p className="text-xs uppercase tracking-[0.22em] text-gray-500">
               Progress snapshot
             </p>
@@ -149,7 +149,7 @@ export default function LearnTrackPage() {
           {track.modules.map((module, moduleIndex) => (
             <div
               key={module.id}
-              className="rounded-[2rem] border border-white/10 bg-[#0b0b0b] p-5"
+              className="rounded-4xl border border-white/10 bg-[#0b0b0b] p-5"
             >
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
@@ -207,7 +207,7 @@ export default function LearnTrackPage() {
         </div>
 
         <aside className="space-y-4 lg:sticky lg:top-6 lg:h-fit">
-          <div className="rounded-[1.5rem] border border-white/10 bg-[#0b0b0b] p-5">
+          <div className="rounded-3xl border border-white/10 bg-[#0b0b0b] p-5">
             <p className="text-xs uppercase tracking-[0.22em] text-gray-500">
               Study path
             </p>

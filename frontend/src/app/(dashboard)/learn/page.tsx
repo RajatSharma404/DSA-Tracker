@@ -143,10 +143,10 @@ export default function LearnPage() {
     return (
       <div className="mx-auto mt-4 w-full max-w-7xl space-y-6 animate-pulse">
         <div className="h-14 w-80 rounded-2xl bg-white/8" />
-        <div className="h-52 rounded-[2rem] bg-white/6" />
+        <div className="h-52 rounded-4xl bg-white/6" />
         <div className="space-y-4">
           {Array.from({ length: 3 }).map((_, index) => (
-            <div key={index} className="h-56 rounded-[2rem] bg-white/6" />
+            <div key={index} className="h-56 rounded-4xl bg-white/6" />
           ))}
         </div>
       </div>
@@ -155,7 +155,7 @@ export default function LearnPage() {
 
   return (
     <div className="mx-auto mt-4 w-full max-w-7xl space-y-8">
-      <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#0b0b0b] p-8 shadow-2xl shadow-cyan-950/20">
+      <section className="relative overflow-hidden rounded-4xl border border-white/10 bg-[#0b0b0b] p-8 shadow-2xl shadow-cyan-950/20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(34,211,238,0.15),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(16,185,129,0.10),transparent_30%)]" />
         <div className="relative grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="space-y-6">
@@ -255,7 +255,7 @@ export default function LearnPage() {
             </div>
 
             {featuredTrack && (
-              <div className="mt-6 rounded-[1.5rem] border border-cyan-500/15 bg-cyan-500/5 p-4">
+              <div className="mt-6 rounded-3xl border border-cyan-500/15 bg-cyan-500/5 p-4">
                 <p className="text-xs uppercase tracking-[0.24em] text-cyan-300/80">
                   Featured curriculum
                 </p>
@@ -296,7 +296,7 @@ export default function LearnPage() {
         {tracks.map((track) => (
           <div
             key={track.id}
-            className="overflow-hidden rounded-[2rem] border border-white/10 bg-[#0b0b0b]"
+            className="overflow-hidden rounded-4xl border border-white/10 bg-[#0b0b0b]"
           >
             <div className="border-b border-white/10 bg-linear-to-r from-white/5 to-transparent px-6 py-5">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -320,7 +320,7 @@ export default function LearnPage() {
                     )}
                   </div>
                 </div>
-                <div className="min-w-[160px] rounded-2xl border border-blue-500/20 bg-blue-500/10 px-4 py-3 text-right">
+                <div className="min-w-40 rounded-2xl border border-blue-500/20 bg-blue-500/10 px-4 py-3 text-right">
                   <p className="text-xs uppercase tracking-[0.2em] text-blue-300/80">
                     Track progress
                   </p>
@@ -343,7 +343,7 @@ export default function LearnPage() {
                 {track.modules.map((module, moduleIndex) => (
                   <div
                     key={module.id}
-                    className="rounded-[1.5rem] border border-white/10 bg-[#111] p-4"
+                    className="rounded-3xl border border-white/10 bg-[#111] p-4"
                   >
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                       <div>
@@ -404,7 +404,7 @@ export default function LearnPage() {
               </div>
 
               <div className="space-y-4 lg:sticky lg:top-6 lg:h-fit">
-                <div className="rounded-[1.5rem] border border-white/10 bg-[#111] p-4">
+                <div className="rounded-3xl border border-white/10 bg-[#111] p-4">
                   <p className="text-xs uppercase tracking-[0.22em] text-gray-500">
                     Study path
                   </p>
