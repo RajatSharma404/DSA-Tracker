@@ -568,6 +568,8 @@ chrome.storage.sync.set({
 - Keep exactly one loaded copy of this extension in browser.
 - Keep LeetCode logged in on same browser profile.
 - Grant extension site access to LeetCode pages.
+- Content script is intentionally scoped to `localhost`, `127.0.0.1`, and `leetcode.com` to avoid cross-site runtime conflicts.
+- If extension messaging fails intermittently, reload extension first, then hard-refresh both the tracker tab and LeetCode tab.
 
 ---
 
@@ -596,20 +598,21 @@ pm2 save && pm2 startup
 
 ## ❓ Troubleshooting
 
-| Problem                                       | Solution                                                                                                                         |
-| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| **Port 3000/3001 already in use**             | Kill the process: `npx kill-port 3000 3001` or change ports in `.env`                                                            |
-| **Docker DB not starting**                    | Check Docker is running: `docker ps`. Run `docker-compose up -d` again                                                           |
-| **Prisma schema out of sync**                 | Run `npx prisma db push` in both `backend/` and `frontend/`                                                                      |
-| **AI features returning errors**              | Review backend logs for local AI heuristic fallback behavior                                                                     |
-| **"NEXTAUTH_SECRET" mismatch**                | Ensure the secret is identical in both `backend/.env` and `frontend/.env.local`                                                  |
-| **Blank page after login**                    | Make sure the backend is running on port 3001                                                                                    |
-| **Lock file error on `npm run dev`**          | Stop duplicate frontend `next dev` processes, delete `frontend/.next/dev/lock`, then run only one startup command                |
-| **Looks like API error but app is up**        | Verify health first: backend `GET http://localhost:3001/health` and frontend `GET http://localhost:3000`                         |
-| **Extension works locally but not deployed**  | Set extension backend URL via `chrome.storage.sync.set({ dsaApiBaseUrl: "https://your-backend" })`                               |
-| **No login notification emails**              | Verify SMTP vars (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`) and recipient vars are set in `backend/.env`               |
-| **LeetCode submits boilerplate, not my code** | Reload extension from `chrome://extensions`, ensure only one copy is enabled, verify language matches tracker, then retry submit |
-| **LeetCode tab opens but no submit happens**  | Extension blocked submit because paste verification failed; inspect LeetCode tab/editor state and retry                          |
+| Problem                                         | Solution                                                                                                                                         |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Port 3000/3001 already in use**               | Kill the process: `npx kill-port 3000 3001` or change ports in `.env`                                                                            |
+| **Docker DB not starting**                      | Check Docker is running: `docker ps`. Run `docker-compose up -d` again                                                                           |
+| **Prisma schema out of sync**                   | Run `npx prisma db push` in both `backend/` and `frontend/`                                                                                      |
+| **AI features returning errors**                | Review backend logs for local AI heuristic fallback behavior                                                                                     |
+| **"NEXTAUTH_SECRET" mismatch**                  | Ensure the secret is identical in both `backend/.env` and `frontend/.env.local`                                                                  |
+| **Blank page after login**                      | Make sure the backend is running on port 3001                                                                                                    |
+| **Lock file error on `npm run dev`**            | Stop duplicate frontend `next dev` processes, delete `frontend/.next/dev/lock`, then run only one startup command                                |
+| **Looks like API error but app is up**          | Verify health first: backend `GET http://localhost:3001/health` and frontend `GET http://localhost:3000`                                         |
+| **Extension works locally but not deployed**    | Set extension backend URL via `chrome.storage.sync.set({ dsaApiBaseUrl: "https://your-backend" })`                                               |
+| **Extension error around `content.js` line 42** | Reload extension from `chrome://extensions`, refresh tabs, and ensure only one extension copy is active; this is typically stale runtime context |
+| **No login notification emails**                | Verify SMTP vars (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`) and recipient vars are set in `backend/.env`                               |
+| **LeetCode submits boilerplate, not my code**   | Reload extension from `chrome://extensions`, ensure only one copy is enabled, verify language matches tracker, then retry submit                 |
+| **LeetCode tab opens but no submit happens**    | Extension blocked submit because paste verification failed; inspect LeetCode tab/editor state and retry                                          |
 
 ---
 

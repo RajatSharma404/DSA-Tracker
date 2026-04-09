@@ -484,61 +484,76 @@ const runLeetCodeSubmission = async ({
 
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   (async () => {
-    if (request.type === "PING") {
-      const session = await getLeetCodeSessionCookie();
-      sendResponse({
-        ok: true,
-        payload: { installed: true, leetcodeSignedIn: Boolean(session) },
-      });
-      return;
-    }
+    try {
+      const requestType =
+        request && typeof request.type === "string" ? request.type : "";
 
-    if (request.type === "SUBMIT_TO_LEETCODE") {
-      try {
-        const payload = request.payload || {};
-        const result = await runLeetCodeSubmission({
-          problemSlug: String(payload.problemSlug || "")
-            .trim()
-            .toLowerCase(),
-          code: String(payload.code || ""),
-          language: String(payload.language || "cpp"),
-          timeoutMs: Number(payload.timeoutMs || 30000),
-        });
-        sendResponse({ ok: true, payload: result });
-      } catch (error) {
-        sendResponse({
-          ok: false,
-          error: error?.message || "LeetCode submission failed",
-        });
-      }
-      return;
-    }
-
-    if (request.type === "SYNC_PROBLEM") {
-      const cookie = await getLeetCodeSessionCookie();
-      if (!cookie) {
-        sendResponse({ ok: false, error: "No LeetCode session found" });
+      if (!requestType) {
+        sendResponse({ ok: false, error: "Malformed extension request" });
         return;
       }
-      const candidates = await getCandidateApiBases();
-      let lastError = null;
-      for (const baseUrl of candidates) {
-        try {
-          await trySyncToApi(baseUrl, request.problemSlug, cookie);
-          sendResponse({ ok: true, payload: { synced: true } });
-          return;
-        } catch (err) {
-          lastError = err;
-        }
+
+      if (requestType === "PING") {
+        const session = await getLeetCodeSessionCookie();
+        sendResponse({
+          ok: true,
+          payload: { installed: true, leetcodeSignedIn: Boolean(session) },
+        });
+        return;
       }
+
+      if (requestType === "SUBMIT_TO_LEETCODE") {
+        try {
+          const payload = request.payload || {};
+          const result = await runLeetCodeSubmission({
+            problemSlug: String(payload.problemSlug || "")
+              .trim()
+              .toLowerCase(),
+            code: String(payload.code || ""),
+            language: String(payload.language || "cpp"),
+            timeoutMs: Number(payload.timeoutMs || 30000),
+          });
+          sendResponse({ ok: true, payload: result });
+        } catch (error) {
+          sendResponse({
+            ok: false,
+            error: error?.message || "LeetCode submission failed",
+          });
+        }
+        return;
+      }
+
+      if (requestType === "SYNC_PROBLEM") {
+        const cookie = await getLeetCodeSessionCookie();
+        if (!cookie) {
+          sendResponse({ ok: false, error: "No LeetCode session found" });
+          return;
+        }
+        const candidates = await getCandidateApiBases();
+        let lastError = null;
+        for (const baseUrl of candidates) {
+          try {
+            await trySyncToApi(baseUrl, request.problemSlug, cookie);
+            sendResponse({ ok: true, payload: { synced: true } });
+            return;
+          } catch (err) {
+            lastError = err;
+          }
+        }
+        sendResponse({
+          ok: false,
+          error: lastError?.message || "All sync attempts failed",
+        });
+        return;
+      }
+
+      sendResponse({ ok: false, error: "Unsupported request type" });
+    } catch (error) {
       sendResponse({
         ok: false,
-        error: lastError?.message || "All sync attempts failed",
+        error: error?.message || "Unexpected extension background error",
       });
-      return;
     }
-
-    sendResponse({ ok: false, error: "Unsupported request type" });
   })();
 
   return true;

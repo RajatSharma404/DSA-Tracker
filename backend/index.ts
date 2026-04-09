@@ -38,6 +38,7 @@ import {
   getAIRecommendations,
 } from "./aiService";
 import { DSA_TEMPLATES } from "./templates";
+import { seedComprehensiveDSA } from "./seedComprehensiveDSA";
 
 dotenv.config();
 
@@ -242,77 +243,92 @@ declare global {
   }
 }
 
-// Authentication Middleware
-const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
+const resolveAuthenticatedUser = async (authHeader?: string) => {
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ error: "Unauthorized: No token provided" });
+    return null;
   }
 
   const token = authHeader.split(" ")[1];
+  let decoded: { email: string; role: string } | null = null;
+
+  for (const secret of NEXTAUTH_SECRETS) {
+    try {
+      decoded = jwt.verify(token, secret) as {
+        email: string;
+        role: string;
+      };
+      break;
+    } catch {
+      // Try next secret candidate.
+    }
+  }
+
+  if (!decoded?.email) {
+    return null;
+  }
+
+  let user = userCache.get(decoded.email.toLowerCase());
+
+  if (!user) {
+    const dbUser = (await prisma.user.upsert({
+      where: { email: decoded.email },
+      update: {},
+      create: {
+        email: decoded.email,
+        role: "USER",
+      },
+    })) as any;
+
+    user = { id: dbUser.id, email: dbUser.email, role: dbUser.role };
+
+    if (
+      ADMIN_EMAIL &&
+      user.email.toLowerCase() === ADMIN_EMAIL &&
+      user.role !== "ADMIN"
+    ) {
+      const promoted = await prisma.user.update({
+        where: { id: user.id },
+        data: { role: "ADMIN" } as any,
+      });
+      user.role = promoted.role;
+    }
+
+    userCache.set(user.email.toLowerCase(), user);
+  }
+
+  await notifyLogin(decoded.email);
+  return { id: user.id, role: user.role };
+};
+
+// Authentication Middleware
+const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    let decoded: { email: string; role: string } | null = null;
-
-    for (const secret of NEXTAUTH_SECRETS) {
-      try {
-        decoded = jwt.verify(token, secret) as {
-          email: string;
-          role: string;
-        };
-        break;
-      } catch {
-        // Try next secret candidate.
-      }
-    }
-
-    if (!decoded) {
-      return res.status(401).json({ error: "Unauthorized: Invalid token" });
-    }
-
-    if (!decoded.email) {
-      return res
-        .status(401)
-        .json({ error: "Unauthorized: Invalid token payload" });
-    }
-
-    // Check cache first
-    let user = userCache.get(decoded.email.toLowerCase());
-
+    const user = await resolveAuthenticatedUser(req.headers.authorization);
     if (!user) {
-      // Upsert user by email so they're created on first request
-      const dbUser = (await prisma.user.upsert({
-        where: { email: decoded.email },
-        update: {},
-        create: {
-          email: decoded.email,
-          role: "USER",
-        },
-      })) as any;
-
-      user = { id: dbUser.id, email: dbUser.email, role: dbUser.role };
-
-      // Auto-promote to ADMIN if email matches
-      if (
-        ADMIN_EMAIL &&
-        user.email.toLowerCase() === ADMIN_EMAIL &&
-        user.role !== "ADMIN"
-      ) {
-        const promoted = await prisma.user.update({
-          where: { id: user.id },
-          data: { role: "ADMIN" } as any,
-        });
-        user.role = promoted.role;
-      }
-
-      userCache.set(user.email.toLowerCase(), user);
+      return res.status(401).json({ error: "Unauthorized: No token provided" });
     }
 
-    req.user = { id: user.id, role: user.role };
-    await notifyLogin(decoded.email);
+    req.user = user;
     next();
   } catch (err) {
     return res.status(401).json({ error: "Unauthorized: Invalid token" });
   }
+};
+
+const attachOptionalAuth = async (
+  req: Request,
+  _res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const user = await resolveAuthenticatedUser(req.headers.authorization);
+    if (user) {
+      req.user = user;
+    }
+  } catch {
+    // Public browse routes should still work without auth.
+  }
+  next();
 };
 
 const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
@@ -870,6 +886,135 @@ const FALLBACK_LEARN_TRACKS = expandFallbackLearnTracks(
   BASE_FALLBACK_LEARN_TRACKS,
 );
 
+const toSentence = (value: string) => {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  return /[.!?]$/.test(trimmed) ? trimmed : `${trimmed}.`;
+};
+
+const normalizeLearningObjectives = (value: unknown): string[] => {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((item): item is string => typeof item === "string")
+    .map((item) => item.trim())
+    .filter(Boolean);
+};
+
+const buildDetailedLessonMarkdown = (params: {
+  trackTitle: string;
+  moduleTitle: string;
+  lessonTitle: string;
+  lessonSummary: string | null;
+  learningObjectives: string[];
+}) => {
+  const {
+    trackTitle,
+    moduleTitle,
+    lessonTitle,
+    lessonSummary,
+    learningObjectives,
+  } = params;
+
+  const objectiveLines =
+    learningObjectives.length > 0
+      ? learningObjectives
+          .map((objective) => `- ${toSentence(objective)}`)
+          .join("\n")
+      : "- Understand the core pattern and why it is preferred over brute force.\n- Analyze time-space trade-offs before coding.\n- Validate edge cases with a dry run.";
+
+  const summaryLine = lessonSummary
+    ? toSentence(lessonSummary)
+    : `${lessonTitle} builds an interview-ready mental model for ${moduleTitle.toLowerCase()} problems.`;
+
+  return [
+    `### Detailed Theory`,
+    `${summaryLine}`,
+    "",
+    `This lesson belongs to **${trackTitle}** and focuses on **${moduleTitle}**. Use this flow whenever you solve a related problem:`,
+    "1. Identify the input shape and constraints.",
+    "2. Map the problem to the underlying pattern.",
+    "3. Choose the most efficient data structure for that pattern.",
+    "4. Validate with edge cases before finalizing code.",
+    "",
+    `### Topic Objectives`,
+    `${objectiveLines}`,
+    "",
+    `### Example`,
+    `Suppose you are solving a **${lessonTitle}** style question. Start with a small input and manually trace your state transitions at each step. Track the invariant (what always remains true) while updating pointers, indices, recursion state, or helper structures. This dry run highlights bugs early and reveals whether your approach is truly optimal.`,
+    "",
+    `### Practice Question`,
+    `Design and solve one interview-level problem for **${moduleTitle}** where a brute-force approach is too slow.`,
+    `- Write the brute-force complexity and explain why it fails constraints.`,
+    `- Derive an optimized approach using the pattern from **${lessonTitle}**.`,
+    `- Provide final time and space complexity and test at least 3 edge cases.`,
+  ].join("\n");
+};
+
+const appendDetailedTheoryBlock = (params: {
+  blocks: Array<{
+    id: string;
+    blockType: string;
+    orderIndex: number;
+    content: unknown;
+    language: string | null;
+  }>;
+  lessonId: string;
+  trackTitle: string;
+  moduleTitle: string;
+  lessonTitle: string;
+  lessonSummary: string | null;
+  learningObjectives: string[];
+}) => {
+  const {
+    blocks,
+    lessonId,
+    trackTitle,
+    moduleTitle,
+    lessonTitle,
+    lessonSummary,
+    learningObjectives,
+  } = params;
+
+  const alreadyHasPracticePrompt = blocks.some((block) => {
+    if (block.blockType !== "MARKDOWN") return false;
+    if (typeof block.content !== "object" || block.content === null)
+      return false;
+    const markdown = (block.content as Record<string, unknown>).markdown;
+    return (
+      typeof markdown === "string" &&
+      /practice question|detailed theory|### example/i.test(markdown)
+    );
+  });
+
+  if (alreadyHasPracticePrompt) {
+    return blocks;
+  }
+
+  const nextOrder =
+    blocks.length > 0
+      ? Math.max(...blocks.map((block) => Number(block.orderIndex) || 0)) + 1
+      : 1;
+
+  return [
+    ...blocks,
+    {
+      id: `${lessonId}-auto-theory-practice`,
+      blockType: "MARKDOWN",
+      orderIndex: nextOrder,
+      content: {
+        markdown: buildDetailedLessonMarkdown({
+          trackTitle,
+          moduleTitle,
+          lessonTitle,
+          lessonSummary,
+          learningObjectives,
+        }),
+      },
+      language: null,
+    },
+  ];
+};
+
 const getFallbackLearnLesson = (
   trackSlug: string,
   moduleSlug: string,
@@ -884,13 +1029,23 @@ const getFallbackLearnLesson = (
   const lesson = module.lessons.find((l) => l.slug === lessonSlug);
   if (!lesson) return null;
 
+  const learningObjectives = normalizeLearningObjectives(
+    lesson.learningObjectives,
+  );
+
   const blocks = [
     {
       id: `${lesson.id}-block-1`,
       blockType: "MARKDOWN",
       orderIndex: 1,
       content: {
-        markdown: `### ${lesson.title}\n${lesson.summary || "Core theory lesson."}`,
+        markdown: buildDetailedLessonMarkdown({
+          trackTitle: track.title,
+          moduleTitle: module.title,
+          lessonTitle: lesson.title,
+          lessonSummary: lesson.summary,
+          learningObjectives,
+        }),
       },
       language: null,
     },
@@ -899,7 +1054,7 @@ const getFallbackLearnLesson = (
       blockType: "MARKDOWN",
       orderIndex: 2,
       content: {
-        markdown: `### Learning Objectives\n${(lesson.learningObjectives || []).map((o: string) => `- ${o}`).join("\\n")}`,
+        markdown: `### Learning Objectives\n${learningObjectives.map((o: string) => `- ${toSentence(o)}`).join("\\n")}`,
       },
       language: null,
     },
@@ -912,7 +1067,7 @@ const getFallbackLearnLesson = (
       summary: lesson.summary,
       difficulty: lesson.difficulty,
       estimatedMinutes: lesson.estimatedMinutes,
-      learningObjectives: lesson.learningObjectives || null,
+      learningObjectives,
       module: {
         id: module.id,
         title: module.title,
@@ -1310,10 +1465,10 @@ const seedStarterTheoryContent = async () => {
 
 app.get(
   "/api/learn/tracks",
-  requireAuth,
+  attachOptionalAuth,
   async (req: Request, res: Response) => {
     try {
-      const userId = req.user!.id;
+      const userId = req.user?.id ?? null;
 
       let tracks = await prisma.$queryRaw<
         Array<{
@@ -1329,10 +1484,10 @@ app.get(
         slug,
         title,
         description,
-        order_index AS "orderIndex"
+        "orderIndex"
       FROM theory_tracks
-      WHERE is_published = true
-      ORDER BY order_index ASC, created_at ASC
+      WHERE "isPublished" = true
+      ORDER BY "orderIndex" ASC, "createdAt" ASC
     `;
 
       if (tracks.length === 0) {
@@ -1352,10 +1507,10 @@ app.get(
             slug,
             title,
             description,
-            order_index AS "orderIndex"
+            "orderIndex"
           FROM theory_tracks
-          WHERE is_published = true
-          ORDER BY order_index ASC, created_at ASC
+          WHERE "isPublished" = true
+          ORDER BY "orderIndex" ASC, "createdAt" ASC
         `;
         } catch (seedError) {
           console.error("Auto-seed learn tracks failed:", seedError);
@@ -1381,16 +1536,16 @@ app.get(
         Prisma.sql`
       SELECT
         id,
-        track_id AS "trackId",
+        "trackId",
         slug,
         title,
         summary,
-        order_index AS "orderIndex",
-        estimated_minutes AS "estimatedMinutes"
+        "orderIndex",
+        "estimatedMinutes"
       FROM theory_modules
-      WHERE is_published = true
-        AND track_id IN (${Prisma.join(trackIds)})
-      ORDER BY order_index ASC, created_at ASC
+      WHERE "isPublished" = true
+        AND "trackId" IN (${Prisma.join(trackIds)})
+      ORDER BY "orderIndex" ASC, "createdAt" ASC
     `,
       );
 
@@ -1412,24 +1567,24 @@ app.get(
               Prisma.sql`
           SELECT
             id,
-            module_id AS "moduleId",
+            "moduleId",
             slug,
             title,
             summary,
-            order_index AS "orderIndex",
-            estimated_minutes AS "estimatedMinutes",
+            "orderIndex",
+            "estimatedMinutes",
             difficulty::text AS difficulty
           FROM theory_lessons
-          WHERE is_published = true
-            AND module_id IN (${Prisma.join(moduleIds)})
-          ORDER BY order_index ASC, created_at ASC
+          WHERE "isPublished" = true
+            AND "moduleId" IN (${Prisma.join(moduleIds)})
+          ORDER BY "orderIndex" ASC, "createdAt" ASC
         `,
             )
           : [];
 
       const lessonIds = lessons.map((l) => l.id);
       const progressRows =
-        lessonIds.length > 0
+        userId && lessonIds.length > 0
           ? await prisma.$queryRaw<
               Array<{
                 lessonId: string;
@@ -1439,12 +1594,12 @@ app.get(
             >(
               Prisma.sql`
           SELECT
-            lesson_id AS "lessonId",
+            "lessonId",
             status::text AS status,
-            progress_percent AS "progressPercent"
+            "progressPercent"
           FROM user_theory_lesson_progress
-          WHERE user_id = ${userId}
-            AND lesson_id IN (${Prisma.join(lessonIds)})
+          WHERE "userId" = ${userId}
+            AND "lessonId" IN (${Prisma.join(lessonIds)})
         `,
             )
           : [];
@@ -1576,10 +1731,10 @@ app.get(
 
 app.get(
   "/api/learn/tracks/:trackSlug/modules/:moduleSlug/lessons/:lessonSlug",
-  requireAuth,
+  attachOptionalAuth,
   async (req: Request, res: Response) => {
     try {
-      const userId = req.user!.id;
+      const userId = req.user?.id ?? null;
       const trackSlug = String(req.params.trackSlug);
       const moduleSlug = String(req.params.moduleSlug);
       const lessonSlug = String(req.params.lessonSlug);
@@ -1604,22 +1759,22 @@ app.get(
           l.title,
           l.summary,
           l.difficulty::text AS difficulty,
-          l.estimated_minutes AS "estimatedMinutes",
-          l.learning_objectives AS "learningObjectives",
+          l."estimatedMinutes",
+          l."learningObjectives",
           m.id AS "moduleId",
           m.title AS "moduleTitle",
           m.slug AS "moduleSlug",
           t.title AS "trackTitle",
           t.slug AS "trackSlug"
         FROM theory_lessons l
-        INNER JOIN theory_modules m ON m.id = l.module_id
-        INNER JOIN theory_tracks t ON t.id = m.track_id
+        INNER JOIN theory_modules m ON m.id = l."moduleId"
+        INNER JOIN theory_tracks t ON t.id = m."trackId"
         WHERE t.slug = ${trackSlug}
           AND m.slug = ${moduleSlug}
           AND l.slug = ${lessonSlug}
-          AND t.is_published = true
-          AND m.is_published = true
-          AND l.is_published = true
+          AND t."isPublished" = true
+          AND m."isPublished" = true
+          AND l."isPublished" = true
         LIMIT 1
       `;
 
@@ -1647,32 +1802,48 @@ app.get(
       >`
         SELECT
           id,
-          block_type::text AS "blockType",
-          order_index AS "orderIndex",
+          "blockType"::text AS "blockType",
+          "orderIndex",
           content,
           language
         FROM theory_lesson_blocks
-        WHERE lesson_id = ${lesson.id}
-        ORDER BY order_index ASC
+        WHERE "lessonId" = ${lesson.id}
+        ORDER BY "orderIndex" ASC
       `;
 
-      const progressRows = await prisma.$queryRaw<
-        Array<{
-          status: string;
-          progressPercent: number;
-          timeSpentSeconds: number;
-          completedAt: Date | null;
-        }>
-      >`
+      const normalizedObjectives = normalizeLearningObjectives(
+        lesson.learningObjectives,
+      );
+
+      const enrichedBlocks = appendDetailedTheoryBlock({
+        blocks,
+        lessonId: lesson.id,
+        trackTitle: lesson.trackTitle,
+        moduleTitle: lesson.moduleTitle,
+        lessonTitle: lesson.title,
+        lessonSummary: lesson.summary,
+        learningObjectives: normalizedObjectives,
+      });
+
+      const progressRows = userId
+        ? await prisma.$queryRaw<
+            Array<{
+              status: string;
+              progressPercent: number;
+              timeSpentSeconds: number;
+              completedAt: Date | null;
+            }>
+          >`
         SELECT
           status::text AS status,
-          progress_percent AS "progressPercent",
-          time_spent_seconds AS "timeSpentSeconds",
-          completed_at AS "completedAt"
+          "progressPercent",
+          "timeSpentSeconds",
+          "completedAt"
         FROM user_theory_lesson_progress
-        WHERE user_id = ${userId}
-          AND lesson_id = ${lesson.id}
-      `;
+        WHERE "userId" = ${userId}
+          AND "lessonId" = ${lesson.id}
+      `
+        : [];
 
       const progress =
         progressRows[0] ||
@@ -1686,25 +1857,25 @@ app.get(
       const siblingLessons = await prisma.$queryRaw<
         Array<{ id: string; slug: string; title: string; orderIndex: number }>
       >`
-        SELECT id, slug, title, order_index AS "orderIndex"
+        SELECT id, slug, title, "orderIndex"
         FROM theory_lessons
-        WHERE module_id = ${lesson.moduleId}
-          AND is_published = true
-        ORDER BY order_index ASC, created_at ASC
+        WHERE "moduleId" = ${lesson.moduleId}
+          AND "isPublished" = true
+        ORDER BY "orderIndex" ASC, "createdAt" ASC
       `;
 
-      const siblingProgressRows = await prisma.$queryRaw<
-        Array<{ lessonId: string; status: string }>
-      >`
+      const siblingProgressRows = userId
+        ? await prisma.$queryRaw<Array<{ lessonId: string; status: string }>>`
         SELECT
-          lesson_id AS "lessonId",
+          "lessonId",
           status::text AS status
         FROM user_theory_lesson_progress
-        WHERE user_id = ${userId}
-          AND lesson_id IN (
-            SELECT id FROM theory_lessons WHERE module_id = ${lesson.moduleId}
+        WHERE "userId" = ${userId}
+          AND "lessonId" IN (
+            SELECT id FROM theory_lessons WHERE "moduleId" = ${lesson.moduleId}
           )
-      `;
+      `
+        : [];
       const siblingProgress = new Map(
         siblingProgressRows.map((row) => [row.lessonId, row.status]),
       );
@@ -1728,15 +1899,15 @@ app.get(
           p.link,
           t.name AS "topicName",
           tpl.required,
-          tpl.order_index AS "orderIndex",
+          tpl."orderIndex",
           CASE WHEN pr.status = 'DONE' THEN true ELSE false END AS solved
         FROM theory_problem_links tpl
-        INNER JOIN "Problem" p ON p.id = tpl.problem_id
+          INNER JOIN "Problem" p ON p.id = tpl."problemId"
         LEFT JOIN "Topic" t ON t.id = p."topicId"
         LEFT JOIN "Progress" pr ON pr."problemId" = p.id AND pr."userId" = ${userId}
-        WHERE tpl.lesson_id = ${lesson.id}
-           OR (tpl.lesson_id IS NULL AND tpl.module_id = ${lesson.moduleId})
-        ORDER BY tpl.order_index ASC
+          WHERE tpl."lessonId" = ${lesson.id}
+            OR (tpl."lessonId" IS NULL AND tpl."moduleId" = ${lesson.moduleId})
+          ORDER BY tpl."orderIndex" ASC
       `;
 
       const isUnlocked = progress.status === "COMPLETED";
@@ -1748,7 +1919,7 @@ app.get(
           summary: lesson.summary,
           difficulty: lesson.difficulty,
           estimatedMinutes: lesson.estimatedMinutes,
-          learningObjectives: lesson.learningObjectives,
+          learningObjectives: normalizedObjectives,
           module: {
             id: lesson.moduleId,
             title: lesson.moduleTitle,
@@ -1759,7 +1930,7 @@ app.get(
             slug: lesson.trackSlug,
           },
         },
-        blocks,
+        blocks: enrichedBlocks,
         progress,
         isUnlocked,
         siblings: siblingLessons.map((s) => ({
@@ -1895,6 +2066,26 @@ app.post(
     } catch (error) {
       console.error("Theory seed error:", error);
       res.status(500).json({ error: "Failed to seed theory content" });
+    }
+  },
+);
+
+app.post(
+  "/api/admin/learn/seed-comprehensive",
+  requireAuth,
+  requireAdmin,
+  async (_req: Request, res: Response) => {
+    try {
+      const result = await seedComprehensiveDSA();
+      res.json({
+        success: true,
+        ...result,
+      });
+    } catch (error) {
+      console.error("Comprehensive DSA seed error:", error);
+      res
+        .status(500)
+        .json({ error: "Failed to seed comprehensive DSA content" });
     }
   },
 );

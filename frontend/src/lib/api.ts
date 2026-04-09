@@ -346,7 +346,12 @@ export const dsaApi = {
     return res.data;
   },
   getLearnTracks: async (): Promise<LearnTrackSummary[]> => {
-    const res = await api.get("/learn/tracks");
+    const res = await api.get("/learn/tracks", {
+      headers: {
+        "Cache-Control": "no-cache",
+        Pragma: "no-cache",
+      },
+    });
     return res.data;
   },
   getLearnLesson: async (
@@ -373,6 +378,10 @@ export const dsaApi = {
   },
   adminSeedLearn: async () => {
     const res = await api.post("/admin/learn/seed");
+    return res.data;
+  },
+  adminSeedComprehensiveLearn: async () => {
+    const res = await api.post("/admin/learn/seed-comprehensive");
     return res.data;
   },
   getTopicProblems: async (topicId: string): Promise<Problem[]> => {

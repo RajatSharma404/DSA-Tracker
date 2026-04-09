@@ -13,6 +13,7 @@ import {
   PlayCircle,
   Rocket,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 type ApiErrorShape = {
   response?: {
@@ -71,6 +72,8 @@ export default function LearnLessonPage() {
   const trackSlug = params?.trackSlug as string;
   const moduleSlug = params?.moduleSlug as string;
   const lessonSlug = params?.lessonSlug as string;
+  const { data: session } = useSession();
+  const canTrackProgress = Boolean(session);
 
   const [data, setData] = useState<LearnLessonDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -229,20 +232,28 @@ export default function LearnLessonPage() {
             )}
 
           <div className="mt-5 flex flex-wrap gap-3">
-            <button
-              onClick={markInProgress}
-              disabled={updating}
-              className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10 disabled:opacity-60"
-            >
-              {updating ? "Saving..." : "Mark In Progress"}
-            </button>
-            <button
-              onClick={markComplete}
-              disabled={updating}
-              className="rounded-xl bg-green-500 px-4 py-2 text-sm font-semibold text-black hover:bg-green-400 disabled:opacity-60"
-            >
-              {updating ? "Saving..." : "Complete Lesson"}
-            </button>
+            {canTrackProgress ? (
+              <>
+                <button
+                  onClick={markInProgress}
+                  disabled={updating}
+                  className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10 disabled:opacity-60"
+                >
+                  {updating ? "Saving..." : "Mark In Progress"}
+                </button>
+                <button
+                  onClick={markComplete}
+                  disabled={updating}
+                  className="rounded-xl bg-green-500 px-4 py-2 text-sm font-semibold text-black hover:bg-green-400 disabled:opacity-60"
+                >
+                  {updating ? "Saving..." : "Complete Lesson"}
+                </button>
+              </>
+            ) : (
+              <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-gray-300">
+                Sign in to track progress and unlock problem status updates.
+              </div>
+            )}
           </div>
         </div>
 

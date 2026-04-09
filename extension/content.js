@@ -5,6 +5,24 @@ const REQUEST_DOM_EVENT = "DSA_TRACKER_EXTENSION_REQUEST_DOM";
 const RESPONSE_DOM_EVENT = "DSA_TRACKER_EXTENSION_RESPONSE_DOM";
 const inFlightRequestIds = new Set();
 
+const safeRuntimeSendMessage = (message, callback) => {
+  try {
+    if (!chrome?.runtime?.id) {
+      callback({
+        ok: false,
+        error: "Extension runtime unavailable. Reload extension and page.",
+      });
+      return;
+    }
+    chrome.runtime.sendMessage(message, callback);
+  } catch (error) {
+    callback({
+      ok: false,
+      error: error?.message || "Failed to reach extension background worker",
+    });
+  }
+};
+
 function sendResponse(requestId, ok, payload, error) {
   window.postMessage(
     {
@@ -39,19 +57,15 @@ const forwardRequestToBackground = (data) => {
 
   inFlightRequestIds.add(data.requestId);
 
-  chrome.runtime.sendMessage(
+  safeRuntimeSendMessage(
     {
       type: data.action,
       payload: data.payload || {},
     },
     (response) => {
-      if (chrome.runtime.lastError) {
-        sendResponse(
-          data.requestId,
-          false,
-          null,
-          chrome.runtime.lastError.message,
-        );
+      const runtimeLastError = chrome?.runtime?.lastError;
+      if (runtimeLastError) {
+        sendResponse(data.requestId, false, null, runtimeLastError.message);
         inFlightRequestIds.delete(data.requestId);
         return;
       }
@@ -131,7 +145,10 @@ if (window.location.hostname.includes("leetcode.com")) {
 
     if (acceptedFromCandidates || acceptedFromTextScan) {
       hasSynced = true;
-      chrome.runtime.sendMessage({ type: "SYNC_PROBLEM", problemSlug: slug });
+      safeRuntimeSendMessage(
+        { type: "SYNC_PROBLEM", problemSlug: slug },
+        () => {},
+      );
     }
   }
 
