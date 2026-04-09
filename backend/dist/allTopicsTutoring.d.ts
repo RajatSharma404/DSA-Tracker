@@ -9,7 +9,7 @@
  * 6. Three classic problems
  * 7. Tricks, edge cases & checkpoint
  */
-export declare const ALL_19_DSA_TOPICS: readonly [{
+export declare const ALL_20_DSA_TOPICS: readonly [{
     readonly idx: 1;
     readonly name: "Complexity Analysis";
     readonly shortDesc: "Big-O notation and algorithm analysis";

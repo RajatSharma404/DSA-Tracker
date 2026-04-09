@@ -10,7 +10,7 @@
  * 7. Tricks, edge cases & checkpoint
  */
 
-export const ALL_19_DSA_TOPICS = [
+export const ALL_20_DSA_TOPICS = [
   {
     idx: 1,
     name: "Complexity Analysis",

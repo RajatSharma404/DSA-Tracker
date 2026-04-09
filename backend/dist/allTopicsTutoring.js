@@ -11,8 +11,8 @@
  * 7. Tricks, edge cases & checkpoint
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateTopicContent = exports.ALL_19_DSA_TOPICS = void 0;
-exports.ALL_19_DSA_TOPICS = [
+exports.generateTopicContent = exports.ALL_20_DSA_TOPICS = void 0;
+exports.ALL_20_DSA_TOPICS = [
     {
         idx: 1,
         name: "Complexity Analysis",
