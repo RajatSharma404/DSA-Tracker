@@ -22,9 +22,8 @@ if (!hasGoogleOAuth) {
 }
 
 if (!prisma) {
-  console.warn(
-    "[auth] DATABASE_URL is missing in frontend runtime. User upsert is disabled.",
-  );
+  // This is expected in frontend-only environments. User sync happens via backend API calls.
+  // DATABASE_URL should NOT be exposed to frontend code for security reasons.
 }
 
 const allowInsecureCredentialsLogin =
