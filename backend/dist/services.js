@@ -76,8 +76,7 @@ const getWeakTopics = async (userId) => {
             .filter((progress) => progress?.status === "DONE");
         const solvedProblems = doneProgress.length;
         const avgTimeSpent = solvedProblems > 0
-            ? Math.round(doneProgress.reduce((sum, progress) => sum + progress.timeSpent, 0) /
-                solvedProblems)
+            ? Math.round(doneProgress.reduce((sum, progress) => sum + progress.timeSpent, 0) / solvedProblems)
             : 0;
         const completionPct = totalProblems > 0 ? (solvedProblems / totalProblems) * 100 : 0;
         const overdueReviews = doneProgress.filter((progress) => progress.nextReviewDate && new Date(progress.nextReviewDate) <= now).length;
@@ -226,14 +225,18 @@ const getDailyProblem = async (userId) => {
         },
     });
     const weakTopics = (await (0, exports.getWeakTopics)(userId));
-    const weakTopicNames = new Set(weakTopics.filter((topic) => (topic.masteryScore || 0) < 45).map((t) => t.name));
+    const weakTopicNames = new Set(weakTopics
+        .filter((topic) => (topic.masteryScore || 0) < 45)
+        .map((t) => t.name));
     const mediumTopicNames = new Set(weakTopics
         .filter((topic) => {
         const score = topic.masteryScore || 0;
         return score >= 45 && score < 70;
     })
         .map((t) => t.name));
-    const strongTopicNames = new Set(weakTopics.filter((topic) => (topic.masteryScore || 0) >= 70).map((t) => t.name));
+    const strongTopicNames = new Set(weakTopics
+        .filter((topic) => (topic.masteryScore || 0) >= 70)
+        .map((t) => t.name));
     const unsolvedByTopic = topics
         .map((topic) => {
         const unsolved = topic.problems.filter((problem) => problem.progress[0]?.status !== "DONE");
@@ -385,7 +388,8 @@ const getInterviewReadinessIndex = async (userId) => {
             },
         };
     }
-    const mediumHard = progress.filter((entry) => entry.problem.difficulty === "MEDIUM" || entry.problem.difficulty === "HARD");
+    const mediumHard = progress.filter((entry) => entry.problem.difficulty === "MEDIUM" ||
+        entry.problem.difficulty === "HARD");
     const mediumHardTimed = mediumHard.filter((entry) => {
         const limit = entry.problem.difficulty === "MEDIUM" ? 45 : 70;
         return entry.timeSpent > 0 && entry.timeSpent <= limit;
