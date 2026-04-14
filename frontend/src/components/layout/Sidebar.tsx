@@ -70,7 +70,7 @@ const navSections: Array<{ title: string; items: NavItem[] }> = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const [hasMounted, setHasMounted] = useState(false);
   const { data: session } = useSession();
 
@@ -126,8 +126,12 @@ export function Sidebar() {
       </div>
 
       <nav
-        className="flex-1 overflow-y-auto py-2 sm:py-3"
+        className="flex-1 overflow-y-auto py-2 sm:py-3 scrollbar-hide"
         aria-label="Navigation menu"
+        style={{
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+        }}
       >
         {displaySections.map((section) => (
           <div key={section.title} className="mb-2 sm:mb-3">

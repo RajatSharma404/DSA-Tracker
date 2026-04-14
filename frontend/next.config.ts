@@ -1,14 +1,16 @@
 import type { NextConfig } from "next";
 import crypto from "crypto";
 
-// On Render / any cloud platform set BACKEND_URL to the backend service URL
-// e.g. https://dsa-tracker-backend.onrender.com
-// Backward compatibility: NEXT_PUBLIC_API_URL is also accepted.
-// Locally it falls back to http://localhost:3001
-const RAW_BACKEND_URL =
-  process.env.BACKEND_URL ||
-  process.env.NEXT_PUBLIC_API_URL ||
-  "http://localhost:3001";
+const isDevelopment = process.env.NODE_ENV !== "production";
+
+// Prefer BACKEND_URL when explicitly set.
+// In local development, default to localhost so frontend and backend stay in sync.
+// In production, NEXT_PUBLIC_API_URL remains a backward-compatible fallback.
+const RAW_BACKEND_URL = process.env.BACKEND_URL
+  ? process.env.BACKEND_URL
+  : isDevelopment
+    ? "http://localhost:3001"
+    : process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
 // Normalize env value to an origin-like base so both:
 // - https://service.onrender.com

@@ -22,14 +22,17 @@ const normalizedPublicApiBase = hasAbsolutePublicApiBase
     ? configuredPublicApiBase
     : `${configuredPublicApiBase}/api`
   : "";
+const forceRemoteApiInLocalDev =
+  process.env.NEXT_PUBLIC_FORCE_REMOTE_API === "true";
 
-// Prefer direct public API URL when explicitly configured.
-// This avoids relying on platform rewrites and is resilient on Render.
-const API_BASE_URL = hasAbsolutePublicApiBase
-  ? normalizedPublicApiBase
-  : isLocalHost
-    ? process.env.NEXT_PUBLIC_API_URL || "/api"
-    : "/api";
+// In localhost dev, default to local proxy so frontend and backend stay in sync.
+// Set NEXT_PUBLIC_FORCE_REMOTE_API=true only when intentionally testing remote APIs.
+const API_BASE_URL =
+  isLocalHost && !forceRemoteApiInLocalDev
+    ? "/api"
+    : hasAbsolutePublicApiBase
+      ? normalizedPublicApiBase
+      : "/api";
 
 export const api = axios.create({
   baseURL: API_BASE_URL,

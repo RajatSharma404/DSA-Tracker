@@ -1988,7 +1988,6 @@ app.post(
         SELECT id
         FROM theory_lessons
         WHERE id = ${lessonId}
-          AND is_published = true
         LIMIT 1
       `;
 

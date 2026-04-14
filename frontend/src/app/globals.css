@@ -110,6 +110,16 @@ main[data-scroll-root="true"] {
   }
 }
 
+/* Hide scrollbars globally while keeping scroll functionality */
+* {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}
+
 /* =============================================
    GLOBAL OVERFLOW FIX
    Prevents any prose/code block from blowing

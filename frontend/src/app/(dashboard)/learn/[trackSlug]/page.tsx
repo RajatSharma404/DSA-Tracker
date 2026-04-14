@@ -63,8 +63,8 @@ export default function LearnTrackPage() {
         <div className="h-12 w-80 rounded-2xl bg-white/8" />
         <div className="h-56 rounded-4xl bg-white/6" />
         <div className="grid gap-4 lg:grid-cols-2">
-          <div className="h-64 rounded-[2rem] bg-white/6" />
-          <div className="h-64 rounded-[2rem] bg-white/6" />
+          <div className="h-64 rounded-4xl bg-white/6" />
+          <div className="h-64 rounded-4xl bg-white/6" />
         </div>
       </div>
     );
