@@ -500,13 +500,15 @@ Render hosts the frontend (Next.js) and backend (Express) as two separate Web Se
    | `GOOGLE_CLIENT_ID`     | Google OAuth client ID                                                    |
    | `GOOGLE_CLIENT_SECRET` | Google OAuth client secret                                                |
    | `BACKEND_URL`          | Your backend Render URL (e.g. `https://dsa-tracker-backend.onrender.com`) |
-   | `NEXT_PUBLIC_API_URL`  | Optional fallback; can also point to backend URL (with or without `/api`) |
+
+> **Important:** Do not set `NEXT_PUBLIC_API_URL` on Render unless you intentionally want to bypass the frontend proxy. The deployed frontend should call `/api/*` and let `next.config.ts` proxy those requests to `BACKEND_URL`.
 
 ### How `BACKEND_URL` works
 
 The `next.config.ts` rewrite proxies all `/api/*` requests to the backend.
 On Render (`BACKEND_URL` set), it proxies to your backend service URL.
 Locally (no env var), it falls back to `http://localhost:3001`.
+If the deployed site still shows `Failed to load learn tracks`, double-check that the frontend service has the correct `BACKEND_URL` and then use **Clear build cache & deploy**.
 
 ### Re-deploy not showing changes?
 
