@@ -1200,10 +1200,10 @@ app.get("/api/learn/tracks", attachOptionalAuth, async (req, res) => {
         slug,
         title,
         description,
-        order_index AS "orderIndex"
+        "orderIndex"
       FROM theory_tracks
-      WHERE is_published = true
-      ORDER BY order_index ASC, created_at ASC
+      WHERE "isPublished" = true
+      ORDER BY "orderIndex" ASC, "createdAt" ASC
     `;
         if (tracks.length === 0) {
             try {
@@ -1214,10 +1214,10 @@ app.get("/api/learn/tracks", attachOptionalAuth, async (req, res) => {
             slug,
             title,
             description,
-            order_index AS "orderIndex"
+            "orderIndex"
           FROM theory_tracks
-          WHERE is_published = true
-          ORDER BY order_index ASC, created_at ASC
+          WHERE "isPublished" = true
+          ORDER BY "orderIndex" ASC, "createdAt" ASC
         `;
             }
             catch (seedError) {
@@ -1231,45 +1231,45 @@ app.get("/api/learn/tracks", attachOptionalAuth, async (req, res) => {
         const modules = await prisma.$queryRaw(client_1.Prisma.sql `
       SELECT
         id,
-        track_id AS "trackId",
+        "trackId",
         slug,
         title,
         summary,
-        order_index AS "orderIndex",
-        estimated_minutes AS "estimatedMinutes"
+        "orderIndex",
+        "estimatedMinutes"
       FROM theory_modules
-      WHERE is_published = true
-        AND track_id IN (${client_1.Prisma.join(trackIds)})
-      ORDER BY order_index ASC, created_at ASC
+      WHERE "isPublished" = true
+        AND "trackId" IN (${client_1.Prisma.join(trackIds)})
+      ORDER BY "orderIndex" ASC, "createdAt" ASC
     `);
         const moduleIds = modules.map((m) => m.id);
         const lessons = moduleIds.length > 0
             ? await prisma.$queryRaw(client_1.Prisma.sql `
           SELECT
             id,
-            module_id AS "moduleId",
+            "moduleId",
             slug,
             title,
             summary,
-            order_index AS "orderIndex",
-            estimated_minutes AS "estimatedMinutes",
+            "orderIndex",
+            "estimatedMinutes",
             difficulty::text AS difficulty
           FROM theory_lessons
-          WHERE is_published = true
-            AND module_id IN (${client_1.Prisma.join(moduleIds)})
-          ORDER BY order_index ASC, created_at ASC
+          WHERE "isPublished" = true
+            AND "moduleId" IN (${client_1.Prisma.join(moduleIds)})
+          ORDER BY "orderIndex" ASC, "createdAt" ASC
         `)
             : [];
         const lessonIds = lessons.map((l) => l.id);
         const progressRows = userId && lessonIds.length > 0
             ? await prisma.$queryRaw(client_1.Prisma.sql `
           SELECT
-            lesson_id AS "lessonId",
+            "lessonId",
             status::text AS status,
-            progress_percent AS "progressPercent"
+            "progressPercent"
           FROM user_theory_lesson_progress
-          WHERE user_id = ${userId}
-            AND lesson_id IN (${client_1.Prisma.join(lessonIds)})
+          WHERE "userId" = ${userId}
+            AND "lessonId" IN (${client_1.Prisma.join(lessonIds)})
         `)
             : [];
         const progressByLesson = new Map(progressRows.map((p) => [p.lessonId, p]));
@@ -1376,22 +1376,22 @@ app.get("/api/learn/tracks/:trackSlug/modules/:moduleSlug/lessons/:lessonSlug", 
           l.title,
           l.summary,
           l.difficulty::text AS difficulty,
-          l.estimated_minutes AS "estimatedMinutes",
-          l.learning_objectives AS "learningObjectives",
+          l."estimatedMinutes",
+          l."learningObjectives",
           m.id AS "moduleId",
           m.title AS "moduleTitle",
           m.slug AS "moduleSlug",
           t.title AS "trackTitle",
           t.slug AS "trackSlug"
         FROM theory_lessons l
-        INNER JOIN theory_modules m ON m.id = l.module_id
-        INNER JOIN theory_tracks t ON t.id = m.track_id
+        INNER JOIN theory_modules m ON m.id = l."moduleId"
+        INNER JOIN theory_tracks t ON t.id = m."trackId"
         WHERE t.slug = ${trackSlug}
           AND m.slug = ${moduleSlug}
           AND l.slug = ${lessonSlug}
-          AND t.is_published = true
-          AND m.is_published = true
-          AND l.is_published = true
+          AND t."isPublished" = true
+          AND m."isPublished" = true
+          AND l."isPublished" = true
         LIMIT 1
       `;
         const lesson = lessons[0];
@@ -1405,13 +1405,13 @@ app.get("/api/learn/tracks/:trackSlug/modules/:moduleSlug/lessons/:lessonSlug", 
         const blocks = await prisma.$queryRaw `
         SELECT
           id,
-          block_type::text AS "blockType",
-          order_index AS "orderIndex",
+          "blockType"::text AS "blockType",
+          "orderIndex",
           content,
           language
         FROM theory_lesson_blocks
-        WHERE lesson_id = ${lesson.id}
-        ORDER BY order_index ASC
+        WHERE "lessonId" = ${lesson.id}
+        ORDER BY "orderIndex" ASC
       `;
         const normalizedObjectives = normalizeLearningObjectives(lesson.learningObjectives);
         const enrichedBlocks = appendDetailedTheoryBlock({
@@ -1427,12 +1427,12 @@ app.get("/api/learn/tracks/:trackSlug/modules/:moduleSlug/lessons/:lessonSlug", 
             ? await prisma.$queryRaw `
         SELECT
           status::text AS status,
-          progress_percent AS "progressPercent",
-          time_spent_seconds AS "timeSpentSeconds",
-          completed_at AS "completedAt"
+          "progressPercent",
+          "timeSpentSeconds",
+          "completedAt"
         FROM user_theory_lesson_progress
-        WHERE user_id = ${userId}
-          AND lesson_id = ${lesson.id}
+        WHERE "userId" = ${userId}
+          AND "lessonId" = ${lesson.id}
       `
             : [];
         const progress = progressRows[0] ||
@@ -1443,21 +1443,21 @@ app.get("/api/learn/tracks/:trackSlug/modules/:moduleSlug/lessons/:lessonSlug", 
                 completedAt: null,
             };
         const siblingLessons = await prisma.$queryRaw `
-        SELECT id, slug, title, order_index AS "orderIndex"
+        SELECT id, slug, title, "orderIndex"
         FROM theory_lessons
-        WHERE module_id = ${lesson.moduleId}
-          AND is_published = true
-        ORDER BY order_index ASC, created_at ASC
+        WHERE "moduleId" = ${lesson.moduleId}
+          AND "isPublished" = true
+        ORDER BY "orderIndex" ASC, "createdAt" ASC
       `;
         const siblingProgressRows = userId
             ? await prisma.$queryRaw `
         SELECT
-          lesson_id AS "lessonId",
+          "lessonId",
           status::text AS status
         FROM user_theory_lesson_progress
-        WHERE user_id = ${userId}
-          AND lesson_id IN (
-            SELECT id FROM theory_lessons WHERE module_id = ${lesson.moduleId}
+        WHERE "userId" = ${userId}
+          AND "lessonId" IN (
+            SELECT id FROM theory_lessons WHERE "moduleId" = ${lesson.moduleId}
           )
       `
             : [];
@@ -1470,15 +1470,15 @@ app.get("/api/learn/tracks/:trackSlug/modules/:moduleSlug/lessons/:lessonSlug", 
           p.link,
           t.name AS "topicName",
           tpl.required,
-          tpl.order_index AS "orderIndex",
+          tpl."orderIndex",
           CASE WHEN pr.status = 'DONE' THEN true ELSE false END AS solved
         FROM theory_problem_links tpl
-          INNER JOIN "Problem" p ON p.id = tpl.problem_id
+          INNER JOIN "Problem" p ON p.id = tpl."problemId"
         LEFT JOIN "Topic" t ON t.id = p."topicId"
         LEFT JOIN "Progress" pr ON pr."problemId" = p.id AND pr."userId" = ${userId}
-          WHERE tpl.lesson_id = ${lesson.id}
-            OR (tpl.lesson_id IS NULL AND tpl.module_id = ${lesson.moduleId})
-          ORDER BY tpl.order_index ASC
+          WHERE tpl."lessonId" = ${lesson.id}
+            OR (tpl."lessonId" IS NULL AND tpl."moduleId" = ${lesson.moduleId})
+          ORDER BY tpl."orderIndex" ASC
       `;
         const isUnlocked = progress.status === "COMPLETED";
         res.json({
@@ -1541,7 +1541,6 @@ app.post("/api/learn/lessons/:lessonId/progress", requireAuth, async (req, res) 
         SELECT id
         FROM theory_lessons
         WHERE id = ${lessonId}
-          AND is_published = true
         LIMIT 1
       `;
         if (lessonExists.length === 0) {
