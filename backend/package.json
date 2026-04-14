@@ -5,6 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "dev": "ts-node index.ts",
+    "prebuild": "npm install --include=dev",
     "build": "tsc && prisma generate",
     "start": "node dist/index.js",
     "postinstall": "prisma generate"
