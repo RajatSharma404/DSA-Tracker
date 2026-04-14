@@ -416,11 +416,101 @@ Install locally (Chrome/Edge):
 
 If syncing against deployed backend, configure extension storage base URL to your backend domain.
 
+### LeetCode editor and submit flow
+
+The solve flow supports multiple languages and can submit directly to LeetCode through backend + extension integration.
+
+Supported languages:
+
+- C++
+- C
+- Java
+- Python3
+
+Recommended setup for direct submit:
+
+1. Log in to LeetCode in the same browser profile.
+2. Copy the LEETCODE_SESSION cookie value from browser devtools.
+3. Paste it in the app Settings page.
+4. Open a problem and use the Solve page/editor.
+5. Select language, write code, and submit.
+
+Submit lifecycle:
+
+1. Client sends code + language.
+2. Backend forwards submission request.
+3. App polls submission status.
+4. Verdict, runtime, and memory are shown.
+5. Accepted submissions can update progress automatically.
+
+Common fixes:
+
+- Session missing/expired: refresh LEETCODE_SESSION.
+- Wrong profile: ensure LeetCode login and extension use the same browser profile.
+- Stale extension runtime: reload extension and refresh both app + LeetCode tabs.
+
+### Comprehensive DSA bootcamp seeding
+
+The repository includes a full tutoring curriculum generator/seed flow for the Learn section.
+
+What gets created:
+
+- 1 theory track: Complete DSA Bootcamp (C++)
+- 20 modules in sequence
+- 20 lessons
+- 40 content blocks (theory + practice/checkpoint)
+
+Admin seed endpoint:
+
+- POST /api/admin/learn/seed-comprehensive
+
+Example call:
+
+```bash
+curl -X POST http://localhost:3001/api/admin/learn/seed-comprehensive \
+  -H "Authorization: Bearer YOUR_ADMIN_JWT_TOKEN" \
+  -H "Content-Type: application/json"
+```
+
+Expected response shape:
+
+```json
+{
+  "success": true,
+  "trackId": "<uuid>",
+  "modulesCreated": 20,
+  "lessonsCreated": 20,
+  "blocksCreated": 40,
+  "trackTitle": "Complete DSA Bootcamp (C++)"
+}
+```
+
+Topic order in the bootcamp:
+
+1. Complexity Analysis
+2. Arrays
+3. Strings
+4. Linked Lists
+5. Stack and Queue
+6. Hashing
+7. Binary Trees
+8. Binary Search Trees
+9. Heaps and Priority Queues
+10. Tries
+11. Graphs Basics
+12. Sorting Algorithms
+13. Binary Search
+14. Recursion Fundamentals
+15. Backtracking Strategies
+16. Greedy Algorithms
+17. Dynamic Programming
+18. Advanced DSU/Segment Trees/BIT
+19. Bit Manipulation
+20. Advanced Graphs
+
 ## Deployment Summary
 
-For complete deployment instructions, read DEPLOYMENT.md.
-
-Below is the practical summary for Render-based split services.
+This section merges the practical deployment paths for both Render and Linux VM setups.
 
 ### Backend service (Render)
 
@@ -451,6 +541,11 @@ Required env vars:
 - NEXTAUTH_SECRET=<same-secret-as-backend>
 - BACKEND_URL=<backend-public-url>
 
+Render note:
+
+- Prefer BACKEND_URL and same-origin /api proxy behavior.
+- Avoid setting NEXT_PUBLIC_API_URL unless you intentionally bypass proxy routing.
+
 ### Cache and stale deploys
 
 If deploy appears stale:
@@ -458,6 +553,59 @@ If deploy appears stale:
 1. Use Manual Deploy.
 2. Choose Clear build cache and deploy if available.
 3. If that option is not shown, update a dummy env var (for example CACHE_BUSTER) and redeploy.
+
+### Linux VM deployment (systemd or PM2)
+
+Prerequisites:
+
+- Ubuntu/Debian server
+- Node.js 20+
+- Docker installed
+- Optional domain + SSL setup
+
+Build on server:
+
+```bash
+git clone <your-repo-url>
+cd DSA-Tracker
+npm install
+npm run build
+```
+
+Option A: systemd
+
+1. Update dsa-tracker.service with your user/path/node binary.
+2. Install and enable service.
+
+```bash
+sudo cp dsa-tracker.service /etc/systemd/system/dsa-tracker.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now dsa-tracker
+sudo systemctl status dsa-tracker
+```
+
+Option B: PM2
+
+```bash
+npm install -g pm2
+pm2 start ecosystem.config.js
+pm2 save
+pm2 startup
+```
+
+### Nginx and SSL (Linux)
+
+Typical reverse proxy pattern:
+
+- Frontend on localhost:3000
+- Backend API on localhost:3001
+
+Then secure with certbot:
+
+```bash
+sudo apt install -y nginx certbot python3-certbot-nginx
+sudo certbot --nginx -d yourdomain.com
+```
 
 ## Troubleshooting
 
@@ -500,22 +648,50 @@ Also verify backend /health and /api/learn/tracks from deployed URLs.
 
 Ensure NEXTAUTH_SECRET is identical in frontend and backend environments.
 
+### LeetCode submit flow fails
+
+1. Verify LEETCODE_SESSION is set and valid.
+2. Verify LeetCode login is active in same browser profile.
+3. Reload extension from chrome://extensions.
+4. Retry with a problem that has valid LeetCode slug/link data.
+
+### Comprehensive seed endpoint fails
+
+1. Confirm request has admin JWT.
+2. Confirm backend DB schema is applied.
+3. Check backend logs for prisma constraint or duplicate key errors.
+4. Re-run npx prisma db push and retry.
+
 ## Contributing
 
-Please read CONTRIBUTING.md before opening pull requests.
-
-Recommended process:
+Contribution workflow (merged summary):
 
 1. Create a branch.
 2. Keep commits focused.
 3. Include test/verification notes in PR description.
 
-## Additional Docs
+Suggested branch flow:
 
-- DEPLOYMENT.md: full deployment paths (Linux + Render)
-- CONTRIBUTING.md: contribution standards
-- LEETCODE_EDITOR_GUIDE.md: editor and integration details
-- DSA_TUTORING_SETUP.md: tutoring and curriculum setup
+```bash
+git checkout main
+git pull origin main
+git checkout -b feat/your-change
+```
+
+Commit style (recommended):
+
+- feat: new feature
+- fix: bug fix
+- docs: documentation-only changes
+- refactor: structural code improvement without behavior change
+- chore: tooling/dependency/build updates
+
+Before opening PR:
+
+1. Run the app locally and verify both frontend + backend start.
+2. Run lint where applicable.
+3. Add screenshots for UI changes.
+4. Document manual verification steps.
 
 ## License
 
