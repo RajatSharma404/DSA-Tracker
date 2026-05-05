@@ -121,7 +121,7 @@ function createAuthOptions(secret: string): NextAuthOptions {
 
         token.accessToken = jwt.sign(
           { email: token.email, role: token.role ?? "USER", sub: token.sub },
-          nextAuthSecret,
+          secret,
           { expiresIn: "7d" },
         );
         return token;

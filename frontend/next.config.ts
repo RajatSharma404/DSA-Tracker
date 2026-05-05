@@ -26,6 +26,10 @@ const nextConfig: NextConfig = {
   generateBuildId: async () => {
     return crypto.randomBytes(8).toString("hex");
   },
+  turbopack: {
+    // Specify the workspace root to avoid lockfile warnings with monorepo layout
+    root: "./",
+  },
   async rewrites() {
     return {
       beforeFiles: [],
