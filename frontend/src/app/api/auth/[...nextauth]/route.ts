@@ -3,13 +3,12 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
+import { NextResponse } from "next/server";
 
 const prisma = process.env.DATABASE_URL ? new PrismaClient() : null;
 
-const nextAuthSecret = process.env.NEXTAUTH_SECRET?.trim();
-if (!nextAuthSecret) {
-  throw new Error("NEXTAUTH_SECRET is required");
-}
+const nextAuthSecret =
+  process.env.NEXTAUTH_SECRET?.trim() || process.env.AUTH_SECRET?.trim();
 
 const googleClientId = process.env.GOOGLE_CLIENT_ID?.trim();
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET?.trim();
@@ -48,113 +47,144 @@ async function upsertAuthUser(email: string, name: string | null) {
   }
 }
 
-export const authOptions: NextAuthOptions = {
-  providers: [
-    ...(hasGoogleOAuth
-      ? [
-          GoogleProvider({
-            clientId: googleClientId!,
-            clientSecret: googleClientSecret!,
-          }),
-        ]
-      : []),
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        name: { label: "Name", type: "text" },
-      },
-      async authorize(credentials) {
-        // This legacy email-only flow is intentionally disabled by default.
-        if (!allowInsecureCredentialsLogin) {
-          return null;
+function createAuthOptions(secret: string): NextAuthOptions {
+  return {
+    providers: [
+      ...(hasGoogleOAuth
+        ? [
+            GoogleProvider({
+              clientId: googleClientId!,
+              clientSecret: googleClientSecret!,
+            }),
+          ]
+        : []),
+      CredentialsProvider({
+        name: "Credentials",
+        credentials: {
+          email: { label: "Email", type: "email" },
+          name: { label: "Name", type: "text" },
+        },
+        async authorize(credentials) {
+          // This legacy email-only flow is intentionally disabled by default.
+          if (!allowInsecureCredentialsLogin) {
+            return null;
+          }
+
+          const email = credentials?.email?.toString().trim().toLowerCase();
+          const name = credentials?.name?.toString().trim() || "DSA User";
+
+          if (!email || !email.includes("@")) {
+            return null;
+          }
+
+          return {
+            id: email,
+            email,
+            name,
+            image: null,
+            role: "USER",
+          } as any;
+        },
+      }),
+    ],
+    session: {
+      strategy: "jwt",
+    },
+    callbacks: {
+      async jwt({ token, user }) {
+        const tokenEmail =
+          user?.email?.toString().trim().toLowerCase() ??
+          token.email?.toString().trim().toLowerCase();
+
+        if (user) {
+          token.email = tokenEmail;
+          token.name = user.name;
+          token.picture = user.image;
         }
 
-        const email = credentials?.email?.toString().trim().toLowerCase();
-        const name = credentials?.name?.toString().trim() || "DSA User";
+        if (tokenEmail) {
+          const dbUser = await upsertAuthUser(
+            tokenEmail,
+            token.name?.toString() || null,
+          );
 
-        if (!email || !email.includes("@")) {
-          return null;
-        }
-
-        return {
-          id: email,
-          email,
-          name,
-          image: null,
-          role: "USER",
-        } as any;
-      },
-    }),
-  ],
-  session: {
-    strategy: "jwt",
-  },
-  callbacks: {
-    async jwt({ token, user }) {
-      const tokenEmail =
-        user?.email?.toString().trim().toLowerCase() ??
-        token.email?.toString().trim().toLowerCase();
-
-      if (user) {
-        token.email = tokenEmail;
-        token.name = user.name;
-        token.picture = user.image;
-      }
-
-      if (tokenEmail) {
-        const dbUser = await upsertAuthUser(
-          tokenEmail,
-          token.name?.toString() || null,
-        );
-
-        if (dbUser) {
-          token.sub = dbUser.id;
-          token.role = dbUser.role;
+          if (dbUser) {
+            token.sub = dbUser.id;
+            token.role = dbUser.role;
+          } else {
+            token.sub = token.sub ?? tokenEmail;
+            token.role = token.role ?? "USER";
+          }
         } else {
-          token.sub = token.sub ?? tokenEmail;
-          token.role = token.role ?? "USER";
+          token.role = "USER";
         }
-      } else {
-        token.role = "USER";
-      }
 
-      token.accessToken = jwt.sign(
-        { email: token.email, role: token.role ?? "USER", sub: token.sub },
-        nextAuthSecret,
-        { expiresIn: "7d" },
-      );
-      return token;
+        token.accessToken = jwt.sign(
+          { email: token.email, role: token.role ?? "USER", sub: token.sub },
+          nextAuthSecret,
+          { expiresIn: "7d" },
+        );
+        return token;
+      },
+      async session({ session, token }) {
+        if (session.user) {
+          (session as any).accessToken = token.accessToken;
+          (session.user as any).role = token.role ?? "USER";
+        }
+        return session;
+      },
     },
-    async session({ session, token }) {
-      if (session.user) {
-        (session as any).accessToken = token.accessToken;
-        (session.user as any).role = token.role ?? "USER";
-      }
-      return session;
+    secret,
+    pages: {
+      signIn: "/login",
+      error: "/login",
     },
-  },
-  secret: nextAuthSecret,
-  pages: {
-    signIn: "/login",
-    error: "/login",
-  },
-  logger: {
-    error(code, ...message) {
-      console.error("[next-auth][error]", code, ...message);
+    logger: {
+      error(code, ...message) {
+        console.error("[next-auth][error]", code, ...message);
+      },
+      warn(code) {
+        console.warn("[next-auth][warn]", code);
+      },
+      debug(code, ...message) {
+        if (process.env.NODE_ENV === "development") {
+          console.debug("[next-auth][debug]", code, ...message);
+        }
+      },
     },
-    warn(code) {
-      console.warn("[next-auth][warn]", code);
-    },
-    debug(code, ...message) {
-      if (process.env.NODE_ENV === "development") {
-        console.debug("[next-auth][debug]", code, ...message);
-      }
-    },
-  },
-  debug: process.env.NODE_ENV === "development",
-};
+    debug: process.env.NODE_ENV === "development",
+  };
+}
 
-const handler = NextAuth(authOptions);
+function missingSecretResponse() {
+  return NextResponse.json(
+    { error: "NEXTAUTH_SECRET or AUTH_SECRET is required" },
+    { status: 500 },
+  );
+}
 
-export { handler as GET, handler as POST };
+const handler = nextAuthSecret
+  ? NextAuth(createAuthOptions(nextAuthSecret))
+  : null;
+
+export async function GET(req: Request, context: unknown) {
+  if (!handler) {
+    console.error(
+      "[next-auth][error][NO_SECRET] NEXTAUTH_SECRET or AUTH_SECRET is required",
+    );
+    return missingSecretResponse();
+  }
+
+  return handler(req as any, context as any);
+}
+
+export async function POST(req: Request, context: unknown) {
+  if (!handler) {
+    console.error(
+      "[next-auth][error][NO_SECRET] NEXTAUTH_SECRET or AUTH_SECRET is required",
+    );
+    return missingSecretResponse();
+  }
+
+  return handler(req as any, context as any);
+}

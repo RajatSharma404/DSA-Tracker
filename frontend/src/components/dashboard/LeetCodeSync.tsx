@@ -60,9 +60,12 @@ export default function LeetCodeSync({ onSyncComplete }: LeetCodeSyncProps) {
         "LeetCode session saved securely! AI Code reviews can now auto-sync your submission code.",
       );
       setSessionCookie(""); // Clear after save for neatness
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      alert("Failed to save session");
+      const backendMessage =
+        error?.response?.data?.error ||
+        "Failed to save session. Paste LEETCODE_SESSION value or a cookie string containing LEETCODE_SESSION=...";
+      alert(backendMessage);
     } finally {
       setIsSavingSession(false);
     }

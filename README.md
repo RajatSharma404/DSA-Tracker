@@ -73,6 +73,7 @@ npm run dev
 
 - Personal DSA roadmap tracking with topic and problem progress
 - Dashboard with streaks, weak-topic insight, and daily planning
+- Branded app shell with a custom logo, login mark, and browser tab icon
 - Theory-first Learn section (tracks, modules, lessons)
 - Problem workspace with editor and saved solutions
 - AI hint/review/trace style endpoints for guided learning workflows

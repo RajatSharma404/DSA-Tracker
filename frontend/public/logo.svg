@@ -1,0 +1,41 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">DSA Tracker Pro logo</title>
+  <desc id="desc">A dark rounded-square mark with connected nodes and a rising line, representing progress tracking.</desc>
+  <defs>
+    <linearGradient id="bg" x1="96" y1="80" x2="416" y2="432" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#111827" />
+      <stop offset="1" stop-color="#030712" />
+    </linearGradient>
+    <linearGradient id="accent" x1="132" y1="144" x2="388" y2="372" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#60A5FA" />
+      <stop offset="0.52" stop-color="#FDE68A" />
+      <stop offset="1" stop-color="#22D3EE" />
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(260 210) rotate(90) scale(166 166)">
+      <stop stop-color="#60A5FA" stop-opacity="0.28" />
+      <stop offset="1" stop-color="#60A5FA" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect x="24" y="24" width="464" height="464" rx="112" fill="url(#bg)" />
+  <rect x="24" y="24" width="464" height="464" rx="112" fill="url(#glow)" />
+  <rect x="24" y="24" width="464" height="464" rx="112" stroke="rgba(255,255,255,0.08)" />
+  <path
+    d="M144 314L208 248L260 286L320 202L374 164"
+    stroke="url(#accent)"
+    stroke-width="34"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <circle cx="144" cy="314" r="28" fill="#E5F4FF" />
+  <circle cx="208" cy="248" r="28" fill="#FDE68A" />
+  <circle cx="260" cy="286" r="28" fill="#22D3EE" />
+  <circle cx="320" cy="202" r="28" fill="#F8FAFC" />
+  <circle cx="374" cy="164" r="28" fill="#60A5FA" />
+  <path
+    d="M182 382H330"
+    stroke="#FFFFFF"
+    stroke-opacity="0.16"
+    stroke-width="20"
+    stroke-linecap="round"
+  />
+</svg>

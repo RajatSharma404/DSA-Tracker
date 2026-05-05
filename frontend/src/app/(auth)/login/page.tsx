@@ -3,7 +3,7 @@
 import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, Suspense, useState } from "react";
-import { Activity, LayoutDashboard, Target, Zap } from "lucide-react";
+import { LayoutDashboard, Target, Zap } from "lucide-react";
 
 function ErrorMessage() {
   const searchParams = useSearchParams();
@@ -82,8 +82,12 @@ export default function LoginPage() {
       <div className="relative w-full max-w-110 flex flex-col items-center">
         {/* Logo Section */}
         <div className="mb-10 flex flex-col items-center space-y-4">
-          <div className="h-14 w-14 bg-white text-black rounded-2xl flex items-center justify-center shadow-[0_0_40px_rgba(255,255,255,0.1)]">
-            <Activity size={32} strokeWidth={2.5} />
+          <div className="h-14 w-14 rounded-2xl shadow-[0_0_40px_rgba(96,165,250,0.15)] ring-1 ring-white/10 overflow-hidden">
+            <img
+              src="/logo.svg"
+              alt="DSA Tracker Pro logo"
+              className="h-full w-full"
+            />
           </div>
           <div className="text-center">
             <h1 className="text-3xl font-bold tracking-tight text-white">

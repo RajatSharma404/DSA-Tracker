@@ -2811,13 +2811,22 @@ app.patch(
     try {
       const { leetcodeSession } = req.body;
       const userId = req.user!.id;
-      const normalizedSession =
+      const rawSessionInput =
         typeof leetcodeSession === "string" ? leetcodeSession.trim() : "";
+      const fromNamedCookie = rawSessionInput.match(
+        /(?:^|[;\s])LEETCODE_SESSION=([^;\s]+)/i,
+      )?.[1];
+      const normalizedSession = (fromNamedCookie || rawSessionInput)
+        .trim()
+        .replace(/^"|"$/g, "");
       if (
         normalizedSession.length > 0 &&
         (normalizedSession.length < 20 || normalizedSession.length > 256)
       ) {
-        return res.status(400).json({ error: "Invalid leetcode session" });
+        return res.status(400).json({
+          error:
+            "Invalid LeetCode session. Paste either the LEETCODE_SESSION value only, or a full cookie string containing LEETCODE_SESSION=...",
+        });
       }
 
       await prisma.user.update({
@@ -3065,9 +3074,24 @@ app.put(
           .json({ error: "Invalid LeetCode session cookie" });
       }
 
+      const rawSessionInput = leetcodeSession.trim();
+      const fromNamedCookie = rawSessionInput.match(
+        /(?:^|[;\s])LEETCODE_SESSION=([^;\s]+)/i,
+      )?.[1];
+      const normalizedSession = (fromNamedCookie || rawSessionInput)
+        .trim()
+        .replace(/^"|"$/g, "");
+
+      if (normalizedSession.length < 20 || normalizedSession.length > 256) {
+        return res.status(400).json({
+          error:
+            "Invalid LeetCode session. Paste either the LEETCODE_SESSION value only, or a full cookie string containing LEETCODE_SESSION=...",
+        });
+      }
+
       await prisma.user.update({
         where: { id: userId },
-        data: { leetcodeSession: leetcodeSession.trim() } as any,
+        data: { leetcodeSession: normalizedSession } as any,
       });
 
       res.json({

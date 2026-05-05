@@ -2199,10 +2199,16 @@ app.patch("/api/user/leetcode-session", requireAuth, async (req, res) => {
     try {
         const { leetcodeSession } = req.body;
         const userId = req.user.id;
-        const normalizedSession = typeof leetcodeSession === "string" ? leetcodeSession.trim() : "";
+        const rawSessionInput = typeof leetcodeSession === "string" ? leetcodeSession.trim() : "";
+        const fromNamedCookie = rawSessionInput.match(/(?:^|[;\s])LEETCODE_SESSION=([^;\s]+)/i)?.[1];
+        const normalizedSession = (fromNamedCookie || rawSessionInput)
+            .trim()
+            .replace(/^"|"$/g, "");
         if (normalizedSession.length > 0 &&
             (normalizedSession.length < 20 || normalizedSession.length > 256)) {
-            return res.status(400).json({ error: "Invalid leetcode session" });
+            return res.status(400).json({
+                error: "Invalid LeetCode session. Paste either the LEETCODE_SESSION value only, or a full cookie string containing LEETCODE_SESSION=...",
+            });
         }
         await prisma.user.update({
             where: { id: userId },
@@ -2395,9 +2401,19 @@ app.put("/api/user/settings/leetcode", requireAuth, async (req, res) => {
                 .status(400)
                 .json({ error: "Invalid LeetCode session cookie" });
         }
+        const rawSessionInput = leetcodeSession.trim();
+        const fromNamedCookie = rawSessionInput.match(/(?:^|[;\s])LEETCODE_SESSION=([^;\s]+)/i)?.[1];
+        const normalizedSession = (fromNamedCookie || rawSessionInput)
+            .trim()
+            .replace(/^"|"$/g, "");
+        if (normalizedSession.length < 20 || normalizedSession.length > 256) {
+            return res.status(400).json({
+                error: "Invalid LeetCode session. Paste either the LEETCODE_SESSION value only, or a full cookie string containing LEETCODE_SESSION=...",
+            });
+        }
         await prisma.user.update({
             where: { id: userId },
-            data: { leetcodeSession: leetcodeSession.trim() },
+            data: { leetcodeSession: normalizedSession },
         });
         res.json({
             success: true,

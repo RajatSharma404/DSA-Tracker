@@ -7,6 +7,11 @@ import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 export const metadata: Metadata = {
   title: "DSA Tracker Pro",
   description: "Track your Data Structures and Algorithms progress like a pro.",
+  icons: {
+    icon: "/logo.svg",
+    shortcut: "/logo.svg",
+    apple: "/logo.svg",
+  },
 };
 
 export default function RootLayout({
