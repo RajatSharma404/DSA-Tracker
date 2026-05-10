@@ -22,6 +22,7 @@
 <details>
   <summary>Table of Contents</summary>
   <ol>
+      <li><a href="#detailed-documentation">Detailed Documentation</a></li>
     <li><a href="#about-the-project">About The Project</a></li>
     <li><a href="#features-at-a-glance">Features at a Glance</a></li>
     <li><a href="#tech-stack">Tech Stack</a></li>
@@ -38,6 +39,17 @@
   </ol>
 </details>
 
+## Detailed Documentation
+
+Comprehensive multi-page documentation now lives in the `docs/` folder.
+
+- Docs index: [docs/README.md](docs/README.md)
+- First-time setup: [docs/getting-started.md](docs/getting-started.md)
+- Product and user guides: [docs/product-overview.md](docs/product-overview.md), [docs/user-guide.md](docs/user-guide.md)
+- System and operations: [docs/architecture.md](docs/architecture.md), [docs/developer-operations.md](docs/developer-operations.md)
+- References: [docs/reference/environment-variables.md](docs/reference/environment-variables.md), [docs/reference/api-reference.md](docs/reference/api-reference.md), [docs/reference/data-model.md](docs/reference/data-model.md)
+- Troubleshooting: [docs/troubleshooting.md](docs/troubleshooting.md)
+
 ## About The Project
 
 DSA Tracker is not just a list of problems. It is a full-fledged, precision learning system designed to shift the focus from merely "solving problems" to achieving true technical mastery.
@@ -49,47 +61,54 @@ By combining algorithmic pattern tracking, global error journaling, automated sp
 ## Features at a Glance
 
 ### 🎯 Core Learning & Mastery
-*   **Theory-First Learning Tracks:** Structured modules, lessons, and interactive blocks that teach the *why* before the *how*. Includes a built-in comprehensive C++ DSA Bootcamp.
-*   **Spaced Repetition Review Flow:** An intelligent review engine that calculates easiness factors and next review dates, ensuring you revisit concepts precisely when you're about to forget them.
-*   **The Vault (Global Error Journaling):** A centralized knowledge base for logging "Gotchas," critical learning moments, and useful tips directly linked to specific problems.
+
+- **Theory-First Learning Tracks:** Structured modules, lessons, and interactive blocks that teach the _why_ before the _how_. Includes a built-in comprehensive C++ DSA Bootcamp.
+- **Spaced Repetition Review Flow:** An intelligent review engine that calculates easiness factors and next review dates, ensuring you revisit concepts precisely when you're about to forget them.
+- **The Vault (Global Error Journaling):** A centralized knowledge base for logging "Gotchas," critical learning moments, and useful tips directly linked to specific problems.
 
 ### ⚔️ The Arena & Interview Prep
-*   **Challenge Arena:** A dedicated, distraction-free environment for timed, competitive problem-solving. Features dynamic problem layouts and automated tracking of challenge sessions.
-*   **Mock Interview Simulations:** Track your performance in simulated interviews, log scores, and manage detailed feedback to pinpoint areas for growth.
-*   **Solution History & Code Analysis:** Maintain a complete history of your submissions. Track time/space complexity, AI-assisted generation state, and optimal solutions.
+
+- **Challenge Arena:** A dedicated, distraction-free environment for timed, competitive problem-solving. Features dynamic problem layouts and automated tracking of challenge sessions.
+- **Mock Interview Simulations:** Track your performance in simulated interviews, log scores, and manage detailed feedback to pinpoint areas for growth.
+- **Solution History & Code Analysis:** Maintain a complete history of your submissions. Track time/space complexity, AI-assisted generation state, and optimal solutions.
 
 ### 📊 Insights & Organization
-*   **Advanced Analytics & Weekly Reports:** Track your current and longest streaks, visualize weak topics, and receive actionable insights to guide your daily plan.
-*   **Recommendations Engine:** Get tailored suggestions for the next best problem to solve based on your performance, weak spots, and spaced repetition queue.
-*   **Deep Problem Organization:** Utilize bookmarks, custom colored tags, and a powerful search engine to organize thousands of problems effortlessly.
+
+- **Advanced Analytics & Weekly Reports:** Track your current and longest streaks, visualize weak topics, and receive actionable insights to guide your daily plan.
+- **Recommendations Engine:** Get tailored suggestions for the next best problem to solve based on your performance, weak spots, and spaced repetition queue.
+- **Deep Problem Organization:** Utilize bookmarks, custom colored tags, and a powerful search engine to organize thousands of problems effortlessly.
 
 ### 🤖 AI Integration & Tooling
-*   **AI-Assisted Guidance:** Integrated AI tools that act as a tutor—providing hints, conducting code reviews, and executing trace-style walkthroughs without giving away the answer.
-*   **LeetCode Browser Extension:** A companion extension that seamlessly syncs your LeetCode problem solving, runtime/memory stats, and session cookies directly to your DSA Tracker instance.
+
+- **AI-Assisted Guidance:** Integrated AI tools that act as a tutor—providing hints, conducting code reviews, and executing trace-style walkthroughs without giving away the answer.
+- **LeetCode Browser Extension:** A companion extension that seamlessly syncs your LeetCode problem solving, runtime/memory stats, and session cookies directly to your DSA Tracker instance.
 
 ---
 
 ## Tech Stack
 
 ### Frontend
-*   **Framework:** Next.js 16 (App Router)
-*   **Library:** React 19
-*   **Styling:** Tailwind CSS 4
-*   **Auth:** NextAuth.js
-*   **State & Fetching:** Axios, React hooks
-*   **UI Components:** Monaco Editor (with Vim bindings), ReactFlow, Recharts, Framer Motion (animations)
+
+- **Framework:** Next.js 16 (App Router)
+- **Library:** React 19
+- **Styling:** Tailwind CSS 4
+- **Auth:** NextAuth.js
+- **State & Fetching:** Axios, React hooks
+- **UI Components:** Monaco Editor (with Vim bindings), ReactFlow, Recharts, Framer Motion (animations)
 
 ### Backend
-*   **Server:** Express 5
-*   **Language:** TypeScript
-*   **ORM:** Prisma 5
-*   **Database:** PostgreSQL (Docker optimized)
-*   **Security:** JWT-based utilities, CORS policies
+
+- **Server:** Express 5
+- **Language:** TypeScript
+- **ORM:** Prisma 5
+- **Database:** PostgreSQL (Docker optimized)
+- **Security:** JWT-based utilities, CORS policies
 
 ### Tooling & Infrastructure
-*   **Containerization:** Docker Compose
-*   **Package Management:** npm workspaces
-*   **Deployment:** PM2 / systemd / Render-ready
+
+- **Containerization:** Docker Compose
+- **Package Management:** npm workspaces
+- **Deployment:** PM2 / systemd / Render-ready
 
 ---
 
@@ -98,24 +117,29 @@ By combining algorithmic pattern tracking, global error journaling, automated sp
 If you want to run the app locally as fast as possible, follow this checklist:
 
 1. **Clone the repository:**
+
    ```bash
    git clone https://github.com/RajatSharma404/DSA-Tracker.git
    cd DSA-Tracker
    ```
 
 2. **Start PostgreSQL:**
+
    ```bash
    docker compose up -d
    ```
 
 3. **Initialize the Backend:**
+
    ```bash
    cd backend
    npm install
    npx prisma db push
    npx prisma db seed
    ```
-   *Create `backend/.env`:*
+
+   _Create `backend/.env`:_
+
    ```env
    PORT=3001
    NODE_ENV=development
@@ -124,12 +148,15 @@ If you want to run the app locally as fast as possible, follow this checklist:
    ```
 
 4. **Initialize the Frontend:**
+
    ```bash
    cd ../frontend
    npm install
    npx prisma db push
    ```
-   *Create `frontend/.env.local`:*
+
+   _Create `frontend/.env.local`:_
+
    ```env
    DATABASE_URL="postgresql://postgres:password@localhost:5432/dsatracker?schema=public"
    NEXTAUTH_URL="http://localhost:3000"
@@ -137,6 +164,7 @@ If you want to run the app locally as fast as possible, follow this checklist:
    ```
 
 5. **Run the Full Stack:**
+
    ```bash
    cd ..
    npm install
@@ -144,8 +172,8 @@ If you want to run the app locally as fast as possible, follow this checklist:
    ```
 
 6. **Access the App:**
-   * Frontend Dashboard: `http://localhost:3000`
-   * Backend Health Check: `http://localhost:3001/health`
+   - Frontend Dashboard: `http://localhost:3000`
+   - Backend Health Check: `http://localhost:3001/health`
 
 ---
 
@@ -161,6 +189,7 @@ The repository is structured as a monorepo containing three core layers:
    PostgreSQL instance, run locally via Docker and managed via cloud providers in production.
 
 ### Request Flow
+
 1. The user's browser interacts with Next.js routes.
 2. The frontend calls `/api/*`.
 3. A Next.js rewrite securely forwards non-auth `/api/*` requests to the backend server.
@@ -172,25 +201,31 @@ The repository is structured as a monorepo containing three core layers:
 ## Local Development Setup (Detailed)
 
 ### 1) Prerequisites
-*   Node.js 20+
-*   npm 10+
-*   Docker Desktop (or Engine)
-*   Git
+
+- Node.js 20+
+- npm 10+
+- Docker Desktop (or Engine)
+- Git
 
 ### 2) Database Setup
+
 Start the local PostgreSQL container using the default settings (`postgres:password`, port 5432):
+
 ```bash
 docker compose up -d
 ```
 
 ### 3) Backend Setup
+
 Navigate to the backend folder and install dependencies:
+
 ```bash
 cd backend
 npm install
 ```
 
 Create an extensive `backend/.env` file:
+
 ```env
 NODE_ENV=development
 PORT=3001
@@ -211,19 +246,23 @@ NOTIFY_FROM="DSA Tracker <your-smtp-user>"
 ```
 
 Push the schema and seed initial topic data:
+
 ```bash
 npx prisma db push
 npx prisma db seed
 ```
 
 ### 4) Frontend Setup
+
 Navigate to the frontend folder and install dependencies:
+
 ```bash
 cd ../frontend
 npm install
 ```
 
 Create `frontend/.env.local`:
+
 ```env
 DATABASE_URL="postgresql://postgres:password@localhost:5432/dsatracker?schema=public"
 NEXTAUTH_URL="http://localhost:3000"
@@ -231,15 +270,19 @@ NEXTAUTH_SECRET="your-secure-random-secret" # MUST match backend
 ```
 
 Apply the frontend schema:
+
 ```bash
 npx prisma db push
 ```
 
 ### 5) Run Both Servers
+
 From the repository root:
+
 ```bash
 npm run dev
 ```
+
 This concurrently starts the Next.js dev server on `3000` and the Express API on `3001`.
 
 ---
@@ -247,40 +290,45 @@ This concurrently starts the Next.js dev server on `3000` and the Express API on
 ## Environment Variable Reference
 
 ### Backend Variables
-| Variable | Required | Purpose |
-|---|---|---|
-| `NODE_ENV` | Yes | Runtime mode (`development`/`production`) |
-| `PORT` | Yes | Backend listening port (default: 3001) |
-| `DATABASE_URL` | Yes | Prisma connection string |
-| `NEXTAUTH_SECRET` | Yes | Shared JWT verification secret |
-| `ADMIN_EMAIL` | No | Email address granted automatic admin rights |
-| `CORS_ORIGINS` | No | Comma-separated allowed origins |
-| `SMTP_*` | No | Mailer configuration for notifications |
+
+| Variable          | Required | Purpose                                      |
+| ----------------- | -------- | -------------------------------------------- |
+| `NODE_ENV`        | Yes      | Runtime mode (`development`/`production`)    |
+| `PORT`            | Yes      | Backend listening port (default: 3001)       |
+| `DATABASE_URL`    | Yes      | Prisma connection string                     |
+| `NEXTAUTH_SECRET` | Yes      | Shared JWT verification secret               |
+| `ADMIN_EMAIL`     | No       | Email address granted automatic admin rights |
+| `CORS_ORIGINS`    | No       | Comma-separated allowed origins              |
+| `SMTP_*`          | No       | Mailer configuration for notifications       |
 
 ### Frontend Variables
-| Variable | Required | Purpose |
-|---|---|---|
-| `DATABASE_URL` | Yes | NextAuth Prisma adapter connection |
-| `NEXTAUTH_URL` | Yes | Public frontend base URL |
-| `NEXTAUTH_SECRET` | Yes | Shared JWT verification secret |
-| `BACKEND_URL` | Prod | Target for frontend API proxy (e.g., your Render API URL) |
+
+| Variable          | Required | Purpose                                                   |
+| ----------------- | -------- | --------------------------------------------------------- |
+| `DATABASE_URL`    | Yes      | NextAuth Prisma adapter connection                        |
+| `NEXTAUTH_URL`    | Yes      | Public frontend base URL                                  |
+| `NEXTAUTH_SECRET` | Yes      | Shared JWT verification secret                            |
+| `BACKEND_URL`     | Prod     | Target for frontend API proxy (e.g., your Render API URL) |
 
 ---
 
 ## Core Scripts
 
 **Root Level**
-*   `npm run dev`: Concurrently runs frontend and backend in development mode.
-*   `npm run build`: Compiles both projects.
-*   `npm run start`: Starts both projects in production mode.
+
+- `npm run dev`: Concurrently runs frontend and backend in development mode.
+- `npm run build`: Compiles both projects.
+- `npm run start`: Starts both projects in production mode.
 
 **Backend Level**
-*   `npm run dev`: Runs the `ts-node-dev` server.
-*   `npm run build`: Compiles TypeScript and generates Prisma client.
+
+- `npm run dev`: Runs the `ts-node-dev` server.
+- `npm run build`: Compiles TypeScript and generates Prisma client.
 
 **Frontend Level**
-*   `npm run dev`: Runs Next.js development server.
-*   `npm run build`: Builds the production Next.js bundle.
+
+- `npm run dev`: Runs Next.js development server.
+- `npm run build`: Builds the production Next.js bundle.
 
 ---
 
@@ -289,11 +337,13 @@ This concurrently starts the Next.js dev server on `3000` and the Express API on
 The project includes a custom Chrome/Edge browser extension (`/extension`) that synchronizes your LeetCode progress directly with your DSA Tracker instance.
 
 ### Installation
+
 1. Open `chrome://extensions` or `edge://extensions`.
 2. Enable **Developer Mode**.
 3. Click **Load unpacked** and select the `/extension` directory.
 
 ### LeetCode Sync Workflow
+
 1. Log into LeetCode.
 2. Copy your `LEETCODE_SESSION` cookie from browser dev tools.
 3. Paste it into the DSA Tracker **Settings** page.
@@ -307,12 +357,14 @@ The project includes a custom Chrome/Edge browser extension (`/extension`) that 
 The application ships with a massive, pre-configured algorithmic bootcamp containing theory, modules, and lessons.
 
 **Bootcamp Contents:**
-*   1 Theory Track: "Complete DSA Bootcamp (C++)"
-*   20 Modules (from Arrays to Advanced Graphs)
-*   20 Lessons & 40 Interactive Content Blocks
+
+- 1 Theory Track: "Complete DSA Bootcamp (C++)"
+- 20 Modules (from Arrays to Advanced Graphs)
+- 20 Lessons & 40 Interactive Content Blocks
 
 **To generate the Bootcamp:**
 Make an authenticated POST request as an Admin:
+
 ```bash
 curl -X POST http://localhost:3001/api/admin/learn/seed-comprehensive \
   -H "Authorization: Bearer <ADMIN_JWT_TOKEN>" \
@@ -324,16 +376,18 @@ curl -X POST http://localhost:3001/api/admin/learn/seed-comprehensive \
 ## Deployment
 
 ### Render Deployment
+
 1.  **Backend Web Service:**
-    *   Root: `backend`
-    *   Command: `npm install && npm run build && npm start`
-    *   Env Vars: `DATABASE_URL`, `NODE_ENV=production`, `NEXTAUTH_SECRET`
+    - Root: `backend`
+    - Command: `npm install && npm run build && npm start`
+    - Env Vars: `DATABASE_URL`, `NODE_ENV=production`, `NEXTAUTH_SECRET`
 2.  **Frontend Web Service:**
-    *   Root: `frontend`
-    *   Command: `npm install && npm run build && npm start`
-    *   Env Vars: `DATABASE_URL`, `NEXTAUTH_URL`, `NEXTAUTH_SECRET`, `BACKEND_URL`
+    - Root: `frontend`
+    - Command: `npm install && npm run build && npm start`
+    - Env Vars: `DATABASE_URL`, `NEXTAUTH_URL`, `NEXTAUTH_SECRET`, `BACKEND_URL`
 
 ### Linux VM Deployment (PM2 + Nginx)
+
 1.  Clone repo to server and install dependencies.
 2.  Build projects: `npm run build`
 3.  Start with PM2:
@@ -349,10 +403,10 @@ curl -X POST http://localhost:3001/api/admin/learn/seed-comprehensive \
 
 ## Troubleshooting
 
-*   **Prisma Engine Lock (Windows EPERM):** If `npm run build` fails on Windows, a background node process is locking Prisma. Kill all node instances, delete `backend/node_modules/.prisma`, and retry.
-*   **Next.js Dev Lock:** Delete `frontend/.next/dev/lock` if the frontend refuses to boot.
-*   **Stale Production API Calls:** Ensure your frontend `BACKEND_URL` environment variable is pointing to the correct deployed backend URL. If not set, Next.js rewrite rules will fail.
-*   **LeetCode Extension Fails:** Refresh your `LEETCODE_SESSION` cookie in settings, ensure you are logged into LeetCode on the same profile, and reload the extension.
+- **Prisma Engine Lock (Windows EPERM):** If `npm run build` fails on Windows, a background node process is locking Prisma. Kill all node instances, delete `backend/node_modules/.prisma`, and retry.
+- **Next.js Dev Lock:** Delete `frontend/.next/dev/lock` if the frontend refuses to boot.
+- **Stale Production API Calls:** Ensure your frontend `BACKEND_URL` environment variable is pointing to the correct deployed backend URL. If not set, Next.js rewrite rules will fail.
+- **LeetCode Extension Fails:** Refresh your `LEETCODE_SESSION` cookie in settings, ensure you are logged into LeetCode on the same profile, and reload the extension.
 
 ---
 
