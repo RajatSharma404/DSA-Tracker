@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import NextAuthProvider from "@/components/providers/NextAuthProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   title: "DSA Tracker Pro",
@@ -20,8 +23,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" data-scroll-behavior="smooth">
-      <body className="antialiased bg-[#0a0a0a] text-gray-100 flex h-screen overflow-hidden">
+    <html lang="en" className={`dark ${inter.variable}`} data-scroll-behavior="smooth">
+      <body className="antialiased font-sans bg-[#0a0a0a] text-gray-100 flex h-screen overflow-hidden">
         <ErrorBoundary>
           <NextAuthProvider>
             <ToastProvider />
