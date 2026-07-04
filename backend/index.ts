@@ -3026,6 +3026,34 @@ app.get(
     }
   },
 );
+// Get Solution History
+app.get(
+  "/api/user/solution-history",
+  requireAuth,
+  async (req: Request, res: Response) => {
+    try {
+      const userId = req.user!.id;
+      const history = await prisma.solutionHistory.findMany({
+        where: { userId },
+        include: {
+          problem: {
+            select: {
+              title: true,
+              topic: {
+                select: { name: true }
+              }
+            }
+          }
+        },
+        orderBy: { createdAt: "desc" },
+      });
+      res.json(history);
+    } catch (error) {
+      console.error("Get Solution History Error:", error);
+      res.status(500).json({ error: "Failed to load solution history" });
+    }
+  }
+);
 
 // === USER SETTINGS ===
 

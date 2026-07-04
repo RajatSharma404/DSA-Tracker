@@ -1,5 +1,7 @@
 import dynamic from "next/dynamic";
 import { ExtensionStatusBadge } from "@/components/layout/ExtensionStatusBadge";
+import { CommandPalette } from "@/components/layout/CommandPalette";
+import { PageTransition } from "@/components/layout/PageTransition";
 
 const Sidebar = dynamic(
   () => import("@/components/layout/Sidebar").then((mod) => mod.Sidebar),
@@ -28,7 +30,10 @@ export default function DashboardLayout({
         >
           <ExtensionStatusBadge />
         </div>
-        {children}
+        <PageTransition>
+          {children}
+        </PageTransition>
+        <CommandPalette />
       </main>
     </div>
   );

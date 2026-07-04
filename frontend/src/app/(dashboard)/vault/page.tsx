@@ -45,6 +45,17 @@ interface ProblemNote {
   problem: { title: string; topic: { name: string } };
 }
 
+interface SolutionHistory {
+  id: string;
+  problem: { title: string; topic: { name: string } };
+  code: string;
+  language: string;
+  timeComplexity: string | null;
+  spaceComplexity: string | null;
+  isOptimal: boolean;
+  createdAt: string;
+}
+
 const NOTE_TYPE_STYLES: Record<
   string,
   { bg: string; border: string; text: string; label: string }
@@ -72,10 +83,12 @@ const NOTE_TYPE_STYLES: Record<
 export default function VaultPage() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [notes, setNotes] = useState<ProblemNote[]>([]);
-  const [activeTab, setActiveTab] = useState<"templates" | "notes">(
+  const [solutions, setSolutions] = useState<SolutionHistory[]>([]);
+  const [activeTab, setActiveTab] = useState<"templates" | "notes" | "solutions">(
     "templates",
   );
   const [expandedTemplate, setExpandedTemplate] = useState<string | null>(null);
+  const [expandedSolution, setExpandedSolution] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -88,12 +101,14 @@ export default function VaultPage() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [templatesData, notesData] = await Promise.all([
+      const [templatesData, notesData, solutionsData] = await Promise.all([
         dsaApi.getTemplates(),
         dsaApi.getAllNotes(),
+        dsaApi.getAllSolutionHistory(),
       ]);
       setTemplates(templatesData);
       setNotes(notesData);
+      setSolutions(solutionsData);
     } catch (err) {
       console.error(err);
     } finally {
@@ -187,6 +202,23 @@ export default function VaultPage() {
             {notes.length > 0 && (
               <span className="px-1.5 py-0.5 bg-white/20 rounded text-[9px]">
                 {notes.length}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab("solutions")}
+            aria-pressed={activeTab === "solutions"}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 ${
+              activeTab === "solutions"
+                ? "bg-purple-500 text-white shadow-lg shadow-purple-500/20"
+                : "text-gray-500 hover:text-white"
+            }`}
+          >
+            <Code2 size={14} />
+            My Solutions
+            {solutions.length > 0 && (
+              <span className="px-1.5 py-0.5 bg-white/20 rounded text-[9px]">
+                {solutions.length}
               </span>
             )}
           </button>
@@ -449,6 +481,106 @@ export default function VaultPage() {
                         year: "numeric",
                       })}
                     </p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Solutions Tab */}
+      {activeTab === "solutions" && (
+        <div className="space-y-4 animate-in fade-in duration-500">
+          {solutions.length === 0 ? (
+            <div className="py-20 text-center">
+              <Code2 size={48} className="mx-auto mb-4 text-gray-800" />
+              <h3 className="text-lg font-black text-gray-500 mb-1">
+                No solutions yet
+              </h3>
+              <p className="text-[11px] text-gray-600 font-medium max-w-sm mx-auto">
+                Your submitted solutions will appear here, complete with time and space complexity metrics.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-3">
+              {solutions
+                .filter(s => !searchQuery || s.problem.title.toLowerCase().includes(searchQuery.toLowerCase()) || s.code.toLowerCase().includes(searchQuery.toLowerCase()))
+                .map((solution) => {
+                const isExpanded = expandedSolution === solution.id;
+                return (
+                  <div
+                    key={solution.id}
+                    className="bg-[#0a0a0f] border border-white/5 rounded-2xl overflow-hidden transition-all hover:border-white/10"
+                  >
+                    <button
+                      onClick={() => setExpandedSolution(isExpanded ? null : solution.id)}
+                      className="w-full flex items-center gap-4 p-5 text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
+                    >
+                      <div className="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400">
+                        <Code2 size={16} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="text-sm font-bold text-white truncate">
+                            {solution.problem.title}
+                          </h4>
+                          {solution.isOptimal && (
+                            <span className="px-1.5 py-0.5 bg-green-500/10 text-green-400 border border-green-500/20 rounded text-[8px] font-black uppercase tracking-widest">
+                              Optimal
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[10px] text-gray-500 font-medium uppercase tracking-widest">
+                          {solution.problem.topic.name} • {solution.language}
+                        </span>
+                      </div>
+                      <div className="hidden sm:flex items-center gap-3 shrink-0">
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-cyan-500/10 rounded-lg border border-cyan-500/20">
+                          <Clock size={10} className="text-cyan-400" />
+                          <span className="text-[9px] font-black text-cyan-400">
+                            {solution.timeComplexity || "O(?)"}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-purple-500/10 rounded-lg border border-purple-500/20">
+                          <Cpu size={10} className="text-purple-400" />
+                          <span className="text-[9px] font-black text-purple-400">
+                            {solution.spaceComplexity || "O(?)"}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-gray-500">
+                        {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                      </div>
+                    </button>
+
+                    {isExpanded && (
+                      <div className="px-5 pb-5 pt-2 border-t border-white/5 animate-in slide-in-from-top-2 fade-in duration-300">
+                        <div className="relative mt-2">
+                          <div className="flex items-center justify-between bg-[#121218] border border-white/5 rounded-t-xl px-4 py-2">
+                            <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">
+                              {solution.language} Solution
+                            </span>
+                            <button
+                              onClick={() => handleCopy(solution.id, solution.code)}
+                              className="flex items-center gap-1.5 px-2.5 py-1 bg-white/5 hover:bg-white/10 rounded-lg text-[10px] font-bold text-gray-400 transition-all focus-visible:outline-none"
+                            >
+                              {copiedId === solution.id ? (
+                                <Check size={12} className="text-green-400" />
+                              ) : (
+                                <Copy size={12} />
+                              )}
+                              {copiedId === solution.id ? "Copied!" : "Copy"}
+                            </button>
+                          </div>
+                          <pre className="p-4 bg-[#0c0c12] border border-white/5 border-t-0 rounded-b-xl overflow-x-auto">
+                            <code className="text-[11px] font-mono text-gray-300 leading-relaxed whitespace-pre-wrap break-words">
+                              {solution.code}
+                            </code>
+                          </pre>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}

@@ -512,6 +512,10 @@ export const dsaApi = {
     const res = await api.post("/user/sync-leetcode");
     return res.data;
   },
+  getAllSolutionHistory: async () => {
+    const res = await api.get("/user/solution-history");
+    return res.data;
+  },
   startChallenge: async (topicId: string, duration: number) => {
     const res = await api.post("/challenges/start", { topicId, duration });
     return res.data;
