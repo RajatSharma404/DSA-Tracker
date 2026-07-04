@@ -2205,7 +2205,7 @@ app.patch("/api/user/leetcode-session", requireAuth, async (req, res) => {
             .trim()
             .replace(/^"|"$/g, "");
         if (normalizedSession.length > 0 &&
-            (normalizedSession.length < 20 || normalizedSession.length > 256)) {
+            (normalizedSession.length < 20)) {
             return res.status(400).json({
                 error: "Invalid LeetCode session. Paste either the LEETCODE_SESSION value only, or a full cookie string containing LEETCODE_SESSION=...",
             });
@@ -2406,7 +2406,7 @@ app.put("/api/user/settings/leetcode", requireAuth, async (req, res) => {
         const normalizedSession = (fromNamedCookie || rawSessionInput)
             .trim()
             .replace(/^"|"$/g, "");
-        if (normalizedSession.length < 20 || normalizedSession.length > 256) {
+        if (normalizedSession.length < 20) {
             return res.status(400).json({
                 error: "Invalid LeetCode session. Paste either the LEETCODE_SESSION value only, or a full cookie string containing LEETCODE_SESSION=...",
             });

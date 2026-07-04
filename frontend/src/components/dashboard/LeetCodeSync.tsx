@@ -149,8 +149,7 @@ export default function LeetCodeSync({ onSyncComplete }: LeetCodeSyncProps) {
             </button>
           </div>
           <p className="text-[10px] text-gray-500 font-medium px-1">
-            Required for syncing problem completion statuses. Ensure your
-            profile is public.
+            Required for syncing recent activity. Due to LeetCode API limits, this only syncs your latest 20 solves.
           </p>
         </div>
 
@@ -177,8 +176,7 @@ export default function LeetCodeSync({ onSyncComplete }: LeetCodeSyncProps) {
             </button>
           </div>
           <p className="text-[10px] text-gray-500 font-medium px-1">
-            Required for syncing actual source code into the AI Code Architect.
-            Copied from DevTools.
+            Required to sync your <b>complete historical progress</b> (all solved problems) and actual source code. Copied from DevTools.
           </p>
         </div>
       </div>

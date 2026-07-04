@@ -8,20 +8,19 @@ datasource db {
 }
 
 model Account {
-  id                 String  @id @default(uuid())
-  userId             String  @map("user_id")
-  type               String
-  provider           String
-  providerAccountId  String  @map("provider_account_id")
-  refresh_token      String? @db.Text
-  access_token       String? @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String? @db.Text
-  session_state      String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String  @id @default(uuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
@@ -38,22 +37,27 @@ model Session {
 }
 
 model User {
-  id             String           @id @default(uuid())
-  email          String           @unique
-  name           String?
-  emailVerified  DateTime?        @map("email_verified")
-  image          String?
-  createdAt      DateTime         @default(now()) @map("created_at")
-  updatedAt      DateTime         @updatedAt @map("updated_at")
-  role           Role             @default(USER)
+  id               String          @id @default(uuid())
+  email            String          @unique
+  name             String?
+  emailVerified    DateTime?       @map("email_verified")
+  image            String?
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime        @updatedAt @map("updated_at")
+  role             Role            @default(USER)
   leetcodeUsername String?
-
-  accounts       Account[]
-  sessions       Session[]
+  leetcodeSession  String?
+  mockInterviews   MockInterview[]
+  progress         Progress[]
+  streak           Streak?
+  accounts         Account[]
+  sessions         Session[]
   challengeSessions ChallengeSession[]
-  progress       Progress[]
-  mockInterviews MockInterview[]
-  streak         Streak?
+  notes            ProblemNote[]
+  solutions        SolutionHistory[]
+  bookmarks        Bookmark[]
+  tags             UserTag[]
+  theoryLessonProgress UserTheoryLessonProgress[]
 }
 
 model Topic {
@@ -61,19 +65,20 @@ model Topic {
   name        String    @unique
   description String?
   orderIndex  Int
-  problems    Problem[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  problems    Problem[]
+  theoryModules TheoryModule[]
 }
 
 model ChallengeSession {
   id          String         @id @default(uuid())
   userId      String
   user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  problemIds  String[]       // Problems assigned for this session
+  problemIds  String[]
   startTime   DateTime       @default(now())
   endTime     DateTime?
-  duration    Int            // Total time allowed in minutes
+  duration    Int
   status      ChallengeStatus @default(IN_PROGRESS)
   createdAt   DateTime       @default(now())
 }
@@ -90,63 +95,80 @@ model Problem {
   link       String?
   difficulty Difficulty @default(EASY)
   topicId    String
-  topic      Topic      @relation(fields: [topicId], references: [id], onDelete: Cascade)
   orderIndex Int
-  progress   Progress[]
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
+  topic      Topic      @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  progress   Progress[]
+  notes      ProblemNote[]
+  solutions  SolutionHistory[]
+  bookmarks  Bookmark[]
+  problemTags ProblemTag[]
+  theoryProblemLinks TheoryProblemLink[]
 }
 
-enum Difficulty {
-  EASY
-  MEDIUM
-  HARD
+model ProblemNote {
+  id        String   @id @default(uuid())
+  userId    String
+  problemId String
+  content   String
+  type      NoteType @default(LEARNING)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@index([userId, problemId])
+  @@map("problem_notes")
 }
+
+enum NoteType {
+  GOTCHA
+  LEARNING
+  TIP
+}
+
 
 model Progress {
-  id          String         @id @default(uuid())
-  userId      String
-  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  problemId   String
-  problem     Problem        @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  status      ProgressStatus @default(TODO)
-  timeSpent      Int            @default(0) // in minutes
+  id             String         @id @default(uuid())
+  userId         String
+  problemId      String
+  status         ProgressStatus @default(TODO)
+  timeSpent      Int            @default(0)
   completedAt    DateTime?
-  nextReviewDate DateTime?
-  interval       Int            @default(0) // in days
-  easinessFactor Float          @default(2.5)
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
+  easinessFactor Float          @default(2.5)
+  interval       Int            @default(0)
+  nextReviewDate DateTime?
+  leetcodeRuntime String?
+  leetcodeMemory  String?
+  problem        Problem        @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, problemId])
-}
-
-enum ProgressStatus {
-  TODO
-  DOING
-  DONE
 }
 
 model Streak {
   id               String   @id @default(uuid())
   userId           String   @unique
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   currentStreak    Int      @default(0)
   longestStreak    Int      @default(0)
   lastActivityDate DateTime @default(now())
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model MockInterview {
   id        String   @id @default(uuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   date      DateTime
   score     Int?
   feedback  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model VerificationToken {
@@ -158,7 +180,205 @@ model VerificationToken {
   @@map("verification_tokens")
 }
 
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum ProgressStatus {
+  TODO
+  DOING
+  DONE
+}
+
 enum Role {
   USER
   ADMIN
+}
+
+// === New Feature Models ===
+
+model SolutionHistory {
+  id          String   @id @default(uuid())
+  userId      String
+  problemId   String
+  code        String
+  language    String
+  isCorrect   Boolean  @default(false)
+  score       Int      @default(0)
+  verdict     String?
+  timeComplexity  String?
+  spaceComplexity String?
+  isOptimal   Boolean  @default(false)
+  isAIGenerated String @default("UNKNOWN") // HUMAN, AI_GENERATED, AI_ASSISTED, TEMPLATE, UNKNOWN
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem     Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@index([userId, problemId])
+  @@map("solution_history")
+}
+
+model Bookmark {
+  id        String   @id @default(uuid())
+  userId    String
+  problemId String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, problemId])
+  @@map("bookmarks")
+}
+
+model UserTag {
+  id        String       @id @default(uuid())
+  userId    String
+  name      String
+  color     String       @default("#6366f1")
+  createdAt DateTime     @default(now())
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problems  ProblemTag[]
+
+  @@unique([userId, name])
+  @@map("user_tags")
+}
+
+model ProblemTag {
+  id        String   @id @default(uuid())
+  problemId String
+  tagId     String
+  createdAt DateTime @default(now())
+  problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  tag       UserTag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([problemId, tagId])
+  @@map("problem_tags")
+}
+
+model TheoryTrack {
+  id          String        @id @default(uuid())
+  slug        String        @unique
+  title       String
+  description String?
+  orderIndex  Int           @default(0)
+  isPublished Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  modules     TheoryModule[]
+
+  @@map("theory_tracks")
+}
+
+model TheoryModule {
+  id               String            @id @default(uuid())
+  trackId          String
+  topicId          String?
+  slug             String
+  title            String
+  summary          String?
+  orderIndex       Int               @default(0)
+  estimatedMinutes Int               @default(0)
+  isPublished      Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  track            TheoryTrack       @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  topic            Topic?            @relation(fields: [topicId], references: [id], onDelete: SetNull)
+  lessons          TheoryLesson[]
+  problemLinks     TheoryProblemLink[]
+
+  @@unique([trackId, slug])
+  @@index([topicId])
+  @@map("theory_modules")
+}
+
+model TheoryLesson {
+  id                 String                    @id @default(uuid())
+  moduleId           String
+  slug               String
+  title              String
+  summary            String?
+  orderIndex         Int                       @default(0)
+  difficulty         TheoryDifficulty          @default(BEGINNER)
+  estimatedMinutes   Int                       @default(0)
+  learningObjectives Json?
+  isPublished        Boolean                   @default(true)
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt
+  module             TheoryModule              @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  blocks             TheoryLessonBlock[]
+  problemLinks       TheoryProblemLink[]
+  progress           UserTheoryLessonProgress[]
+
+  @@unique([moduleId, slug])
+  @@map("theory_lessons")
+}
+
+model TheoryLessonBlock {
+  id         String          @id @default(uuid())
+  lessonId   String
+  blockType  TheoryBlockType
+  orderIndex Int
+  content    Json
+  language   String?
+  lesson     TheoryLesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([lessonId, orderIndex])
+  @@map("theory_lesson_blocks")
+}
+
+model TheoryProblemLink {
+  id         String       @id @default(uuid())
+  lessonId   String?
+  moduleId   String?
+  problemId  String
+  required   Boolean      @default(true)
+  orderIndex Int          @default(0)
+  lesson     TheoryLesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  module     TheoryModule? @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  problem    Problem      @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId])
+  @@index([moduleId])
+  @@index([problemId])
+  @@map("theory_problem_links")
+}
+
+model UserTheoryLessonProgress {
+  userId           String
+  lessonId         String
+  status           TheoryProgressStatus @default(NOT_STARTED)
+  progressPercent  Int                  @default(0)
+  timeSpentSeconds Int                  @default(0)
+  completedAt      DateTime?
+  lastSeenBlockId  String?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  user             User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson           TheoryLesson         @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@id([userId, lessonId])
+  @@index([lessonId])
+  @@map("user_theory_lesson_progress")
+}
+
+enum TheoryDifficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum TheoryBlockType {
+  MARKDOWN
+  CODE
+  NOTE
+  QUIZ
+  IMAGE
+}
+
+enum TheoryProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
 }

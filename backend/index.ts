@@ -2651,6 +2651,22 @@ app.post(
           },
         });
 
+        let existingProgress: any = null;
+        if (problem) {
+          existingProgress = await prisma.progress.findUnique({
+            where: {
+              userId_problemId: {
+                userId,
+                problemId: problem.id,
+              },
+            },
+            select: {
+              completedAt: true,
+              status: true,
+            },
+          });
+        }
+
         // Attempt to get runtime and memory details if user.leetcodeSession is set
         let runtimeOpt = null;
         let memoryOpt = null;
@@ -2659,7 +2675,9 @@ app.post(
             ? sub.timestamp
             : null;
 
-        if (syncSource === "session" && user.leetcodeSession) {
+        // Skip fetching detailed submissions from LeetCode if we already have it marked as DONE.
+        // This prevents 500 proxy timeouts when syncing hundreds of historical problems.
+        if (syncSource === "session" && user.leetcodeSession && existingProgress?.status !== "DONE") {
           try {
             const subs = await fetchProblemSubmissions(
               slug,
@@ -2690,18 +2708,6 @@ app.post(
         }
 
         if (problem) {
-          const existingProgress = await prisma.progress.findUnique({
-            where: {
-              userId_problemId: {
-                userId,
-                problemId: problem.id,
-              },
-            },
-            select: {
-              completedAt: true,
-            },
-          });
-
           const completedAt = timestampOpt
             ? new Date(timestampOpt * 1000)
             : existingProgress?.completedAt || new Date();
@@ -2819,15 +2825,15 @@ app.patch(
       const normalizedSession = (fromNamedCookie || rawSessionInput)
         .trim()
         .replace(/^"|"$/g, "");
-      if (
-        normalizedSession.length > 0 &&
-        (normalizedSession.length < 20 || normalizedSession.length > 256)
-      ) {
-        return res.status(400).json({
-          error:
-            "Invalid LeetCode session. Paste either the LEETCODE_SESSION value only, or a full cookie string containing LEETCODE_SESSION=...",
-        });
-      }
+      console.log("Raw Session Input:", rawSessionInput);
+      console.log("From Named Cookie:", fromNamedCookie);
+      console.log("Normalized Session:", normalizedSession);
+      console.log("Length:", normalizedSession.length);
+
+      console.log("Raw Session Input:", rawSessionInput);
+      console.log("From Named Cookie:", fromNamedCookie);
+      console.log("Normalized Session:", normalizedSession);
+      console.log("Length:", normalizedSession.length);
 
       await prisma.user.update({
         where: { id: userId },
@@ -3082,12 +3088,12 @@ app.put(
         .trim()
         .replace(/^"|"$/g, "");
 
-      if (normalizedSession.length < 20 || normalizedSession.length > 256) {
-        return res.status(400).json({
-          error:
-            "Invalid LeetCode session. Paste either the LEETCODE_SESSION value only, or a full cookie string containing LEETCODE_SESSION=...",
-        });
-      }
+      console.log("Settings - Raw Session Input:", rawSessionInput);
+      console.log("Settings - From Named Cookie:", fromNamedCookie);
+      console.log("Settings - Normalized Session:", normalizedSession);
+      console.log("Settings - Length:", normalizedSession.length);
+
+      // Length validation removed
 
       await prisma.user.update({
         where: { id: userId },

@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import crypto from "crypto";
+import path from "path";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
@@ -28,7 +29,7 @@ const nextConfig: NextConfig = {
   },
   turbopack: {
     // Specify the workspace root to avoid lockfile warnings with monorepo layout
-    root: "./",
+    root: path.resolve(__dirname),
   },
   async rewrites() {
     return {
