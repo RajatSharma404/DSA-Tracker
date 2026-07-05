@@ -9,7 +9,7 @@ type ExtensionEnvelope = {
   source: "DSA_TRACKER_EXTENSION";
   requestId: string;
   ok: boolean;
-  payload?: any;
+  payload?: unknown;
   error?: string;
 };
 
@@ -22,7 +22,7 @@ const DEFAULT_TIMEOUT_MS = 1200;
 const randomId = () =>
   `dsa_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 
-const sendExtensionRequestOnce = async <TPayload = any>(
+const sendExtensionRequestOnce = async <TPayload = unknown>(
   action: string,
   payload: Record<string, unknown> = {},
   timeoutMs = DEFAULT_TIMEOUT_MS,
@@ -83,7 +83,7 @@ const sendExtensionRequestOnce = async <TPayload = any>(
   return response.payload as TPayload;
 };
 
-const sendExtensionRequest = async <TPayload = any>(
+const sendExtensionRequest = async <TPayload = unknown>(
   action: string,
   payload: Record<string, unknown> = {},
   timeoutMs = DEFAULT_TIMEOUT_MS,
@@ -97,7 +97,7 @@ const sendExtensionRequest = async <TPayload = any>(
         payload,
         timeoutMs,
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       lastError = error instanceof Error ? error : new Error(String(error));
       if (i < retries) {
         await new Promise((resolve) => setTimeout(resolve, 250));

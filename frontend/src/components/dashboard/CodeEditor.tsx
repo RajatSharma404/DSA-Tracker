@@ -53,13 +53,11 @@ export function CodeEditor({
   const [output, setOutput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
   const [vimMode, setVimMode] = useState(false);
-  const [vimStatus, setVimStatus] = useState("");
   const [editorRatio, setEditorRatio] = useState(68);
   const [isResizingConsole, setIsResizingConsole] = useState(false);
-  const editorRef = useRef<any>(null);
+  const editorRef = useRef<import("monaco-editor").editor.IStandaloneCodeEditor | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const vimRef = useRef<any>(null);
+  const vimRef = useRef<{ dispose: () => void } | null>(null);
   const statusBarRef = useRef<HTMLDivElement>(null);
   const isVertical = layout === "vertical";
 
@@ -75,19 +73,17 @@ export function CodeEditor({
     if (vimMode) {
       import("monaco-vim").then((MonacoVim) => {
         vimRef.current = MonacoVim.initVimMode(
-          editorRef.current,
+          editorRef.current!,
           statusBarRef.current,
         );
       });
     } else {
       vimRef.current?.dispose();
       vimRef.current = null;
-      setVimStatus("");
     }
     return () => {
       vimRef.current?.dispose();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vimMode]);
 
   useEffect(() => {

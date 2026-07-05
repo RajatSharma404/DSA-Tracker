@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { dsaApi, Topic } from "@/lib/api";
-import { Plus, Edit2, Trash2, ArrowLeft, Save, X } from "lucide-react";
+import { Plus, Edit2, Trash2, ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 
 export default function AdminTopics() {

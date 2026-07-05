@@ -86,7 +86,6 @@ interface LeetCodeSubmissionState {
 
 export function LeetCodeEditor({
   problemSlug,
-  problemTitle,
   problemId,
   onSubmissionSuccess,
 }: LeetCodeEditorProps) {
@@ -120,7 +119,7 @@ export function LeetCodeEditor({
       ]);
 
       const snippets: Record<string, string> = {};
-      problemData.codeSnippets?.forEach((snippet: any) => {
+      problemData.codeSnippets?.forEach((snippet: { langSlug: string; code: string }) => {
         const langKey = Object.keys(LANGUAGES).find(
           (key) => LANGUAGES[key].leetcodeLang === snippet.langSlug,
         );
@@ -222,8 +221,9 @@ export function LeetCodeEditor({
             details: extensionResult.details,
           });
           leetAccepted = extensionResult.accepted;
-        } catch (extensionError: any) {
-          const errorMessage = String(extensionError?.message || "");
+        } catch (extensionError: unknown) {
+          const errObj = extensionError as Record<string, unknown>;
+          const errorMessage = String(errObj?.message || "");
           const isSignedOut = /not signed in|sign in/i.test(errorMessage);
           setSubmitPath("UNAVAILABLE");
           setLeetcodeSubmission({
@@ -269,9 +269,10 @@ export function LeetCodeEditor({
           onSubmissionSuccess(Math.max(1, duration));
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errObj = error as { message?: string; response?: { data?: { error?: string } } };
       console.error("Evaluation error:", error);
-      const isExtensionTimeout = String(error?.message || "")
+      const isExtensionTimeout = String(errObj?.message || "")
         .toLowerCase()
         .includes("extension request timed out");
       if (isExtensionTimeout) {
@@ -282,8 +283,8 @@ export function LeetCodeEditor({
         verdict: "RUNTIME_ERROR",
         verdictMessage: isExtensionTimeout
           ? "Extension is not responding. Reload the extension and ensure it is enabled for this site."
-          : error.response?.data?.error ||
-          error.message ||
+          : errObj.response?.data?.error ||
+          errObj.message ||
           "Failed to evaluate code. Please try again.",
         score: 0,
         complexity: {

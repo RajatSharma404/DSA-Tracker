@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { dsaApi } from '@/lib/api';
 import {
   Play, Pause, SkipForward, SkipBack, RotateCcw,
@@ -65,7 +65,7 @@ const DS_ITEM_STYLES: Record<string, string> = {
   compare: 'bg-yellow-500/20 border-yellow-500/50 text-yellow-300 shadow-[0_0_12px_rgba(234,179,8,0.3)] scale-105',
 };
 
-export default function AlgoPlayground({ problemId, problemTitle, initialCode = '' }: AlgoPlaygroundProps) {
+export default function AlgoPlayground({ problemId, initialCode = '' }: AlgoPlaygroundProps) {
   const [traceData, setTraceData] = useState<TraceData | null>(null);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -325,7 +325,7 @@ export default function AlgoPlayground({ problemId, problemTitle, initialCode = 
                   <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Variable Watch</span>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-                  {currentStep.variables.map((v, i) => (
+                  {currentStep.variables.map((v) => (
                     <div
                       key={`${v.name}-${currentIdx}`}
                       className={`

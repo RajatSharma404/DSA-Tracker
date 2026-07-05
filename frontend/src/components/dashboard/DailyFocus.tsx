@@ -89,9 +89,18 @@ const SOURCE_CONFIG = {
   },
 };
 
+interface DailyLc {
+  link: string;
+  question: {
+    title: string;
+    difficulty: string;
+    topicTags?: Array<{ name: string }>;
+  };
+}
+
 export default function DailyFocus() {
   const [daily, setDaily] = useState<DailyProblem | null>(null);
-  const [dailyLc, setDailyLc] = useState<any | null>(null);
+  const [dailyLc, setDailyLc] = useState<DailyLc | null>(null);
   const [loading, setLoading] = useState(true);
   const [allDone, setAllDone] = useState(false);
 
@@ -113,7 +122,7 @@ export default function DailyFocus() {
       }
 
       if (lcData.status === "fulfilled" && lcData.value) {
-        setDailyLc(lcData.value);
+        setDailyLc(lcData.value as DailyLc);
         hasData = true;
       }
 
@@ -324,12 +333,13 @@ export default function DailyFocus() {
                   {dailyLc.question.title}
                 </h4>
                 <p className="text-[11px] text-gray-400 leading-relaxed mb-4">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="https://leetcode.com/static/images/LeetCode_logo_rvs.png"
                     className="inline w-3 h-3 mr-1.5 grayscale opacity-70"
                     alt=""
                   />
-                  LeetCode's official problem of the day. Keep your streak
+                  LeetCode&apos;s official problem of the day. Keep your streak
                   alive!
                 </p>
               </div>

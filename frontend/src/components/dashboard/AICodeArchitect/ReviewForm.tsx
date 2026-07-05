@@ -35,7 +35,6 @@ const slugify = (text: string) =>
     .replace(/--+/g, "-");
 
 export function ReviewForm({
-  problemId,
   problemTitle,
   code,
   onCodeChange,
@@ -61,7 +60,7 @@ export function ReviewForm({
     if (isOpen && submissions === null) {
       loadSubmissions();
     }
-  }, [isOpen]);
+  }, [isOpen, submissions, loadSubmissions]);
 
   const handleSelectSubmission = async (
     e: React.ChangeEvent<HTMLSelectElement>,
@@ -80,7 +79,8 @@ export function ReviewForm({
         onCodeChange("// Failed to get code for submission");
         error("Failed to load code");
       }
-    } catch (err) {
+    } catch (err: unknown) {
+      console.error(err);
       onCodeChange("// Error fetching code. Make sure your session is valid.");
       error("Error loading code from LeetCode");
     }

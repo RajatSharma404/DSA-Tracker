@@ -4371,6 +4371,189 @@ app.get(
   },
 );
 
+// === CITY PROGRESS ROUTE ===
+app.get("/api/city/progress", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = req.user!.id;
+    const topics = await prisma.topic.findMany({
+      include: {
+        problems: {
+          include: {
+            progress: {
+              where: { userId },
+            },
+          },
+        },
+      },
+      orderBy: { orderIndex: "asc" },
+    });
+
+    let floors = 0;
+    const levels = topics.map((topic) => {
+      let easySolved = 0;
+      let mediumSolved = 0;
+      let hardSolved = 0;
+
+      let easyTotal = 0;
+      let mediumTotal = 0;
+      let hardTotal = 0;
+
+      topic.problems.forEach(p => {
+        const isDone = p.progress[0]?.status === "DONE";
+        if (p.difficulty === "EASY") {
+          easyTotal++;
+          if (isDone) easySolved++;
+        }
+        if (p.difficulty === "MEDIUM") {
+          mediumTotal++;
+          if (isDone) mediumSolved++;
+        }
+        if (p.difficulty === "HARD") {
+          hardTotal++;
+          if (isDone) hardSolved++;
+        }
+      });
+
+      // Based on user requirements: 2 easy, 2 medium, 1 hard per level
+      const isCompleted = easySolved >= 2 && mediumSolved >= 2 && hardSolved >= 1;
+      if (isCompleted) {
+        floors++;
+      }
+
+      return {
+        id: topic.id,
+        name: topic.name,
+        isCompleted,
+        progress: {
+          easy: { solved: easySolved, required: 2, total: easyTotal },
+          medium: { solved: mediumSolved, required: 2, total: mediumTotal },
+          hard: { solved: hardSolved, required: 1, total: hardTotal }
+        }
+      };
+    });
+
+    res.json({
+      floors,
+      levels
+    });
+  } catch (error) {
+    console.error("Failed to get city progress:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// === NOTES ROUTES ===
+
+app.get("/api/notes/:problemId", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = req.user!.id;
+    const problemId = req.params.problemId as string;
+    
+    const notes = await prisma.problemNote.findMany({
+      where: { userId, problemId },
+      orderBy: { createdAt: "desc" }
+    });
+    
+    res.json(notes);
+  } catch (error) {
+    console.error("Failed to get notes:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.get("/api/notes", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = req.user!.id;
+    
+    const notes = await prisma.problemNote.findMany({
+      where: { userId },
+      include: { problem: true },
+      orderBy: { createdAt: "desc" }
+    });
+    
+    res.json(notes);
+  } catch (error) {
+    console.error("Failed to get all notes:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.post("/api/notes", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = req.user!.id;
+    const { problemId, content, type } = req.body;
+    
+    if (!content) return res.status(400).json({ error: "Content is required" });
+    
+    const note = await prisma.problemNote.create({
+      data: {
+        userId,
+        problemId,
+        content,
+        type: type || "LEARNING"
+      }
+    });
+    
+    res.json(note);
+  } catch (error) {
+    console.error("Failed to create note:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.put("/api/notes/:noteId", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = req.user!.id;
+    const noteId = req.params.noteId as string;
+    const { content, type } = req.body;
+    
+    const existingNote = await prisma.problemNote.findUnique({
+      where: { id: noteId }
+    });
+    
+    if (!existingNote || existingNote.userId !== userId) {
+      return res.status(404).json({ error: "Note not found" });
+    }
+    
+    const updatedNote = await prisma.problemNote.update({
+      where: { id: noteId },
+      data: {
+        content: content !== undefined ? content : existingNote.content,
+        type: type !== undefined ? type : existingNote.type
+      }
+    });
+    
+    res.json(updatedNote);
+  } catch (error) {
+    console.error("Failed to update note:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.delete("/api/notes/:noteId", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = req.user!.id;
+    const noteId = req.params.noteId as string;
+    
+    const existingNote = await prisma.problemNote.findUnique({
+      where: { id: noteId }
+    });
+    
+    if (!existingNote || existingNote.userId !== userId) {
+      return res.status(404).json({ error: "Note not found" });
+    }
+    
+    await prisma.problemNote.delete({
+      where: { id: noteId }
+    });
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Failed to delete note:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // === SERVER START ===
 app.get("/", (req, res) => {
   res.json({ status: "ok", message: "DSA Tracker API is running" });

@@ -11,7 +11,6 @@ import {
   CheckCircle2,
   Info,
   AlertTriangle,
-  X,
 } from "lucide-react";
 
 /**

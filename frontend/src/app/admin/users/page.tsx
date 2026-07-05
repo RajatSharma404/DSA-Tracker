@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { dsaApi } from "@/lib/api";
-import { ArrowLeft, Shield, User, ShieldAlert } from "lucide-react";
+import { ArrowLeft, Shield, User } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 
@@ -95,6 +95,7 @@ export default function AdminUsers() {
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     {appUser.image ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
                       <img
                         src={appUser.image}
                         alt=""

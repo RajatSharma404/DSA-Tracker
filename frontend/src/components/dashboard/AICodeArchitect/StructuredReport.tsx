@@ -15,7 +15,7 @@ import {
   Lightbulb,
   Zap,
 } from "lucide-react";
-import { DESIGN_TOKENS, getStatusStyle } from "@/lib/design-tokens";
+import { getStatusStyle } from "@/lib/design-tokens";
 
 export interface StructuredReview {
   verdict: "OPTIMAL" | "GOOD" | "NEEDS WORK";

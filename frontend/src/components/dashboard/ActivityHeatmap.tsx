@@ -16,15 +16,13 @@ interface ActivityHeatmapProps {
 }
 
 export default function ActivityHeatmap({ data }: ActivityHeatmapProps) {
-  const today = new Date();
+  const today = useMemo(() => new Date(), []);
   const currentYear = getYear(today);
   const [selectedYear, setSelectedYear] = useState<number>(currentYear);
 
-  const isValidActivityYear = (year: number) =>
-    year >= 2000 && year <= currentYear;
-
   // Determine available years from data and current year
   const availableYears = useMemo(() => {
+    const isValidActivityYear = (year: number) => year >= 2000 && year <= currentYear;
     const years = new Set<number>();
     years.add(currentYear);
     data.forEach((entry) => {
@@ -51,7 +49,7 @@ export default function ActivityHeatmap({ data }: ActivityHeatmapProps) {
       startDate: yearStart,
       endDate: selectedYear === currentYear ? today : yearEnd,
     };
-  }, [selectedYear, currentYear]);
+  }, [selectedYear, currentYear, today]);
 
   const days = useMemo(() => {
     return eachDayOfInterval({

@@ -56,7 +56,7 @@ export function normalizeError(error: unknown): ApiError {
   }
 
   if (typeof error === "object" && error !== null && "response" in error) {
-    const axiosError = error as any;
+    const axiosError = error as { response?: { data?: { message?: string; [key: string]: unknown }; status?: number } };
     const data = axiosError.response?.data;
     if (isApiError(data)) {
       return data;

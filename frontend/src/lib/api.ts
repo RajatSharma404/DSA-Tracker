@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { InternalAxiosRequestConfig } from "axios";
 import { getSession } from "next-auth/react";
 
 type SessionWithToken = {
@@ -10,9 +10,7 @@ let lastSessionReadAt = 0;
 const SESSION_CACHE_MS = 30_000;
 let sessionReadPromise: Promise<string | null> | null = null;
 
-const isBrowser = typeof window !== "undefined";
-const isLocalHost =
-  isBrowser && /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
+// No browser check needed
 
 const configuredPublicApiBase =
   process.env.NEXT_PUBLIC_API_URL?.trim().replace(/\/+$/, "") || "";
@@ -100,7 +98,12 @@ api.interceptors.request.use(async (config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error?.config as any;
+    const originalRequest = error?.config as InternalAxiosRequestConfig & {
+      _retryViaRelativeApi?: boolean;
+      _retry429Count?: number;
+      _retryViaPublicApiBase?: boolean;
+      _retry?: boolean;
+    } | undefined;
     const status = error?.response?.status;
     const code = String(error?.code || "");
     const hasNetworkResolutionFailure =
@@ -341,6 +344,10 @@ export interface LearnLessonDetail {
 export const dsaApi = {
   getDashboardStats: async (): Promise<DashboardStats> => {
     const res = await api.get("/dashboard");
+    return res.data;
+  },
+  getCityProgress: async () => {
+    const res = await api.get("/city/progress");
     return res.data;
   },
   getTopics: async (): Promise<Topic[]> => {

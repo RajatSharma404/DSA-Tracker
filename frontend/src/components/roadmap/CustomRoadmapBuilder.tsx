@@ -20,7 +20,6 @@ import ReactFlow, {
   useNodesState,
   useReactFlow,
   type Connection,
-  type Edge,
   type Node,
   type NodeProps,
 } from "reactflow";
@@ -384,18 +383,13 @@ function BuilderWorkspace() {
     }
   }, [nodes.length, flow]);
 
-  const tagSelectionKey = useMemo(() => {
-    if (selectedNode?.data.kind !== "tag") return "";
-    return (selectedNode.data.tagIds || []).join("|");
-  }, [selectedNode]);
-
   useEffect(() => {
     if (selectedNode?.data.kind !== "tag") return;
     const nextSelection = selectedNode.data.tagIds || [];
     if (nextSelection.join("|") !== selectedTagIds.join("|")) {
       setSelectedTagIds(nextSelection);
     }
-  }, [selectedNode?.id, selectedNode?.data.kind, tagSelectionKey]);
+  }, [selectedNode?.data.kind, selectedNode?.data.tagIds, selectedTagIds]);
 
   const generateNodeId = (kind: RoadmapNodeKind) =>
     `roadmap-${kind}-${crypto.randomUUID().slice(0, 8)}`;

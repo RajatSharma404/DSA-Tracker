@@ -5,7 +5,7 @@ import { useRef } from "react";
 interface StatCardProps {
   title: string;
   value: string | number;
-  icon: React.ElementType;
+  icon: React.ElementType<{ size?: number | string; className?: string }>;
   description?: string;
   trend?: string;
   trendUp?: boolean;

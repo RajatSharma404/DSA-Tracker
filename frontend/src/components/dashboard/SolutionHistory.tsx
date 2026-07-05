@@ -8,8 +8,6 @@ import {
   ChevronUp,
   CheckCircle2,
   XCircle,
-  Clock,
-  Code2,
   Loader2,
   Bot,
   User,
@@ -36,11 +34,7 @@ export function SolutionHistory({ problemId }: SolutionHistoryProps) {
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadHistory();
-  }, [problemId]);
-
-  const loadHistory = async () => {
+  const loadHistory = React.useCallback(async () => {
     try {
       const data = await dsaApi.getSolutionHistory(problemId);
       setSolutions(data);
@@ -49,7 +43,11 @@ export function SolutionHistory({ problemId }: SolutionHistoryProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [problemId]);
+
+  useEffect(() => {
+    loadHistory();
+  }, [loadHistory]);
 
   if (loading) {
     return (

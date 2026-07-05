@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import { useSearchParams } from "next/navigation";
 import { dsaApi, Topic, Problem } from "@/lib/api";
 import {
   ChevronDown,
@@ -67,6 +68,8 @@ export default function TopicsPage() {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedTopic, setExpandedTopic] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const topicFromQuery = searchParams.get("topic");
 
   useEffect(() => {
     async function loadTopics() {
@@ -81,6 +84,16 @@ export default function TopicsPage() {
     }
     loadTopics();
   }, []);
+
+  useEffect(() => {
+    if (!topicFromQuery || topics.length === 0) {
+      return;
+    }
+
+    if (topics.some((topic) => topic.id === topicFromQuery)) {
+      setExpandedTopic(topicFromQuery);
+    }
+  }, [topicFromQuery, topics]);
 
   if (loading) {
     return (
@@ -186,8 +199,16 @@ function TopicAccordion({
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    const rotateY = ((x - rect.width / 2) / rect.width) * 0.8;
-    const rotateX = -((y - rect.height / 2) / rect.height) * 0.6;
+    
+    // Only apply 3D tilt if the card is NOT expanded.
+    // Expanded cards can be very tall, causing extreme rotations.
+    let rotateX = 0;
+    let rotateY = 0;
+    
+    if (!isExpanded) {
+      rotateY = ((x - rect.width / 2) / rect.width) * 0.8;
+      rotateX = -((y - rect.height / 2) / rect.height) * 0.6;
+    }
 
     setCardTransform(
       `perspective(2200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(0px)`,
@@ -250,10 +271,15 @@ function TopicAccordion({
 
         <div className="flex items-center gap-6">
           <div className="hidden sm:flex flex-col items-end">
-            <span className="text-sm font-medium text-gray-300">
-              {topic.progressPercentage}%
-            </span>
-            <div className="w-24 h-1.5 bg-[#222] rounded-full mt-2 hidden sm:block">
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-medium text-gray-500 bg-white/5 px-2 py-0.5 rounded-md border border-white/5">
+                {topic.totalProblems} {topic.totalProblems === 1 ? 'question' : 'questions'}
+              </span>
+              <span className="text-sm font-medium text-gray-300 w-10 text-right">
+                {topic.progressPercentage}%
+              </span>
+            </div>
+            <div className="w-full h-1.5 bg-[#222] rounded-full mt-2 hidden sm:block max-w-[140px] self-end">
               <div
                 className="h-full bg-white transition-all duration-500 rounded-full"
                 style={{ width: `${topic.progressPercentage}%` }}

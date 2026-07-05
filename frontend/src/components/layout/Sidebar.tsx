@@ -22,7 +22,7 @@ import {
   GraduationCap,
   type LucideIcon,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 
 type NavItem = {
@@ -39,6 +39,7 @@ const navSections: Array<{ title: string; items: NavItem[] }> = [
       { icon: GraduationCap, label: "Learn", href: "/learn" },
       { icon: Network, label: "Visual Roadmap", href: "/roadmap" },
       { icon: BookOpen, label: "Topics", href: "/topics" },
+      { icon: Target, label: "DSA City", href: "/city" },
       { icon: Zap, label: "The Arena", href: "/challenge" },
       { icon: Target, label: "Mock Interviews", href: "/interviews" },
     ],
@@ -71,19 +72,13 @@ const navSections: Array<{ title: string; items: NavItem[] }> = [
 export function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(true);
-  const [hasMounted, setHasMounted] = useState(false);
   const { data: session } = useSession();
-
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
 
   const routeCollapsed = pathname.startsWith("/challenge/");
   const effectiveCollapsed = routeCollapsed || collapsed;
   const isAdmin =
-    hasMounted &&
     ((session?.user as { role?: string } | undefined)?.role || "USER") ===
-      "ADMIN";
+    "ADMIN";
   const displaySections = navSections.map((section) => ({
     ...section,
     items: [...section.items],
@@ -175,13 +170,13 @@ export function Sidebar() {
       </nav>
 
       <div className="p-4 border-t border-[#222]">
-        {hasMounted && session?.user && !effectiveCollapsed && (
+        {session?.user && !effectiveCollapsed && (
           <div className="flex items-center gap-3 mb-4">
             {session.user.image ? (
-              <img
-                src={session.user.image}
-                alt={`${session.user.name}'s profile picture`}
-                className="w-8 h-8 rounded-full"
+              <div
+                className="w-8 h-8 rounded-full bg-cover bg-center"
+                style={{ backgroundImage: `url(${session.user.image})` }}
+                aria-label={`${session.user.name}'s profile picture`}
               />
             ) : (
               <div

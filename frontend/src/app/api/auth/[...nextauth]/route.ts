@@ -83,7 +83,7 @@ function createAuthOptions(secret: string): NextAuthOptions {
             name,
             image: null,
             role: "USER",
-          } as any;
+          } as { id: string; email: string; name: string; image: string | null; role: string };
         },
       }),
     ],
@@ -128,8 +128,10 @@ function createAuthOptions(secret: string): NextAuthOptions {
       },
       async session({ session, token }) {
         if (session.user) {
-          (session as any).accessToken = token.accessToken;
-          (session.user as any).role = token.role ?? "USER";
+          interface sessionWithToken { accessToken?: string }
+          interface userWithRole { role?: string }
+          (session as sessionWithToken).accessToken = token.accessToken as string | undefined;
+          (session.user as userWithRole).role = (token.role as string) ?? "USER";
         }
         return session;
       },
@@ -175,6 +177,7 @@ export async function GET(req: Request, context: unknown) {
     return missingSecretResponse();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return handler(req as any, context as any);
 }
 
@@ -186,5 +189,6 @@ export async function POST(req: Request, context: unknown) {
     return missingSecretResponse();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return handler(req as any, context as any);
 }

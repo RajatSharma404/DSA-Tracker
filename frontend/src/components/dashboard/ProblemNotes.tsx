@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { dsaApi } from '@/lib/api';
-import { StickyNote, Plus, Trash2, Loader2, X, Save, Tag } from 'lucide-react';
+import { StickyNote, Plus, Trash2, Loader2, Save } from 'lucide-react';
 
 interface Note {
   id: string;
@@ -28,12 +28,10 @@ export default function ProblemNotes({ problemId }: ProblemNotesProps) {
   const [newType, setNewType] = useState('LEARNING');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
 
-  useEffect(() => {
-    loadNotes();
-  }, [problemId]);
-
-  const loadNotes = async () => {
+  const loadNotes = React.useCallback(async () => {
     setLoading(true);
     try {
       const data = await dsaApi.getNotes(problemId);
@@ -43,7 +41,14 @@ export default function ProblemNotes({ problemId }: ProblemNotesProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [problemId]);
+
+  useEffect(() => {
+    if (isOpen && !hasLoaded) {
+      loadNotes();
+      setHasLoaded(true);
+    }
+  }, [isOpen, hasLoaded, loadNotes]);
 
   const handleAdd = async () => {
     if (!newContent.trim()) return;
@@ -76,17 +81,23 @@ export default function ProblemNotes({ problemId }: ProblemNotesProps) {
 
   return (
     <div className="mt-3">
-      {/* Compact Header */}
-      <div className="flex items-center justify-between mb-2">
+      {/* Compact Header - Click to Expand */}
+      <div 
+        className="flex items-center justify-between mb-2 cursor-pointer group"
+        onClick={() => setIsOpen(!isOpen)}
+      >
         <div className="flex items-center gap-2">
           <StickyNote size={12} className="text-amber-400" />
-          <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">
-            Notes {notes.length > 0 && `(${notes.length})`}
+          <span className="text-[9px] font-black text-gray-500 group-hover:text-amber-400 uppercase tracking-widest transition-colors">
+            {isOpen ? "Close Notes" : "Open Notes"} {hasLoaded && notes.length > 0 && `(${notes.length})`}
           </span>
         </div>
-        {!isAdding && (
+        {isOpen && !isAdding && (
           <button
-            onClick={() => setIsAdding(true)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsAdding(true);
+            }}
             className="flex items-center gap-1 px-2 py-1 bg-amber-500/10 text-amber-400 rounded-lg border border-amber-500/20 text-[9px] font-black uppercase tracking-widest hover:bg-amber-500/20 transition-all"
           >
             <Plus size={10} />
@@ -95,74 +106,78 @@ export default function ProblemNotes({ problemId }: ProblemNotesProps) {
         )}
       </div>
 
-      {/* Add Note Form */}
-      {isAdding && (
-        <div className="p-3 bg-[#0c0c10] border border-white/10 rounded-xl mb-3 animate-in slide-in-from-top-2 fade-in duration-200">
-          {/* Type Selector */}
-          <div className="flex gap-1.5 mb-2">
-            {NOTE_TYPES.map(t => (
-              <button
-                key={t.value}
-                onClick={() => setNewType(t.value)}
-                className={`px-2 py-1 rounded-lg text-[9px] font-black border transition-all ${
-                  newType === t.value ? t.color : 'bg-white/5 text-gray-600 border-white/5'
-                }`}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
-          <textarea
-            value={newContent}
-            onChange={(e) => setNewContent(e.target.value)}
-            placeholder="Write your note... (gotchas, learnings, interview tips)"
-            className="w-full bg-transparent border border-white/5 rounded-lg p-2.5 text-xs text-white placeholder:text-gray-700 outline-none resize-none h-20 focus:border-amber-500/30 transition-colors"
-          />
-          <div className="flex items-center justify-end gap-2 mt-2">
-            <button
-              onClick={() => { setIsAdding(false); setNewContent(''); }}
-              className="px-3 py-1.5 text-[10px] font-bold text-gray-500 hover:text-white transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleAdd}
-              disabled={saving || !newContent.trim()}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 text-black rounded-lg text-[10px] font-black uppercase tracking-widest disabled:opacity-40 transition-all hover:shadow-lg hover:shadow-amber-500/20"
-            >
-              {saving ? <Loader2 size={10} className="animate-spin" /> : <Save size={10} />}
-              Save
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Notes List */}
-      {notes.length > 0 && (
-        <div className="space-y-1.5">
-          {notes.map(note => {
-            const style = getTypeStyle(note.type);
-            return (
-              <div key={note.id} className="flex items-start gap-2 p-2.5 bg-white/[0.02] rounded-lg border border-white/5 group hover:border-white/10 transition-all">
-                <span className={`shrink-0 px-1.5 py-0.5 ${style.color} border rounded text-[8px] font-black mt-0.5`}>
-                  {style.label}
-                </span>
-                <p className="flex-1 text-[11px] text-gray-300 leading-relaxed break-words whitespace-pre-wrap min-w-0">{note.content}</p>
+      {isOpen && (
+        <div className="animate-in slide-in-from-top-2 fade-in duration-200">
+          {/* Add Note Form */}
+          {isAdding && (
+            <div className="p-3 bg-[#0c0c10] border border-white/10 rounded-xl mb-3">
+              {/* Type Selector */}
+              <div className="flex gap-1.5 mb-2">
+                {NOTE_TYPES.map(t => (
+                  <button
+                    key={t.value}
+                    onClick={() => setNewType(t.value)}
+                    className={`px-2 py-1 rounded-lg text-[9px] font-black border transition-all ${
+                      newType === t.value ? t.color : 'bg-white/5 text-gray-600 border-white/5'
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+              <textarea
+                value={newContent}
+                onChange={(e) => setNewContent(e.target.value)}
+                placeholder="Write your note... (gotchas, learnings, interview tips)"
+                className="w-full bg-transparent border border-white/5 rounded-lg p-2.5 text-xs text-white placeholder:text-gray-700 outline-none resize-none h-20 focus:border-amber-500/30 transition-colors"
+              />
+              <div className="flex items-center justify-end gap-2 mt-2">
                 <button
-                  onClick={() => handleDelete(note.id)}
-                  className="shrink-0 p-1 text-gray-700 hover:text-red-400 rounded transition-all opacity-0 group-hover:opacity-100"
+                  onClick={() => { setIsAdding(false); setNewContent(''); }}
+                  className="px-3 py-1.5 text-[10px] font-bold text-gray-500 hover:text-white transition-colors"
                 >
-                  <Trash2 size={12} />
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAdd}
+                  disabled={saving || !newContent.trim()}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 text-black rounded-lg text-[10px] font-black uppercase tracking-widest disabled:opacity-40 transition-all hover:shadow-lg hover:shadow-amber-500/20"
+                >
+                  {saving ? <Loader2 size={10} className="animate-spin" /> : <Save size={10} />}
+                  Save
                 </button>
               </div>
-            );
-          })}
-        </div>
-      )}
+            </div>
+          )}
 
-      {loading && notes.length === 0 && (
-        <div className="py-3 text-center">
-          <Loader2 size={14} className="animate-spin text-gray-600 mx-auto" />
+          {/* Notes List */}
+          {notes.length > 0 && (
+            <div className="space-y-1.5">
+              {notes.map(note => {
+                const style = getTypeStyle(note.type);
+                return (
+                  <div key={note.id} className="flex items-start gap-2 p-2.5 bg-white/[0.02] rounded-lg border border-white/5 group hover:border-white/10 transition-all">
+                    <span className={`shrink-0 px-1.5 py-0.5 ${style.color} border rounded text-[8px] font-black mt-0.5`}>
+                      {style.label}
+                    </span>
+                    <p className="flex-1 text-[11px] text-gray-300 leading-relaxed break-words whitespace-pre-wrap min-w-0">{note.content}</p>
+                    <button
+                      onClick={() => handleDelete(note.id)}
+                      className="shrink-0 p-1 text-gray-700 hover:text-red-400 rounded transition-all opacity-0 group-hover:opacity-100"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {loading && notes.length === 0 && (
+            <div className="py-3 text-center">
+              <Loader2 size={14} className="animate-spin text-gray-600 mx-auto" />
+            </div>
+          )}
         </div>
       )}
     </div>

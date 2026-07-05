@@ -68,6 +68,7 @@ The platform recently underwent a massive structural and UX overhaul known as **
 - **Global Command Palette:** Hit `Cmd+K` (or `Ctrl+K`) anywhere in the app to open an ultra-fast, MacOS-style command palette to instantly jump between the Dashboard, Topics, Vault, and Settings.
 - **The "Code Vault":** A brand new feature that tracks your `SolutionHistory`. Easily view your past code submissions alongside performance badges (Time/Space Complexity, "Optimal" indicators) and syntax-highlighted code blocks.
 - **Bootcamp-Grade Educational Content:** The platform now ships with 20 massive, heavily-detailed DSA theory modules (ranging from Arrays to Advanced Graphs). Each module features rich ASCII diagrams, step-by-step dry runs, complexity matrices, and classic problem blueprints.
+- **DSA City Level Workspaces:** Each Solve action now opens an in-app floor workspace with theory and five required questions, instead of redirecting out to a separate route.
 
 ---
 
@@ -100,6 +101,7 @@ The platform recently underwent a massive structural and UX overhaul known as **
 ## Tech Stack
 
 ### Frontend
+
 - **Framework:** Next.js 16.1 (App Router)
 - **Library:** React 19
 - **Styling:** Tailwind CSS 4 (with `@tailwindcss/typography`), Framer Motion
@@ -109,6 +111,7 @@ The platform recently underwent a massive structural and UX overhaul known as **
 - **UI Components:** Monaco Editor (with Vim bindings), `cmdk` command palette, ReactFlow, Recharts, React-Markdown
 
 ### Backend
+
 - **Server:** Express 5
 - **Language:** TypeScript
 - **ORM:** Prisma 5
@@ -116,6 +119,7 @@ The platform recently underwent a massive structural and UX overhaul known as **
 - **Security:** JWT-based utilities, CORS policies
 
 ### Tooling & Infrastructure
+
 - **Containerization:** Docker Compose
 - **Package Management:** npm workspaces
 - **Deployment:** PM2 / systemd / Render-ready
@@ -127,17 +131,20 @@ The platform recently underwent a massive structural and UX overhaul known as **
 If you want to run the app locally as fast as possible, follow this checklist:
 
 1. **Clone the repository:**
+
    ```bash
    git clone https://github.com/RajatSharma404/DSA-Tracker.git
    cd DSA-Tracker
    ```
 
 2. **Start PostgreSQL:**
+
    ```bash
    docker compose up -d
    ```
 
 3. **Initialize the Backend:**
+
    ```bash
    cd backend
    npm install
@@ -145,7 +152,8 @@ If you want to run the app locally as fast as possible, follow this checklist:
    npx prisma db seed
    ```
 
-   *Create `backend/.env`:*
+   _Create `backend/.env`:_
+
    ```env
    PORT=3001
    NODE_ENV=development
@@ -154,13 +162,15 @@ If you want to run the app locally as fast as possible, follow this checklist:
    ```
 
 4. **Initialize the Frontend:**
+
    ```bash
    cd ../frontend
    npm install
    npx prisma db push
    ```
 
-   *Create `frontend/.env.local`:*
+   _Create `frontend/.env.local`:_
+
    ```env
    DATABASE_URL="postgresql://postgres:password@localhost:5432/dsatracker?schema=public"
    NEXTAUTH_URL="http://localhost:3000"
@@ -168,6 +178,7 @@ If you want to run the app locally as fast as possible, follow this checklist:
    ```
 
 5. **Run the Full Stack:**
+
    ```bash
    cd ..
    npm install
@@ -192,6 +203,7 @@ The repository is structured as a monorepo containing three core layers:
    PostgreSQL instance, run locally via Docker and managed via cloud providers in production.
 
 ### Request Flow
+
 1. The user's browser interacts with Next.js routes.
 2. The frontend calls `/api/*`.
 3. A Next.js rewrite securely forwards non-auth `/api/*` requests to the backend server.
@@ -203,25 +215,31 @@ The repository is structured as a monorepo containing three core layers:
 ## Local Development Setup (Detailed)
 
 ### 1) Prerequisites
+
 - Node.js 20+
 - npm 10+
 - Docker Desktop (or Engine)
 - Git
 
 ### 2) Database Setup
+
 Start the local PostgreSQL container using the default settings (`postgres:password`, port 5432):
+
 ```bash
 docker compose up -d
 ```
 
 ### 3) Backend Setup
+
 Navigate to the backend folder and install dependencies:
+
 ```bash
 cd backend
 npm install
 ```
 
 Create an extensive `backend/.env` file:
+
 ```env
 NODE_ENV=development
 PORT=3001
@@ -234,19 +252,23 @@ ALLOW_INSECURE_CREDENTIALS_LOGIN="false"
 ```
 
 Push the schema and seed initial topic data:
+
 ```bash
 npx prisma db push
 npx prisma db seed
 ```
 
 ### 4) Frontend Setup
+
 Navigate to the frontend folder and install dependencies:
+
 ```bash
 cd ../frontend
 npm install
 ```
 
 Create `frontend/.env.local`:
+
 ```env
 DATABASE_URL="postgresql://postgres:password@localhost:5432/dsatracker?schema=public"
 NEXTAUTH_URL="http://localhost:3000"
@@ -254,15 +276,19 @@ NEXTAUTH_SECRET="your-secure-random-secret" # MUST match backend
 ```
 
 Apply the frontend schema:
+
 ```bash
 npx prisma db push
 ```
 
 ### 5) Run Both Servers
+
 From the repository root:
+
 ```bash
 npm run dev
 ```
+
 This concurrently starts the Next.js dev server on `3000` and the Express API on `3001`.
 
 ---
@@ -270,6 +296,7 @@ This concurrently starts the Next.js dev server on `3000` and the Express API on
 ## Environment Variable Reference
 
 ### Backend Variables
+
 | Variable          | Required | Purpose                                      |
 | ----------------- | -------- | -------------------------------------------- |
 | `NODE_ENV`        | Yes      | Runtime mode (`development`/`production`)    |
@@ -280,6 +307,7 @@ This concurrently starts the Next.js dev server on `3000` and the Express API on
 | `CORS_ORIGINS`    | No       | Comma-separated allowed origins              |
 
 ### Frontend Variables
+
 | Variable          | Required | Purpose                                                   |
 | ----------------- | -------- | --------------------------------------------------------- |
 | `DATABASE_URL`    | Yes      | NextAuth Prisma adapter connection                        |
@@ -292,15 +320,18 @@ This concurrently starts the Next.js dev server on `3000` and the Express API on
 ## Core Scripts
 
 **Root Level**
+
 - `npm run dev`: Concurrently runs frontend and backend in development mode.
 - `npm run build`: Compiles both projects.
 - `npm run start`: Starts both projects in production mode.
 
 **Backend Level**
+
 - `npm run dev`: Runs the `ts-node-dev` server.
 - `npm run build`: Compiles TypeScript and generates Prisma client.
 
 **Frontend Level**
+
 - `npm run dev`: Runs Next.js development server.
 - `npm run build`: Builds the production Next.js bundle.
 
@@ -311,11 +342,13 @@ This concurrently starts the Next.js dev server on `3000` and the Express API on
 The project includes a custom Chrome/Edge browser extension (`/extension`) that synchronizes your LeetCode progress directly with your DSA Tracker instance.
 
 ### Installation
+
 1. Open `chrome://extensions` or `edge://extensions`.
 2. Enable **Developer Mode**.
 3. Click **Load unpacked** and select the `/extension` directory.
 
 ### LeetCode Sync Workflow
+
 1. Log into LeetCode.
 2. Copy your `LEETCODE_SESSION` cookie from browser dev tools.
 3. Paste it into the DSA Tracker **Settings** page.
@@ -329,16 +362,20 @@ The project includes a custom Chrome/Edge browser extension (`/extension`) that 
 The application ships with a massive, pre-configured algorithmic bootcamp containing theory, modules, and lessons. This content was overhauled in **Project Ascend** to include highly detailed explanations, C++ implementations, diagrams, and classic interview problem patterns.
 
 **Bootcamp Contents:**
+
 - 1 Theory Track: "Complete DSA Bootcamp (C++)"
 - 20 Modules (ranging from Arrays and Strings to Dynamic Programming and Advanced Graphs)
 - 20 Lessons & 40 Interactive Content Blocks
 
 **To generate the Bootcamp:**
 You can either run the seed script directly from the backend directory:
+
 ```bash
 npx ts-node seedComprehensiveDSA.ts
 ```
-*Or*, make an authenticated POST request as an Admin to the live server:
+
+_Or_, make an authenticated POST request as an Admin to the live server:
+
 ```bash
 curl -X POST http://localhost:3001/api/admin/learn/seed-comprehensive \
   -H "Authorization: Bearer <ADMIN_JWT_TOKEN>" \
@@ -350,6 +387,7 @@ curl -X POST http://localhost:3001/api/admin/learn/seed-comprehensive \
 ## Deployment
 
 ### Render Deployment
+
 1.  **Backend Web Service:**
     - Root: `backend`
     - Command: `npm install && npm run build && npm start`
@@ -360,6 +398,7 @@ curl -X POST http://localhost:3001/api/admin/learn/seed-comprehensive \
     - Env Vars: `DATABASE_URL`, `NEXTAUTH_URL`, `NEXTAUTH_SECRET`, `BACKEND_URL`
 
 ### Linux VM Deployment (PM2 + Nginx)
+
 1.  Clone repo to server and install dependencies.
 2.  Build projects: `npm run build`
 3.  Start with PM2:

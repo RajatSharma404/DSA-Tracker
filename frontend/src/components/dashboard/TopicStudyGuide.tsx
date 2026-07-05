@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { getStudyGuide, StudyGuide } from '@/data/studyGuides';
+import { getStudyGuide } from '@/data/studyGuides';
 import { BookOpen, ChevronDown, ChevronRight, Copy, Check, Lightbulb, Table, Code2, Brain, ArrowRight } from 'lucide-react';
 
 type TopicCppRef = {

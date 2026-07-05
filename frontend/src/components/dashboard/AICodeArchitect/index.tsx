@@ -9,6 +9,7 @@ import { useReducer } from "react";
 import { dsaApi } from "@/lib/api";
 import { ReviewForm } from "./ReviewForm";
 import { ReviewResult } from "./ReviewResult";
+import { StructuredReview } from "./StructuredReport";
 import { useToastNotification } from "@/components/providers/ToastProvider";
 
 interface AICodeArchitectProps {
@@ -18,7 +19,7 @@ interface AICodeArchitectProps {
 
 interface State {
   code: string;
-  review: { type: "structured" | "markdown"; data: any } | null;
+  review: { type: "structured" | "markdown"; data: StructuredReview | string } | null;
   loading: boolean;
 }
 
@@ -27,7 +28,7 @@ type Action =
   | { type: "SET_LOADING"; payload: boolean }
   | {
       type: "SET_REVIEW";
-      payload: { type: "structured" | "markdown"; data: any } | null;
+      payload: { type: "structured" | "markdown"; data: StructuredReview | string } | null;
     }
   | { type: "RESET" };
 

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { dsaApi } from "@/lib/api";
-import { RefreshCcw, Save, ExternalLink, CheckCircle2 } from "lucide-react";
+import { RefreshCcw, Save, CheckCircle2 } from "lucide-react";
 
 interface LeetCodeSyncProps {
   onSyncComplete?: () => void;
@@ -60,10 +60,11 @@ export default function LeetCodeSync({ onSyncComplete }: LeetCodeSyncProps) {
         "LeetCode session saved securely! AI Code reviews can now auto-sync your submission code.",
       );
       setSessionCookie(""); // Clear after save for neatness
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
+      const errObj = error as { response?: { data?: { error?: string } } };
       const backendMessage =
-        error?.response?.data?.error ||
+        errObj?.response?.data?.error ||
         "Failed to save session. Paste LEETCODE_SESSION value or a cookie string containing LEETCODE_SESSION=...";
       alert(backendMessage);
     } finally {
@@ -106,6 +107,7 @@ export default function LeetCodeSync({ onSyncComplete }: LeetCodeSyncProps) {
     <div className="p-6 rounded-3xl bg-[#0d0d0d] border border-white/5 space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-black text-white flex items-center gap-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="https://leetcode.com/static/images/LeetCode_logo_rvs.png"
             className="h-5 w-5"

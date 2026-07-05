@@ -4,7 +4,7 @@
 
 "use client";
 
-import { ShieldCheck, Copy, Check, Info, Loader2 } from "lucide-react";
+import { ShieldCheck, Copy, Check, Info } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { StructuredReview, StructuredReport } from "./StructuredReport";
 import AlgoPlayground from "../AlgoPlayground";

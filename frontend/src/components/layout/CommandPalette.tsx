@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Command } from "cmdk";
 import { useRouter } from "next/navigation";
-import { Search, MonitorPlay, Brain, BookOpen, Settings, LogOut, Code, Library, LayoutDashboard, Target } from "lucide-react";
+import { Search, MonitorPlay, Brain, BookOpen, Settings, LogOut, Code, LayoutDashboard, Target } from "lucide-react";
 import { signOut } from "next-auth/react";
 
 export function CommandPalette() {

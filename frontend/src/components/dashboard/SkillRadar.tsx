@@ -13,8 +13,14 @@ import {
 import { dsaApi } from "@/lib/api";
 import { Shield, Target, Trophy, Loader2 } from "lucide-react";
 
+interface MasteryData {
+  subject: string;
+  A: number;
+  fullMark: number;
+}
+
 export default function SkillRadar() {
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<MasteryData[]>([]);
   const [loading, setLoading] = useState(true);
 
   const strongestTopic =
