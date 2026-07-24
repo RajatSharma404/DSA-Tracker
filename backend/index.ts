@@ -338,6 +338,74 @@ const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
+async function getUserCityProgressInfo(userId: string) {
+  const topics = await prisma.topic.findMany({
+    include: {
+      problems: {
+        include: {
+          progress: {
+            where: { userId },
+          },
+        },
+      },
+    },
+    orderBy: { orderIndex: "asc" },
+  });
+
+  let floors = 0;
+  const levels = topics.map((topic) => {
+    let easySolved = 0;
+    let mediumSolved = 0;
+    let hardSolved = 0;
+
+    let easyTotal = 0;
+    let mediumTotal = 0;
+    let hardTotal = 0;
+
+    topic.problems.forEach((p) => {
+      const isDone = p.progress[0]?.status === "DONE";
+      if (p.difficulty === "EASY") {
+        easyTotal++;
+        if (isDone) easySolved++;
+      }
+      if (p.difficulty === "MEDIUM") {
+        mediumTotal++;
+        if (isDone) mediumSolved++;
+      }
+      if (p.difficulty === "HARD") {
+        hardTotal++;
+        if (isDone) hardSolved++;
+      }
+    });
+
+    const isCompleted = easySolved >= 2 && mediumSolved >= 2 && hardSolved >= 1;
+    if (isCompleted) {
+      floors++;
+    }
+
+    return {
+      id: topic.id,
+      name: topic.name,
+      isCompleted,
+      progress: {
+        easy: { solved: easySolved, required: 2, total: easyTotal },
+        medium: { solved: mediumSolved, required: 2, total: mediumTotal },
+        hard: { solved: hardSolved, required: 1, total: hardTotal },
+      },
+    };
+  });
+
+  let currentUnlockedLevelId = null;
+  for (let i = 0; i < levels.length; i++) {
+    if (!levels[i].isCompleted) {
+      currentUnlockedLevelId = levels[i].id;
+      break;
+    }
+  }
+
+  return { floors, levels, currentUnlockedLevelId };
+}
+
 // 1. Get Dashboard Stats
 app.get("/api/dashboard", requireAuth, async (req: Request, res: Response) => {
   try {
@@ -426,6 +494,15 @@ app.get(
       const topicId = req.params.topicId as string;
       const userId = req.user!.id;
 
+      const cityInfo = await getUserCityProgressInfo(userId);
+      const levelIndex = cityInfo.levels.findIndex((l) => l.id === topicId);
+      if (levelIndex > 0) {
+        const prevLevel = cityInfo.levels[levelIndex - 1];
+        if (!prevLevel.isCompleted) {
+          return res.status(403).json({ error: "Level is locked. Complete the previous floor to unlock this level." });
+        }
+      }
+
       const problems = await prisma.problem.findMany({
         where: { topicId },
         include: {
@@ -472,6 +549,15 @@ app.get(
 
       if (!problem) {
         return res.status(404).json({ error: "Problem not found" });
+      }
+
+      const cityInfo = await getUserCityProgressInfo(userId);
+      const levelIndex = cityInfo.levels.findIndex((l) => l.id === problem.topicId);
+      if (levelIndex > 0) {
+        const prevLevel = cityInfo.levels[levelIndex - 1];
+        if (!prevLevel.isCompleted) {
+          return res.status(403).json({ error: "Level is locked. Complete the previous floor to unlock this level." });
+        }
       }
 
       const enrichedProblem = {
@@ -2203,7 +2289,17 @@ app.post("/api/progress", requireAuth, async (req: Request, res: Response) => {
       }
     }
 
-    res.json(progress);
+    const cityInfo = await getUserCityProgressInfo(userId);
+    const problemRecord = await prisma.problem.findUnique({ where: { id: normalizedProblemId }, select: { topicId: true } });
+    const levelIndex = problemRecord ? cityInfo.levels.findIndex(l => l.id === problemRecord.topicId) : -1;
+    const isLevelCompleted = levelIndex !== -1 ? cityInfo.levels[levelIndex].isCompleted : false;
+
+    res.json({
+      ...progress,
+      levelCleared: isLevelCompleted,
+      newFloorCount: cityInfo.floors,
+      currentUnlockedLevel: cityInfo.currentUnlockedLevelId
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });
@@ -4374,68 +4470,8 @@ app.get(
 // === CITY PROGRESS ROUTE ===
 app.get("/api/city/progress", requireAuth, async (req: Request, res: Response) => {
   try {
-    const userId = req.user!.id;
-    const topics = await prisma.topic.findMany({
-      include: {
-        problems: {
-          include: {
-            progress: {
-              where: { userId },
-            },
-          },
-        },
-      },
-      orderBy: { orderIndex: "asc" },
-    });
-
-    let floors = 0;
-    const levels = topics.map((topic) => {
-      let easySolved = 0;
-      let mediumSolved = 0;
-      let hardSolved = 0;
-
-      let easyTotal = 0;
-      let mediumTotal = 0;
-      let hardTotal = 0;
-
-      topic.problems.forEach(p => {
-        const isDone = p.progress[0]?.status === "DONE";
-        if (p.difficulty === "EASY") {
-          easyTotal++;
-          if (isDone) easySolved++;
-        }
-        if (p.difficulty === "MEDIUM") {
-          mediumTotal++;
-          if (isDone) mediumSolved++;
-        }
-        if (p.difficulty === "HARD") {
-          hardTotal++;
-          if (isDone) hardSolved++;
-        }
-      });
-
-      // Based on user requirements: 2 easy, 2 medium, 1 hard per level
-      const isCompleted = easySolved >= 2 && mediumSolved >= 2 && hardSolved >= 1;
-      if (isCompleted) {
-        floors++;
-      }
-
-      return {
-        id: topic.id,
-        name: topic.name,
-        isCompleted,
-        progress: {
-          easy: { solved: easySolved, required: 2, total: easyTotal },
-          medium: { solved: mediumSolved, required: 2, total: mediumTotal },
-          hard: { solved: hardSolved, required: 1, total: hardTotal }
-        }
-      };
-    });
-
-    res.json({
-      floors,
-      levels
-    });
+    const cityInfo = await getUserCityProgressInfo(req.user!.id);
+    res.json(cityInfo);
   } catch (error) {
     console.error("Failed to get city progress:", error);
     res.status(500).json({ error: "Internal server error" });

@@ -183,7 +183,18 @@ function TopicAccordion({
     );
 
     try {
-      await dsaApi.updateProgress(problemId, newStatus as any, 0);
+      const response = await dsaApi.updateProgress(problemId, newStatus as any, 0);
+      
+      if (response.levelCleared) {
+        // Emit an event that the 3D building component can subscribe to
+        const event = new CustomEvent("levelCleared", {
+          detail: {
+            newFloorCount: response.newFloorCount,
+            currentUnlockedLevel: response.currentUnlockedLevel,
+          },
+        });
+        window.dispatchEvent(event);
+      }
     } catch (err) {
       console.error("Failed to update progress:", err);
       // Revert on error

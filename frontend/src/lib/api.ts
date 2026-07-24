@@ -405,7 +405,7 @@ export const dsaApi = {
     problemId: string,
     status: "TODO" | "DOING" | "DONE",
     timeSpent: number,
-  ) => {
+  ): Promise<Record<string, unknown> & { levelCleared?: boolean; newFloorCount?: number; currentUnlockedLevel?: string | null }> => {
     const res = await api.post("/progress", { problemId, status, timeSpent });
     return res.data;
   },
