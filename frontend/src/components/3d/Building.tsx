@@ -313,11 +313,10 @@ export const Building: React.FC<BuildingProps> = ({
       }}
       onClick={handleClick}
     >
-      {/* Selection Laser Beam from Sky */}
+      {/* Selection Highlight Ring */}
       {isSelected && (
-        <group position={[0, 20, 0]}>
-          <mesh geometry={laserBeamGeo} material={materials.laserBeam} />
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -19.9, 0]} geometry={ringGeo} material={materials.glowRing} />
+        <group position={[0, totalHeight + 0.6, 0]}>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} geometry={ringGeo} material={materials.glowRing} />
         </group>
       )}
 

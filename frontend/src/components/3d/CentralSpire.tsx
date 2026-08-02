@@ -128,12 +128,12 @@ export const CentralSpire: React.FC<CentralSpireProps> = ({
       </group>
 
       {/* Upward Energy Laser Beam */}
-      <mesh ref={beamRef} position={[0, 25, 0]}>
-        <cylinderGeometry args={[0.3, 0.9, 35, 16]} />
+      <mesh ref={beamRef} position={[0, 10.5, 0]}>
+        <cylinderGeometry args={[0.08, 0.25, 5, 16]} />
         <meshBasicMaterial
           color={colors.beam}
           transparent
-          opacity={0.4}
+          opacity={0.35}
           side={THREE.DoubleSide}
           blending={THREE.AdditiveBlending}
         />
