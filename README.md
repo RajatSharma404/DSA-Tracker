@@ -7,9 +7,9 @@
   <h1 align="center">🚀 DSA Tracker Mastery System - "Project Ascend"</h1>
 
   <p align="center">
-    A comprehensive, full-stack learning platform engineered for serious Data Structures and Algorithms mastery.
+    A comprehensive, full-stack precision learning platform engineered for serious Data Structures and Algorithms mastery.
     <br />
-    <strong>Structured Roadmap • Theory-First Learning • Spaced Repetition • AI Guidance • Code Vault</strong>
+    <strong>3D City Visualization • Interactive Curriculum Roadmap • Spaced Repetition • AI Guidance • Code Vault</strong>
     <br />
     <br />
     <a href="#quick-start-5-minutes">Quick Start</a>
@@ -17,13 +17,15 @@
     <a href="#architecture-overview">View Architecture</a>
     ·
     <a href="#features-at-a-glance">Explore Features</a>
+    ·
+    <a href="#deployment">Render Deployment</a>
   </p>
 </div>
 
 <details>
   <summary>Table of Contents</summary>
   <ol>
-      <li><a href="#detailed-documentation">Detailed Documentation</a></li>
+    <li><a href="#detailed-documentation">Detailed Documentation</a></li>
     <li><a href="#about-the-project">About The Project</a></li>
     <li><a href="#whats-new-in-project-ascend">What's New in Project Ascend</a></li>
     <li><a href="#features-at-a-glance">Features at a Glance</a></li>
@@ -35,347 +37,259 @@
     <li><a href="#core-scripts">Core Scripts</a></li>
     <li><a href="#browser-extension-integration">Browser Extension Integration</a></li>
     <li><a href="#comprehensive-dsa-bootcamp-seeding">Bootcamp Seeding</a></li>
-    <li><a href="#deployment">Deployment</a></li>
+    <li><a href="#deployment">Deployment (Render & Linux VM)</a></li>
     <li><a href="#troubleshooting">Troubleshooting</a></li>
     <li><a href="#contributing">Contributing</a></li>
   </ol>
 </details>
 
+---
+
 ## Detailed Documentation
 
-Comprehensive multi-page documentation now lives in the `docs/` folder.
+Comprehensive multi-page documentation lives in the `docs/` folder:
 
-- Docs index: [docs/README.md](docs/README.md)
-- First-time setup: [docs/getting-started.md](docs/getting-started.md)
-- Product and user guides: [docs/product-overview.md](docs/product-overview.md), [docs/user-guide.md](docs/user-guide.md)
-- System and operations: [docs/architecture.md](docs/architecture.md), [docs/developer-operations.md](docs/developer-operations.md)
-- References: [docs/reference/environment-variables.md](docs/reference/environment-variables.md), [docs/reference/api-reference.md](docs/reference/api-reference.md), [docs/reference/data-model.md](docs/reference/data-model.md)
-- Troubleshooting: [docs/troubleshooting.md](docs/troubleshooting.md)
+- **Docs Index:** [docs/README.md](docs/README.md)
+- **First-time Setup:** [docs/getting-started.md](docs/getting-started.md)
+- **Product & User Guides:** [docs/product-overview.md](docs/product-overview.md), [docs/user-guide.md](docs/user-guide.md)
+- **System & Operations:** [docs/architecture.md](docs/architecture.md), [docs/developer-operations.md](docs/developer-operations.md)
+- **References:** [docs/reference/environment-variables.md](docs/reference/environment-variables.md), [docs/reference/api-reference.md](docs/reference/api-reference.md), [docs/reference/data-model.md](docs/reference/data-model.md)
+- **Troubleshooting:** [docs/troubleshooting.md](docs/troubleshooting.md)
+
+---
 
 ## About The Project
 
-DSA Tracker is not just a list of problems. It is a full-fledged, precision learning system designed to shift the focus from merely "solving problems" to achieving true technical mastery.
+**DSA Tracker** is not just a list of problems. It is a full-fledged, precision learning system designed to shift the focus from merely "solving problems" to achieving true technical mastery.
 
-By combining algorithmic pattern tracking, global error journaling, automated spaced repetition, and an immersive challenge arena, it provides a unified hub for comprehensive interview preparation. Whether you are learning complexity analysis for the first time or grinding advanced graph algorithms, this platform manages the cognitive load of what to study, when to review, and how to improve.
+By combining algorithmic pattern tracking, global error journaling, automated spaced repetition (SM-2 algorithm), an interactive 3D City learning environment, and a ReactFlow graph visualizer, it provides a unified hub for comprehensive technical interview preparation. Whether you are learning complexity analysis for the first time or grinding advanced graph algorithms, this platform manages what to study, when to review, and how to improve.
 
 ---
 
 ## What's New in "Project Ascend" 🚀
 
-The platform recently underwent a massive structural and UX overhaul known as **Project Ascend**, which dramatically elevated the application to an enterprise-grade standard:
+The platform recently underwent a massive structural and UX overhaul known as **Project Ascend**, which elevated the application to an enterprise-grade standard:
 
-- **Bento Grid UI & Fluid Motion:** The entire frontend has been restructured into a highly responsive, glassmorphic "Bento Grid" layout. Combined with `framer-motion` staggered entry animations and `Inter` typography, the application now feels premium, tactile, and incredibly fluid.
-- **Global Command Palette:** Hit `Cmd+K` (or `Ctrl+K`) anywhere in the app to open an ultra-fast, MacOS-style command palette to instantly jump between the Dashboard, Topics, Vault, and Settings.
-- **The "Code Vault":** A brand new feature that tracks your `SolutionHistory`. Easily view your past code submissions alongside performance badges (Time/Space Complexity, "Optimal" indicators) and syntax-highlighted code blocks.
-- **Bootcamp-Grade Educational Content:** The platform now ships with 20 massive, heavily-detailed DSA theory modules (ranging from Arrays to Advanced Graphs). Each module features rich ASCII diagrams, step-by-step dry runs, complexity matrices, and classic problem blueprints.
-- **DSA City Level Workspaces:** Each Solve action now opens an in-app floor workspace with theory and five required questions, instead of redirecting out to a separate route.
+- 🏙️ **3D City Visualization & Campus Workspace:** An immersive Three.js & React Three Fiber environment (`CityScene`, `Building`, `CentralSpire`) that renders interactive 3D floors representing DSA topics. Features dynamic lighting, level progression locks, ambient sound engine (`cityAudio.ts`), interactive Leaderboard modal, and User Inspector modal.
+- 🗺️ **Interactive Curriculum Graph ("Roadmap Visualizer"):** Built with `ReactFlow` and `Dagre` graph layouting algorithms (`RoadmapGraph.tsx`), allowing users to visually explore DAG connections between topics and problems. Features status filters (`ALL`, `TODO`, `DOING`, `DONE`, `DUE`), difficulty filters (`EASY`, `MEDIUM`, `HARD`), expandable topic nodes, and graceful error resilience.
+- 🍱 **Bento Grid UI & Fluid Motion:** The entire frontend is structured into a glassmorphic Bento Grid layout with `framer-motion` staggered entry animations and Google `Inter` typography.
+- ⌨️ **Global Command Palette (`Cmd+K` / `Ctrl+K`):** Fast MacOS-style command palette (`cmdk`) to instantly navigate between Dashboard, Topics, Interactive Curriculum, Code Vault, and Settings.
+- 🔒 **The "Code Vault":** Centralized tracking for `SolutionHistory`. View past code submissions alongside performance badges (Time/Space Complexity, "Optimal" indicators) and syntax-highlighted Monaco editor blocks with optional Vim keybindings.
+- 📚 **Bootcamp-Grade Educational Content:** Pre-loaded with 20 comprehensive DSA theory modules (Arrays to Advanced Graphs). Each module features rich ASCII diagrams, step-by-step dry runs, complexity matrices, and classic problem blueprints.
 
 ---
 
 ## Features at a Glance
 
 ### 🎯 Core Learning & Mastery
+- **Interactive Curriculum Roadmap:** Visual DAG graph (`RoadmapGraph`) powered by ReactFlow and Dagre auto-layouting for visual tracking of topics and dependencies.
+- **Theory-First Learning Tracks:** Structured modules, lessons, and interactive blocks that teach the *why* before the *how* (includes C++ DSA Bootcamp).
+- **Spaced Repetition Review Engine:** SM-2 based review algorithm calculating easiness factors and next review dates, ensuring timely concept review.
+- **The Vault (Global Error Journaling):** Centralized knowledge base for logging "Gotchas," critical learning moments, complexity badges, and historical code submissions.
 
-- **Theory-First Learning Tracks:** Structured modules, lessons, and interactive blocks that teach the _why_ before the _how_. Includes a built-in comprehensive C++ DSA Bootcamp.
-- **Spaced Repetition Review Flow:** An intelligent review engine that calculates easiness factors and next review dates, ensuring you revisit concepts precisely when you're about to forget them.
-- **The Vault (Global Error Journaling):** A centralized knowledge base for logging "Gotchas," critical learning moments, and your historically submitted code, complete with complexity badges and syntax highlighting.
+### 🏙️ 3D City & Gamified Progression
+- **Interactive 3D Campus:** Real-time Three.js rendering of DSA topic buildings, floor completions, and progress spires (`CentralSpire`).
+- **City Leaderboard & User Inspection:** Compare floor completion metrics with peers and inspect detailed user statistics via modal drawers.
+- **Spatial Audio Feedback:** Built-in ambient audio system (`cityAudio.ts`) providing auditory feedback during floor progression.
 
-### ⚔️ The Arena & Interview Prep
+### ⚔️ Arena & Interview Prep
+- **Challenge Arena:** A dedicated, distraction-free environment for timed, competitive problem-solving with automated tracking.
+- **Mock Interview Simulations:** Track performance in simulated technical interviews, log interview scores, and manage detailed interviewer feedback.
 
-- **Challenge Arena:** A dedicated, distraction-free environment for timed, competitive problem-solving. Features dynamic problem layouts and automated tracking of challenge sessions.
-- **Mock Interview Simulations:** Track your performance in simulated interviews, log scores, and manage detailed feedback to pinpoint areas for growth.
-
-### 📊 Insights & Organization
-
-- **Advanced Analytics & Weekly Reports:** Track your current and longest streaks, visualize weak topics, and receive actionable insights to guide your daily plan.
-- **Recommendations Engine:** Get tailored suggestions for the next best problem to solve based on your performance, weak spots, and spaced repetition queue.
-- **Deep Problem Organization:** Utilize bookmarks, custom colored tags, and a powerful search engine to organize thousands of problems effortlessly.
-
-### 🤖 AI Integration & Tooling
-
-- **AI-Assisted Guidance:** Integrated AI tools that act as a tutor—providing hints, conducting code reviews, and executing trace-style walkthroughs without giving away the answer.
-- **LeetCode Browser Extension:** A companion extension that seamlessly syncs your LeetCode problem solving, runtime/memory stats, and session cookies directly to your DSA Tracker instance.
+### 📊 Analytics & Tooling
+- **Advanced Analytics & Reports:** Visualize topic mastery, current/longest streaks, and actionable daily recommendations.
+- **LeetCode Browser Extension:** Seamless Chrome/Edge extension sync for automatic problem-solving logs, runtime/memory stats, and session cookie validation.
+- **AI Tutor Guidance:** Integrated AI hints, code reviews, and step-by-step execution walkthroughs without revealing direct answers.
 
 ---
 
 ## Tech Stack
 
 ### Frontend
-
-- **Framework:** Next.js 16.1 (App Router)
+- **Framework:** Next.js 16.1 (App Router, Turbopack)
 - **Library:** React 19
 - **Styling:** Tailwind CSS 4 (with `@tailwindcss/typography`), Framer Motion
-- **Fonts:** Inter (Google Fonts)
-- **Auth:** NextAuth.js
-- **State & Fetching:** Axios, React hooks
-- **UI Components:** Monaco Editor (with Vim bindings), `cmdk` command palette, ReactFlow, Recharts, React-Markdown
+- **3D Graphics:** Three.js, `@react-three/fiber`, `@react-three/drei`
+- **Graph & Diagrams:** ReactFlow, Dagre, Recharts
+- **Editor & UI:** Monaco Editor (with Vim mode support), `cmdk` Command Palette, Lucide React Icons
+- **Auth:** NextAuth.js (Prisma adapter)
+- **HTTP Client:** Axios with authentication interceptors and automatic retry logic
 
 ### Backend
+- **Server Framework:** Express 5
+- **Language:** TypeScript 5
+- **Database ORM:** Prisma 5
+- **Database Engine:** PostgreSQL (Docker optimized locally, managed cloud in production)
+- **Security:** JWT token verification, CORS origin whitelist, Argon2/bcrypt password hashing
 
-- **Server:** Express 5
-- **Language:** TypeScript
-- **ORM:** Prisma 5
-- **Database:** PostgreSQL (Docker optimized)
-- **Security:** JWT-based utilities, CORS policies
-
-### Tooling & Infrastructure
-
-- **Containerization:** Docker Compose
-- **Package Management:** npm workspaces
-- **Deployment:** PM2 / systemd / Render-ready
+### Infrastructure & Deployment
+- **Containerization:** Docker & Docker Compose
+- **Monorepo Management:** npm workspaces
+- **Cloud Deployment:** Render (Web Services + PostgreSQL database), PM2 / systemd / Nginx for Linux VMs
 
 ---
 
 ## Quick Start (5 Minutes)
 
-If you want to run the app locally as fast as possible, follow this checklist:
+To run the full stack locally:
 
 1. **Clone the repository:**
-
    ```bash
    git clone https://github.com/RajatSharma404/DSA-Tracker.git
    cd DSA-Tracker
    ```
 
-2. **Start PostgreSQL:**
-
+2. **Start PostgreSQL Container:**
    ```bash
    docker compose up -d
    ```
 
-3. **Initialize the Backend:**
-
+3. **Configure & Initialize Backend:**
    ```bash
    cd backend
    npm install
-   npx prisma db push
-   npx prisma db seed
    ```
-
-   _Create `backend/.env`:_
-
+   *Create `backend/.env`:*
    ```env
    PORT=3001
    NODE_ENV=development
    DATABASE_URL="postgresql://postgres:password@localhost:5432/dsatracker?schema=public"
    NEXTAUTH_SECRET="replace-with-a-long-random-secret"
+   CORS_ORIGINS="http://localhost:3000"
+   ```
+   Push schema and seed initial topics:
+   ```bash
+   npx prisma db push
+   npx prisma db seed
    ```
 
-4. **Initialize the Frontend:**
-
+4. **Configure & Initialize Frontend:**
    ```bash
    cd ../frontend
    npm install
-   npx prisma db push
    ```
-
-   _Create `frontend/.env.local`:_
-
+   *Create `frontend/.env.local`:*
    ```env
    DATABASE_URL="postgresql://postgres:password@localhost:5432/dsatracker?schema=public"
    NEXTAUTH_URL="http://localhost:3000"
    NEXTAUTH_SECRET="replace-with-the-same-secret-as-backend"
    ```
+   Push frontend schema:
+   ```bash
+   npx prisma db push
+   ```
 
-5. **Run the Full Stack:**
-
+5. **Run Full Stack:**
    ```bash
    cd ..
-   npm install
    npm run dev
    ```
 
-6. **Access the App:**
-   - Frontend Dashboard: `http://localhost:3000`
-   - Backend Health Check: `http://localhost:3001/health`
+6. **Access App:**
+   - Frontend Web App: `http://localhost:3000`
+   - Backend API Health: `http://localhost:3001/health`
 
 ---
 
 ## Architecture Overview
 
-The repository is structured as a monorepo containing three core layers:
+The repository is structured as a monorepo containing three primary layers:
 
-1. **Frontend (`/frontend`)**
-   Next.js App Router application handling UI presentation, client state management, authentication flows, and API proxy rewriting.
-2. **Backend (`/backend`)**
-   Express API server handling heavy business logic, Prisma data access, progress calculation, spaced repetition algorithms, AI interaction, and extension sync. Includes a modular `backend/content/` system for seeding the theory database.
-3. **Database**
-   PostgreSQL instance, run locally via Docker and managed via cloud providers in production.
+```
+DSA-Tracker/
+├── frontend/             # Next.js 16 (App Router, Three.js, ReactFlow, Monaco Editor)
+├── backend/              # Express 5 + TypeScript + Prisma ORM
+│   ├── index.ts          # REST Endpoints & Authentication Middleware
+│   ├── content/          # Seeding Data & Comprehensive DSA Bootcamp Content
+│   └── prisma/           # Database Schemas & Migrations
+├── extension/            # Chrome/Edge Extension for LeetCode Synchronization
+├── docs/                 # Multi-page Documentation Suite
+└── docker-compose.yml    # Local PostgreSQL Container Configuration
+```
 
 ### Request Flow
-
-1. The user's browser interacts with Next.js routes.
-2. The frontend calls `/api/*`.
-3. A Next.js rewrite securely forwards non-auth `/api/*` requests to the backend server.
-4. NextAuth routes (`/api/auth/*`) are handled securely by the frontend.
-5. The backend executes business logic and updates PostgreSQL via Prisma.
-
----
-
-## Local Development Setup (Detailed)
-
-### 1) Prerequisites
-
-- Node.js 20+
-- npm 10+
-- Docker Desktop (or Engine)
-- Git
-
-### 2) Database Setup
-
-Start the local PostgreSQL container using the default settings (`postgres:password`, port 5432):
-
-```bash
-docker compose up -d
-```
-
-### 3) Backend Setup
-
-Navigate to the backend folder and install dependencies:
-
-```bash
-cd backend
-npm install
-```
-
-Create an extensive `backend/.env` file:
-
-```env
-NODE_ENV=development
-PORT=3001
-DATABASE_URL="postgresql://postgres:password@localhost:5432/dsatracker?schema=public"
-NEXTAUTH_SECRET="your-secure-random-secret"
-AUTH_SECRET="your-secure-random-secret"
-ADMIN_EMAIL="you@example.com"
-CORS_ORIGINS="http://localhost:3000"
-ALLOW_INSECURE_CREDENTIALS_LOGIN="false"
-```
-
-Push the schema and seed initial topic data:
-
-```bash
-npx prisma db push
-npx prisma db seed
-```
-
-### 4) Frontend Setup
-
-Navigate to the frontend folder and install dependencies:
-
-```bash
-cd ../frontend
-npm install
-```
-
-Create `frontend/.env.local`:
-
-```env
-DATABASE_URL="postgresql://postgres:password@localhost:5432/dsatracker?schema=public"
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="your-secure-random-secret" # MUST match backend
-```
-
-Apply the frontend schema:
-
-```bash
-npx prisma db push
-```
-
-### 5) Run Both Servers
-
-From the repository root:
-
-```bash
-npm run dev
-```
-
-This concurrently starts the Next.js dev server on `3000` and the Express API on `3001`.
+1. User interacts with Next.js page components.
+2. Next.js API rewrites forward client requests (`/api/*`) securely to the Express backend.
+3. NextAuth handle authentication (`/api/auth/*`) on the frontend server.
+4. Express backend executes business logic, spaced repetition math, and queries PostgreSQL via Prisma ORM.
 
 ---
 
 ## Environment Variable Reference
 
-### Backend Variables
+### Backend (`backend/.env`)
 
-| Variable          | Required | Purpose                                      |
-| ----------------- | -------- | -------------------------------------------- |
-| `NODE_ENV`        | Yes      | Runtime mode (`development`/`production`)    |
-| `PORT`            | Yes      | Backend listening port (default: 3001)       |
-| `DATABASE_URL`    | Yes      | Prisma connection string                     |
-| `NEXTAUTH_SECRET` | Yes      | Shared JWT verification secret               |
-| `ADMIN_EMAIL`     | No       | Email address granted automatic admin rights |
-| `CORS_ORIGINS`    | No       | Comma-separated allowed origins              |
+| Variable | Required | Default | Purpose |
+| :--- | :---: | :---: | :--- |
+| `NODE_ENV` | **Yes** | `development` | Runtime environment mode |
+| `PORT` | **Yes** | `3001` | Backend HTTP listening port |
+| `DATABASE_URL` | **Yes** | — | PostgreSQL connection string |
+| `NEXTAUTH_SECRET` | **Yes** | — | Shared JWT verification secret |
+| `ADMIN_EMAIL` | No | — | Email automatically assigned admin privileges |
+| `CORS_ORIGINS` | No | `http://localhost:3000` | Comma-separated CORS allowed origins |
 
-### Frontend Variables
+### Frontend (`frontend/.env.local` or Render Environment)
 
-| Variable          | Required | Purpose                                                   |
-| ----------------- | -------- | --------------------------------------------------------- |
-| `DATABASE_URL`    | Yes      | NextAuth Prisma adapter connection                        |
-| `NEXTAUTH_URL`    | Yes      | Public frontend base URL                                  |
-| `NEXTAUTH_SECRET` | Yes      | Shared JWT verification secret                            |
-| `BACKEND_URL`     | Prod     | Target for frontend API proxy (e.g., your Render API URL) |
+| Variable | Required | Default | Purpose |
+| :--- | :---: | :---: | :--- |
+| `DATABASE_URL` | **Yes** | — | NextAuth database connection string |
+| `NEXTAUTH_URL` | **Yes** | `http://localhost:3000` | Canonical public URL of frontend deployment |
+| `NEXTAUTH_SECRET` | **Yes** | — | Must match `NEXTAUTH_SECRET` in backend |
+| `BACKEND_URL` | **Production** | — | Target URL of deployed backend (e.g. `https://dsa-backend.onrender.com`) |
 
 ---
 
 ## Core Scripts
 
 **Root Level**
+- `npm run dev`: Concurrently launches frontend and backend development servers.
+- `npm run build`: Compiles both backend (TypeScript) and frontend (Next.js production bundle).
+- `npm run start`: Runs production servers for both apps concurrently.
 
-- `npm run dev`: Concurrently runs frontend and backend in development mode.
-- `npm run build`: Compiles both projects.
-- `npm run start`: Starts both projects in production mode.
+**Backend Level** (`cd backend`)
+- `npm run dev`: Starts server using `ts-node`.
+- `npm run build`: Compiles TypeScript to `dist/` and runs `prisma generate`.
+- `npm run start`: Starts production Node server (`node dist/index.js`).
 
-**Backend Level**
-
-- `npm run dev`: Runs the `ts-node-dev` server.
-- `npm run build`: Compiles TypeScript and generates Prisma client.
-
-**Frontend Level**
-
-- `npm run dev`: Runs Next.js development server.
-- `npm run build`: Builds the production Next.js bundle.
+**Frontend Level** (`cd frontend`)
+- `npm run dev`: Starts Next.js development server on port 3000.
+- `npm run build`: Builds production Next.js application bundle.
 
 ---
 
 ## Browser Extension Integration
 
-The project includes a custom Chrome/Edge browser extension (`/extension`) that synchronizes your LeetCode progress directly with your DSA Tracker instance.
+The project includes a custom Chrome/Edge browser extension (`/extension`) to synchronize LeetCode progress directly into your DSA Tracker instance.
 
-### Installation
-
-1. Open `chrome://extensions` or `edge://extensions`.
+### Setup Instructions
+1. Open `chrome://extensions` (or `edge://extensions`) in your browser.
 2. Enable **Developer Mode**.
 3. Click **Load unpacked** and select the `/extension` directory.
 
-### LeetCode Sync Workflow
-
-1. Log into LeetCode.
-2. Copy your `LEETCODE_SESSION` cookie from browser dev tools.
-3. Paste it into the DSA Tracker **Settings** page.
-4. Solve a problem in the Tracker Editor.
-5. The backend routes the submission to LeetCode, polls for the verdict, and logs the execution time, memory usage, and success status directly to your progress tracker.
+### Sync Workflow
+1. Sign in to LeetCode in your browser.
+2. Copy your `LEETCODE_SESSION` cookie value from dev tools (`F12 -> Application -> Cookies`).
+3. Paste the token into **DSA Tracker Settings**.
+4. Solve a problem in the Tracker workspace; execution runtime, memory footprint, and success status sync automatically.
 
 ---
 
 ## Comprehensive DSA Bootcamp Seeding
 
-The application ships with a massive, pre-configured algorithmic bootcamp containing theory, modules, and lessons. This content was overhauled in **Project Ascend** to include highly detailed explanations, C++ implementations, diagrams, and classic interview problem patterns.
+The application includes a pre-configured algorithmic bootcamp containing theory, modules, and lessons.
 
-**Bootcamp Contents:**
-
+**Bootcamp Specs:**
 - 1 Theory Track: "Complete DSA Bootcamp (C++)"
-- 20 Modules (ranging from Arrays and Strings to Dynamic Programming and Advanced Graphs)
-- 20 Lessons & 40 Interactive Content Blocks
+- 20 Detailed Modules (Arrays, Strings, Two Pointers, Linked Lists, Trees, Graphs, DP, etc.)
+- 20 Lessons & 40 Interactive Content Blocks with ASCII diagrams and step-by-step dry runs.
 
-**To generate the Bootcamp:**
-You can either run the seed script directly from the backend directory:
-
+**To Run Seeding:**
 ```bash
+cd backend
 npx ts-node seedComprehensiveDSA.ts
 ```
 
-_Or_, make an authenticated POST request as an Admin to the live server:
-
+Or trigger as an authenticated Admin:
 ```bash
 curl -X POST http://localhost:3001/api/admin/learn/seed-comprehensive \
   -H "Authorization: Bearer <ADMIN_JWT_TOKEN>" \
@@ -386,51 +300,72 @@ curl -X POST http://localhost:3001/api/admin/learn/seed-comprehensive \
 
 ## Deployment
 
-### Render Deployment
+### Render Deployment (Recommended)
 
-1.  **Backend Web Service:**
-    - Root: `backend`
-    - Command: `npm install && npm run build && npm start`
-    - Env Vars: `DATABASE_URL`, `NODE_ENV=production`, `NEXTAUTH_SECRET`
-2.  **Frontend Web Service:**
-    - Root: `frontend`
-    - Command: `npm install && npm run build && npm start`
-    - Env Vars: `DATABASE_URL`, `NEXTAUTH_URL`, `NEXTAUTH_SECRET`, `BACKEND_URL`
+DSA Tracker is designed for seamless deployment on [Render](https://render.com).
+
+#### 1. PostgreSQL Database
+- Create a **PostgreSQL Database** instance on Render.
+- Copy the **Internal Database URL** (or External URL for external access).
+
+#### 2. Backend Web Service
+- **Root Directory:** `backend`
+- **Build Command:** `npm install && npm run build`
+- **Start Command:** `npm start`
+- **Environment Variables:**
+  - `NODE_ENV`: `production`
+  - `PORT`: `10000` (Render default port)
+  - `DATABASE_URL`: `<Render PostgreSQL Connection String>`
+  - `NEXTAUTH_SECRET`: `<Long Random Secret String>`
+  - `CORS_ORIGINS`: `https://<your-frontend-app>.onrender.com`
+
+#### 3. Frontend Web Service
+- **Root Directory:** `frontend`
+- **Build Command:** `npm install && npm run build`
+- **Start Command:** `npm start`
+- **Environment Variables:**
+  - `NODE_ENV`: `production`
+  - `DATABASE_URL`: `<Render PostgreSQL Connection String>`
+  - `NEXTAUTH_URL`: `https://<your-frontend-app>.onrender.com`
+  - `NEXTAUTH_SECRET`: `<Same Secret as Backend>`
+  - `BACKEND_URL`: `https://<your-backend-app>.onrender.com`
+
+---
 
 ### Linux VM Deployment (PM2 + Nginx)
 
-1.  Clone repo to server and install dependencies.
-2.  Build projects: `npm run build`
-3.  Start with PM2:
-    ```bash
-    npm install -g pm2
-    pm2 start ecosystem.config.js
-    pm2 save
-    ```
-4.  Configure Nginx to reverse proxy port `80/443` to `3000` (Frontend) and `3001` (Backend API).
-5.  Secure with Certbot SSL.
+1. Clone repo to server and install Node.js 20+.
+2. Install PM2: `npm install -g pm2`
+3. Build both applications: `npm run build`
+4. Start via PM2 ecosystem configuration:
+   ```bash
+   pm2 start ecosystem.config.js
+   pm2 save
+   ```
+5. Configure Nginx reverse proxy to forward traffic on port `80/443` to port `3000` (Frontend) and `3001` (Backend).
 
 ---
 
 ## Troubleshooting
 
-- **Prisma Engine Lock (Windows EPERM):** If `npm run build` fails on Windows, a background node process is locking Prisma. Kill all node instances, delete `backend/node_modules/.prisma`, and retry.
-- **Next.js Dev Lock:** Delete `frontend/.next/dev/lock` if the frontend refuses to boot.
-- **Stale Production API Calls:** Ensure your frontend `BACKEND_URL` environment variable is pointing to the correct deployed backend URL. If not set, Next.js rewrite rules will fail.
-- **LeetCode Extension Fails:** Refresh your `LEETCODE_SESSION` cookie in settings, ensure you are logged into LeetCode on the same profile, and reload the extension.
+- **Roadmap visualizer missing data:** Ensure backend route returns topic problems cleanly. Check browser dev console for Axios authorization errors.
+- **Prisma Engine Lock (EPERM on Windows):** If `npm run build` fails on Windows due to file locks, kill background node processes (`taskkill /F /IM node.exe`) and retry.
+- **Stale Production API Calls:** Verify frontend `BACKEND_URL` environment variable points to your live backend endpoint.
+- **LeetCode Extension Sync Issue:** Refresh `LEETCODE_SESSION` in user settings and reload unpacked extension.
 
 ---
 
 ## Contributing
 
-Contributions make the open-source community an amazing place to learn and create.
+Contributions are welcome! Please follow these guidelines:
 
-1. Clone the project and pull the latest changes from `main`.
-2. Create a Feature Branch (`git checkout -b feat/AmazingFeature`).
-3. Commit your Changes using standard prefixes (`feat:`, `fix:`, `refactor:`, `docs:`).
-4. Verify the frontend and backend boot cleanly locally.
-5. Push to the Branch (`git push origin feat/AmazingFeature`).
-6. Open a Pull Request with detailed testing instructions.
+1. Clone repository and create a feature branch (`git checkout -b feat/YourFeature`).
+2. Follow strict TypeScript and React standards.
+3. Commit using descriptive standard prefixes (`feat:`, `fix:`, `docs:`, `refactor:`).
+4. Verify local frontend and backend builds pass cleanly (`npm run build`).
+5. Open a Pull Request with detailed testing notes.
+
+---
 
 ## License
 

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useCallback, useMemo, useEffect, useState } from "react";
 import ReactFlow, {
@@ -232,7 +232,10 @@ export default function RoadmapGraph() {
       const topics = await dsaApi.getTopics();
       console.log("Fetched topics:", topics);
       const allTopicProblemsPromises = topics.map((topic) =>
-        dsaApi.getTopicProblems(topic.id),
+        dsaApi.getTopicProblems(topic.id).catch((err) => {
+          console.warn(`Failed to fetch problems for topic ${topic.id}:`, err);
+          return [] as Problem[];
+        }),
       );
       const problemsSets = await Promise.all(allTopicProblemsPromises);
       const topicProblemMap: Record<string, Problem[]> = {};

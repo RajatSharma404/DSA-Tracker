@@ -494,15 +494,6 @@ app.get(
       const topicId = req.params.topicId as string;
       const userId = req.user!.id;
 
-      const cityInfo = await getUserCityProgressInfo(userId);
-      const levelIndex = cityInfo.levels.findIndex((l) => l.id === topicId);
-      if (levelIndex > 0) {
-        const prevLevel = cityInfo.levels[levelIndex - 1];
-        if (!prevLevel.isCompleted) {
-          return res.status(403).json({ error: "Level is locked. Complete the previous floor to unlock this level." });
-        }
-      }
-
       const problems = await prisma.problem.findMany({
         where: { topicId },
         include: {
