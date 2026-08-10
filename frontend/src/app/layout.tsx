@@ -1,15 +1,32 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Outfit, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import NextAuthProvider from "@/components/providers/NextAuthProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-display",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  title: "DSA Tracker Pro",
-  description: "Track your Data Structures and Algorithms progress like a pro.",
+  title: "DSA Tracker Pro - Precision Technical Interview System",
+  description: "Comprehensive Data Structures & Algorithms mastery platform featuring 3D visual campus, SM-2 spaced repetition, and AI guidance.",
   icons: {
     icon: "/logo.svg",
     shortcut: "/logo.svg",
@@ -23,13 +40,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`dark ${inter.variable}`} data-scroll-behavior="smooth">
-      <body className="antialiased font-sans bg-[#0a0a0a] text-gray-100 flex h-screen overflow-hidden">
+    <html
+      lang="en"
+      className={`${outfit.variable} ${jetbrainsMono.variable} ${spaceGrotesk.variable}`}
+      data-scroll-behavior="smooth"
+      data-theme="oled"
+    >
+      <body className="antialiased font-sans flex h-screen overflow-hidden">
         <ErrorBoundary>
-          <NextAuthProvider>
-            <ToastProvider />
-            {children}
-          </NextAuthProvider>
+          <ThemeProvider>
+            <NextAuthProvider>
+              <ToastProvider />
+              {children}
+            </NextAuthProvider>
+          </ThemeProvider>
         </ErrorBoundary>
       </body>
     </html>

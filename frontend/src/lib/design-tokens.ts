@@ -1,35 +1,37 @@
 /**
  * Design Tokens System
- * Single source of truth for all UI design values
+ * Single source of truth for UI design values with CSS variable theme integration
  */
 
 export const DESIGN_TOKENS = {
-  // Color palette
+  // Color palette (mapped to dynamic theme variables)
   colors: {
     background: {
-      primary: "#0a0a0a",
-      secondary: "#0d0d0d",
-      tertiary: "#111111",
-      hover: "#1a1a1a",
-      active: "#222222",
+      primary: "var(--bg-primary)",
+      secondary: "var(--bg-secondary)",
+      tertiary: "var(--bg-tertiary)",
+      card: "var(--bg-card)",
+      hover: "var(--bg-hover)",
+      active: "var(--bg-active)",
     },
     border: {
-      subtle: "border-white/5",
-      medium: "border-white/10",
-      strong: "border-white/20",
+      subtle: "border-[var(--border-subtle)]",
+      medium: "border-[var(--border-medium)]",
+      strong: "border-[var(--border-strong)]",
+      glow: "border-[var(--border-glow)]",
     },
     text: {
-      primary: "text-white",
-      secondary: "text-gray-300",
-      muted: "text-gray-500",
-      disabled: "text-gray-600",
+      primary: "text-[var(--text-primary)]",
+      secondary: "text-[var(--text-secondary)]",
+      muted: "text-[var(--text-muted)]",
+      accent: "text-[var(--accent-primary)]",
     },
     status: {
       success: {
-        bg: "bg-green-500/10",
-        border: "border-green-500/30",
-        text: "text-green-400",
-        icon: "text-green-400",
+        bg: "bg-emerald-500/10",
+        border: "border-emerald-500/30",
+        text: "text-emerald-400",
+        icon: "text-emerald-400",
       },
       warning: {
         bg: "bg-amber-500/10",
@@ -38,28 +40,28 @@ export const DESIGN_TOKENS = {
         icon: "text-amber-400",
       },
       error: {
-        bg: "bg-red-500/10",
-        border: "border-red-500/30",
-        text: "text-red-400",
-        icon: "text-red-400",
+        bg: "bg-rose-500/10",
+        border: "border-rose-500/30",
+        text: "text-rose-400",
+        icon: "text-rose-400",
       },
       info: {
-        bg: "bg-blue-500/10",
-        border: "border-blue-500/30",
-        text: "text-blue-400",
-        icon: "text-blue-400",
+        bg: "bg-sky-500/10",
+        border: "border-sky-500/30",
+        text: "text-sky-400",
+        icon: "text-sky-400",
       },
       optimal: {
-        bg: "bg-green-500/10",
-        border: "border-green-500/30",
-        text: "text-green-400",
-        icon: "text-green-400",
+        bg: "bg-emerald-500/10",
+        border: "border-emerald-500/30",
+        text: "text-emerald-400",
+        icon: "text-emerald-400",
       },
       good: {
-        bg: "bg-blue-500/10",
-        border: "border-blue-500/30",
-        text: "text-blue-400",
-        icon: "text-blue-400",
+        bg: "bg-sky-500/10",
+        border: "border-sky-500/30",
+        text: "text-sky-400",
+        icon: "text-sky-400",
       },
       needsWork: {
         bg: "bg-amber-500/10",
@@ -84,14 +86,14 @@ export const DESIGN_TOKENS = {
     sm: "rounded-lg",
     md: "rounded-xl",
     lg: "rounded-2xl",
-    xl: "rounded-4xl",
+    xl: "rounded-3xl",
   },
 
   // Transitions
   transitions: {
-    fast: "transition-all duration-150",
-    normal: "transition-all duration-300",
-    slow: "transition-all duration-500",
+    fast: "transition-all duration-150 ease-out",
+    normal: "transition-all duration-250 ease-in-out",
+    slow: "transition-all duration-500 ease-in-out",
   },
 
   // Shadows
@@ -140,27 +142,27 @@ export function getStatusStyle(
 export function getDifficultyStyle(difficulty: "EASY" | "MEDIUM" | "HARD") {
   if (difficulty === "EASY") {
     return {
-      text: "text-green-400",
-      bg: "bg-green-500/10",
-      border: "border-green-500/20",
+      text: "text-emerald-400",
+      bg: "bg-emerald-500/10",
+      border: "border-emerald-500/20",
     };
   }
   if (difficulty === "MEDIUM") {
     return {
-      text: "text-yellow-400",
-      bg: "bg-yellow-500/10",
-      border: "border-yellow-500/20",
+      text: "text-amber-400",
+      bg: "bg-amber-500/10",
+      border: "border-amber-500/20",
     };
   }
   return {
-    text: "text-red-400",
-    bg: "bg-red-500/10",
-    border: "border-red-500/20",
+    text: "text-rose-400",
+    bg: "bg-rose-500/10",
+    border: "border-rose-500/20",
   };
 }
 
 /**
- * Card base styles - use for all card/container elements
+ * Card base styles - dynamic theme responsive
  */
 export const cardStyles = {
   base: cn(
@@ -168,14 +170,14 @@ export const cardStyles = {
     DESIGN_TOKENS.colors.border.subtle,
     DESIGN_TOKENS.radius.lg,
     DESIGN_TOKENS.spacing.md,
-    "bg-[#0a0a0f]",
+    "bg-[var(--bg-card)] text-[var(--text-primary)]",
   ),
   interactive: cn(
     "border",
     DESIGN_TOKENS.colors.border.subtle,
     DESIGN_TOKENS.radius.lg,
     DESIGN_TOKENS.spacing.md,
-    "bg-[#0a0a0f] hover:bg-[#111] cursor-pointer",
+    "bg-[var(--bg-card)] text-[var(--text-primary)] hover:bg-[var(--bg-hover)] hover:border-[var(--border-medium)] cursor-pointer",
     DESIGN_TOKENS.transitions.normal,
   ),
   elevated: cn(
@@ -183,25 +185,25 @@ export const cardStyles = {
     DESIGN_TOKENS.colors.border.medium,
     DESIGN_TOKENS.radius.lg,
     DESIGN_TOKENS.spacing.lg,
-    "bg-[#0d0d0d] shadow-lg",
+    "bg-[var(--bg-secondary)] text-[var(--text-primary)] shadow-xl",
   ),
 } as const;
 
 /**
- * Button base styles
+ * Button base styles - dynamic theme responsive
  */
 export const buttonStyles = {
   primary: cn(
     "px-4 py-2",
     DESIGN_TOKENS.radius.md,
-    "bg-blue-600 hover:bg-blue-700 text-white font-medium",
+    "bg-[var(--accent-primary)] hover:opacity-90 text-[var(--bg-primary)] font-semibold shadow-md",
     DESIGN_TOKENS.transitions.fast,
     "disabled:opacity-50 disabled:cursor-not-allowed",
   ),
   secondary: cn(
     "px-4 py-2",
     DESIGN_TOKENS.radius.md,
-    "bg-white/5 hover:bg-white/10 text-gray-300 font-medium",
+    "bg-[var(--bg-tertiary)] hover:bg-[var(--bg-hover)] text-[var(--text-primary)] font-medium",
     DESIGN_TOKENS.transitions.fast,
     "border",
     DESIGN_TOKENS.colors.border.medium,
@@ -210,7 +212,7 @@ export const buttonStyles = {
   ghost: cn(
     "px-4 py-2",
     DESIGN_TOKENS.radius.md,
-    "hover:bg-white/5 text-gray-300 font-medium",
+    "hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-medium",
     DESIGN_TOKENS.transitions.fast,
     "disabled:opacity-50 disabled:cursor-not-allowed",
   ),
@@ -225,14 +227,14 @@ export const skeletonStyles = {
     DESIGN_TOKENS.radius.lg,
     "border",
     DESIGN_TOKENS.colors.border.subtle,
-    "bg-white/3",
+    "bg-[var(--bg-tertiary)]/50",
   ),
   card: cn(
     "animate-pulse",
     DESIGN_TOKENS.radius.lg,
     "border",
     DESIGN_TOKENS.colors.border.subtle,
-    "bg-white/3 min-h-[200px]",
+    "bg-[var(--bg-tertiary)]/50 min-h-[200px]",
   ),
-  small: cn("animate-pulse", DESIGN_TOKENS.radius.md, "bg-white/3 h-8"),
+  small: cn("animate-pulse", DESIGN_TOKENS.radius.md, "bg-[var(--bg-tertiary)]/50 h-8"),
 } as const;

@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { dsaApi } from "@/lib/api";
+import { ThemeSelector } from "@/components/ui/ThemeSelector";
+import { Palette, Key, Type, Sparkles, CheckCircle2 } from "lucide-react";
 
 export default function SettingsPage() {
   const { data: session } = useSession();
@@ -40,71 +42,148 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Settings</h1>
+    <div className="max-w-5xl mx-auto p-6 space-y-8">
+      <div>
+        <h1 className="text-3xl font-display font-bold text-[var(--text-primary)] mb-2 flex items-center gap-3">
+          <Sparkles className="w-7 h-7 text-[var(--accent-primary)]" />
+          Settings & Customization
+        </h1>
+        <p className="text-sm text-[var(--text-muted)]">
+          Customize your interface visual theme, typography system, and external service integrations.
+        </p>
+      </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-        <h2 className="text-xl font-semibold mb-4">LeetCode Integration</h2>
+      {/* Theme & Visual Appearance Section */}
+      <div className="p-6 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] shadow-xl space-y-6">
+        <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]">
+              <Palette className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-[var(--text-primary)]">
+                Appearance & Theme Engine
+              </h2>
+              <p className="text-xs text-[var(--text-muted)]">
+                Select your preferred color theme. Changes apply dynamically across the entire application.
+              </p>
+            </div>
+          </div>
+        </div>
 
-        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded">
-          <h3 className="font-semibold mb-2">
+        <ThemeSelector variant="grid" />
+
+        {/* Typography Preview */}
+        <div className="pt-4 border-t border-[var(--border-subtle)] space-y-3">
+          <div className="flex items-center gap-2 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
+            <Type className="w-4 h-4 text-[var(--accent-primary)]" />
+            Typography System
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="p-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)]">
+              <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">
+                UI Primary Font (Outfit)
+              </div>
+              <div className="text-sm font-sans font-medium text-[var(--text-primary)]">
+                The quick brown fox jumps over the lazy dog.
+              </div>
+            </div>
+            <div className="p-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)]">
+              <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">
+                Code & Editor Font (JetBrains Mono)
+              </div>
+              <div className="text-xs font-mono text-[var(--accent-primary)]">
+                function solve(nums) &#123; return nums.sort(); &#125;
+              </div>
+            </div>
+            <div className="p-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)]">
+              <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">
+                Display Headings (Space Grotesk)
+              </div>
+              <div className="text-base font-display font-bold text-[var(--text-primary)]">
+                Algorithm Mastery 2.0
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* LeetCode Integration Section */}
+      <div className="p-6 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] shadow-xl space-y-6">
+        <div className="flex items-center gap-3 border-b border-[var(--border-subtle)] pb-4">
+          <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-400">
+            <Key className="w-5 h-5" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-[var(--text-primary)]">
+              LeetCode Integration
+            </h2>
+            <p className="text-xs text-[var(--text-muted)]">
+              Sync your real-time submission progress and runtime metrics automatically.
+            </p>
+          </div>
+        </div>
+
+        <div className="p-4 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)] space-y-2">
+          <h3 className="font-semibold text-[var(--text-primary)] flex items-center gap-1.5">
+            <CheckCircle2 className="w-4 h-4 text-[var(--accent-primary)]" />
             How to get your LeetCode Session Cookie:
           </h3>
-          <ol className="list-decimal list-inside space-y-1 text-sm">
+          <ol className="list-decimal list-inside space-y-1 text-[var(--text-muted)]">
             <li>
               Go to{" "}
               <a
                 href="https://leetcode.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 hover:underline"
+                className="text-[var(--accent-primary)] underline hover:opacity-80"
               >
                 LeetCode.com
               </a>{" "}
-              and log in
+              and sign in to your account
             </li>
-            <li>Open Developer Tools (F12)</li>
+            <li>Press F12 to open Chrome Developer Tools</li>
             <li>
-              Go to <strong>Application</strong> tab → <strong>Cookies</strong>{" "}
-              → <strong>https://leetcode.com</strong>
+              Navigate to <strong>Application</strong> tab → <strong>Cookies</strong> → <strong>https://leetcode.com</strong>
             </li>
             <li>
-              Find the cookie named <strong>LEETCODE_SESSION</strong>
+              Locate the cookie named <strong>LEETCODE_SESSION</strong> and copy its value
             </li>
-            <li>Copy its value and paste it below</li>
           </ol>
         </div>
 
-        <div className="mb-4">
+        <div className="space-y-2">
           <label
             htmlFor="leetcodeSession"
-            className="block text-sm font-medium mb-2"
+            className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider"
           >
             LeetCode Session Cookie
           </label>
           <input
             id="leetcodeSession"
-            type="text"
+            type="password"
             value={leetcodeSession}
             onChange={(e) => setLeetcodeSession(e.target.value)}
             placeholder="Paste your LEETCODE_SESSION cookie value here"
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 dark:bg-gray-700"
+            className="w-full px-4 py-2.5 text-xs font-mono border border-[var(--border-medium)] rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)] transition-all"
           />
         </div>
 
-        <button
-          onClick={handleSave}
-          disabled={loading || !leetcodeSession}
-          className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? "Saving..." : "Save Settings"}
-        </button>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={handleSave}
+            disabled={loading || !leetcodeSession}
+            className="px-6 py-2.5 text-xs font-semibold rounded-xl bg-[var(--accent-primary)] text-[var(--bg-primary)] hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-md"
+          >
+            {loading ? "Saving..." : "Save Session Cookie"}
+          </button>
 
-        {message && (
-          <div className="mt-4 p-3 rounded bg-gray-100 dark:bg-gray-700">
-            {message}
-          </div>
-        )}
+          {message && (
+            <span className="text-xs font-medium text-[var(--text-secondary)] animate-in fade-in">
+              {message}
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );

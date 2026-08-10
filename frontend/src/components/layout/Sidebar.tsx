@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
+import { ThemeSelector } from "@/components/ui/ThemeSelector";
 
 type NavItem = {
   icon: LucideIcon;
@@ -98,25 +99,28 @@ export function Sidebar() {
 
   return (
     <div
-      className={`flex flex-col h-screen bg-[#111111] text-gray-400 border-r border-[#222] transition-all duration-300 ${
+      className={`flex flex-col h-screen bg-[var(--bg-card)] text-[var(--text-muted)] border-r border-[var(--border-subtle)] transition-all duration-300 ${
         effectiveCollapsed ? "w-16" : "w-64"
       }`}
       role="navigation"
       aria-label="Main navigation"
     >
-      <div className="flex items-center justify-between p-4 border-b border-[#222]">
+      <div className="flex items-center justify-between p-4 border-b border-[var(--border-subtle)]">
         {!effectiveCollapsed && (
-          <span className="text-white font-bold text-lg">DSA Pro</span>
+          <span className="text-[var(--text-primary)] font-display font-bold text-lg tracking-wide flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent-primary)] shadow-[0_0_8px_var(--accent-glow)]" />
+            DSA Pro
+          </span>
         )}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="p-1 rounded hover:bg-[#222] text-gray-400 hover:text-white transition-colors ml-auto"
+          className="p-1.5 rounded-lg hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors ml-auto cursor-pointer"
           aria-label={
             effectiveCollapsed ? "Expand navigation" : "Collapse navigation"
           }
           aria-expanded={!effectiveCollapsed}
         >
-          <Menu size={20} />
+          <Menu size={18} />
         </button>
       </div>
 
@@ -131,7 +135,7 @@ export function Sidebar() {
         {displaySections.map((section) => (
           <div key={section.title} className="mb-2 sm:mb-3">
             {!effectiveCollapsed && (
-              <p className="hidden md:block px-4 mb-1 text-[9px] font-black uppercase tracking-widest text-gray-600 line-clamp-1">
+              <p className="hidden md:block px-4 mb-1 text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] opacity-70 line-clamp-1">
                 {section.title}
               </p>
             )}
@@ -144,17 +148,21 @@ export function Sidebar() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`flex items-center px-3 sm:px-4 py-2.5 sm:py-3 cursor-pointer transition-colors text-[14px] sm:text-base ${
+                    className={`flex items-center px-3 sm:px-4 py-2.5 sm:py-3 cursor-pointer transition-all text-[14px] sm:text-base font-medium ${
                       isActive
-                        ? "bg-[#222] text-white border-r-2 border-white"
-                        : "hover:bg-[#1a1a1a] hover:text-gray-200"
+                        ? "bg-[var(--bg-hover)] text-[var(--text-primary)] border-r-2 border-[var(--accent-primary)] shadow-sm font-semibold"
+                        : "hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                     }`}
                     aria-current={isActive ? "page" : undefined}
                     title={effectiveCollapsed ? item.label : undefined}
                   >
                     <item.icon
                       size={18}
-                      className={`sm:w-5 sm:h-5 shrink-0 ${isActive ? "text-white" : ""}`}
+                      className={`sm:w-5 sm:h-5 shrink-0 ${
+                        isActive
+                          ? "text-[var(--accent-primary)]"
+                          : "text-[var(--text-muted)]"
+                      }`}
                     />
                     {!effectiveCollapsed && (
                       <span className="ml-2 sm:ml-3 font-medium truncate">
@@ -169,28 +177,34 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="p-4 border-t border-[#222]">
+      <div className="p-3 border-t border-[var(--border-subtle)] space-y-3 bg-[var(--bg-secondary)]">
+        {!effectiveCollapsed && (
+          <div className="px-1">
+            <ThemeSelector variant="dropdown" />
+          </div>
+        )}
+
         {session?.user && !effectiveCollapsed && (
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-3 pt-1">
             {session.user.image ? (
               <div
-                className="w-8 h-8 rounded-full bg-cover bg-center"
+                className="w-8 h-8 rounded-full bg-cover bg-center border border-[var(--border-medium)]"
                 style={{ backgroundImage: `url(${session.user.image})` }}
                 aria-label={`${session.user.name}'s profile picture`}
               />
             ) : (
               <div
-                className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-white text-xs"
+                className="w-8 h-8 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border-medium)] flex items-center justify-center text-[var(--text-primary)] text-xs font-bold"
                 aria-label="Profile initials"
               >
                 {session.user.name?.charAt(0) || "U"}
               </div>
             )}
             <div className="flex flex-col overflow-hidden">
-              <span className="text-sm font-medium text-white truncate">
+              <span className="text-xs font-semibold text-[var(--text-primary)] truncate">
                 {session.user.name}
               </span>
-              <span className="text-xs text-gray-500 truncate">
+              <span className="text-[10px] text-[var(--text-muted)] truncate">
                 {session.user.email}
               </span>
             </div>
@@ -199,11 +213,13 @@ export function Sidebar() {
 
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
-          className={`flex items-center w-full px-2 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-[#222] rounded-lg transition-colors ${effectiveCollapsed ? "justify-center" : ""}`}
+          className={`flex items-center w-full px-2.5 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] rounded-lg transition-colors cursor-pointer ${
+            effectiveCollapsed ? "justify-center" : ""
+          }`}
           aria-label="Sign out"
         >
-          <LogOut size={20} />
-          {!effectiveCollapsed && <span className="ml-3">Sign Out</span>}
+          <LogOut size={16} />
+          {!effectiveCollapsed && <span className="ml-2.5">Sign Out</span>}
         </button>
       </div>
     </div>
