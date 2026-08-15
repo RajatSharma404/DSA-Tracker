@@ -18,7 +18,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-screen w-full min-w-0 overflow-hidden bg-black">
+    <div className="flex h-screen w-full min-w-0 overflow-hidden bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors duration-250">
       <Sidebar />
       <main
         className="flex-1 overflow-y-auto overflow-x-hidden w-full min-w-0 p-4 sm:p-6 lg:p-8"

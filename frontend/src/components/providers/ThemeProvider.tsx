@@ -94,17 +94,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) as ThemeMode;
-      if (
-        savedTheme &&
-        THEME_OPTIONS.some((option) => option.id === savedTheme)
-      ) {
-        setThemeState(savedTheme);
-        document.documentElement.setAttribute("data-theme", savedTheme);
-      } else {
-        document.documentElement.setAttribute("data-theme", "oled");
-      }
+      const activeTheme =
+        savedTheme && THEME_OPTIONS.some((option) => option.id === savedTheme)
+          ? savedTheme
+          : "oled";
+      setThemeState(activeTheme);
+      document.documentElement.setAttribute("data-theme", activeTheme);
+      document.body.setAttribute("data-theme", activeTheme);
     } catch {
       document.documentElement.setAttribute("data-theme", "oled");
+      document.body.setAttribute("data-theme", "oled");
     }
     setMounted(true);
   }, []);
@@ -117,6 +116,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       console.warn("Could not save theme to localStorage", e);
     }
     document.documentElement.setAttribute("data-theme", newTheme);
+    document.body.setAttribute("data-theme", newTheme);
   };
 
   const currentThemeOption =

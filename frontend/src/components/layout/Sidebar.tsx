@@ -109,16 +109,16 @@ export function Sidebar() {
 
   return (
     <div
-      className={`flex flex-col h-screen bg-[#0a0a0c] text-gray-400 border-r border-white/5 transition-all duration-300 ${
+      className={`flex flex-col h-screen bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-r border-[var(--border-subtle)] transition-all duration-300 ${
         effectiveCollapsed ? "w-16" : "w-64"
       }`}
       role="navigation"
       aria-label="Main navigation"
     >
-      <div className="flex items-center justify-between p-4 border-b border-white/5">
+      <div className="flex items-center justify-between p-4 border-b border-[var(--border-subtle)]">
         {!effectiveCollapsed && (
-          <span className="text-white font-bold text-lg tracking-wide flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
+          <span className="text-[var(--text-primary)] font-bold text-lg tracking-wide flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent-primary)] shadow-[0_0_8px_var(--accent-glow)]" />
             DSA Pro
           </span>
         )}
@@ -186,7 +186,7 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="p-3 border-t border-white/5 space-y-3 bg-[#08080a]">
+      <div className="p-3 border-t border-[var(--border-subtle)] space-y-3 bg-[var(--bg-tertiary)]">
         {!effectiveCollapsed && (
           <div className="px-1">
             <ThemeSelector variant="dropdown" />
