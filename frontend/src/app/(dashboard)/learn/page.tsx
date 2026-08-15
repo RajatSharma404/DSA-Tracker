@@ -141,7 +141,7 @@ export default function LearnPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto mt-4 w-full max-w-7xl space-y-6 animate-pulse">
+      <div className="w-full min-w-0 space-y-6 animate-pulse">
         <div className="h-14 w-80 rounded-2xl bg-white/8" />
         <div className="h-52 rounded-4xl bg-white/6" />
         <div className="space-y-4">
@@ -154,7 +154,7 @@ export default function LearnPage() {
   }
 
   return (
-    <div className="mx-auto mt-4 w-full max-w-7xl space-y-8">
+    <div className="w-full min-w-0 space-y-8">
       <section className="relative overflow-hidden rounded-4xl border border-white/10 bg-[#0b0b0b] p-8 shadow-2xl shadow-cyan-950/20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(34,211,238,0.15),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(16,185,129,0.10),transparent_30%)]" />
         <div className="relative grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">

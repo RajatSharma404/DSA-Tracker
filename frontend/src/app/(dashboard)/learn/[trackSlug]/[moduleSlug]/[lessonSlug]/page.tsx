@@ -149,7 +149,7 @@ export default function LearnLessonPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto mt-4 grid max-w-7xl gap-6 lg:grid-cols-[minmax(0,1fr)_360px] animate-pulse">
+      <div className="w-full min-w-0 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_420px] animate-pulse">
         <section className="space-y-5">
           <div className="rounded-3xl border border-white/10 bg-[#0d0d0d] p-6 space-y-4">
             <div className="h-3 w-44 rounded-full bg-white/5" />
@@ -185,14 +185,14 @@ export default function LearnLessonPage() {
 
   if (!data || error) {
     return (
-      <div className="mx-auto mt-10 max-w-3xl rounded-2xl border border-red-500/20 bg-red-500/5 p-6 text-red-300">
+      <div className="w-full mt-10 rounded-2xl border border-red-500/20 bg-red-500/5 p-6 text-red-300">
         {error || "Lesson not found"}
       </div>
     );
   }
 
   return (
-    <div className="mx-auto mt-4 grid max-w-7xl gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+    <div className="w-full min-w-0 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_420px]">
       <section className="space-y-5">
         <div className="rounded-3xl border border-white/10 bg-[#0d0d0d] p-6">
           <p className="text-xs uppercase tracking-[0.2em] text-gray-500">

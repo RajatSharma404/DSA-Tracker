@@ -59,7 +59,7 @@ export default function LearnTrackPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto mt-4 max-w-7xl space-y-6 animate-pulse">
+      <div className="w-full min-w-0 space-y-6 animate-pulse">
         <div className="h-12 w-80 rounded-2xl bg-white/8" />
         <div className="h-56 rounded-4xl bg-white/6" />
         <div className="grid gap-4 lg:grid-cols-2">
@@ -72,14 +72,14 @@ export default function LearnTrackPage() {
 
   if (error || !track) {
     return (
-      <div className="mx-auto mt-10 max-w-3xl rounded-2xl border border-red-500/20 bg-red-500/5 p-6 text-red-300">
+      <div className="w-full mt-10 rounded-2xl border border-red-500/20 bg-red-500/5 p-6 text-red-300">
         {error || "Track not found"}
       </div>
     );
   }
 
   return (
-    <div className="mx-auto mt-4 max-w-7xl space-y-8">
+    <div className="w-full min-w-0 space-y-8">
       <section className="relative overflow-hidden rounded-4xl border border-white/10 bg-[#0b0b0b] p-8 shadow-2xl shadow-cyan-950/20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(34,211,238,0.15),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(16,185,129,0.10),transparent_30%)]" />
         <div className="relative grid gap-8 lg:grid-cols-[1fr_320px]">
