@@ -56,7 +56,10 @@ export default function SearchPage() {
   const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
-    dsaApi.getTopics().then(setTopics);
+    dsaApi
+      .getTopics()
+      .then(setTopics)
+      .catch(() => setTopics([]));
     dsaApi
       .getTags()
       .then(setTags)

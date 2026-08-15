@@ -98,8 +98,8 @@ function getMultiTierLayout(
 
   dagreGraph.setGraph({
     rankdir: direction,
-    ranksep: isHorizontal ? 100 : 70,
-    nodesep: isHorizontal ? 35 : 45,
+    ranksep: isHorizontal ? 95 : 70,
+    nodesep: isHorizontal ? 16 : 28,
     marginx: 40,
     marginy: 40,
   });
@@ -108,7 +108,7 @@ function getMultiTierLayout(
     const isTopic = node.type === "topicNode";
     dagreGraph.setNode(node.id, {
       width: isTopic ? 290 : 230,
-      height: isTopic ? 160 : 65,
+      height: isTopic ? 160 : 46,
     });
   });
 
@@ -122,7 +122,7 @@ function getMultiTierLayout(
     const nodeWithPos = dagreGraph.node(node.id);
     const isTopic = node.type === "topicNode";
     const nodeWidth = isTopic ? 290 : 230;
-    const nodeHeight = isTopic ? 160 : 65;
+    const nodeHeight = isTopic ? 160 : 46;
 
     return {
       ...node,
@@ -221,7 +221,7 @@ function InnerRoadmapGraph() {
     [difficultyFilter, statusFilter],
   );
 
-  // Construct Multi-Tier Graph Elements with Expandable Questions
+  // Construct Multi-Tier Graph Elements with All Questions & Curved Bezier Edges
   const graphElements = useMemo(() => {
     if (!topicsData || topicsData.length === 0) return { nodes: [], edges: [] };
 
@@ -268,15 +268,18 @@ function InnerRoadmapGraph() {
         position: { x: 0, y: 0 },
       });
 
-      // If expanded, generate problem nodes (performant batch of 8 + More pill)
+      // If expanded, generate ALL matching question nodes with curved bezier edges
       if (isExpanded) {
         const allProblems = problemsByTopic[topic.id] || [];
         const matchingProblems = allProblems.filter(filterProblem);
-        const MAX_ON_CANVAS = 8;
-        const visibleSlice = matchingProblems.slice(0, MAX_ON_CANVAS);
-        const remainingCount = matchingProblems.length - visibleSlice.length;
 
-        visibleSlice.forEach((prob) => {
+        matchingProblems.forEach((prob) => {
+          const isDone = prob.status === "DONE";
+          const isDue =
+            isDone &&
+            !!prob.nextReviewDate &&
+            new Date(prob.nextReviewDate) <= new Date();
+
           initialNodes.push({
             id: `prob-${topic.id}-${prob.id}`,
             type: "problemNode",
@@ -291,62 +294,32 @@ function InnerRoadmapGraph() {
             position: { x: 0, y: 0 },
           });
 
+          // Curved Bezier Edge
           initialEdges.push({
             id: `edge-prob-${topic.id}-${prob.id}`,
             source: `topic-${topic.id}`,
             target: `prob-${topic.id}-${prob.id}`,
-            type: "smoothstep",
+            type: "default", // Smooth cubic bezier curve
             style: {
-              stroke: prob.status === "DONE" ? "#10b981" : "rgba(56, 189, 248, 0.45)",
-              strokeWidth: 1.5,
-              strokeDasharray: prob.status === "DONE" ? "0" : "3 3",
+              stroke: isDue
+                ? "#f59e0b"
+                : isDone
+                  ? "#10b981"
+                  : "rgba(56, 189, 248, 0.4)",
+              strokeWidth: isDone ? 1.8 : 1.2,
             },
             markerEnd: {
               type: MarkerType.ArrowClosed,
-              color: prob.status === "DONE" ? "#10b981" : "#38bdf8",
+              color: isDue ? "#f59e0b" : isDone ? "#10b981" : "#38bdf8",
               width: 12,
               height: 12,
             },
           });
         });
-
-        // Add "+N More in Matrix" node if more exist
-        if (remainingCount > 0) {
-          const moreNodeId = `more-${topic.id}`;
-          initialNodes.push({
-            id: moreNodeId,
-            type: "problemNode",
-            data: {
-              label: `+${remainingCount} More Problems`,
-              isMoreNode: true,
-              moreCount: remainingCount,
-              onOpenDrawer: () => setSelectedTopicId(topic.id),
-            },
-            position: { x: 0, y: 0 },
-          });
-
-          initialEdges.push({
-            id: `edge-more-${topic.id}`,
-            source: `topic-${topic.id}`,
-            target: moreNodeId,
-            type: "smoothstep",
-            style: {
-              stroke: "rgba(6, 182, 212, 0.5)",
-              strokeWidth: 1.5,
-              strokeDasharray: "4 4",
-            },
-            markerEnd: {
-              type: MarkerType.ArrowClosed,
-              color: "#06b6d4",
-              width: 12,
-              height: 12,
-            },
-          });
-        }
       }
     });
 
-    // Build intelligent inter-topic dependency edges across phases
+    // Build inter-topic dependency edges across phases
     const phaseOrder = ["phase-1", "phase-2", "phase-3", "phase-4"];
 
     phaseOrder.forEach((phaseId, phaseIdx) => {
@@ -364,10 +337,10 @@ function InnerRoadmapGraph() {
           id: `edge-intra-${from.id}-${to.id}`,
           source: `topic-${from.id}`,
           target: `topic-${to.id}`,
-          type: "smoothstep",
+          type: "default", // Smooth curved bezier
           animated: !isCompleted && from.progressPercentage > 0,
           style: {
-            stroke: isCompleted ? "#10b981" : "rgba(56, 189, 248, 0.4)",
+            stroke: isCompleted ? "#10b981" : "rgba(56, 189, 248, 0.45)",
             strokeWidth: 2,
           },
           markerEnd: {
@@ -391,7 +364,7 @@ function InnerRoadmapGraph() {
             id: `edge-bridge-${from.id}-${to.id}`,
             source: `topic-${from.id}`,
             target: `topic-${to.id}`,
-            type: "smoothstep",
+            type: "default", // Smooth curved bezier
             animated: true,
             style: {
               stroke: isCompleted ? "#10b981" : "#c084fc",
@@ -539,7 +512,7 @@ function InnerRoadmapGraph() {
               className="px-2.5 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider bg-purple-500/20 text-purple-300 hover:bg-purple-500/30 transition-all cursor-pointer flex items-center gap-1"
             >
               <ChevronDown size={12} />
-              Expand All
+              Expand All ({topicsData.reduce((acc, t) => acc + (problemsByTopic[t.id]?.length || 0), 0)}+)
             </button>
             <button
               onClick={collapseAllTopics}
@@ -579,18 +552,18 @@ function InnerRoadmapGraph() {
         </div>
       </div>
 
-      {/* ReactFlow Canvas */}
+      {/* ReactFlow Canvas with Curved Bezier Connections */}
       <ReactFlow
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         nodeTypes={nodeTypes}
-        connectionLineType={ConnectionLineType.SmoothStep}
+        connectionLineType={ConnectionLineType.Bezier}
         onlyRenderVisibleElements={true}
         fitView
         fitViewOptions={{ padding: 0.16, duration: 600 }}
-        minZoom={0.2}
+        minZoom={0.03}
         maxZoom={1.8}
         nodesDraggable={true}
         nodesConnectable={false}

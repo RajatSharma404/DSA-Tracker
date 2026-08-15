@@ -26,7 +26,6 @@ import {
   Send,
   Building2,
 } from "lucide-react";
-import { getDifficultyStyle } from "@/lib/design-tokens";
 import { toast } from "sonner";
 
 interface NextAction {

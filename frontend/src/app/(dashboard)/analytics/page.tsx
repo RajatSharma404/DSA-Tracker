@@ -232,7 +232,7 @@ export default function AnalyticsPage() {
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
           </div>
           <div className="mt-4 flex items-baseline gap-2">
-            <span className="text-3xl font-black text-emerald-400">{data.avgByDifficulty.EASY ? `${data.avgByDifficulty.EASY}m` : "—"}</span>
+            <span className="text-3xl font-black text-emerald-400">{data.avgByDifficulty?.EASY ? `${data.avgByDifficulty.EASY}m` : "—"}</span>
             <span className="text-xs text-gray-500 font-medium">Target: &lt;10m</span>
           </div>
         </div>
@@ -243,7 +243,7 @@ export default function AnalyticsPage() {
             <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
           </div>
           <div className="mt-4 flex items-baseline gap-2">
-            <span className="text-3xl font-black text-amber-400">{data.avgByDifficulty.MEDIUM ? `${data.avgByDifficulty.MEDIUM}m` : "—"}</span>
+            <span className="text-3xl font-black text-amber-400">{data.avgByDifficulty?.MEDIUM ? `${data.avgByDifficulty.MEDIUM}m` : "—"}</span>
             <span className="text-xs text-gray-500 font-medium">Target: &lt;22m</span>
           </div>
         </div>
@@ -339,7 +339,7 @@ export default function AnalyticsPage() {
           </div>
 
           <div className="space-y-3 max-h-[360px] overflow-y-auto pr-1">
-            {data.topicBreakdown.map((t, i) => (
+            {(data.topicBreakdown || []).map((t, i) => (
               <div key={i} className="p-3 rounded-2xl bg-white/5 border border-white/5 space-y-1.5">
                 <div className="flex justify-between items-center text-xs font-bold">
                   <span className="text-white truncate">{t.name}</span>

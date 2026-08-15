@@ -90,5 +90,15 @@ export declare const ALL_20_DSA_TOPICS: readonly [{
     readonly name: "Advanced Graphs";
     readonly shortDesc: "Shortest paths, MST, topo sort";
 }];
+export type TopicContent = {
+    title: string;
+    whatIsIt: string;
+    concept: string;
+    code: string;
+    dryRun: string;
+    complexity: string;
+    problems: string;
+    tricks: string;
+};
 export declare const generateTopicContent: (topicIdx: number) => string;
 //# sourceMappingURL=allTopicsTutoring.d.ts.map

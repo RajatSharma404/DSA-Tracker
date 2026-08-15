@@ -226,6 +226,69 @@ const requireAdmin = (req, res, next) => {
     }
     next();
 };
+async function getUserCityProgressInfo(userId) {
+    const topics = await prisma.topic.findMany({
+        include: {
+            problems: {
+                include: {
+                    progress: {
+                        where: { userId },
+                    },
+                },
+            },
+        },
+        orderBy: { orderIndex: "asc" },
+    });
+    let floors = 0;
+    const levels = topics.map((topic) => {
+        let easySolved = 0;
+        let mediumSolved = 0;
+        let hardSolved = 0;
+        let easyTotal = 0;
+        let mediumTotal = 0;
+        let hardTotal = 0;
+        topic.problems.forEach((p) => {
+            const isDone = p.progress[0]?.status === "DONE";
+            if (p.difficulty === "EASY") {
+                easyTotal++;
+                if (isDone)
+                    easySolved++;
+            }
+            if (p.difficulty === "MEDIUM") {
+                mediumTotal++;
+                if (isDone)
+                    mediumSolved++;
+            }
+            if (p.difficulty === "HARD") {
+                hardTotal++;
+                if (isDone)
+                    hardSolved++;
+            }
+        });
+        const isCompleted = easySolved >= 2 && mediumSolved >= 2 && hardSolved >= 1;
+        if (isCompleted) {
+            floors++;
+        }
+        return {
+            id: topic.id,
+            name: topic.name,
+            isCompleted,
+            progress: {
+                easy: { solved: easySolved, required: 2, total: easyTotal },
+                medium: { solved: mediumSolved, required: 2, total: mediumTotal },
+                hard: { solved: hardSolved, required: 1, total: hardTotal },
+            },
+        };
+    });
+    let currentUnlockedLevelId = null;
+    for (let i = 0; i < levels.length; i++) {
+        if (!levels[i].isCompleted) {
+            currentUnlockedLevelId = levels[i].id;
+            break;
+        }
+    }
+    return { floors, levels, currentUnlockedLevelId };
+}
 // 1. Get Dashboard Stats
 app.get("/api/dashboard", requireAuth, async (req, res) => {
     try {
@@ -337,6 +400,14 @@ app.get("/api/problems/:problemId", requireAuth, async (req, res) => {
         });
         if (!problem) {
             return res.status(404).json({ error: "Problem not found" });
+        }
+        const cityInfo = await getUserCityProgressInfo(userId);
+        const levelIndex = cityInfo.levels.findIndex((l) => l.id === problem.topicId);
+        if (levelIndex > 0) {
+            const prevLevel = cityInfo.levels[levelIndex - 1];
+            if (!prevLevel.isCompleted) {
+                return res.status(403).json({ error: "Level is locked. Complete the previous floor to unlock this level." });
+            }
         }
         const enrichedProblem = {
             ...problem,
@@ -1715,7 +1786,16 @@ app.post("/api/progress", requireAuth, async (req, res) => {
                 });
             }
         }
-        res.json(progress);
+        const cityInfo = await getUserCityProgressInfo(userId);
+        const problemRecord = await prisma.problem.findUnique({ where: { id: normalizedProblemId }, select: { topicId: true } });
+        const levelIndex = problemRecord ? cityInfo.levels.findIndex(l => l.id === problemRecord.topicId) : -1;
+        const isLevelCompleted = levelIndex !== -1 ? cityInfo.levels[levelIndex].isCompleted : false;
+        res.json({
+            ...progress,
+            levelCleared: isLevelCompleted,
+            newFloorCount: cityInfo.floors,
+            currentUnlockedLevel: cityInfo.currentUnlockedLevelId
+        });
     }
     catch (err) {
         console.error(err);
@@ -2066,13 +2146,30 @@ app.post("/api/user/sync-leetcode", requireAuth, async (req, res) => {
                     ],
                 },
             });
+            let existingProgress = null;
+            if (problem) {
+                existingProgress = await prisma.progress.findUnique({
+                    where: {
+                        userId_problemId: {
+                            userId,
+                            problemId: problem.id,
+                        },
+                    },
+                    select: {
+                        completedAt: true,
+                        status: true,
+                    },
+                });
+            }
             // Attempt to get runtime and memory details if user.leetcodeSession is set
             let runtimeOpt = null;
             let memoryOpt = null;
             let timestampOpt = typeof sub.timestamp === "number" && sub.timestamp > 0
                 ? sub.timestamp
                 : null;
-            if (syncSource === "session" && user.leetcodeSession) {
+            // Skip fetching detailed submissions from LeetCode if we already have it marked as DONE.
+            // This prevents 500 proxy timeouts when syncing hundreds of historical problems.
+            if (syncSource === "session" && user.leetcodeSession && existingProgress?.status !== "DONE") {
                 try {
                     const subs = await (0, leetcodeService_1.fetchProblemSubmissions)(slug, user.leetcodeSession);
                     const acceptedSubs = subs?.questionSubmissionList?.submissions?.filter((s) => s.statusDisplay === "Accepted") || [];
@@ -2095,17 +2192,6 @@ app.post("/api/user/sync-leetcode", requireAuth, async (req, res) => {
                 }
             }
             if (problem) {
-                const existingProgress = await prisma.progress.findUnique({
-                    where: {
-                        userId_problemId: {
-                            userId,
-                            problemId: problem.id,
-                        },
-                    },
-                    select: {
-                        completedAt: true,
-                    },
-                });
                 const completedAt = timestampOpt
                     ? new Date(timestampOpt * 1000)
                     : existingProgress?.completedAt || new Date();
@@ -2204,12 +2290,14 @@ app.patch("/api/user/leetcode-session", requireAuth, async (req, res) => {
         const normalizedSession = (fromNamedCookie || rawSessionInput)
             .trim()
             .replace(/^"|"$/g, "");
-        if (normalizedSession.length > 0 &&
-            (normalizedSession.length < 20)) {
-            return res.status(400).json({
-                error: "Invalid LeetCode session. Paste either the LEETCODE_SESSION value only, or a full cookie string containing LEETCODE_SESSION=...",
-            });
-        }
+        console.log("Raw Session Input:", rawSessionInput);
+        console.log("From Named Cookie:", fromNamedCookie);
+        console.log("Normalized Session:", normalizedSession);
+        console.log("Length:", normalizedSession.length);
+        console.log("Raw Session Input:", rawSessionInput);
+        console.log("From Named Cookie:", fromNamedCookie);
+        console.log("Normalized Session:", normalizedSession);
+        console.log("Length:", normalizedSession.length);
         await prisma.user.update({
             where: { id: userId },
             data: { leetcodeSession: normalizedSession },
@@ -2360,6 +2448,31 @@ app.get("/api/leetcode/problem/:titleSlug", requireAuth, async (req, res) => {
         res.status(500).json({ error: "Failed to fetch problem details" });
     }
 });
+// Get Solution History
+app.get("/api/user/solution-history", requireAuth, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const history = await prisma.solutionHistory.findMany({
+            where: { userId },
+            include: {
+                problem: {
+                    select: {
+                        title: true,
+                        topic: {
+                            select: { name: true }
+                        }
+                    }
+                }
+            },
+            orderBy: { createdAt: "desc" },
+        });
+        res.json(history);
+    }
+    catch (error) {
+        console.error("Get Solution History Error:", error);
+        res.status(500).json({ error: "Failed to load solution history" });
+    }
+});
 // === USER SETTINGS ===
 // Get User Settings
 app.get("/api/user/settings", requireAuth, async (req, res) => {
@@ -2406,11 +2519,11 @@ app.put("/api/user/settings/leetcode", requireAuth, async (req, res) => {
         const normalizedSession = (fromNamedCookie || rawSessionInput)
             .trim()
             .replace(/^"|"$/g, "");
-        if (normalizedSession.length < 20) {
-            return res.status(400).json({
-                error: "Invalid LeetCode session. Paste either the LEETCODE_SESSION value only, or a full cookie string containing LEETCODE_SESSION=...",
-            });
-        }
+        console.log("Settings - Raw Session Input:", rawSessionInput);
+        console.log("Settings - From Named Cookie:", fromNamedCookie);
+        console.log("Settings - Normalized Session:", normalizedSession);
+        console.log("Settings - Length:", normalizedSession.length);
+        // Length validation removed
         await prisma.user.update({
             where: { id: userId },
             data: { leetcodeSession: normalizedSession },
@@ -3392,6 +3505,114 @@ app.get("/api/analytics/productivity", requireAuth, async (req, res) => {
     catch (err) {
         console.error(err);
         res.status(500).json({ error: "Failed to get productivity analytics" });
+    }
+});
+// === CITY PROGRESS ROUTE ===
+app.get("/api/city/progress", requireAuth, async (req, res) => {
+    try {
+        const cityInfo = await getUserCityProgressInfo(req.user.id);
+        res.json(cityInfo);
+    }
+    catch (error) {
+        console.error("Failed to get city progress:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+// === NOTES ROUTES ===
+app.get("/api/notes/:problemId", requireAuth, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const problemId = req.params.problemId;
+        const notes = await prisma.problemNote.findMany({
+            where: { userId, problemId },
+            orderBy: { createdAt: "desc" }
+        });
+        res.json(notes);
+    }
+    catch (error) {
+        console.error("Failed to get notes:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+app.get("/api/notes", requireAuth, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const notes = await prisma.problemNote.findMany({
+            where: { userId },
+            include: { problem: true },
+            orderBy: { createdAt: "desc" }
+        });
+        res.json(notes);
+    }
+    catch (error) {
+        console.error("Failed to get all notes:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+app.post("/api/notes", requireAuth, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { problemId, content, type } = req.body;
+        if (!content)
+            return res.status(400).json({ error: "Content is required" });
+        const note = await prisma.problemNote.create({
+            data: {
+                userId,
+                problemId,
+                content,
+                type: type || "LEARNING"
+            }
+        });
+        res.json(note);
+    }
+    catch (error) {
+        console.error("Failed to create note:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+app.put("/api/notes/:noteId", requireAuth, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const noteId = req.params.noteId;
+        const { content, type } = req.body;
+        const existingNote = await prisma.problemNote.findUnique({
+            where: { id: noteId }
+        });
+        if (!existingNote || existingNote.userId !== userId) {
+            return res.status(404).json({ error: "Note not found" });
+        }
+        const updatedNote = await prisma.problemNote.update({
+            where: { id: noteId },
+            data: {
+                content: content !== undefined ? content : existingNote.content,
+                type: type !== undefined ? type : existingNote.type
+            }
+        });
+        res.json(updatedNote);
+    }
+    catch (error) {
+        console.error("Failed to update note:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+app.delete("/api/notes/:noteId", requireAuth, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const noteId = req.params.noteId;
+        const existingNote = await prisma.problemNote.findUnique({
+            where: { id: noteId }
+        });
+        if (!existingNote || existingNote.userId !== userId) {
+            return res.status(404).json({ error: "Note not found" });
+        }
+        await prisma.problemNote.delete({
+            where: { id: noteId }
+        });
+        res.json({ success: true });
+    }
+    catch (error) {
+        console.error("Failed to delete note:", error);
+        res.status(500).json({ error: "Internal server error" });
     }
 });
 // === SERVER START ===

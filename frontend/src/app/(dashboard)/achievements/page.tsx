@@ -83,9 +83,9 @@ export default function AchievementsPage() {
   }, []);
 
   // Gamified EXP & Level computation
-  const totalUnlocked = data?.stats.unlocked || 0;
-  const totalSolved = data?.stats.totalSolved || 0;
-  const totalBadgesCount = data?.stats.totalBadges || 1;
+  const totalUnlocked = data?.stats?.unlocked || 0;
+  const totalSolved = data?.stats?.totalSolved || 0;
+  const totalBadgesCount = data?.stats?.totalBadges || 1;
   const completionPct = Math.round((totalUnlocked / totalBadgesCount) * 100);
 
   const totalExp = useMemo(() => {
@@ -187,7 +187,7 @@ export default function AchievementsPage() {
             </div>
             <div className="p-4 rounded-3xl bg-black/50 border border-white/5 backdrop-blur-md text-center">
               <span className="text-[10px] uppercase font-bold text-gray-400">Streak</span>
-              <div className="text-2xl font-black text-orange-400 mt-1">{data.stats.currentStreak}d</div>
+              <div className="text-2xl font-black text-orange-400 mt-1">{data.stats?.currentStreak || 0}d</div>
             </div>
             <div className="p-4 rounded-3xl bg-black/50 border border-white/5 backdrop-blur-md text-center">
               <span className="text-[10px] uppercase font-bold text-gray-400">Mastery</span>

@@ -25,7 +25,6 @@ import {
   BarChart2,
 } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
-import { getDifficultyStyle } from "@/lib/design-tokens";
 import { toast } from "sonner";
 
 interface ReviewItem {

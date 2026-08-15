@@ -86,15 +86,6 @@ export default function WeeklyReportPage() {
       });
   }, []);
 
-  const handleCopyReport = () => {
-    if (!data) return;
-    const text = `📊 DSA Weekly Report (${startDate} - ${endDate})\n• Solved: ${data.thisWeek.solved} problems (${data.solvedChange >= 0 ? "+" : ""}${data.solvedChange} vs last week)\n• Time Invested: ${formatMinutes(data.thisWeek.timeMinutes)}\n• Current Streak: ${data.streak.current} days\n• Overall Progress: ${overallPct}% mastered\n#DSA #LeetCode #CodingPrep`;
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    toast.success("Weekly summary copied to clipboard!");
-    setTimeout(() => setCopied(false), 2500);
-  };
-
   if (loading) {
     return (
       <div className="w-full space-y-8 min-w-0 animate-pulse">
@@ -111,24 +102,38 @@ export default function WeeklyReportPage() {
 
   if (!data) return null;
 
-  const startDate = new Date(data.period.start).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
-  const endDate = new Date(data.period.end).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  const startDate = data.period?.start
+    ? new Date(data.period.start).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      })
+    : "This Week";
+
+  const endDate = data.period?.end
+    ? new Date(data.period.end).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
+    : "Today";
+
   const overallPct =
-    data.overall.totalProblems > 0
+    data.overall?.totalProblems > 0
       ? Math.round((data.overall.totalSolved / data.overall.totalProblems) * 100)
       : 0;
 
+  const handleCopyReport = () => {
+    const text = `📊 DSA Weekly Report (${startDate} - ${endDate})\n• Solved: ${data.thisWeek?.solved || 0} problems (${(data.solvedChange || 0) >= 0 ? "+" : ""}${data.solvedChange || 0} vs last week)\n• Time Invested: ${formatMinutes(data.thisWeek?.timeMinutes || 0)}\n• Current Streak: ${data.streak?.current || 0} days\n• Overall Progress: ${overallPct}% mastered\n#DSA #LeetCode #CodingPrep`;
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    toast.success("Weekly summary copied to clipboard!");
+    setTimeout(() => setCopied(false), 2500);
+  };
+
   const diffTotal =
-    data.thisWeek.diffBreakdown.EASY +
-    data.thisWeek.diffBreakdown.MEDIUM +
-    data.thisWeek.diffBreakdown.HARD || 1;
+    (data.thisWeek?.diffBreakdown?.EASY || 0) +
+    (data.thisWeek?.diffBreakdown?.MEDIUM || 0) +
+    (data.thisWeek?.diffBreakdown?.HARD || 0) || 1;
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 w-full min-w-0">
