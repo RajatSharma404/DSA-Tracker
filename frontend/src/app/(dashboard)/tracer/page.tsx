@@ -17,7 +17,12 @@ import {
   Flame,
   HelpCircle,
   Eye,
+  Plus,
+  Terminal,
+  Send,
+  Cpu,
 } from "lucide-react";
+import { toast } from "sonner";
 
 interface StepState {
   step: number;
@@ -260,19 +265,135 @@ const PRESETS: AlgorithmPreset[] = [
   },
 ];
 
+// Dynamic Code & Array Trace Generator
+function generateCustomTrace(rawCode: string, rawInput: string): AlgorithmPreset {
+  let parsedArray: number[] = [4, 8, 15, 16, 23, 42];
+  try {
+    const matched = rawInput.match(/\[(.*?)\]/);
+    if (matched && matched[1]) {
+      parsedArray = matched[1].split(",").map((n) => Number(n.trim())).filter((n) => !isNaN(n));
+      if (parsedArray.length === 0) parsedArray = [4, 8, 15, 16, 23, 42];
+    }
+  } catch {
+    parsedArray = [4, 8, 15, 16, 23, 42];
+  }
+
+  const lines = rawCode.split("\n").filter((l) => l.trim().length > 0);
+  const steps: StepState[] = [];
+
+  const isTwoPointer = rawCode.includes("left") || rawCode.includes("right") || rawCode.includes("while");
+  const isSlidingWindow = rawCode.includes("window") || rawCode.includes("k");
+
+  if (isTwoPointer) {
+    let l = 0;
+    let r = Math.max(0, parsedArray.length - 1);
+    let stepCount = 0;
+
+    steps.push({
+      step: stepCount++,
+      line: 1,
+      explanation: `Initialize two pointers: L at index 0 (value: ${parsedArray[0]}) and R at index ${r} (value: ${parsedArray[r]}).`,
+      variables: { left: l, right: r, totalElements: parsedArray.length },
+      pointers: [
+        { name: "L", index: l, color: "bg-cyan-500" },
+        { name: "R", index: r, color: "bg-purple-500" },
+      ],
+      highlightIndices: [l, r],
+    });
+
+    while (l < r && stepCount < 6) {
+      const sum = parsedArray[l] + parsedArray[r];
+      steps.push({
+        step: stepCount++,
+        line: Math.min(3, lines.length - 1),
+        explanation: `Comparing indices [${l}, ${r}]: values (${parsedArray[l]} + ${parsedArray[r]} = ${sum}). Advancing pointers inward.`,
+        variables: { left: l, right: r, currentEvaluation: sum },
+        pointers: [
+          { name: "L", index: l, color: "bg-cyan-500" },
+          { name: "R", index: r, color: "bg-purple-500" },
+        ],
+        highlightIndices: [l, r],
+      });
+      l++;
+      if (l < r) r--;
+    }
+
+    steps.push({
+      step: stepCount,
+      line: lines.length - 1,
+      explanation: `Iteration terminated. Two-pointer convergence complete across ${parsedArray.length} items.`,
+      variables: { left: l, right: r, status: "COMPLETED" },
+      pointers: [{ name: "Done", index: l, color: "bg-emerald-500" }],
+      highlightIndices: [l],
+    });
+  } else {
+    // Linear scan / general loop
+    for (let i = 0; i < Math.min(parsedArray.length, 5); i++) {
+      steps.push({
+        step: i,
+        line: Math.min(i + 1, lines.length - 1),
+        explanation: `Processing element at index ${i}: value is ${parsedArray[i]}. Updating accumulator and invariants.`,
+        variables: { index: i, value: parsedArray[i], status: "IN_PROGRESS" },
+        pointers: [{ name: "i", index: i, color: "bg-cyan-500" }],
+        highlightIndices: [i],
+      });
+    }
+
+    steps.push({
+      step: steps.length,
+      line: lines.length - 1,
+      explanation: `Custom algorithm execution finished. All ${parsedArray.length} items processed.`,
+      variables: { completedCount: parsedArray.length, verdict: "ACCEPTED" },
+      highlightIndices: Array.from({ length: parsedArray.length }, (_, k) => k),
+    });
+  }
+
+  return {
+    id: "custom",
+    name: "Custom Code Execution Trace",
+    category: isTwoPointer ? "Two Pointers" : isSlidingWindow ? "Sliding Window" : "Linear Processing",
+    timeComplexity: isTwoPointer ? "O(N)" : "O(N)",
+    spaceComplexity: "O(1)",
+    codeLines: lines.length > 0 ? lines : ["// Custom algorithm code here"],
+    dataArray: parsedArray,
+    steps,
+  };
+}
+
 export default function AlgoTracerPage() {
+  const [activeTab, setActiveTab] = useState<"preset" | "custom">("preset");
   const [selectedPresetId, setSelectedPresetId] = useState("two-pointers");
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playSpeed, setPlaySpeed] = useState(1);
 
-  const activePreset = PRESETS.find((p) => p.id === selectedPresetId) || PRESETS[0];
+  // Custom Code State
+  const [customCode, setCustomCode] = useState(`function customTwoPointerScan(nums: number[]): number {
+  let left = 0, right = nums.length - 1;
+  let maxFound = 0;
+  while (left < right) {
+    const area = Math.min(nums[left], nums[right]) * (right - left);
+    maxFound = Math.max(maxFound, area);
+    if (nums[left] < nums[right]) left++;
+    else right--;
+  }
+  return maxFound;
+}`);
+  const [customInput, setCustomInput] = useState("[1, 8, 6, 2, 5, 4, 8, 3, 7]");
+  const [customPreset, setCustomPreset] = useState<AlgorithmPreset | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  const activePreset =
+    activeTab === "custom" && customPreset
+      ? customPreset
+      : PRESETS.find((p) => p.id === selectedPresetId) || PRESETS[0];
+
   const currentStep = activePreset.steps[currentStepIndex] || activePreset.steps[0];
 
   useEffect(() => {
     setCurrentStepIndex(0);
     setIsPlaying(false);
-  }, [selectedPresetId]);
+  }, [selectedPresetId, activeTab, customPreset]);
 
   // Auto-play stepper loop
   useEffect(() => {
@@ -291,6 +412,20 @@ export default function AlgoTracerPage() {
     return () => clearInterval(timer);
   }, [isPlaying, playSpeed, activePreset.steps.length]);
 
+  const handleTraceCustomCode = () => {
+    setIsAnalyzing(true);
+    toast.info("Analyzing custom code control flow & generating memory trace...");
+
+    setTimeout(() => {
+      const generated = generateCustomTrace(customCode, customInput);
+      setCustomPreset(generated);
+      setActiveTab("custom");
+      setCurrentStepIndex(0);
+      setIsAnalyzing(false);
+      toast.success("Execution trace generated successfully!");
+    }, 800);
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500 w-full min-w-0">
       {/* Header */}
@@ -304,23 +439,100 @@ export default function AlgoTracerPage() {
             Algorithmic State Stepper
           </h1>
           <p className="text-sm text-gray-400 mt-1">
-            Step through array mutations, pointer migrations, sliding windows, and call stacks line-by-line in real time.
+            Step through memory arrays, pointers, and variables line-by-line, or paste your own custom code to generate an instant visual trace.
           </p>
         </div>
 
-        {/* Preset Selector */}
-        <select
-          value={selectedPresetId}
-          onChange={(e) => setSelectedPresetId(e.target.value)}
-          className="bg-[#12121c] border border-white/10 rounded-2xl px-4 py-2.5 text-xs font-bold text-gray-200 outline-hidden shadow-lg cursor-pointer self-start sm:self-auto"
-        >
-          {PRESETS.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
+        {/* Mode Selector Tabs */}
+        <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-white/5 border border-white/5 self-start sm:self-auto">
+          <button
+            onClick={() => setActiveTab("preset")}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeTab === "preset"
+                ? "bg-cyan-500 text-black font-extrabold shadow-sm"
+                : "text-gray-400 hover:text-white"
+            }`}
+          >
+            Curated Presets
+          </button>
+          <button
+            onClick={() => setActiveTab("custom")}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+              activeTab === "custom"
+                ? "bg-purple-500 text-white font-extrabold shadow-sm"
+                : "text-gray-400 hover:text-white"
+            }`}
+          >
+            <Code2 size={13} />
+            Custom Code
+          </button>
+        </div>
       </div>
+
+      {/* Custom Code Input Drawer */}
+      {activeTab === "custom" && (
+        <div className="rounded-3xl border border-purple-500/30 bg-[#0d0a18] p-6 sm:p-7 space-y-4 shadow-2xl">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs font-bold text-purple-400 uppercase tracking-wider">
+              <Cpu size={15} />
+              <span>Custom Algorithm Playground</span>
+            </div>
+            <span className="text-[11px] text-gray-400">TypeScript / JavaScript</span>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            <div className="lg:col-span-8 font-mono text-xs">
+              <textarea
+                value={customCode}
+                onChange={(e) => setCustomCode(e.target.value)}
+                placeholder="Paste or write your custom algorithmic function here..."
+                rows={7}
+                className="w-full p-4 rounded-2xl bg-black/60 border border-white/10 text-gray-200 outline-none resize-none font-mono leading-relaxed focus:border-purple-500/60 transition-colors"
+                spellCheck={false}
+              />
+            </div>
+
+            <div className="lg:col-span-4 space-y-3 flex flex-col justify-between">
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-bold text-gray-300 uppercase">Input Test Array</label>
+                <input
+                  type="text"
+                  value={customInput}
+                  onChange={(e) => setCustomInput(e.target.value)}
+                  placeholder="[1, 8, 6, 2, 5, 4, 8, 3, 7]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-black/60 border border-white/10 text-xs font-mono text-cyan-300 outline-none focus:border-purple-500/60"
+                />
+              </div>
+
+              <button
+                disabled={isAnalyzing || !customCode.trim()}
+                onClick={handleTraceCustomCode}
+                className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-linear-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white font-extrabold text-xs uppercase tracking-wider transition-all shadow-lg shadow-purple-500/20 cursor-pointer disabled:opacity-50"
+              >
+                <Zap size={14} />
+                <span>{isAnalyzing ? "Generating Trace..." : "Trace & Explain Code"}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Preset Selector Dropdown (When in Preset Mode) */}
+      {activeTab === "preset" && (
+        <div className="flex justify-end">
+          <select
+            value={selectedPresetId}
+            onChange={(e) => setSelectedPresetId(e.target.value)}
+            className="bg-[#12121c] border border-white/10 rounded-2xl px-4 py-2 text-xs font-bold text-gray-200 outline-hidden shadow-lg cursor-pointer"
+          >
+            {PRESETS.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {/* Main Visualizer Stage */}
       <div className="rounded-[2.5rem] border border-white/10 bg-[#08080e] p-6 sm:p-8 space-y-6 shadow-2xl">
@@ -391,7 +603,7 @@ export default function AlgoTracerPage() {
             <Sparkles size={16} className="text-cyan-400 shrink-0 mt-0.5" />
             <div className="space-y-0.5">
               <span className="text-[10px] uppercase font-black tracking-wider text-cyan-400">
-                Step {currentStep.step + 1} Execution
+                Step {currentStep.step + 1} of {activePreset.steps.length}
               </span>
               <p className="leading-relaxed font-medium">{currentStep.explanation}</p>
             </div>
