@@ -1,139 +1,130 @@
-import React, { memo, useMemo, useState } from "react";
+"use client";
+
+import React, { memo } from "react";
 import { Handle, Position } from "reactflow";
 import {
   CheckCircle2,
   Circle,
-  ExternalLink,
   AlertCircle,
+  ChevronRight,
+  ExternalLink,
+  Layers,
+  Sparkles,
 } from "lucide-react";
+import Link from "next/link";
 
 interface ProblemNodeProps {
   data: {
     label: string;
-    difficulty: "EASY" | "MEDIUM" | "HARD";
-    status: "TODO" | "DOING" | "DONE";
+    difficulty?: "EASY" | "MEDIUM" | "HARD";
+    status?: "TODO" | "DOING" | "DONE";
     link?: string;
     nextReviewDate?: string | Date;
+    problemId?: string;
+    isMoreNode?: boolean;
+    moreCount?: number;
+    onOpenDrawer?: () => void;
   };
 }
 
 const ProblemNode = ({ data }: ProblemNodeProps) => {
+  if (data.isMoreNode) {
+    return (
+      <div
+        onClick={data.onOpenDrawer}
+        className="group relative px-4 py-2.5 rounded-xl border border-cyan-500/30 bg-linear-to-r from-cyan-950/40 via-[#0d121f] to-[#070d18] hover:border-cyan-400 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer min-w-52 select-none shadow-lg shadow-cyan-500/10 flex items-center justify-between"
+      >
+        <Handle
+          type="target"
+          position={Position.Left}
+          className="w-2.5! h-2.5! bg-cyan-400! border-2! border-black! rounded-full!"
+        />
+        <div className="flex items-center gap-2 text-xs font-bold text-cyan-300">
+          <Sparkles size={14} className="text-cyan-400 animate-pulse" />
+          <span>+{data.moreCount || 0} More in Matrix</span>
+        </div>
+        <ChevronRight size={14} className="text-cyan-400 group-hover:translate-x-1 transition-transform" />
+      </div>
+    );
+  }
+
   const isDone = data.status === "DONE";
   const isDoing = data.status === "DOING";
 
-  const isRevisionDue = useMemo(() => {
-    if (!data.nextReviewDate || !isDone) return false;
-    return new Date(data.nextReviewDate) <= new Date();
-  }, [data.nextReviewDate, isDone]);
-  const [transform, setTransform] = useState(
-    "perspective(2200px) rotateX(0deg) rotateY(0deg) translateZ(0px)",
-  );
-  const [glow, setGlow] = useState({ x: 50, y: 50 });
+  const isRevisionDue =
+    !!data.nextReviewDate &&
+    isDone &&
+    new Date(data.nextReviewDate) <= new Date();
 
-  const diffColors = {
-    EASY: "text-green-400 bg-green-400/10 border-green-400/20",
-    MEDIUM: "text-orange-400 bg-orange-400/10 border-orange-400/20",
-    HARD: "text-red-400 bg-red-400/10 border-red-400/20",
-  };
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const rotateY = ((x - rect.width / 2) / rect.width) * 1.2;
-    const rotateX = -((y - rect.height / 2) / rect.height) * 0.95;
-
-    setTransform(
-      `perspective(2200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(0px)`,
-    );
-    setGlow({ x: (x / rect.width) * 100, y: (y / rect.height) * 100 });
-  };
-
-  const resetTilt = () => {
-    setTransform("perspective(2200px) rotateX(0deg) rotateY(0deg) translateZ(0px)");
-    setGlow({ x: 50, y: 50 });
+  const getDiffBadge = (diff?: string) => {
+    switch (diff) {
+      case "EASY":
+        return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+      case "HARD":
+        return "bg-red-500/10 text-red-400 border-red-500/20";
+      default:
+        return "bg-amber-500/10 text-amber-400 border-amber-500/20";
+    }
   };
 
   return (
     <div
-      onMouseMove={handleMouseMove}
-      onMouseLeave={resetTilt}
-      className={`problem-node-3d group relative overflow-hidden px-4 py-3 rounded-xl border-2 shadow-lg backdrop-blur-md transition-all duration-300 min-w-50 will-change-transform
-      ${
-        isRevisionDue
-          ? "bg-orange-500/10 border-orange-500 shadow-orange-500/20 animate-pulse"
-          : isDone
-            ? "bg-green-500/5 border-green-500/30"
-            : isDoing
-              ? "bg-blue-500/5 border-blue-500/30"
-              : "bg-[#0d0d0d] border-[#222] hover:border-[#333]"
-      }
-    `}
-      style={{ transform, transformStyle: "flat" }}
+      className={`group relative px-3.5 py-2.5 rounded-xl border transition-all duration-200 min-w-56 max-w-64 select-none shadow-md
+        ${
+          isRevisionDue
+            ? "bg-amber-950/30 border-amber-500/50 shadow-amber-500/10"
+            : isDone
+              ? "bg-emerald-950/20 border-emerald-500/30 hover:border-emerald-500/60"
+              : isDoing
+                ? "bg-blue-950/20 border-blue-500/30 hover:border-blue-500/60"
+                : "bg-[#0e0e16] border-white/10 hover:border-white/20"
+        }
+        hover:-translate-y-0.5 hover:scale-[1.01]
+      `}
+      style={{ willChange: "transform" }}
     >
-      <div
-        className="pointer-events-none absolute inset-0 opacity-55"
-        style={{
-          background: `radial-gradient(circle at ${glow.x}% ${glow.y}%, rgba(255,255,255,0.07), transparent 44%)`,
-        }}
+      <Handle
+        type="target"
+        position={Position.Left}
+        className="w-2.5! h-2.5! bg-gray-500! border-2! border-black! rounded-full!"
       />
-      <Handle type="target" position={Position.Left} className="bg-[#333]!" />
 
-      <div className="relative z-10 flex items-center gap-3">
-        <div
-          className={`p-1.5 rounded-lg ${
-            isRevisionDue
-              ? "bg-orange-500/20 text-orange-400"
-              : isDone
-                ? "bg-green-500/20 text-green-400"
-                : isDoing
-                  ? "bg-blue-500/20 text-blue-400"
-                  : "bg-gray-800 text-gray-500"
-          }`}
-        >
-          {isRevisionDue ? (
-            <AlertCircle size={16} />
-          ) : isDone ? (
-            <CheckCircle2 size={16} />
-          ) : (
-            <Circle size={16} />
-          )}
-        </div>
-
-        <div className="flex-1 overflow-hidden">
-          <div className="flex items-center justify-between gap-2">
-            <h4
-              className={`text-sm font-bold truncate ${isDone && !isRevisionDue ? "text-gray-400 line-through" : "text-white"}`}
-            >
-              {data.label}
-            </h4>
-            {isRevisionDue && (
-              <span className="text-[8px] font-black text-orange-400 uppercase">
-                Review
-              </span>
+      <div className="flex items-start justify-between gap-2 mb-1">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <div className="shrink-0">
+            {isRevisionDue ? (
+              <AlertCircle size={13} className="text-amber-400" />
+            ) : isDone ? (
+              <CheckCircle2 size={13} className="text-emerald-400" />
+            ) : (
+              <Circle size={13} className="text-gray-600" />
             )}
           </div>
-          <div className="flex items-center gap-2 mt-1">
-            <span
-              className={`text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded border ${diffColors[data.difficulty]}`}
-            >
-              {data.difficulty}
-            </span>
-            {data.link && (
-              <a
-                href={data.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-600 hover:text-white transition-colors"
-              >
-                <ExternalLink size={10} />
-              </a>
-            )}
-          </div>
+          <span className="text-xs font-bold text-white group-hover:text-cyan-300 transition-colors truncate max-w-36">
+            {data.label}
+          </span>
         </div>
+
+        {data.difficulty && (
+          <span
+            className={`text-[9px] font-bold px-1.5 py-0.2 rounded-md border shrink-0 ${getDiffBadge(data.difficulty)}`}
+          >
+            {data.difficulty}
+          </span>
+        )}
       </div>
 
-      <Handle type="source" position={Position.Right} className="bg-[#333]!" />
+      <div className="flex items-center justify-between text-[10px] text-gray-500 pt-1 border-t border-white/5">
+        <span>{isDone ? "Completed" : isDoing ? "In Progress" : "Todo"}</span>
+        {data.problemId && (
+          <Link
+            href={`/problems/${data.problemId}`}
+            className="text-cyan-400 font-bold hover:underline inline-flex items-center gap-0.5"
+          >
+            Solve <ChevronRight size={10} />
+          </Link>
+        )}
+      </div>
     </div>
   );
 };
