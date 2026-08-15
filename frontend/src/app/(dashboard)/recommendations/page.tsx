@@ -116,7 +116,7 @@ export default function RecommendationsPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-6xl space-y-8 animate-pulse">
+      <div className="w-full space-y-8 min-w-0 animate-pulse">
         <div className="flex items-center justify-between gap-4">
           <div className="space-y-3">
             <div className="h-8 w-72 rounded-full bg-white/5" />
@@ -161,7 +161,7 @@ export default function RecommendationsPage() {
   if (!data) return null;
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500 max-w-6xl mx-auto">
+    <div className="space-y-8 animate-in fade-in duration-500 w-full min-w-0">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

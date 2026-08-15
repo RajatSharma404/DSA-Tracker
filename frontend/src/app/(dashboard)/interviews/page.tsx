@@ -85,7 +85,7 @@ export default function InterviewsPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto mt-4 max-w-4xl space-y-8 animate-pulse">
+      <div className="w-full min-w-0 space-y-8 animate-pulse">
         <div className="flex items-end justify-between gap-4">
           <div className="space-y-3">
             <div className="h-8 w-56 rounded-full bg-white/5" />
@@ -114,7 +114,7 @@ export default function InterviewsPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-in mt-4 fade-in duration-500">
+    <div className="w-full min-w-0 space-y-8 animate-in fade-in duration-500">
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-3xl font-bold tracking-tight mb-2">

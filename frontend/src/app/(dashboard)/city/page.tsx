@@ -1,286 +1,198 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
-import { dsaApi } from "@/lib/api";
+import React, { useState } from "react";
+import Link from "next/link";
+import { PageTransition } from "@/components/layout/PageTransition";
+import {
+  Building2,
+  Sparkles,
+  Zap,
+  Trophy,
+  Brain,
+  Layers,
+  Compass,
+  ArrowRight,
+  ShieldCheck,
+  CheckCircle2,
+  Clock,
+  Flame,
+  Radio,
+} from "lucide-react";
+import { toast } from "sonner";
+
+/*
+ ==============================================================================
+  NOTE: DSA 3D City Scene Code is commented out below for upcoming v2.0 release.
+ ==============================================================================
+
 import { CityScene, CityTheme, LeaderboardUser } from "@/components/3d/CityScene";
 import { CityLevelPath } from "@/components/dashboard/CityLevelPath";
 import { CityLeaderboard } from "@/components/dashboard/CityLeaderboard";
 import { UserInspectorModal } from "@/components/dashboard/UserInspectorModal";
-import { PageTransition } from "@/components/layout/PageTransition";
 import { cityAudio } from "@/lib/cityAudio";
-import {
-  Brain,
-  Building2,
-  Crown,
-  Loader2,
-  Sparkles,
-  Trophy,
-  Users,
-  X,
-  Zap,
-} from "lucide-react";
-import { toast } from "sonner";
 
-interface LevelProgress {
-  id: string;
-  name: string;
-  isCompleted: boolean;
-  progress: {
-    easy: { solved: number; required: number; total: number };
-    medium: { solved: number; required: number; total: number };
-    hard: { solved: number; required: number; total: number };
-  };
-}
+(Original 3D City implementation preserved in version control and components/3d)
+==============================================================================
+*/
 
 export default function CityPage() {
-  const [loading, setLoading] = useState(true);
-  const [floors, setFloors] = useState(0);
-  const [levels, setLevels] = useState<LevelProgress[]>([]);
-  const [reducedEffects, setReducedEffects] = useState(false);
-  const [activeTab, setActiveTab] = useState<"path" | "leaderboard">("path");
-  const [focusedUserId, setFocusedUserId] = useState<string | null>(null);
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  const [inspectUser, setInspectUser] = useState<LeaderboardUser | null>(null);
-  const [theme, setTheme] = useState<CityTheme>("cyberpunk");
+  const [notified, setNotified] = useState(false);
 
-  useEffect(() => {
-    const loadCity = async () => {
-      try {
-        const data = await dsaApi.getCityProgress();
-        setFloors(data.floors);
-        setLevels(data.levels);
-      } catch (error) {
-        toast.error("Failed to load city progress");
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadCity();
-  }, []);
+  const handleNotifyMe = () => {
+    setNotified(true);
+    toast.success("You're on the VIP list for the DSA 3D City launch!");
+  };
 
-  useEffect(() => {
-    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const navigatorWithMemory = navigator as Navigator & {
-      deviceMemory?: number;
-    };
-
-    const evaluate = () => {
-      const deviceMemory = navigatorWithMemory.deviceMemory ?? 8;
-      const hardwareConcurrency = navigator.hardwareConcurrency ?? 8;
-      setReducedEffects(
-        media.matches || deviceMemory <= 4 || hardwareConcurrency <= 4,
-      );
-    };
-
-    evaluate();
-    media.addEventListener("change", evaluate);
-
-    return () => media.removeEventListener("change", evaluate);
-  }, []);
-
-  // Leaderboard Users
-  const leaderboardUsers: LeaderboardUser[] = useMemo(() => [
-    { id: "u1", username: "Rajat", completedLevels: floors, lastActivityDate: new Date().toISOString() },
-    { id: "u2", username: "Alex", completedLevels: 24, lastActivityDate: "2026-07-01T10:00:00Z" },
-    { id: "u3", username: "Sarah", completedLevels: 32, lastActivityDate: "2026-07-04T14:30:00Z" },
-    { id: "u4", username: "John", completedLevels: 5, lastActivityDate: "2026-06-28T09:15:00Z" },
-    { id: "u5", username: "Emma", completedLevels: 16, lastActivityDate: "2026-07-03T11:20:00Z" },
-    { id: "u6", username: "David", completedLevels: 8, lastActivityDate: "2026-07-02T16:45:00Z" },
-    { id: "u7", username: "Lisa", completedLevels: 2, lastActivityDate: "2026-06-15T08:00:00Z" },
-  ], [floors]);
-
-  const sortedUsers = useMemo(() => {
-    return [...leaderboardUsers].sort((a, b) => b.completedLevels - a.completedLevels);
-  }, [leaderboardUsers]);
-
-  const totalCityFloors = useMemo(() => {
-    return leaderboardUsers.reduce((acc, u) => acc + u.completedLevels, 0);
-  }, [leaderboardUsers]);
-
-  const topSkyscraperFloors = sortedUsers[0]?.completedLevels || 0;
-
-  if (loading) {
-    return (
-      <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
-      </div>
-    );
-  }
+  const previewFeatures = [
+    {
+      icon: Building2,
+      color: "text-cyan-400 bg-cyan-500/10 border-cyan-500/20",
+      title: "3D Procedural Skyscrapers",
+      desc: "Every topic you master erects physical floors on your personal cyberpunk skyscraper with real-time neon lighting.",
+    },
+    {
+      icon: Trophy,
+      color: "text-amber-400 bg-amber-500/10 border-amber-500/20",
+      title: "Multiplayer Metropolitan Leaderboard",
+      desc: "Compare your skyline with peers and interview candidates worldwide in a live interactive 3D spatial grid.",
+    },
+    {
+      icon: Zap,
+      color: "text-purple-400 bg-purple-500/10 border-purple-500/20",
+      title: "Holographic Floor Elevators",
+      desc: "Solve Easy, Medium, and Hard problems to power the central elevator shaft and ascend to advanced algorithmic districts.",
+    },
+    {
+      icon: Brain,
+      color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+      title: "Spaced Repetition Defense Tower",
+      desc: "Neglected topics cause simulated power flickers on past floors, urging you to complete revisions before they decay.",
+    },
+  ];
 
   return (
     <PageTransition>
-      <div className="flex flex-col h-[calc(100vh-5rem)] max-h-250 gap-4">
-        {/* Header & Stats Banner */}
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-sky-400 to-purple-400">
-                DSA City
-              </h1>
-              <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 text-xs font-bold flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5" /> Cyberpunk Edition
-              </span>
+      <div className="w-full space-y-10 py-6 sm:py-10 animate-in fade-in duration-700">
+        {/* Hero Section */}
+        <div className="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-linear-to-b from-[#0e0e18] via-[#090912] to-[#050508] p-8 sm:p-14 shadow-2xl">
+          {/* Ambient Glowing Blobs */}
+          <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-cyan-500/15 blur-[100px] pointer-events-none" />
+          <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-purple-500/15 blur-[100px] pointer-events-none" />
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-40 w-full max-w-2xl bg-linear-to-t from-cyan-500/10 to-transparent blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 flex flex-col items-center text-center space-y-6 max-w-4xl mx-auto">
+            {/* Status Pill */}
+            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-cyan-300 shadow-[0_0_20px_rgba(6,182,212,0.25)]">
+              <Sparkles size={14} className="animate-spin text-cyan-400" />
+              <span>DSA City v2.0 • In Active Development</span>
             </div>
-            <p className="text-slate-400 text-sm mt-1">
-              Build your skyscraper by mastering topics. Solve 5 questions (2 Easy, 2 Medium, 1 Hard) per topic to add a floor!
+
+            {/* Title */}
+            <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-white uppercase leading-none">
+              The 3D DSA <span className="bg-linear-to-r from-cyan-400 via-teal-300 to-purple-400 bg-clip-text text-transparent">Metaverse</span>
+            </h1>
+
+            {/* Description */}
+            <p className="text-sm sm:text-lg text-gray-300 max-w-2xl leading-relaxed">
+              We are upgrading DSA City into a full-scale WebGL 3D spatial world. Build procedural architectural towers as you solve algorithms, conquer districts, and visualize your progress like never before.
+            </p>
+
+            {/* Notify / Action Row */}
+            <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
+              <button
+                onClick={handleNotifyMe}
+                disabled={notified}
+                className={`inline-flex items-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-bold transition-all cursor-pointer ${
+                  notified
+                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow-lg shadow-emerald-500/10"
+                    : "bg-linear-to-r from-cyan-500 to-blue-600 text-black hover:from-cyan-400 hover:to-blue-500 shadow-xl shadow-cyan-500/20 hover:scale-[1.02] active:scale-[0.98]"
+                }`}
+              >
+                {notified ? <CheckCircle2 size={18} /> : <Radio size={18} className="animate-pulse" />}
+                {notified ? "You're On The VIP Waitlist!" : "Get Early Alpha Access"}
+              </button>
+
+              <Link
+                href="/roadmap"
+                className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 px-6 py-3.5 text-sm font-bold text-gray-200 transition-all hover:border-white/20"
+              >
+                <Compass size={18} className="text-cyan-400" />
+                Explore Visual Roadmap
+                <ArrowRight size={16} />
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Feature Cards Grid */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <Layers size={20} className="text-cyan-400" />
+              What to Expect in City v2.0
+            </h2>
+            <span className="text-xs text-gray-500 font-semibold uppercase tracking-wider">
+              Sneak Peek
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {previewFeatures.map((feat, i) => (
+              <div
+                key={i}
+                className="group relative rounded-3xl border border-white/5 bg-[#0a0a0f] p-6 hover:border-cyan-500/30 hover:bg-[#0d0d18] transition-all duration-300 shadow-lg hover:shadow-cyan-500/10 flex flex-col justify-between"
+              >
+                <div className="space-y-4">
+                  <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center ${feat.color} shadow-sm group-hover:scale-110 transition-transform duration-300`}>
+                    <feat.icon size={22} />
+                  </div>
+                  <h3 className="text-base font-bold text-white group-hover:text-cyan-300 transition-colors">
+                    {feat.title}
+                  </h3>
+                  <p className="text-xs text-gray-400 leading-relaxed">
+                    {feat.desc}
+                  </p>
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between text-[11px] text-gray-500 font-semibold">
+                  <span>Phase {i + 1} System</span>
+                  <span className="text-cyan-400 flex items-center gap-1">
+                    <Sparkles size={12} /> Coming Soon
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Quick Alternative Roadmaps */}
+        <div className="rounded-3xl border border-white/10 bg-linear-to-r from-purple-900/15 via-[#0c0c14] to-cyan-900/15 p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
+          <div className="space-y-1 text-center sm:text-left">
+            <h3 className="text-lg font-bold text-white flex items-center justify-center sm:justify-start gap-2">
+              <Flame size={20} className="text-orange-400" />
+              Keep Your Momentum Going
+            </h3>
+            <p className="text-xs text-gray-400">
+              Continue mastering topics sequentially or practice under pressure in the arena while the city builds.
             </p>
           </div>
 
-          {/* Metric Cards Ticker */}
-          <div className="flex items-center gap-3">
-            <div className="px-4 py-2.5 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center gap-3 shadow-lg">
-              <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-                <Building2 className="w-4 h-4" />
-              </div>
-              <div>
-                <div className="text-[10px] uppercase font-bold tracking-wider text-slate-400">City Floors</div>
-                <div className="text-lg font-black text-white">{totalCityFloors}</div>
-              </div>
-            </div>
-
-            <div className="px-4 py-2.5 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center gap-3 shadow-lg">
-              <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                <Crown className="w-4 h-4" />
-              </div>
-              <div>
-                <div className="text-[10px] uppercase font-bold tracking-wider text-slate-400">Top Height</div>
-                <div className="text-lg font-black text-amber-400">{topSkyscraperFloors} lvls</div>
-              </div>
-            </div>
-
-            <div className="px-4 py-2.5 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center gap-3 shadow-lg hidden sm:flex">
-              <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                <Users className="w-4 h-4" />
-              </div>
-              <div>
-                <div className="text-[10px] uppercase font-bold tracking-wider text-slate-400">Builders</div>
-                <div className="text-lg font-black text-emerald-400">{leaderboardUsers.length}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Main 3D Canvas & Sidebar Container */}
-        <div className="flex flex-col lg:flex-row gap-6 flex-1 min-h-0">
-          {/* 3D Canvas Scene */}
-          <div className="lg:w-3/5 h-100 lg:h-full rounded-3xl overflow-hidden border border-slate-800 shadow-2xl relative">
-            <CityScene
-              users={leaderboardUsers}
-              currentUserId="u1"
-              reducedEffects={reducedEffects}
-              focusedUserId={focusedUserId}
-              onFocusUser={setFocusedUserId}
-              theme={theme}
-              onThemeChange={setTheme}
-              onInspectUser={setInspectUser}
-            />
-          </div>
-
-          {/* Sidebar Tabs (Path / Leaderboard) */}
-          <div className="lg:w-2/5 flex flex-col bg-slate-900/60 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl backdrop-blur-md">
-            <div className="flex p-2 gap-2 bg-slate-900 border-b border-slate-800">
-              <button
-                onClick={() => {
-                  cityAudio.playHover();
-                  setActiveTab("path");
-                }}
-                className={`flex-1 flex justify-center items-center gap-2 py-2.5 rounded-xl font-bold text-sm transition-all ${
-                  activeTab === "path"
-                    ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 shadow-inner"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
-                }`}
-              >
-                <Brain className="w-4 h-4" />
-                My Path
-              </button>
-
-              <button
-                onClick={() => {
-                  cityAudio.playHover();
-                  setActiveTab("leaderboard");
-                }}
-                className={`flex-1 flex justify-center items-center gap-2 py-2.5 rounded-xl font-bold text-sm transition-all ${
-                  activeTab === "leaderboard"
-                    ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 shadow-inner"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
-                }`}
-              >
-                <Trophy className="w-4 h-4" />
-                Leaderboard
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto custom-scrollbar">
-              {activeTab === "path" ? (
-                <>
-                  <div className="p-4 border-b border-slate-800/60 flex justify-between items-center bg-slate-900/40">
-                    <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Current Skyscraper</span>
-                    <div className="text-xs px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-full font-bold border border-emerald-500/30 flex items-center gap-1.5">
-                      <Zap className="w-3 h-3" />
-                      {floors} Floors Built
-                    </div>
-                  </div>
-                  <CityLevelPath levels={levels as any} />
-                </>
-              ) : (
-                <CityLeaderboard
-                  users={leaderboardUsers}
-                  currentUserId="u1"
-                  hoveredUserId={focusedUserId}
-                  onHoverUser={setFocusedUserId}
-                  onClickUser={(id) => {
-                    setFocusedUserId(id);
-                    const user = leaderboardUsers.find((u) => u.id === id);
-                    if (user) setInspectUser(user);
-                  }}
-                />
-              )}
-            </div>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/topics"
+              className="rounded-xl border border-white/10 bg-white/10 hover:bg-white/15 px-4 py-2.5 text-xs font-bold text-white transition-colors"
+            >
+              Solve DSA Topics
+            </Link>
+            <Link
+              href="/challenge"
+              className="rounded-xl bg-cyan-500 hover:bg-cyan-400 px-4 py-2.5 text-xs font-bold text-black transition-colors"
+            >
+              Enter The Arena
+            </Link>
           </div>
         </div>
       </div>
-
-      {/* User Inspection Modal */}
-      {inspectUser && (
-        <UserInspectorModal
-          user={inspectUser}
-          currentUserId="u1"
-          rank={sortedUsers.findIndex((u) => u.id === inspectUser.id) + 1}
-          onClose={() => setInspectUser(null)}
-          onViewPath={(userId) => {
-            setSelectedUserId(userId);
-            setInspectUser(null);
-          }}
-        />
-      )}
-
-      {/* Read-Only Path View Modal for Other Users */}
-      {selectedUserId && selectedUserId !== "u1" && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-in fade-in">
-          <div className="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md max-h-[80vh] flex flex-col shadow-2xl overflow-hidden animate-in zoom-in-95">
-            <div className="flex items-center justify-between p-4 border-b border-slate-800 bg-slate-800/50">
-              <h2 className="text-base font-bold text-slate-200">
-                {leaderboardUsers.find((u) => u.id === selectedUserId)?.username}&apos;s Building Path
-              </h2>
-              <button
-                onClick={() => setSelectedUserId(null)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-4 relative">
-              <div className="opacity-85 grayscale-[0.1]">
-                <CityLevelPath levels={levels as any} />
-              </div>
-            </div>
-            <div className="p-3 border-t border-slate-800 bg-slate-800/50 text-center text-xs text-slate-400 font-medium">
-              Read-Only Inspector View
-            </div>
-          </div>
-        </div>
-      )}
     </PageTransition>
   );
 }

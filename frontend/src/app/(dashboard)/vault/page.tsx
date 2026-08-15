@@ -155,7 +155,7 @@ export default function VaultPage() {
   );
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 min-w-0">
+    <div className="w-full space-y-8 min-w-0">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end gap-6">
         <div>

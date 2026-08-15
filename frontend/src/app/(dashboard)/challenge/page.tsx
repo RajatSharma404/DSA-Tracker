@@ -29,7 +29,7 @@ export default function ChallengeSelection() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-12 py-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="w-full min-w-0 space-y-12 py-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="text-center space-y-4">
         <div className="inline-flex p-3 rounded-2xl bg-yellow-500/10 text-yellow-500 mb-2">
           <Zap size={32} />

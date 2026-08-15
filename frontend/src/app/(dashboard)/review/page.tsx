@@ -150,7 +150,7 @@ export default function ReviewQueuePage() {
 
   if (loading) {
     return (
-      <div className="space-y-6 animate-pulse max-w-5xl mx-auto">
+      <div className="space-y-6 animate-pulse w-full min-w-0">
         <div className="h-10 w-72 rounded-xl bg-white/8" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {Array.from({ length: 3 }).map((_, index) => (
@@ -167,7 +167,7 @@ export default function ReviewQueuePage() {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500 max-w-5xl mx-auto">
+    <div className="space-y-8 animate-in fade-in duration-500 w-full min-w-0">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

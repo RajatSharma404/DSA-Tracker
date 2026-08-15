@@ -67,7 +67,7 @@ export default function WeeklyReportPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-4xl space-y-6 animate-pulse">
+      <div className="w-full min-w-0 space-y-6 animate-pulse">
         <div className="h-40 rounded-[2.5rem] bg-white/6" />
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, index) => (
@@ -98,7 +98,7 @@ export default function WeeklyReportPage() {
       : 0;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 min-w-0">
+    <div className="w-full space-y-6 min-w-0">
       {/* Header */}
       <div className="p-8 rounded-[2.5rem] bg-[#0a0a0f] border border-white/5 relative overflow-hidden">
         <div className="absolute inset-0 bg-linear-to-r from-cyan-600/10 via-blue-600/5 to-transparent pointer-events-none" />

@@ -80,7 +80,7 @@ export default function AchievementsPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-5xl space-y-6 min-w-0 animate-pulse">
+      <div className="w-full space-y-6 min-w-0 animate-pulse">
         <div className="h-32 rounded-[2.5rem] border border-white/5 bg-white/5" />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, index) => (
@@ -110,7 +110,7 @@ export default function AchievementsPage() {
   })).filter((g) => g.badges.length > 0);
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 min-w-0">
+    <div className="w-full space-y-8 min-w-0">
       {/* Header + Stats */}
       <div className="p-8 rounded-[2.5rem] bg-[#0a0a0f] border border-white/5 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-amber-600/10 via-yellow-600/5 to-transparent pointer-events-none" />

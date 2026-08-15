@@ -97,7 +97,7 @@ export default function TopicsPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto mt-4 max-w-4xl space-y-8 animate-pulse">
+      <div className="w-full min-w-0 space-y-8 animate-pulse">
         <div className="space-y-3">
           <div className="h-8 w-56 rounded-full bg-white/5" />
           <div className="h-4 w-96 max-w-full rounded-full bg-white/5" />
@@ -115,7 +115,7 @@ export default function TopicsPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-in mt-4 fade-in duration-500">
+    <div className="w-full min-w-0 space-y-8 animate-in fade-in duration-500">
       <div>
         <h1 className="text-3xl font-bold tracking-tight mb-2">DSA Topics</h1>
         <p className="text-gray-400">

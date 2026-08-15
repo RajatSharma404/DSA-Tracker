@@ -193,7 +193,7 @@ export default function SearchPage() {
   ];
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500 max-w-6xl mx-auto">
+    <div className="space-y-6 animate-in fade-in duration-500 w-full min-w-0">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

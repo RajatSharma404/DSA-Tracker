@@ -129,7 +129,7 @@ export default function AnalyticsPage() {
 
   if (loading) {
     return (
-      <div className="max-w-6xl mx-auto space-y-6 animate-pulse">
+      <div className="w-full space-y-6 min-w-0 animate-pulse">
         <div className="h-10 w-80 rounded-xl bg-white/8" />
         <div className="grid gap-6 md:grid-cols-2">
           <div className="h-72 rounded-4xl bg-white/6" />
@@ -175,7 +175,7 @@ export default function AnalyticsPage() {
     : null;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 min-w-0">
+    <div className="w-full space-y-8 min-w-0">
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="p-3 rounded-2xl bg-linear-to-br from-indigo-500/20 to-purple-500/20 text-indigo-400 border border-indigo-500/20">
