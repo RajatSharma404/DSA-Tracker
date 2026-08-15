@@ -18,10 +18,10 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-screen w-full overflow-hidden">
+    <div className="flex h-screen w-full min-w-0 overflow-hidden bg-black">
       <Sidebar />
       <main
-        className="flex-1 overflow-y-auto overflow-x-hidden w-full min-w-0 p-6 md:p-10"
+        className="flex-1 overflow-y-auto overflow-x-hidden w-full min-w-0 p-4 sm:p-6 lg:p-8"
         data-scroll-root="true"
       >
         <div

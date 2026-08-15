@@ -124,7 +124,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme, currentThemeOption }}>
-      <div className={`theme-${theme} ${mounted ? "theme-mounted" : ""}`}>
+      <div
+        className={`theme-${theme} ${mounted ? "theme-mounted" : ""} w-full h-full min-w-0 flex flex-col`}
+      >
         {children}
       </div>
     </ThemeContext.Provider>

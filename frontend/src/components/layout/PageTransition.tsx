@@ -24,7 +24,7 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
       animate="enter"
       exit="exit"
       variants={variants}
-      className="w-full h-full"
+      className="w-full h-full min-w-0 flex flex-col flex-1"
       data-scroll-reveal-ignore="true"
     >
       {children}

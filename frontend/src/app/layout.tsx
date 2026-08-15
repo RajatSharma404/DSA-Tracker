@@ -46,7 +46,7 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       data-theme="oled"
     >
-      <body className="antialiased font-sans flex h-screen overflow-hidden">
+      <body className="antialiased font-sans h-screen w-full overflow-hidden bg-black text-white m-0 p-0">
         <ErrorBoundary>
           <ThemeProvider>
             <NextAuthProvider>

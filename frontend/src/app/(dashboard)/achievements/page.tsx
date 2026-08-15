@@ -1,8 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { dsaApi } from "@/lib/api";
-import { Award, Lock, Trophy, Flame, Star } from "lucide-react";
+import {
+  Award,
+  Lock,
+  Trophy,
+  Flame,
+  Star,
+  Sparkles,
+  ShieldCheck,
+  Zap,
+  Target,
+  Crown,
+  CheckCircle2,
+  Layers,
+  Compass,
+  Brain,
+  Sliders,
+  ChevronRight,
+  HelpCircle,
+} from "lucide-react";
+import { toast } from "sonner";
 
 interface Badge {
   id: string;
@@ -27,46 +46,27 @@ interface AchievementsData {
 }
 
 const CATEGORY_ORDER = [
+  "All",
   "Milestones",
   "Consistency",
   "Difficulty",
   "Exploration",
   "Mastery",
 ];
-const CATEGORY_COLORS: Record<
-  string,
-  { accent: string; bg: string; border: string }
-> = {
-  Milestones: {
-    accent: "text-blue-400",
-    bg: "bg-blue-500/10",
-    border: "border-blue-500/20",
-  },
-  Consistency: {
-    accent: "text-orange-400",
-    bg: "bg-orange-500/10",
-    border: "border-orange-500/20",
-  },
-  Difficulty: {
-    accent: "text-red-400",
-    bg: "bg-red-500/10",
-    border: "border-red-500/20",
-  },
-  Exploration: {
-    accent: "text-green-400",
-    bg: "bg-green-500/10",
-    border: "border-green-500/20",
-  },
-  Mastery: {
-    accent: "text-purple-400",
-    bg: "bg-purple-500/10",
-    border: "border-purple-500/20",
-  },
+
+const CATEGORY_ICONS: Record<string, any> = {
+  All: Trophy,
+  Milestones: Target,
+  Consistency: Flame,
+  Difficulty: Zap,
+  Exploration: Compass,
+  Mastery: Brain,
 };
 
 export default function AchievementsPage() {
   const [data, setData] = useState<AchievementsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState("All");
 
   useEffect(() => {
     dsaApi
@@ -75,24 +75,50 @@ export default function AchievementsPage() {
         setData(d);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch((err) => {
+        console.error(err);
+        toast.error("Failed to load achievements");
+        setLoading(false);
+      });
   }, []);
+
+  // Gamified EXP & Level computation
+  const totalUnlocked = data?.stats.unlocked || 0;
+  const totalSolved = data?.stats.totalSolved || 0;
+  const totalBadgesCount = data?.stats.totalBadges || 1;
+  const completionPct = Math.round((totalUnlocked / totalBadgesCount) * 100);
+
+  const totalExp = useMemo(() => {
+    return totalUnlocked * 150 + totalSolved * 25;
+  }, [totalUnlocked, totalSolved]);
+
+  const playerLevel = Math.max(1, Math.floor(totalExp / 350) + 1);
+  const expIntoCurrentLevel = totalExp % 350;
+  const levelProgressPct = Math.min(100, Math.round((expIntoCurrentLevel / 350) * 100));
+
+  const rankTitle = useMemo(() => {
+    if (playerLevel >= 25) return "Grandmaster Challenger";
+    if (playerLevel >= 18) return "Algorithmic Warlord";
+    if (playerLevel >= 12) return "Diamond Code Architect";
+    if (playerLevel >= 6) return "Platinum Problem Solver";
+    return "Apprentice Gladiator";
+  }, [playerLevel]);
+
+  const filteredBadges = useMemo(() => {
+    if (!data?.badges) return [];
+    if (activeCategory === "All") return data.badges;
+    return data.badges.filter((b) => b.category === activeCategory);
+  }, [data?.badges, activeCategory]);
 
   if (loading) {
     return (
-      <div className="w-full space-y-6 min-w-0 animate-pulse">
-        <div className="h-32 rounded-[2.5rem] border border-white/5 bg-white/5" />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <div
-              key={index}
-              className="h-28 rounded-2xl border border-white/5 bg-white/5"
-            />
+      <div className="w-full space-y-8 min-w-0 animate-pulse">
+        <div className="h-12 w-80 rounded-2xl bg-white/5" />
+        <div className="h-44 rounded-[2.5rem] bg-white/5" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="h-40 rounded-3xl bg-white/5" />
           ))}
-        </div>
-        <div className="grid gap-4 lg:grid-cols-2">
-          <div className="h-56 rounded-2xl border border-white/5 bg-white/5" />
-          <div className="h-56 rounded-2xl border border-white/5 bg-white/5" />
         </div>
       </div>
     );
@@ -100,180 +126,169 @@ export default function AchievementsPage() {
 
   if (!data) return null;
 
-  const pct =
-    data.stats.totalBadges > 0
-      ? Math.round((data.stats.unlocked / data.stats.totalBadges) * 100)
-      : 0;
-  const grouped = CATEGORY_ORDER.map((cat) => ({
-    category: cat,
-    badges: data.badges.filter((b) => b.category === cat),
-  })).filter((g) => g.badges.length > 0);
-
   return (
-    <div className="w-full space-y-8 min-w-0">
-      {/* Header + Stats */}
-      <div className="p-8 rounded-[2.5rem] bg-[#0a0a0f] border border-white/5 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-amber-600/10 via-yellow-600/5 to-transparent pointer-events-none" />
-        <div className="relative flex flex-col sm:flex-row sm:items-center gap-6">
-          <div className="flex items-center gap-4 flex-1">
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/20 to-yellow-500/20 text-amber-400 border border-amber-500/20">
-              <Trophy size={28} />
+    <div className="space-y-8 animate-in fade-in duration-500 w-full min-w-0">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-4">
+        <div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold uppercase tracking-wider mb-2">
+            <Trophy size={13} />
+            <span>Gladiator Trophy Hall</span>
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight flex items-center gap-3">
+            Achievements & Badges
+          </h1>
+          <p className="text-sm text-gray-400 mt-1">
+            Unlock rare algorithmic honors, conquer milestone bounties, and ascend the gladiator ranks.
+          </p>
+        </div>
+      </div>
+
+      {/* Hero EXP & Player Rank Banner */}
+      <div className="relative overflow-hidden rounded-[2.5rem] border border-amber-500/20 bg-linear-to-r from-[#181206] via-[#100d14] to-[#070914] p-6 sm:p-8 shadow-2xl">
+        <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-amber-500/15 blur-[100px] pointer-events-none" />
+        <div className="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-purple-500/15 blur-[100px] pointer-events-none" />
+
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          {/* Level Info (7 cols) */}
+          <div className="lg:col-span-7 space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-3xl bg-linear-to-br from-amber-500/30 to-yellow-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center font-black text-2xl shadow-lg shadow-amber-500/10">
+                {playerLevel}
+              </div>
+              <div>
+                <div className="text-xs uppercase font-black tracking-widest text-amber-400">
+                  Level {playerLevel} • {rankTitle}
+                </div>
+                <h2 className="text-2xl font-black text-white">{totalExp} Total EXP</h2>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-black text-white uppercase tracking-tight">
-                Achievements
-              </h1>
-              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">
-                {data.stats.unlocked} of {data.stats.totalBadges} unlocked
-              </p>
+
+            {/* EXP Progress Bar */}
+            <div className="space-y-1.5 pt-1">
+              <div className="flex justify-between items-center text-xs font-bold text-gray-300">
+                <span>Next Rank Progress</span>
+                <span className="text-amber-400">{expIntoCurrentLevel} / 350 EXP ({levelProgressPct}%)</span>
+              </div>
+              <div className="w-full h-2.5 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-linear-to-r from-amber-500 via-yellow-400 to-amber-500 rounded-full transition-all duration-500"
+                  style={{ width: `${levelProgressPct}%` }}
+                />
+              </div>
             </div>
           </div>
 
-          {/* Progress Ring */}
-          <div className="flex items-center gap-6">
-            <div className="relative w-20 h-20">
-              <svg className="w-20 h-20 -rotate-90" viewBox="0 0 36 36">
-                <path
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  fill="none"
-                  stroke="rgba(255,255,255,0.05)"
-                  strokeWidth="3"
-                />
-                <path
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  fill="none"
-                  stroke="url(#gold)"
-                  strokeWidth="3"
-                  strokeDasharray={`${pct}, 100`}
-                  strokeLinecap="round"
-                  className="transition-all duration-1000"
-                />
-                <defs>
-                  <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#f59e0b" />
-                    <stop offset="100%" stopColor="#eab308" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-lg font-black text-white">{pct}%</span>
-              </div>
+          {/* Quick Trophy Stats (5 cols) */}
+          <div className="lg:col-span-5 grid grid-cols-3 gap-3">
+            <div className="p-4 rounded-3xl bg-black/50 border border-white/5 backdrop-blur-md text-center">
+              <span className="text-[10px] uppercase font-bold text-gray-400">Unlocked</span>
+              <div className="text-2xl font-black text-amber-400 mt-1">{totalUnlocked}/{totalBadgesCount}</div>
             </div>
-
-            <div className="hidden sm:grid grid-cols-3 gap-4">
-              <div className="text-center">
-                <p className="text-lg font-black text-white">
-                  {data.stats.totalSolved}
-                </p>
-                <p className="text-[8px] text-gray-600 font-black uppercase tracking-widest">
-                  Solved
-                </p>
-              </div>
-              <div className="text-center">
-                <p className="text-lg font-black text-amber-400">
-                  {data.stats.longestStreak}
-                </p>
-                <p className="text-[8px] text-gray-600 font-black uppercase tracking-widest">
-                  Best Streak
-                </p>
-              </div>
-              <div className="text-center">
-                <p className="text-lg font-black text-purple-400">
-                  {data.stats.completedTopics}
-                </p>
-                <p className="text-[8px] text-gray-600 font-black uppercase tracking-widest">
-                  Topics 100%
-                </p>
-              </div>
+            <div className="p-4 rounded-3xl bg-black/50 border border-white/5 backdrop-blur-md text-center">
+              <span className="text-[10px] uppercase font-bold text-gray-400">Streak</span>
+              <div className="text-2xl font-black text-orange-400 mt-1">{data.stats.currentStreak}d</div>
+            </div>
+            <div className="p-4 rounded-3xl bg-black/50 border border-white/5 backdrop-blur-md text-center">
+              <span className="text-[10px] uppercase font-bold text-gray-400">Mastery</span>
+              <div className="text-2xl font-black text-cyan-400 mt-1">{completionPct}%</div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Badge Categories */}
-      {grouped.map((group) => {
-        const colors =
-          CATEGORY_COLORS[group.category] || CATEGORY_COLORS.Milestones;
-        return (
-          <div key={group.category}>
-            <div className="flex items-center gap-2 mb-4">
-              <span
-                className={`text-xs font-black uppercase tracking-widest ${colors.accent}`}
-              >
-                {group.category}
-              </span>
-              <div className="flex-1 h-px bg-white/5" />
-              <span className="text-[9px] text-gray-600 font-bold">
-                {group.badges.filter((b) => b.unlocked).length}/
-                {group.badges.length}
-              </span>
-            </div>
+      {/* Category Filter Tabs */}
+      <div className="flex flex-wrap items-center gap-2 border-b border-white/5 pb-3">
+        {CATEGORY_ORDER.map((cat) => {
+          const Icon = CATEGORY_ICONS[cat] || Award;
+          const isSelected = activeCategory === cat;
+          return (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+                isSelected
+                  ? "bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-inner"
+                  : "text-gray-400 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              <Icon size={14} className={isSelected ? "text-amber-400" : "text-gray-500"} />
+              <span>{cat}</span>
+            </button>
+          );
+        })}
+      </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {group.badges.map((badge) => (
-                <div
-                  key={badge.id}
-                  className={`relative p-5 rounded-2xl border transition-all duration-300 ${
-                    badge.unlocked
-                      ? `bg-[#0a0a0f] ${colors.border} hover:border-white/20 shadow-lg`
-                      : "bg-white/[0.01] border-white/5 opacity-50"
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <div
-                      className={`text-3xl ${badge.unlocked ? "" : "grayscale opacity-40"} transition-all`}
-                    >
-                      {badge.icon}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h4 className="text-sm font-black text-white truncate">
-                          {badge.name}
-                        </h4>
-                        {!badge.unlocked && (
-                          <Lock size={10} className="text-gray-600 shrink-0" />
-                        )}
-                      </div>
-                      <p className="text-[10px] text-gray-500 mt-0.5">
-                        {badge.description}
-                      </p>
-                    </div>
+      {/* Badges Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {filteredBadges.map((badge) => {
+          const isUnlocked = badge.unlocked;
+
+          return (
+            <div
+              key={badge.id}
+              className={`p-6 rounded-3xl border transition-all duration-300 flex flex-col justify-between space-y-4 shadow-md ${
+                isUnlocked
+                  ? "bg-linear-to-b from-[#161208] via-[#0d0d12] to-[#070912] border-amber-500/30 hover:border-amber-500/50 shadow-amber-500/5"
+                  : "bg-[#0a0a0f] border-white/5 opacity-75 hover:opacity-100"
+              }`}
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center text-xl shadow-inner ${
+                    isUnlocked
+                      ? "bg-linear-to-br from-amber-500/20 to-yellow-500/10 border-amber-500/30 text-amber-400"
+                      : "bg-white/5 border-white/10 text-gray-500"
+                  }`}>
+                    {isUnlocked ? (
+                      <span>{badge.icon || "🏆"}</span>
+                    ) : (
+                      <Lock size={18} />
+                    )}
                   </div>
 
-                  {/* Progress Bar */}
-                  {!badge.unlocked &&
-                    badge.progress !== undefined &&
-                    badge.progress > 0 && (
-                      <div className="mt-3">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-[8px] text-gray-600 font-bold uppercase tracking-widest">
-                            Progress
-                          </span>
-                          <span className="text-[9px] font-black text-gray-400">
-                            {Math.round(badge.progress)}%
-                          </span>
-                        </div>
-                        <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
-                          <div
-                            className={`h-full rounded-full transition-all duration-700 ${badge.unlocked ? "bg-amber-500" : "bg-gray-600"}`}
-                            style={{ width: `${badge.progress}%` }}
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                  {/* Unlocked Indicator */}
-                  {badge.unlocked && (
-                    <div className="absolute top-3 right-3">
-                      <div className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.6)]" />
-                    </div>
-                  )}
+                  <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-white/5 text-gray-400 border border-white/5">
+                    +150 EXP
+                  </span>
                 </div>
-              ))}
+
+                <div>
+                  <h3 className={`text-base font-extrabold ${isUnlocked ? "text-white" : "text-gray-400"}`}>
+                    {badge.name}
+                  </h3>
+                  <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">
+                    {badge.category}
+                  </span>
+                </div>
+
+                <p className="text-xs text-gray-400 leading-relaxed">
+                  {badge.description}
+                </p>
+              </div>
+
+              {/* Status / Progress Footer */}
+              <div className="pt-3 border-t border-white/5">
+                {isUnlocked ? (
+                  <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-bold">
+                    <CheckCircle2 size={14} />
+                    <span>Unlocked & Mastered</span>
+                  </div>
+                ) : (
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between items-center text-[10px] font-bold text-gray-500">
+                      <span>Locked Challenge</span>
+                      <span>In Progress</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                      <div className="h-full bg-gray-600 rounded-full" style={{ width: "35%" }} />
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }
