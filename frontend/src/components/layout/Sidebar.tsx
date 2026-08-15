@@ -20,6 +20,11 @@ import {
   RotateCcw,
   Brain,
   GraduationCap,
+  Swords,
+  Activity,
+  Sparkles,
+  Building2,
+  Puzzle,
   type LucideIcon,
 } from "lucide-react";
 import { useState } from "react";
@@ -39,6 +44,8 @@ const navSections: Array<{ title: string; items: NavItem[] }> = [
       { icon: LayoutDashboard, label: "Dashboard", href: "/" },
       { icon: GraduationCap, label: "Learn", href: "/learn" },
       { icon: Network, label: "Visual Roadmap", href: "/roadmap" },
+      { icon: Swords, label: "1v1 PvP Battles", href: "/pvp" },
+      { icon: Activity, label: "AlgoTracer 2.0", href: "/tracer" },
       { icon: BookOpen, label: "Topics", href: "/topics" },
       { icon: Target, label: "DSA City", href: "/city" },
       { icon: Zap, label: "The Arena", href: "/challenge" },
@@ -49,6 +56,8 @@ const navSections: Array<{ title: string; items: NavItem[] }> = [
     title: "Review",
     items: [
       { icon: RotateCcw, label: "Review Queue", href: "/review" },
+      { icon: Sparkles, label: "Flashcards SM-2", href: "/flashcards" },
+      { icon: Building2, label: "Company Tracks", href: "/company-tracks" },
       { icon: Brain, label: "AI Recommend", href: "/recommendations" },
       { icon: Search, label: "Explore", href: "/search" },
     ],
@@ -64,6 +73,7 @@ const navSections: Array<{ title: string; items: NavItem[] }> = [
   {
     title: "Manage",
     items: [
+      { icon: Puzzle, label: "Extension Hub", href: "/extension" },
       { icon: Library, label: "The Vault", href: "/vault" },
       { icon: Settings, label: "Settings", href: "/settings" },
     ],
