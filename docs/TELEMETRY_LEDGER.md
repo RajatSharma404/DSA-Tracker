@@ -94,3 +94,4 @@ Automated audit trail of system performance benchmarks, test assertions, and tel
 | RUN-0088 | 2026-08-20 10:16:08 | vault | argon2/bcrypt password hash benchmark | PASS | Mudit Atrey |
 | RUN-0089 | 2026-08-20 13:23:19 | api | cors preflight origin header assertion | PASS | Mudit Atrey |
 | RUN-0090 | 2026-08-20 16:30:30 | auth | zod request validation schema pass | PASS | Mudit Atrey |
+| RUN-0091 | 2026-08-20 19:37:41 | benchmarks | argon2 key derivation memory cost check | PASS | Mudit Atrey |
