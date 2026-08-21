@@ -189,7 +189,7 @@ export function Sidebar() {
       <div className="p-3 border-t border-[var(--border-subtle)] space-y-3 bg-[var(--bg-tertiary)]">
         {!effectiveCollapsed && (
           <div className="px-1">
-            <ThemeSelector variant="dropdown" />
+            <ThemeSelector variant="dropdown" placement="top" />
           </div>
         )}
 

@@ -2,15 +2,18 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { useTheme, THEME_OPTIONS, ThemeMode } from "@/components/providers/ThemeProvider";
-import { Palette, Check, Sparkles, ChevronDown } from "lucide-react";
+import { Palette, Check, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
+import { soundEffects } from "@/lib/soundEffects";
 
 interface ThemeSelectorProps {
   variant?: "dropdown" | "pills" | "grid";
+  placement?: "top" | "bottom";
   className?: string;
 }
 
 export function ThemeSelector({
   variant = "dropdown",
+  placement = "bottom",
   className = "",
 }: ThemeSelectorProps) {
   const { theme, setTheme, currentThemeOption } = useTheme();
@@ -38,7 +41,10 @@ export function ThemeSelector({
           return (
             <button
               key={option.id}
-              onClick={() => setTheme(option.id)}
+              onClick={() => {
+                soundEffects.playClick();
+                setTheme(option.id);
+              }}
               className={`p-4 rounded-xl border text-left transition-all duration-200 relative overflow-hidden flex flex-col justify-between group cursor-pointer ${
                 active
                   ? "border-[var(--accent-primary)] ring-2 ring-[var(--accent-primary)]/30 bg-[var(--bg-card)] shadow-lg"
@@ -62,7 +68,7 @@ export function ThemeSelector({
                   </span>
                 </div>
                 {active && (
-                  <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] border border-[var(--accent-primary)]/30">
+                  <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 font-mono">
                     <Check className="w-3 h-3" /> Active
                   </span>
                 )}
@@ -93,7 +99,10 @@ export function ThemeSelector({
           return (
             <button
               key={option.id}
-              onClick={() => setTheme(option.id)}
+              onClick={() => {
+                soundEffects.playClick();
+                setTheme(option.id);
+              }}
               className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-all duration-150 flex items-center gap-2 cursor-pointer ${
                 active
                   ? "border-[var(--accent-primary)] bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] shadow-sm"
@@ -104,7 +113,7 @@ export function ThemeSelector({
                 className="w-2.5 h-2.5 rounded-full border border-white/20"
                 style={{ backgroundColor: option.accentPreview }}
               />
-              {option.name}
+              <span>{option.name}</span>
             </button>
           );
         })}
@@ -112,50 +121,67 @@ export function ThemeSelector({
     );
   }
 
+  const isPlacementTop = placement === "top";
+
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between w-full px-3 py-2 text-xs font-medium rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-medium)] transition-all cursor-pointer shadow-sm group"
+        onClick={() => {
+          soundEffects.playClick();
+          setIsOpen(!isOpen);
+        }}
+        className="flex items-center justify-between w-full px-3 py-1.5 text-xs font-medium rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-medium)] transition-all cursor-pointer shadow-xs group font-mono"
         title="Change Theme Preset"
+        aria-expanded={isOpen}
       >
         <div className="flex items-center gap-2">
           <Palette className="w-3.5 h-3.5 text-[var(--accent-primary)] group-hover:rotate-12 transition-transform duration-200" />
           <span className="truncate">{currentThemeOption.name}</span>
         </div>
-        <ChevronDown className={`w-3.5 h-3.5 text-[var(--text-muted)] transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+        {isPlacementTop ? (
+          <ChevronUp className={`w-3.5 h-3.5 text-[var(--text-muted)] transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+        ) : (
+          <ChevronDown className={`w-3.5 h-3.5 text-[var(--text-muted)] transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+        )}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 bottom-full mb-2 w-56 p-1.5 rounded-xl border border-[var(--border-medium)] bg-[var(--bg-card)] shadow-2xl backdrop-blur-xl z-50 animate-in fade-in slide-in-from-bottom-2 duration-150">
-          <div className="px-2.5 py-1.5 text-[10px] uppercase font-bold tracking-wider text-[var(--text-muted)] flex items-center justify-between border-b border-[var(--border-subtle)] mb-1">
+        <div
+          className={`absolute right-0 w-56 p-1.5 rounded-2xl border border-[var(--border-medium)] bg-[var(--bg-card)] shadow-2xl backdrop-blur-xl z-50 animate-in fade-in duration-150 ${
+            isPlacementTop
+              ? "bottom-full mb-2 slide-in-from-bottom-2"
+              : "top-full mt-2 slide-in-from-top-2"
+          }`}
+        >
+          <div className="px-2.5 py-1.5 text-[10px] uppercase font-bold tracking-wider text-[var(--text-muted)] flex items-center justify-between border-b border-[var(--border-subtle)] mb-1 font-mono">
             <span>Theme Presets</span>
             <Sparkles className="w-3 h-3 text-[var(--accent-primary)]" />
           </div>
-          <div className="space-y-0.5 max-h-60 overflow-y-auto scrollbar-hide">
+          <div className="space-y-0.5 max-h-60 overflow-y-auto">
             {THEME_OPTIONS.map((option) => {
               const active = option.id === theme;
               return (
                 <button
                   key={option.id}
                   onClick={() => {
+                    soundEffects.playClick();
                     setTheme(option.id);
                     setIsOpen(false);
                   }}
-                  className={`w-full px-2.5 py-2 rounded-lg text-left text-xs font-medium transition-all flex items-center justify-between cursor-pointer ${
+                  className={`w-full px-2.5 py-2 rounded-xl text-left text-xs font-medium transition-all flex items-center justify-between cursor-pointer ${
                     active
-                      ? "bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] border border-[var(--accent-primary)]/30"
+                      ? "bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 font-bold"
                       : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
                   }`}
                 >
                   <div className="flex items-center gap-2">
                     <span
-                      className="w-3 h-3 rounded-full border border-white/20 flex-shrink-0"
+                      className="w-3 h-3 rounded-full border border-white/20 shadow-xs shrink-0"
                       style={{ backgroundColor: option.accentPreview }}
                     />
-                    <span>{option.name}</span>
+                    <span className="truncate">{option.name}</span>
                   </div>
-                  {active && <Check className="w-3.5 h-3.5" />}
+                  {active && <Check className="w-3.5 h-3.5 text-[var(--accent-primary)]" />}
                 </button>
               );
             })}
