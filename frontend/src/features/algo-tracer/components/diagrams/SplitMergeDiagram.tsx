@@ -1,6 +1,6 @@
 import React from "react";
 import { TraceStep } from "../../types";
-import { GitFork, Layers } from "lucide-react";
+import { GitFork } from "lucide-react";
 
 interface SplitMergeDiagramProps {
   step: TraceStep;
@@ -11,7 +11,6 @@ export function SplitMergeDiagram({ step }: SplitMergeDiagramProps) {
   const arrayState = step.arrayState || [];
   const activeRange = step.highlighting?.activeRange;
 
-  // Group nodes by depth
   const depthGroups: Record<number, typeof treeNodes> = {};
   treeNodes.forEach((node) => {
     if (!depthGroups[node.depth]) depthGroups[node.depth] = [];
@@ -19,23 +18,21 @@ export function SplitMergeDiagram({ step }: SplitMergeDiagramProps) {
   });
 
   return (
-    <div className="flex flex-col h-full w-full justify-between p-4 sm:p-6 bg-[#0a0a12]/80 rounded-3xl border border-white/5 shadow-2xl min-h-70">
-      {/* Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-white/5">
-        <div className="flex items-center gap-2 text-xs font-mono text-cyan-400 font-bold">
-          <GitFork size={15} />
-          <span>Divide & Conquer Recursion Tree</span>
+    <div className="flex flex-col h-full w-full justify-between p-2.5 bg-[#0a0a12]/90 rounded-2xl border border-white/5 shadow-xl overflow-hidden">
+      <div className="flex items-center justify-between pb-1.5 border-b border-white/5 shrink-0 text-[10px] font-mono">
+        <div className="flex items-center gap-1.5 text-cyan-400 font-bold">
+          <GitFork size={13} />
+          <span>Recursion Tree</span>
         </div>
-        <div className="text-[11px] font-mono text-gray-400">
-          Array Length: <strong className="text-white">{arrayState.length}</strong>
+        <div className="text-gray-400">
+          Array: <strong className="text-white">[{arrayState.join(",")}]</strong>
         </div>
       </div>
 
-      {/* Main Tree Canvas */}
-      <div className="flex-1 flex flex-col items-center justify-center gap-4 py-4 overflow-y-auto max-h-80">
+      <div className="flex-1 flex flex-col items-center justify-center gap-2 py-1 overflow-y-auto min-h-0 [scrollbar-width:thin]">
         {Object.keys(depthGroups).length > 0 ? (
           Object.entries(depthGroups).map(([depth, nodes]) => (
-            <div key={depth} className="flex items-center justify-center gap-4 sm:gap-6 flex-wrap">
+            <div key={depth} className="flex items-center justify-center gap-2 flex-wrap">
               {nodes.map((node) => {
                 const isActive =
                   activeRange &&
@@ -45,36 +42,25 @@ export function SplitMergeDiagram({ step }: SplitMergeDiagramProps) {
                 return (
                   <div
                     key={node.id}
-                    className={`flex flex-col items-center p-2.5 rounded-2xl border transition-all duration-300 ${
+                    className={`flex flex-col items-center p-1.5 rounded-xl border transition-all ${
                       isActive
-                        ? "bg-cyan-500/15 border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.4)] scale-105"
+                        ? "bg-cyan-500/20 border-cyan-400 scale-105"
                         : node.stage === "merged"
                           ? "bg-[#141d1a] border-emerald-500/30"
                           : "bg-[#11111c] border-white/5"
                     }`}
                   >
-                    <div className="flex items-center gap-1.5 mb-1.5">
-                      <span className="text-[9px] font-mono font-bold text-gray-400 uppercase">
+                    <div className="flex items-center gap-1 mb-0.5">
+                      <span className="text-[8px] font-mono text-gray-400">
                         [{node.leftIndex}..{node.rightIndex}]
-                      </span>
-                      <span
-                        className={`text-[8px] font-mono px-1.5 py-0.2 rounded font-black uppercase ${
-                          node.stage === "merged"
-                            ? "bg-emerald-500/20 text-emerald-400"
-                            : node.stage === "merging"
-                              ? "bg-yellow-500/20 text-yellow-400"
-                              : "bg-cyan-500/20 text-cyan-400"
-                        }`}
-                      >
-                        {node.stage}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-0.5">
                       {node.array.map((item, itemIdx) => (
                         <div
                           key={itemIdx}
-                          className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-xs font-mono font-bold border ${
+                          className={`w-6 h-6 rounded flex items-center justify-center text-[10px] font-mono font-bold border ${
                             isActive
                               ? "bg-cyan-400 text-black border-cyan-300 font-extrabold"
                               : node.stage === "merged"
@@ -92,29 +78,17 @@ export function SplitMergeDiagram({ step }: SplitMergeDiagramProps) {
             </div>
           ))
         ) : (
-          /* Primary Array fallback */
-          <div className="flex flex-col items-center gap-3">
-            <span className="text-xs text-gray-400 font-mono">Current Merged Array</span>
-            <div className="flex items-center gap-2 flex-wrap justify-center">
-              {arrayState.map((val, idx) => (
-                <div
-                  key={idx}
-                  className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-sm font-mono font-bold text-cyan-300"
-                >
-                  {val}
-                </div>
-              ))}
-            </div>
+          <div className="flex items-center gap-1 flex-wrap justify-center">
+            {arrayState.map((val, idx) => (
+              <div
+                key={idx}
+                className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-xs font-mono font-bold text-cyan-300"
+              >
+                {val}
+              </div>
+            ))}
           </div>
         )}
-      </div>
-
-      {/* Footer / Current Array */}
-      <div className="p-2.5 rounded-2xl bg-black/40 border border-white/5 flex items-center justify-between text-xs font-mono text-gray-400">
-        <span>Global Array State:</span>
-        <span className="text-cyan-400 font-bold">
-          [{arrayState.join(", ")}]
-        </span>
       </div>
     </div>
   );

@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Activity, Sparkles, Code2, Sliders, ExternalLink, Zap } from "lucide-react";
-import { SupportedLanguage, AlgorithmType, DiagramType, TraceSession } from "./types";
+import { Activity, Zap, CheckCircle2, Sliders } from "lucide-react";
+import { SupportedLanguage, AlgorithmType, TraceSession } from "./types";
 import { STARTER_PRESETS } from "./data/starterCodes";
 import { useAlgoDetector } from "./hooks/useAlgoDetector";
 import { useTraceEngine } from "./hooks/useTraceEngine";
@@ -10,6 +10,7 @@ import { usePlayback } from "./hooks/usePlayback";
 import { EditorPanel } from "./components/EditorPanel";
 import { TracePanel } from "./components/TracePanel";
 import { ControlsBar } from "./components/ControlsBar";
+import { InputDrawer } from "./components/InputDrawer";
 import { toast } from "sonner";
 
 interface AlgoTracerProps {
@@ -46,8 +47,9 @@ export function AlgoTracer({
   );
 
   // Split-pane layout ratio (Left Editor % vs Right Trace %)
-  const [splitRatio, setSplitRatio] = useState<number>(50);
+  const [splitRatio, setSplitRatio] = useState<number>(48);
   const [isResizing, setIsResizing] = useState(false);
+  const [isInputDrawerOpen, setIsInputDrawerOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Algorithm Detection
@@ -194,86 +196,127 @@ export function AlgoTracer({
   const isGraphAlgo = detection.suggestedDiagram === "graph";
 
   return (
-    <div className="space-y-6 w-full animate-in fade-in duration-500 min-w-0">
-      {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-4">
-        <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold uppercase tracking-wider mb-2">
-            <Activity size={13} />
-            <span>AlgoTrace Pro Execution Engine</span>
+    <div className="flex flex-col h-full min-h-0 w-full overflow-hidden p-2 sm:p-3 space-y-2 bg-[#06060c] text-white select-none">
+      {/* ROW 1: SLIM TOPBAR (44px, fixed) */}
+      <header className="h-11 px-3.5 rounded-2xl bg-[#0a0a14] border border-white/10 flex items-center justify-between gap-3 shadow-lg shrink-0">
+        <div className="flex items-center gap-3">
+          {/* Brand Tag */}
+          <div className="flex items-center gap-1.5 text-xs font-black tracking-wider text-white">
+            <span className="p-1 rounded-lg bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+              <Zap size={13} />
+            </span>
+            <span className="hidden sm:inline">AlgoTrace</span>
+            <span className="text-cyan-400 font-mono text-[10px] uppercase px-1.5 py-0.2 rounded bg-cyan-500/10 border border-cyan-500/20">
+              PRO
+            </span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight flex items-center gap-3">
-            AlgoTrace Interactive Stepper
-          </h1>
-          <p className="text-sm text-gray-400 mt-1">
-            Write any algorithm in the editor, instrument its execution state step-by-step, and watch the live diagram, theory, and highlighted code synchronized in real time.
-          </p>
+
+          {/* Language Selector Tabs */}
+          <div className="flex items-center gap-0.5 bg-white/5 border border-white/5 rounded-xl p-0.5 font-mono text-[11px]">
+            {(
+              [
+                { id: "javascript", label: "JS" },
+                { id: "python", label: "Python" },
+                { id: "cpp", label: "C++" },
+              ] as const
+            ).map((lang) => (
+              <button
+                key={lang.id}
+                onClick={() => {
+                  setLanguage(lang.id);
+                  const foundPreset = STARTER_PRESETS.find(
+                    (p) => p.id === detection.type,
+                  );
+                  if (foundPreset && foundPreset.codes[lang.id]) {
+                    setCode(foundPreset.codes[lang.id]);
+                  }
+                }}
+                className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+                  language === lang.id
+                    ? "bg-cyan-500 text-black font-extrabold shadow-sm"
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                {lang.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Template Dropdown */}
+          <select
+            onChange={(e) => {
+              if (e.target.value) {
+                handleSelectPreset(e.target.value as AlgorithmType);
+              }
+            }}
+            defaultValue=""
+            className="bg-[#12121e] border border-white/10 rounded-xl px-2.5 py-1 text-xs font-mono font-bold text-gray-300 outline-none cursor-pointer hidden md:block"
+          >
+            <option value="" disabled>
+              Load Template ▾
+            </option>
+            {STARTER_PRESETS.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.title}
+              </option>
+            ))}
+          </select>
         </div>
 
-        {/* Auto-Detection Badge */}
-        <div className="flex items-center gap-2 p-2 rounded-2xl bg-white/5 border border-white/5 font-mono text-xs self-start sm:self-auto">
-          <span className="text-gray-400">Detected:</span>
-          <span className="px-2.5 py-1 rounded-xl bg-cyan-500/20 text-cyan-300 font-extrabold border border-cyan-500/30">
-            {detection.displayName}
-          </span>
-        </div>
-      </div>
+        {/* Right Status Badges */}
+        <div className="flex items-center gap-2 font-mono text-[11px]">
+          {/* Detected Algo */}
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 font-bold">
+            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+            <span>{detection.displayName}</span>
+          </div>
 
-      {/* Main Split-View Workspace */}
+          {/* Extension Ready */}
+          <div className="hidden lg:flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold">
+            <CheckCircle2 size={12} />
+            <span>Extension Ready</span>
+          </div>
+        </div>
+      </header>
+
+      {/* ROW 2: MAIN WORKSPACE (calc(100vh - 44px - 56px), NO SCROLL) */}
       <div
         ref={containerRef}
-        className={`flex flex-col lg:flex-row gap-0 rounded-[2.5rem] border border-white/10 bg-[#07070d] p-4 sm:p-6 shadow-2xl overflow-hidden ${
+        className={`flex-1 min-h-0 flex flex-col lg:flex-row gap-0 overflow-hidden ${
           isResizing ? "select-none" : ""
         }`}
       >
-        {/* Left Side: Editor & Inputs */}
+        {/* Left Side: Monaco Editor (~48%) */}
         <div
-          className="w-full lg:pr-3"
-          style={{ width: `calc(${splitRatio}% - 4px)` }}
+          className="h-full min-h-0 lg:pr-1.5 flex flex-col"
+          style={{ width: `calc(${splitRatio}% - 3px)` }}
         >
           <EditorPanel
             code={code}
             setCode={setCode}
             language={language}
-            setLanguage={(newLang) => {
-              setLanguage(newLang);
-              const foundPreset = STARTER_PRESETS.find(
-                (p) => p.id === detection.type,
-              );
-              if (foundPreset && foundPreset.codes[newLang]) {
-                setCode(foundPreset.codes[newLang]);
-              }
-            }}
             onRunTrace={handleRunTrace}
             onClear={handleClearCode}
             isTracing={isTracing}
             activeLine={currentStep?.line}
-            arrayInput={arrayInput}
-            setArrayInput={setArrayInput}
-            targetInput={targetInput}
-            setTargetInput={setTargetInput}
-            graphInput={graphInput}
-            setGraphInput={setGraphInput}
-            onSelectPreset={handleSelectPreset}
-            showGraphInput={isGraphAlgo}
           />
         </div>
 
-        {/* Horizontal Drag Handle */}
+        {/* Vertical Resize Drag Handle */}
         <div
           role="separator"
           aria-orientation="vertical"
-          aria-label="Resize editor and trace panels"
+          aria-label="Resize panels"
           onMouseDown={() => setIsResizing(true)}
-          className="hidden lg:flex w-2 shrink-0 cursor-col-resize items-center justify-center group my-2"
+          className="hidden lg:flex w-1.5 shrink-0 cursor-col-resize items-center justify-center group my-2"
         >
-          <div className="h-24 w-1 rounded-full bg-white/10 group-hover:bg-cyan-400 transition-colors" />
+          <div className="h-20 w-1 rounded-full bg-white/10 group-hover:bg-cyan-400 transition-colors" />
         </div>
 
-        {/* Right Side: Trace Visualizer & Theory */}
+        {/* Right Side: Trace Visualizer (~52%) */}
         <div
-          className="w-full lg:pl-3 mt-6 lg:mt-0"
-          style={{ width: `calc(${100 - splitRatio}% - 4px)` }}
+          className="h-full min-h-0 lg:pl-1.5 flex flex-col mt-2 lg:mt-0"
+          style={{ width: `calc(${100 - splitRatio}% - 3px)` }}
         >
           <TracePanel
             currentStep={currentStep}
@@ -285,7 +328,23 @@ export function AlgoTracer({
         </div>
       </div>
 
-      {/* Bottom Controls Bar (Full Width) */}
+      {/* COLLAPSIBLE SLIDE-UP INPUT DRAWER (slides up above controls) */}
+      {isInputDrawerOpen && (
+        <InputDrawer
+          isOpen={isInputDrawerOpen}
+          onClose={() => setIsInputDrawerOpen(false)}
+          arrayInput={arrayInput}
+          setArrayInput={setArrayInput}
+          targetInput={targetInput}
+          setTargetInput={setTargetInput}
+          graphInput={graphInput}
+          setGraphInput={setGraphInput}
+          onRerun={handleRunTrace}
+          showGraphInput={isGraphAlgo}
+        />
+      )}
+
+      {/* ROW 3: CONTROLS BAR (56px fixed height) */}
       <ControlsBar
         currentStepIndex={currentStepIndex}
         totalSteps={steps.length}
@@ -301,6 +360,8 @@ export function AlgoTracer({
         setSpeedDelay={setSpeedDelay}
         onScrub={goToStep}
         codeToCopy={code}
+        isInputDrawerOpen={isInputDrawerOpen}
+        onToggleInputDrawer={() => setIsInputDrawerOpen(!isInputDrawerOpen)}
       />
     </div>
   );

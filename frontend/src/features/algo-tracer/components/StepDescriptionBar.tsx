@@ -1,5 +1,5 @@
 import React from "react";
-import { Sparkles, ArrowRight, CheckCircle2, RotateCw, GitCommit } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { TraceStep } from "../types";
 
 interface StepDescriptionBarProps {
@@ -17,7 +17,7 @@ export function StepDescriptionBar({
     switch (type) {
       case "compare":
         return {
-          label: "Comparison",
+          label: "Compare",
           color: "bg-[#ff6b6b]/20 border-[#ff6b6b]/40 text-[#ff6b6b]",
         };
       case "swap":
@@ -27,13 +27,13 @@ export function StepDescriptionBar({
         };
       case "found":
         return {
-          label: "Match Found",
+          label: "Match",
           color: "bg-emerald-500/20 border-emerald-500/40 text-emerald-300",
         };
       case "insert":
       case "sorted":
         return {
-          label: "Sorted Position",
+          label: "Sorted",
           color: "bg-emerald-500/20 border-emerald-500/40 text-emerald-400",
         };
       case "split":
@@ -49,12 +49,12 @@ export function StepDescriptionBar({
       case "visit":
       case "enqueue":
         return {
-          label: "Graph Traversal",
+          label: "Graph",
           color: "bg-blue-500/20 border-blue-500/40 text-blue-300",
         };
       default:
         return {
-          label: "Execution Step",
+          label: "Step",
           color: "bg-white/10 border-white/20 text-gray-300",
         };
     }
@@ -63,30 +63,30 @@ export function StepDescriptionBar({
   const badge = getTypeBadge(step?.type || "iterate");
 
   return (
-    <div className="p-4 sm:p-5 rounded-3xl bg-[#0f0f1c] border border-cyan-500/20 shadow-xl flex items-start sm:items-center gap-3.5 transition-all">
-      <div className="p-2.5 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 shrink-0">
-        <Sparkles size={18} />
+    <div className="h-17 px-3 py-2 rounded-2xl bg-[#0f0f1c] border border-cyan-500/20 shadow-md flex items-center gap-2.5 shrink-0 overflow-hidden">
+      <div className="p-1.5 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 shrink-0">
+        <Sparkles size={14} />
       </div>
 
-      <div className="flex-1 space-y-1 min-w-0">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[10px] font-black uppercase tracking-wider text-cyan-400 font-mono">
-            Step {totalSteps > 0 ? currentStepIndex + 1 : 0} of {totalSteps}
+      <div className="flex-1 min-w-0 space-y-0.5">
+        <div className="flex items-center gap-1.5 font-mono text-[10px]">
+          <span className="font-bold uppercase text-cyan-400">
+            Step {totalSteps > 0 ? currentStepIndex + 1 : 0}/{totalSteps}
           </span>
           <span
-            className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase font-mono border ${badge.color}`}
+            className={`px-1.5 py-0.2 rounded-md font-bold uppercase border ${badge.color}`}
           >
             {badge.label}
           </span>
           {step?.line ? (
-            <span className="text-[10px] font-mono text-gray-400">
-              (Line {step.line})
+            <span className="text-gray-500 font-mono">
+              L{step.line}
             </span>
           ) : null}
         </div>
 
-        <p className="text-xs sm:text-sm text-gray-200 font-medium leading-relaxed">
-          {step?.description || "Ready to execute algorithm. Click 'Run & Trace' to begin."}
+        <p className="text-[11px] text-gray-200 font-medium leading-snug line-clamp-2 truncate">
+          {step?.description || "Ready to execute. Click 'Run & Trace' to start."}
         </p>
       </div>
     </div>

@@ -8,7 +8,7 @@ const AlgoTracer = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-160 animate-pulse rounded-3xl border border-white/10 bg-white/3 flex items-center justify-center text-gray-500 font-mono text-xs">
+      <div className="h-screen w-full animate-pulse bg-black/60 flex items-center justify-center text-gray-500 font-mono text-xs">
         Loading AlgoTrace Engine...
       </div>
     ),
@@ -16,5 +16,9 @@ const AlgoTracer = dynamic(
 );
 
 export default function TracerPage() {
-  return <AlgoTracer />;
+  return (
+    <div className="-m-4 sm:-m-6 lg:-m-8 h-screen w-auto overflow-hidden flex flex-col">
+      <AlgoTracer />
+    </div>
+  );
 }

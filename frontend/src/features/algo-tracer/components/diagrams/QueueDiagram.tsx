@@ -11,29 +11,24 @@ export function QueueDiagram({ step }: QueueDiagramProps) {
     step.dataStructureState || (step.variables?.queue ? JSON.parse(String(step.variables.queue).replace(/'/g, '"')) : [10, 20, 30]);
 
   return (
-    <div className="flex flex-col h-full w-full justify-between p-4 sm:p-6 bg-[#0a0a12]/80 rounded-3xl border border-white/5 shadow-2xl min-h-70">
-      {/* Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-white/5">
-        <div className="flex items-center gap-2 text-xs font-mono text-cyan-400 font-bold">
-          <MoveRight size={15} />
-          <span>FIFO Queue Pipe Model</span>
+    <div className="flex flex-col h-full w-full justify-between p-2.5 bg-[#0a0a12]/90 rounded-2xl border border-white/5 shadow-xl overflow-hidden">
+      <div className="flex items-center justify-between pb-1 border-b border-white/5 shrink-0 text-[10px] font-mono">
+        <div className="flex items-center gap-1.5 text-cyan-400 font-bold">
+          <MoveRight size={13} />
+          <span>FIFO Queue</span>
         </div>
-        <div className="text-xs font-mono text-gray-400">
+        <div className="text-gray-400">
           Length: <strong className="text-white">{queueItems.length}</strong>
         </div>
       </div>
 
-      {/* Main Pipe */}
-      <div className="flex-1 flex flex-col items-center justify-center py-6">
-        <div className="flex items-center gap-3 w-full max-w-lg justify-center overflow-x-auto p-2">
-          {/* Dequeue Exit Indicator */}
-          <div className="flex flex-col items-center text-[10px] font-mono text-emerald-400 font-bold shrink-0">
-            <ArrowRight size={16} className="text-emerald-400" />
-            <span>EXIT (Front)</span>
-          </div>
+      <div className="flex-1 flex flex-col items-center justify-center py-2 min-h-0">
+        <div className="flex items-center gap-2 w-full max-w-sm justify-center overflow-x-auto p-1">
+          <span className="text-[9px] font-mono text-emerald-400 font-bold shrink-0">
+            EXIT
+          </span>
 
-          {/* Queue Pipe Container */}
-          <div className="flex items-center gap-2 border-t-2 border-b-2 border-cyan-500/40 p-3 bg-black/40 rounded-xl min-w-48 justify-center">
+          <div className="flex items-center gap-1.5 border-t border-b border-cyan-500/40 p-2 bg-black/40 rounded-lg min-w-36 justify-center">
             {queueItems.length > 0 ? (
               queueItems.map((val: string | number, idx: number) => {
                 const isFront = idx === 0;
@@ -42,38 +37,30 @@ export function QueueDiagram({ step }: QueueDiagramProps) {
                 return (
                   <div
                     key={idx}
-                    className={`px-3 py-2.5 rounded-xl border flex flex-col items-center gap-1 font-mono text-xs transition-all duration-300 ${
+                    className={`px-2 py-1.5 rounded-lg border flex flex-col items-center gap-0.5 font-mono text-[11px] transition-all ${
                       isFront
-                        ? "bg-emerald-500/20 border-emerald-400 text-emerald-300 font-bold shadow"
+                        ? "bg-emerald-500/20 border-emerald-400 text-emerald-300 font-bold"
                         : isRear
-                          ? "bg-cyan-500/20 border-cyan-400 text-cyan-300 font-bold shadow"
+                          ? "bg-cyan-500/20 border-cyan-400 text-cyan-300 font-bold"
                           : "bg-[#141422] border-white/10 text-gray-300"
                     }`}
                   >
-                    <span className="text-sm font-black">{val}</span>
-                    <span className="text-[9px] text-gray-500">
+                    <span className="font-black">{val}</span>
+                    <span className="text-[8px] text-gray-500">
                       {isFront ? "FRONT" : isRear ? "REAR" : `[${idx}]`}
                     </span>
                   </div>
                 );
               })
             ) : (
-              <span className="text-xs text-gray-600 italic py-2">Queue is Empty</span>
+              <span className="text-[10px] text-gray-600 italic py-1">Empty</span>
             )}
           </div>
 
-          {/* Enqueue Entrance Indicator */}
-          <div className="flex flex-col items-center text-[10px] font-mono text-cyan-400 font-bold shrink-0">
-            <ArrowRight size={16} className="text-cyan-400" />
-            <span>ENTER (Rear)</span>
-          </div>
+          <span className="text-[9px] font-mono text-cyan-400 font-bold shrink-0">
+            ENTER
+          </span>
         </div>
-      </div>
-
-      {/* Footer */}
-      <div className="p-2.5 rounded-2xl bg-black/40 border border-white/5 flex items-center justify-between text-xs font-mono text-gray-400">
-        <span>Active Action:</span>
-        <span className="text-cyan-400 font-bold uppercase">{step.type}</span>
       </div>
     </div>
   );
