@@ -14,6 +14,7 @@ import {
   Timer,
   Focus,
   CheckCircle2,
+  Activity,
 } from "lucide-react";
 import Link from "next/link";
 import { trackEvent } from "@/lib/analytics";
@@ -74,6 +75,18 @@ const SolutionHistory = dynamic(
   },
 );
 
+const AlgoTracer = dynamic(
+  () => import("@/features/algo-tracer").then((mod) => mod.AlgoTracer),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-120 animate-pulse rounded-2xl border border-white/5 bg-white/3 flex items-center justify-center text-gray-500 font-mono text-xs">
+        Loading AlgoTracer...
+      </div>
+    ),
+  },
+);
+
 export default function ProblemSolvePage() {
   const params = useParams();
   const router = useRouter();
@@ -83,7 +96,7 @@ export default function ProblemSolvePage() {
   const [problemDetails, setProblemDetails] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<
-    "solve" | "hints" | "architect" | "notes"
+    "solve" | "hints" | "architect" | "notes" | "trace"
   >("solve");
   const [leftPanelWidth, setLeftPanelWidth] = useState(50);
   const [isResizing, setIsResizing] = useState(false);
@@ -259,6 +272,13 @@ export default function ProblemSolvePage() {
               <Timer size={12} />
               Session {formatElapsed(elapsedSeconds)}
             </div>
+            <Link
+              href="/tracer"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 transition-colors text-xs font-bold font-mono"
+            >
+              <Activity size={14} />
+              Open in Tracer
+            </Link>
             <button
               onClick={() => {
                 const next = !focusMode;
@@ -353,6 +373,19 @@ export default function ProblemSolvePage() {
                 >
                   <Code2 size={16} />
                   Code Editor
+                </button>
+                <button
+                  onClick={() => setActiveTab("trace")}
+                  role="tab"
+                  aria-selected={activeTab === "trace"}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 ${
+                    activeTab === "trace"
+                      ? "bg-cyan-500 text-black font-bold shadow-sm"
+                      : "bg-white/5 text-gray-400 hover:bg-white/10"
+                  }`}
+                >
+                  <Activity size={16} />
+                  AlgoTracer
                 </button>
                 <button
                   onClick={() => setActiveTab("hints")}
@@ -453,6 +486,12 @@ export default function ProblemSolvePage() {
                   </div>
                 )}
               </>
+            )}
+
+            {activeTab === "trace" && (
+              <div className="pt-2">
+                <AlgoTracer problemId={problem.id} />
+              </div>
             )}
 
             {activeTab === "hints" && (
