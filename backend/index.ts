@@ -39,6 +39,7 @@ import {
 } from "./aiService";
 import { DSA_TEMPLATES } from "./templates";
 import { seedComprehensiveDSA } from "./seedComprehensiveDSA";
+import { seedLearnCppCurriculum } from "./seedLearnCppCurriculum";
 
 dotenv.config();
 
@@ -2162,6 +2163,26 @@ app.post(
       res
         .status(500)
         .json({ error: "Failed to seed comprehensive DSA content" });
+    }
+  },
+);
+
+app.post(
+  "/api/admin/learn/seed-learncpp",
+  requireAuth,
+  requireAdmin,
+  async (_req: Request, res: Response) => {
+    try {
+      const result = await seedLearnCppCurriculum();
+      res.json({
+        success: true,
+        ...result,
+      });
+    } catch (error) {
+      console.error("LearnCpp seed error:", error);
+      res
+        .status(500)
+        .json({ error: "Failed to seed LearnCpp content" });
     }
   },
 );

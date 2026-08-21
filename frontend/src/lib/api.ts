@@ -393,6 +393,10 @@ export const dsaApi = {
     const res = await api.post("/admin/learn/seed-comprehensive");
     return res.data;
   },
+  adminSeedLearnCpp: async () => {
+    const res = await api.post("/admin/learn/seed-learncpp");
+    return res.data;
+  },
   getTopicProblems: async (topicId: string): Promise<Problem[]> => {
     const res = await api.get(`/topics/${topicId}/problems`);
     return res.data;

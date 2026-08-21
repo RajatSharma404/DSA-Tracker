@@ -139,6 +139,18 @@ export default function LearnPage() {
     }
   };
 
+  const handleSeedLearnCpp = async () => {
+    try {
+      setSeeding(true);
+      await dsaApi.adminSeedLearnCpp();
+      await loadTracks();
+    } catch {
+      setError("Failed to seed LearnCpp curriculum. Check backend logs.");
+    } finally {
+      setSeeding(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="w-full min-w-0 space-y-6 animate-pulse">
@@ -194,18 +206,32 @@ export default function LearnPage() {
                 </Link>
               )}
               {isAdmin && (
-                <button
-                  onClick={handleSeed}
-                  disabled={seeding}
-                  className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-2.5 text-sm font-semibold text-emerald-200 transition-colors hover:bg-emerald-500/15 disabled:opacity-60"
-                >
-                  {seeding ? (
-                    <Loader2 size={15} className="animate-spin" />
-                  ) : (
-                    <Sparkles size={15} />
-                  )}
-                  {seeding ? "Seeding..." : "Reseed bootcamp"}
-                </button>
+                <>
+                  <button
+                    onClick={handleSeed}
+                    disabled={seeding}
+                    className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-2.5 text-sm font-semibold text-emerald-200 transition-colors hover:bg-emerald-500/15 disabled:opacity-60 cursor-pointer"
+                  >
+                    {seeding ? (
+                      <Loader2 size={15} className="animate-spin" />
+                    ) : (
+                      <Sparkles size={15} />
+                    )}
+                    {seeding ? "Seeding..." : "Reseed bootcamp"}
+                  </button>
+                  <button
+                    onClick={handleSeedLearnCpp}
+                    disabled={seeding}
+                    className="inline-flex items-center gap-2 rounded-xl border border-cyan-500/25 bg-cyan-500/10 px-4 py-2.5 text-sm font-semibold text-cyan-200 transition-colors hover:bg-cyan-500/15 disabled:opacity-60 cursor-pointer"
+                  >
+                    {seeding ? (
+                      <Loader2 size={15} className="animate-spin" />
+                    ) : (
+                      <BookOpen size={15} />
+                    )}
+                    {seeding ? "Seeding..." : "Seed LearnCpp"}
+                  </button>
+                </>
               )}
             </div>
 

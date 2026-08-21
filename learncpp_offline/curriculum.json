@@ -1,0 +1,32 @@
+[
+  {
+    "lessonNumber": "0.1",
+    "title": "Introduction to these tutorials",
+    "fullTitle": "0.1 \u2014 Introduction to these tutorials",
+    "chapter": "0",
+    "chapterTitle": "Introduction & Getting Started",
+    "url": "https://www.learncpp.com/cpp-tutorial/introduction-to-these-tutorials/",
+    "slug": "introduction-to-these-tutorials",
+    "filePath": "Chapter_00_Introduction_&_Getting_Started\\0.1_Introduction_to_these_tutorials.md"
+  },
+  {
+    "lessonNumber": "0.2",
+    "title": "Introduction to programs and programming languages",
+    "fullTitle": "0.2 \u2014 Introduction to programs and programming languages",
+    "chapter": "0",
+    "chapterTitle": "Introduction & Getting Started",
+    "url": "https://www.learncpp.com/cpp-tutorial/introduction-to-programming-languages/",
+    "slug": "introduction-to-programming-languages",
+    "filePath": "Chapter_00_Introduction_&_Getting_Started\\0.2_Introduction_to_programs_and_programming_languages.md"
+  },
+  {
+    "lessonNumber": "0.3",
+    "title": "Introduction to C/C++",
+    "fullTitle": "0.3 \u2014 Introduction to C/C++",
+    "chapter": "0",
+    "chapterTitle": "Introduction & Getting Started",
+    "url": "https://www.learncpp.com/cpp-tutorial/introduction-to-cplusplus/",
+    "slug": "introduction-to-cplusplus",
+    "filePath": "Chapter_00_Introduction_&_Getting_Started\\0.3_Introduction_to_CC++.md"
+  }
+]
