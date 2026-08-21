@@ -196,23 +196,23 @@ export function AlgoTracer({
   const isGraphAlgo = detection.suggestedDiagram === "graph";
 
   return (
-    <div className="flex flex-col h-full min-h-0 w-full overflow-hidden p-2 sm:p-3 space-y-2 bg-[#06060c] text-white select-none">
+    <div className="flex flex-col h-full min-h-0 w-full overflow-hidden p-2 sm:p-3 space-y-2 bg-[var(--bg-primary)] text-[var(--text-primary)] select-none">
       {/* ROW 1: SLIM TOPBAR (44px, fixed) */}
-      <header className="h-11 px-3.5 rounded-2xl bg-[#0a0a14] border border-white/10 flex items-center justify-between gap-3 shadow-lg shrink-0">
+      <header className="h-11 px-3.5 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] flex items-center justify-between gap-3 shadow-lg shrink-0">
         <div className="flex items-center gap-3">
           {/* Brand Tag */}
-          <div className="flex items-center gap-1.5 text-xs font-black tracking-wider text-white">
-            <span className="p-1 rounded-lg bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+          <div className="flex items-center gap-1.5 text-xs font-black tracking-wider text-[var(--text-primary)]">
+            <span className="p-1 rounded-lg bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] border border-[var(--accent-primary)]/30">
               <Zap size={13} />
             </span>
-            <span className="hidden sm:inline">AlgoTrace</span>
-            <span className="text-cyan-400 font-mono text-[10px] uppercase px-1.5 py-0.2 rounded bg-cyan-500/10 border border-cyan-500/20">
+            <span className="hidden sm:inline font-display font-bold">AlgoTrace</span>
+            <span className="text-[var(--accent-primary)] font-mono text-[10px] uppercase px-1.5 py-0.2 rounded bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/20">
               PRO
             </span>
           </div>
 
           {/* Language Selector Tabs */}
-          <div className="flex items-center gap-0.5 bg-white/5 border border-white/5 rounded-xl p-0.5 font-mono text-[11px]">
+          <div className="flex items-center gap-0.5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-xl p-0.5 font-mono text-[11px]">
             {(
               [
                 { id: "javascript", label: "JS" },
@@ -233,8 +233,8 @@ export function AlgoTracer({
                 }}
                 className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer ${
                   language === lang.id
-                    ? "bg-cyan-500 text-black font-extrabold shadow-sm"
-                    : "text-gray-400 hover:text-white"
+                    ? "bg-[var(--accent-primary)] text-black font-extrabold shadow-sm"
+                    : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                 }`}
               >
                 {lang.label}
@@ -250,7 +250,7 @@ export function AlgoTracer({
               }
             }}
             defaultValue=""
-            className="bg-[#12121e] border border-white/10 rounded-xl px-2.5 py-1 text-xs font-mono font-bold text-gray-300 outline-none cursor-pointer hidden md:block"
+            className="bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-xl px-2.5 py-1 text-xs font-mono font-bold text-[var(--text-secondary)] outline-none cursor-pointer hidden md:block"
           >
             <option value="" disabled>
               Load Template ▾

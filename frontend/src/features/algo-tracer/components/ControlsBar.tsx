@@ -66,14 +66,14 @@ export function ControlsBar({
   };
 
   return (
-    <div className="w-full h-14 px-3 sm:px-4 rounded-2xl bg-[#090910] border border-white/10 flex items-center justify-between gap-3 shadow-xl shrink-0">
+    <div className="w-full h-14 px-3 sm:px-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] flex items-center justify-between gap-3 shadow-xl shrink-0">
       {/* Playback Cluster */}
       <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
         <button
           onClick={onFirst}
           disabled={currentStepIndex === 0}
           title="First Step"
-          className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer disabled:opacity-20"
+          className="p-1.5 rounded-lg bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer disabled:opacity-20 border border-[var(--border-subtle)]"
         >
           <ChevronsLeft size={14} />
         </button>
@@ -82,7 +82,7 @@ export function ControlsBar({
           onClick={onPrev}
           disabled={currentStepIndex === 0}
           title="Previous (←)"
-          className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer disabled:opacity-20"
+          className="p-1.5 rounded-lg bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer disabled:opacity-20 border border-[var(--border-subtle)]"
         >
           <SkipBack size={14} />
         </button>
@@ -90,7 +90,7 @@ export function ControlsBar({
         <button
           onClick={onTogglePlay}
           title="Play / Pause (Space)"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-linear-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-black text-xs uppercase tracking-wider transition-all shadow-md shadow-cyan-500/20 cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--accent-primary)] text-black font-black text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
         >
           {isPlaying ? <Pause size={13} /> : <Play size={13} />}
           <span>{isPlaying ? "Pause" : "Play"}</span>
@@ -100,7 +100,7 @@ export function ControlsBar({
           onClick={onNext}
           disabled={currentStepIndex >= totalSteps - 1}
           title="Next (→)"
-          className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer disabled:opacity-20"
+          className="p-1.5 rounded-lg bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer disabled:opacity-20 border border-[var(--border-subtle)]"
         >
           <SkipForward size={14} />
         </button>
@@ -109,7 +109,7 @@ export function ControlsBar({
           onClick={onLast}
           disabled={currentStepIndex >= totalSteps - 1}
           title="Last Step"
-          className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer disabled:opacity-20"
+          className="p-1.5 rounded-lg bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer disabled:opacity-20 border border-[var(--border-subtle)]"
         >
           <ChevronsRight size={14} />
         </button>
@@ -117,7 +117,7 @@ export function ControlsBar({
 
       {/* Center: Step & Progress Scrubber */}
       <div className="flex-1 max-w-xl mx-2 flex items-center gap-3">
-        <span className="text-[11px] font-mono font-bold text-gray-300 shrink-0">
+        <span className="text-[11px] font-mono font-bold text-[var(--text-secondary)] shrink-0">
           {totalSteps > 0 ? currentStepIndex + 1 : 0}/{totalSteps}
         </span>
 
@@ -129,15 +129,15 @@ export function ControlsBar({
             const targetStep = Math.round(ratio * (totalSteps - 1));
             onScrub(targetStep);
           }}
-          className="flex-1 h-2 rounded-full bg-white/10 overflow-hidden cursor-pointer relative group transition-all hover:h-2.5"
+          className="flex-1 h-2 rounded-full bg-[var(--bg-tertiary)] overflow-hidden cursor-pointer relative group transition-all hover:h-2.5 border border-[var(--border-subtle)]"
         >
           <div
             style={{ width: `${progressPercent}%` }}
-            className="h-full bg-linear-to-r from-cyan-500 via-blue-500 to-purple-500 rounded-full transition-all duration-150"
+            className="h-full bg-[var(--accent-primary)] rounded-full transition-all duration-150 shadow-[0_0_8px_var(--accent-glow)]"
           />
         </div>
 
-        <span className="text-[10px] font-mono text-cyan-400 font-bold shrink-0">
+        <span className="text-[10px] font-mono text-[var(--accent-primary)] font-bold shrink-0">
           {progressPercent}%
         </span>
       </div>
@@ -145,7 +145,7 @@ export function ControlsBar({
       {/* Right: Speed & Action Buttons */}
       <div className="flex items-center gap-1.5 shrink-0">
         {/* Speed presets */}
-        <div className="hidden sm:flex items-center gap-0.5 bg-white/5 border border-white/5 p-0.5 rounded-xl">
+        <div className="hidden sm:flex items-center gap-0.5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] p-0.5 rounded-xl">
           {[
             { label: "0.5x", delay: 1200 },
             { label: "1x", delay: 600 },
@@ -157,8 +157,8 @@ export function ControlsBar({
               onClick={() => setSpeedDelay(spd.delay)}
               className={`px-2 py-0.5 rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer ${
                 speedDelay === spd.delay
-                  ? "bg-cyan-500 text-black font-black"
-                  : "text-gray-400 hover:text-white"
+                  ? "bg-[var(--accent-primary)] text-black font-black"
+                  : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
               }`}
             >
               {spd.label}
@@ -172,11 +172,11 @@ export function ControlsBar({
           title="Configure Input Array / Parameters"
           className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer border ${
             isInputDrawerOpen
-              ? "bg-cyan-500/20 border-cyan-400 text-cyan-300 shadow-[0_0_10px_rgba(6,182,212,0.3)]"
-              : "bg-white/5 hover:bg-white/10 border-white/10 text-gray-300"
+              ? "bg-[var(--accent-primary)]/20 border-[var(--accent-primary)] text-[var(--accent-primary)] shadow-[0_0_10px_var(--accent-glow)]"
+              : "bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] border-[var(--border-subtle)] text-[var(--text-secondary)]"
           }`}
         >
-          <Sliders size={13} className={isInputDrawerOpen ? "text-cyan-400" : ""} />
+          <Sliders size={13} className={isInputDrawerOpen ? "text-[var(--accent-primary)]" : ""} />
           <span>Input</span>
         </button>
 
@@ -184,7 +184,7 @@ export function ControlsBar({
         <button
           onClick={onReset}
           title="Reset (R)"
-          className="p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer border border-white/5"
+          className="p-1.5 rounded-xl bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer border border-[var(--border-subtle)]"
         >
           <RotateCcw size={13} />
         </button>
@@ -193,7 +193,7 @@ export function ControlsBar({
         <button
           onClick={onRandomize}
           title="Randomize Array"
-          className="p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-cyan-400 hover:text-cyan-300 transition-colors cursor-pointer border border-white/5"
+          className="p-1.5 rounded-xl bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--accent-primary)] transition-colors cursor-pointer border border-[var(--border-subtle)]"
         >
           <Shuffle size={13} />
         </button>
@@ -202,7 +202,7 @@ export function ControlsBar({
           <button
             onClick={handleCopyCode}
             title="Copy Code"
-            className="p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer border border-white/5 hidden md:block"
+            className="p-1.5 rounded-xl bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer border border-[var(--border-subtle)] hidden md:block"
           >
             <Copy size={13} />
           </button>

@@ -52,19 +52,19 @@ const DIFFICULTY_STYLES: Record<
   { bg: string; text: string; border: string }
 > = {
   EASY: {
-    bg: "bg-green-500/10",
-    text: "text-green-400",
-    border: "border-green-500/30",
+    bg: "bg-emerald-500/10",
+    text: "text-emerald-400",
+    border: "border-emerald-500/30",
   },
   MEDIUM: {
-    bg: "bg-yellow-500/10",
-    text: "text-yellow-400",
-    border: "border-yellow-500/30",
+    bg: "bg-amber-500/10",
+    text: "text-amber-400",
+    border: "border-amber-500/30",
   },
   HARD: {
-    bg: "bg-red-500/10",
-    text: "text-red-400",
-    border: "border-red-500/30",
+    bg: "bg-rose-500/10",
+    text: "text-rose-400",
+    border: "border-rose-500/30",
   },
 };
 
@@ -76,7 +76,7 @@ const SOURCE_CONFIG = {
     accentBorder: "border-blue-500/20",
     icon: <RotateCcw size={16} />,
     label: "REVISION DUE",
-    glow: "shadow-[0_0_60px_rgba(59,130,246,0.15)]",
+    glow: "shadow-[0_0_40px_rgba(59,130,246,0.15)]",
   },
   WEAKNESS: {
     gradient: "from-amber-600/20 via-orange-600/10 to-transparent",
@@ -85,7 +85,7 @@ const SOURCE_CONFIG = {
     accentBorder: "border-amber-500/20",
     icon: <Crosshair size={16} />,
     label: "WEAKNESS TARGET",
-    glow: "shadow-[0_0_60px_rgba(245,158,11,0.15)]",
+    glow: "shadow-[0_0_40px_rgba(245,158,11,0.15)]",
   },
 };
 
@@ -105,62 +105,53 @@ export default function DailyFocus() {
   const [allDone, setAllDone] = useState(false);
 
   useEffect(() => {
-    loadDaily();
-  }, []);
+    async function loadFocus() {
+      try {
+        const [dailyData, lcData] = await Promise.allSettled([
+          dsaApi.getDailyProblem(),
+          dsaApi.getLeetcodeDailyChallenge(),
+        ]);
 
-  const loadDaily = async () => {
-    try {
-      const [regularData, lcData] = await Promise.allSettled([
-        dsaApi.getDailyProblem(),
-        dsaApi.getLeetcodeDailyChallenge(),
-      ]);
+        if (dailyData.status === "fulfilled") {
+          if (dailyData.value.message === "ALL_PROBLEMS_SOLVED") {
+            setAllDone(true);
+          } else {
+            setDaily(dailyData.value);
+          }
+        }
 
-      let hasData = false;
-      if (regularData.status === "fulfilled" && regularData.value) {
-        setDaily(regularData.value);
-        hasData = true;
+        if (lcData.status === "fulfilled") {
+          setDailyLc(lcData.value);
+        }
+      } catch (err) {
+        console.error("Failed to load daily focus", err);
+      } finally {
+        setLoading(false);
       }
-
-      if (lcData.status === "fulfilled" && lcData.value) {
-        setDailyLc(lcData.value as DailyLc);
-        hasData = true;
-      }
-
-      if (!hasData) {
-        setAllDone(true);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
     }
-  };
+    loadFocus();
+  }, []);
 
   if (loading) {
     return (
-      <div className="p-8 rounded-[2.5rem] bg-[#0d0d0d] border border-white/5 flex items-center justify-center h-48">
-        <div className="flex items-center gap-3">
-          <Loader2 size={18} className="animate-spin text-gray-600" />
-          <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">
-            Loading today&apos;s focus...
-          </span>
-        </div>
+      <div className="h-44 w-full rounded-[2.5rem] bg-[var(--bg-card)] border border-[var(--border-subtle)] animate-pulse flex items-center justify-center">
+        <Loader2 className="animate-spin text-[var(--accent-primary)]" size={24} />
       </div>
     );
   }
 
   if (allDone) {
     return (
-      <div className="p-8 rounded-[2.5rem] bg-[#0d0d0d] border border-white/5 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-green-600/10 via-emerald-600/5 to-transparent pointer-events-none" />
+      <div className="p-8 rounded-[2.5rem] bg-[var(--bg-card)] border border-[var(--border-subtle)] relative overflow-hidden shadow-xl">
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/10 via-emerald-600/5 to-transparent pointer-events-none" />
         <div className="relative flex flex-col items-center text-center py-6">
-          <div className="p-4 rounded-2xl bg-green-500/10 text-green-400 border border-green-500/20 mb-4">
+          <div className="p-4 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-4">
             <Trophy size={28} />
           </div>
-          <h3 className="text-lg font-black text-white uppercase tracking-tight">
+          <h3 className="text-lg font-black text-[var(--text-primary)] uppercase tracking-tight font-display">
             All Problems Conquered
           </h3>
-          <p className="text-[11px] text-gray-500 font-medium mt-1 max-w-sm">
+          <p className="text-xs text-[var(--text-muted)] font-medium mt-1 max-w-sm">
             You&apos;ve solved every problem in your roadmap. Keep reviewing to
             maintain your edge!
           </p>
@@ -176,21 +167,20 @@ export default function DailyFocus() {
     day: "numeric",
   });
 
-  // If daily is present, use its config, else use a default glow
   const config = daily ? SOURCE_CONFIG[daily.source] : SOURCE_CONFIG.REVISION;
   const planItems = daily?.plan?.items?.slice(0, 3) || [];
 
   return (
     <div
-      className={`p-8 rounded-[2.5rem] bg-[#0d0d0d] border border-white/5 relative overflow-hidden ${config.glow} group transition-all duration-700 hover:border-white/10`}
+      className={`p-6 sm:p-8 rounded-[2.5rem] bg-[var(--bg-card)] border border-[var(--border-subtle)] relative overflow-hidden ${config.glow} group transition-all duration-500 hover:border-[var(--border-medium)] shadow-xl`}
     >
       {/* Background gradient */}
       <div
-        className={`absolute inset-0 bg-gradient-to-r ${config.gradient} pointer-events-none opacity-60 group-hover:opacity-100 transition-opacity duration-700`}
+        className={`absolute inset-0 bg-gradient-to-r ${config.gradient} pointer-events-none opacity-60 group-hover:opacity-100 transition-opacity duration-500`}
       />
 
       {/* Floating sparkle */}
-      <div className="absolute top-6 right-6 text-white/[0.03]">
+      <div className="absolute top-6 right-6 text-[var(--accent-primary)]/10">
         <Sparkles size={80} />
       </div>
 
@@ -204,10 +194,10 @@ export default function DailyFocus() {
               {config.icon}
             </div>
             <div>
-              <h3 className="text-lg font-black text-white uppercase tracking-tight flex items-center gap-2">
+              <h3 className="text-lg font-black text-[var(--text-primary)] uppercase tracking-tight flex items-center gap-2 font-display">
                 Today&apos;s Focus
               </h3>
-              <p className="text-[9px] text-gray-600 font-bold uppercase tracking-widest">
+              <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-widest">
                 {dateStr}
               </p>
             </div>
@@ -217,7 +207,7 @@ export default function DailyFocus() {
         <div className="grid gap-4 md:grid-cols-2">
           {/* Regular Daily Card */}
           {daily && (
-            <div className="p-6 bg-white/[0.03] rounded-2xl border border-white/5 hover:bg-white/[0.05] transition-all flex flex-col justify-between">
+            <div className="p-6 bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-subtle)] hover:border-[var(--border-medium)] transition-all flex flex-col justify-between shadow-md">
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
@@ -226,7 +216,7 @@ export default function DailyFocus() {
                     >
                       {daily.problem.difficulty}
                     </span>
-                    <span className="text-[9px] font-bold text-gray-600 uppercase tracking-widest">
+                    <span className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-widest">
                       {daily.problem.topicName}
                     </span>
                   </div>
@@ -239,25 +229,25 @@ export default function DailyFocus() {
                     </span>
                   </div>
                 </div>
-                <h4 className="text-base font-black text-white mb-2 break-words">
+                <h4 className="text-base font-black text-[var(--text-primary)] mb-2 break-words">
                   {daily.problem.title}
                 </h4>
-                <p className="text-[11px] text-gray-400 leading-relaxed mb-4">
-                  <Brain size={11} className="inline mr-1 -mt-0.5" />
+                <p className="text-[11px] text-[var(--text-muted)] leading-relaxed mb-4">
+                  <Brain size={11} className="inline mr-1 -mt-0.5 text-[var(--accent-primary)]" />
                   {daily.reason}
                 </p>
                 {planItems.length > 1 && (
-                  <div className="rounded-xl border border-white/5 bg-black/20 p-3 mb-4">
-                    <p className="text-[9px] font-black uppercase tracking-widest text-gray-500 mb-2">
+                  <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-tertiary)] p-3 mb-4">
+                    <p className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-2">
                       Session Plan
                     </p>
                     <div className="space-y-1.5">
                       {planItems.map((item, index) => (
                         <p
                           key={`${item.id}-${index}`}
-                          className="text-[11px] text-gray-300 truncate"
+                          className="text-[11px] text-[var(--text-secondary)] truncate"
                         >
-                          <span className="text-gray-500 mr-1">
+                          <span className="text-[var(--text-muted)] mr-1">
                             {index + 1}.
                           </span>
                           {item.title}
@@ -281,7 +271,7 @@ export default function DailyFocus() {
                         problemId: daily.problem.id,
                       })
                     }
-                    className="flex-1 flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg shadow-white/10"
+                    className="flex-1 flex items-center justify-center gap-2 px-5 py-2.5 bg-[var(--accent-primary)] text-black font-black rounded-xl text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-md"
                   >
                     Solve Now
                     <ExternalLink size={12} />
@@ -296,7 +286,7 @@ export default function DailyFocus() {
                       topicId: daily.problem.topicId,
                     })
                   }
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white/5 text-gray-300 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all border border-white/5"
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--bg-card)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[var(--bg-hover)] transition-all border border-[var(--border-subtle)]"
                 >
                   View
                   <ArrowRight size={12} />
@@ -307,7 +297,7 @@ export default function DailyFocus() {
 
           {/* LeetCode Daily Challenge Card */}
           {dailyLc && dailyLc.question && (
-            <div className="p-6 bg-[#222]/50 rounded-2xl border border-white/5 hover:bg-[#222]/80 transition-all flex flex-col justify-between">
+            <div className="p-6 bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-subtle)] hover:border-[var(--border-medium)] transition-all flex flex-col justify-between shadow-md">
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
@@ -316,7 +306,7 @@ export default function DailyFocus() {
                     >
                       {dailyLc.question.difficulty}
                     </span>
-                    <span className="text-[9px] font-bold text-gray-600 uppercase tracking-widest">
+                    <span className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-widest">
                       {dailyLc.question.topicTags?.[0]?.name || "LeetCode"}
                     </span>
                   </div>
@@ -329,10 +319,10 @@ export default function DailyFocus() {
                     </span>
                   </div>
                 </div>
-                <h4 className="text-base font-black text-white mb-2 break-words">
+                <h4 className="text-base font-black text-[var(--text-primary)] mb-2 break-words">
                   {dailyLc.question.title}
                 </h4>
-                <p className="text-[11px] text-gray-400 leading-relaxed mb-4">
+                <p className="text-[11px] text-[var(--text-muted)] leading-relaxed mb-4">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="https://leetcode.com/static/images/LeetCode_logo_rvs.png"
@@ -356,7 +346,7 @@ export default function DailyFocus() {
                       title: dailyLc.question?.title,
                     })
                   }
-                  className="flex-1 flex items-center justify-center gap-2 px-5 py-2.5 bg-[#ffa116] text-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#ffb84d] hover:scale-105 active:scale-95 transition-all shadow-lg shadow-[#ffa116]/20"
+                  className="flex-1 flex items-center justify-center gap-2 px-5 py-2.5 bg-[#ffa116] text-black font-black rounded-xl text-[10px] uppercase tracking-widest hover:bg-[#ffb84d] hover:scale-105 active:scale-95 transition-all shadow-lg shadow-[#ffa116]/20"
                 >
                   Attempt Challenge
                   <ExternalLink size={12} />

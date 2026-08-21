@@ -233,19 +233,19 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="space-y-6 animate-pulse">
-        <div className="h-10 w-72 rounded-xl bg-white/8" />
-        <div className="h-28 rounded-[2.5rem] bg-white/6" />
+        <div className="h-10 w-72 rounded-xl bg-[var(--bg-card)]" />
+        <div className="h-28 rounded-[2.5rem] bg-[var(--bg-card)]" />
         <div className="grid gap-6 md:grid-cols-12">
-          <div className="md:col-span-8 h-72 rounded-[2.5rem] bg-white/6" />
+          <div className="md:col-span-8 h-72 rounded-[2.5rem] bg-[var(--bg-card)]" />
           <div className="md:col-span-4 space-y-4">
-            <div className="h-28 rounded-3xl bg-white/6" />
-            <div className="h-28 rounded-3xl bg-white/6" />
-            <div className="h-28 rounded-3xl bg-white/6" />
+            <div className="h-28 rounded-3xl bg-[var(--bg-card)]" />
+            <div className="h-28 rounded-3xl bg-[var(--bg-card)]" />
+            <div className="h-28 rounded-3xl bg-[var(--bg-card)]" />
           </div>
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, index) => (
-            <div key={index} className="h-28 rounded-2xl bg-white/6" />
+            <div key={index} className="h-28 rounded-2xl bg-[var(--bg-card)]" />
           ))}
         </div>
       </div>
@@ -255,14 +255,10 @@ export default function Dashboard() {
   if (!stats)
     return (
       <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
-        <p className="text-gray-400 text-lg">Failed to load dashboard data.</p>
-        <p className="text-gray-600 text-sm">
+        <p className="text-[var(--text-muted)] text-lg">Failed to load dashboard data.</p>
+        <p className="text-[var(--text-muted)] text-sm">
           Make sure the backend is running and <code>BACKEND_URL</code> (or
-          <code>NEXT_PUBLIC_API_URL</code>) is set correctly in Render.
-        </p>
-        <p className="text-gray-600 text-xs max-w-2xl">
-          Render can also return temporary 429 during traffic spikes. Refresh in
-          a few seconds if this persists.
+          <code>NEXT_PUBLIC_API_URL</code>) is set correctly.
         </p>
         {dashboardError ? (
           <p className="text-red-400/80 text-xs max-w-2xl wrap-break-word">
@@ -276,20 +272,20 @@ export default function Dashboard() {
               const canSync = status === "authenticated";
               loadDashboardData(canSync);
             }}
-            className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-[10px] font-black uppercase tracking-widest text-black transition-transform hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
+            className="inline-flex items-center gap-2 rounded-xl bg-[var(--accent-primary)] px-4 py-2 text-[10px] font-black uppercase tracking-widest text-black transition-transform hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none"
           >
             Retry Dashboard
             <ArrowRight size={12} />
           </button>
           <Link
             href="/review"
-            className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-gray-300 transition-colors hover:bg-white/10"
+            className="inline-flex items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] px-4 py-2 text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)]"
           >
             Open Review Queue
           </Link>
           <Link
             href="/topics"
-            className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-gray-300 transition-colors hover:bg-white/10"
+            className="inline-flex items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] px-4 py-2 text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)]"
           >
             Open Topics
           </Link>
@@ -309,9 +305,11 @@ export default function Dashboard() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-gray-400 mt-2">
-          Welcome back to DSA Pro. Keep crushing those problems.
+        <h1 className="text-3xl font-black tracking-tight text-[var(--text-primary)] font-display">
+          Dashboard
+        </h1>
+        <p className="text-[var(--text-muted)] text-sm mt-1">
+          Welcome back to DSA Pro. Keep crushing those algorithmic milestones.
         </p>
       </div>
 
@@ -319,75 +317,75 @@ export default function Dashboard() {
       <DailyFocus />
 
       <div className="grid gap-4 lg:grid-cols-12">
-        <div className="lg:col-span-7 rounded-[2.25rem] border border-cyan-500/15 bg-linear-to-br from-cyan-500/10 via-blue-500/5 to-[#0d0d0d] p-6 relative overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.18),transparent_40%)]" />
+        <div className="lg:col-span-7 rounded-[2.25rem] border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6 relative overflow-hidden shadow-xl">
+          <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.12),transparent_40%)]" />
           <div className="relative flex items-start justify-between gap-4">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-cyan-300">
+              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-cyan-400">
                 <Target size={12} />
                 Today&apos;s Action
               </div>
-              <h2 className="mt-4 text-2xl font-black tracking-tight text-white">
+              <h2 className="mt-4 text-2xl font-black tracking-tight text-[var(--text-primary)] font-display">
                 {stats.nextAction?.title || "Keep moving forward"}
               </h2>
-              <p className="mt-2 max-w-2xl text-sm text-gray-300">
+              <p className="mt-2 max-w-2xl text-sm text-[var(--text-muted)]">
                 {stats.nextAction?.reason ||
                   "The tracker will surface a review, weakness, or momentum task here as your data grows."}
               </p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-right">
-              <p className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] px-3 py-2 text-right">
+              <p className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)]">
                 Mode
               </p>
-              <p className="mt-1 text-xs font-black uppercase tracking-widest text-cyan-300">
+              <p className="mt-1 text-xs font-black uppercase tracking-widest text-[var(--accent-primary)]">
                 {stats.nextAction?.mode?.replaceAll("_", " ") || "Balanced"}
               </p>
             </div>
           </div>
 
           <div className="relative mt-5 grid gap-3 sm:grid-cols-3">
-            <div className="rounded-2xl border border-white/5 bg-black/20 px-4 py-3">
-              <p className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] px-4 py-3">
+              <p className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)]">
                 Topic
               </p>
-              <p className="mt-1 text-sm font-bold text-white">
+              <p className="mt-1 text-sm font-bold text-[var(--text-primary)]">
                 {stats.nextAction?.topic || "Warm-up"}
               </p>
             </div>
-            <div className="rounded-2xl border border-white/5 bg-black/20 px-4 py-3">
-              <p className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] px-4 py-3">
+              <p className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)]">
                 Difficulty
               </p>
-              <p className="mt-1 text-sm font-bold text-white">
+              <p className="mt-1 text-sm font-bold text-[var(--text-primary)]">
                 {stats.nextAction?.difficulty || "EASY"}
               </p>
             </div>
-            <div className="rounded-2xl border border-white/5 bg-black/20 px-4 py-3">
-              <p className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] px-4 py-3">
+              <p className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)]">
                 Estimate
               </p>
-              <p className="mt-1 text-sm font-bold text-white">
+              <p className="mt-1 text-sm font-bold text-[var(--text-primary)]">
                 {stats.nextAction?.estimatedMinutes || 20} min
               </p>
             </div>
           </div>
 
-          <div className="relative mt-4 rounded-2xl border border-white/5 bg-black/20 px-4 py-3">
-            <p className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+          <div className="relative mt-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] px-4 py-3">
+            <p className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)]">
               Today Blueprint
             </p>
             <div className="mt-2 flex flex-wrap items-center gap-2">
-              <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-blue-300">
+              <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-blue-400">
                 Due {dueNowCount}
               </span>
-              <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-amber-300">
+              <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-amber-400">
                 Weak {weakTopicCount}
               </span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-gray-300">
+              <span className="rounded-full border border-[var(--border-subtle)] bg-[var(--bg-card)] px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)]">
                 Pace {solvedLast7d}/7d
               </span>
             </div>
-            <p className="mt-2 text-[11px] text-gray-400">{sessionFocus}</p>
+            <p className="mt-2 text-[11px] text-[var(--text-muted)]">{sessionFocus}</p>
           </div>
 
           <div className="relative mt-5 flex flex-wrap gap-3">
@@ -403,14 +401,14 @@ export default function Dashboard() {
                   cta: stats.nextAction?.cta || "Open next step",
                 })
               }
-              className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-black transition-transform hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
+              className="inline-flex items-center gap-2 rounded-xl bg-[var(--accent-primary)] px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-black transition-transform hover:scale-[1.02] active:scale-[0.98] shadow-md"
             >
               {stats.nextAction?.cta || "Open next step"}
               <ArrowRight size={12} />
             </Link>
             <Link
               href="/recommendations"
-              className="inline-flex items-center gap-2 rounded-xl border border-white/5 bg-white/5 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-gray-300 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
+              className="inline-flex items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)]"
             >
               Why this pick
             </Link>
@@ -419,16 +417,15 @@ export default function Dashboard() {
 
         <div className="lg:col-span-5 grid gap-4 sm:grid-cols-2">
           <div
-            className="border border-white/5 bg-[#0d0d0d] p-5"
-            style={{ borderRadius: "2rem" }}
+            className="border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5 rounded-3xl shadow-lg"
           >
-            <p className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+            <p className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)]">
               Next Review
             </p>
-            <p className="mt-2 text-sm font-bold text-white">
+            <p className="mt-2 text-sm font-bold text-[var(--text-primary)]">
               {stats.revisions[0]?.title || "No review due right now"}
             </p>
-            <p className="mt-1 text-[11px] text-gray-500">
+            <p className="mt-1 text-[11px] text-[var(--text-muted)]">
               {stats.revisions[0]
                 ? `${stats.revisions[0].topicName} - ${stats.revisions[0].daysSince} days since solve`
                 : "Spaced repetition will surface stale problems here."}
@@ -436,16 +433,15 @@ export default function Dashboard() {
           </div>
 
           <div
-            className="border border-white/5 bg-[#0d0d0d] p-5"
-            style={{ borderRadius: "2rem" }}
+            className="border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5 rounded-3xl shadow-lg"
           >
-            <p className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+            <p className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)]">
               Weakest Topic
             </p>
-            <p className="mt-2 text-sm font-bold text-white">
+            <p className="mt-2 text-sm font-bold text-[var(--text-primary)]">
               {stats.weakTopics[0]?.name || "None detected"}
             </p>
-            <p className="mt-1 text-[11px] text-gray-500">
+            <p className="mt-1 text-[11px] text-[var(--text-muted)]">
               {stats.weakTopics[0]
                 ? `${stats.weakTopics[0].avgTimeSpent} min avg solve time`
                 : "Weak-topic coaching will appear once the tracker has enough data."}
@@ -455,50 +451,50 @@ export default function Dashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-2xl border border-white/5 bg-[#0d0d0d] p-5">
-          <p className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+        <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5 shadow-lg">
+          <p className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)]">
             Recent Pace
           </p>
-          <p className="mt-2 text-2xl font-black text-white">
+          <p className="mt-2 text-2xl font-black text-[var(--text-primary)] font-display">
             {solvedLast7d} in 7d
           </p>
-          <p className="mt-1 text-[11px] text-gray-500">
+          <p className="mt-1 text-[11px] text-[var(--text-muted)]">
             {solvedLast30d} solved in the last 30 days
           </p>
         </div>
 
-        <div className="rounded-2xl border border-white/5 bg-[#0d0d0d] p-5">
-          <p className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+        <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5 shadow-lg">
+          <p className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)]">
             30-Day Projection
           </p>
-          <p className="mt-2 text-2xl font-black text-white">
+          <p className="mt-2 text-2xl font-black text-[var(--text-primary)] font-display">
             {projected30d} solves
           </p>
-          <p className="mt-1 text-[11px] text-gray-500">
+          <p className="mt-1 text-[11px] text-[var(--text-muted)]">
             Based on your current weekly pace
           </p>
         </div>
 
-        <div className="rounded-2xl border border-white/5 bg-[#0d0d0d] p-5">
-          <p className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+        <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5 shadow-lg">
+          <p className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)]">
             Finish Forecast
           </p>
-          <p className="mt-2 text-2xl font-black text-white">
+          <p className="mt-2 text-2xl font-black text-[var(--text-primary)] font-display">
             {projectedDaysToFinish ? `${projectedDaysToFinish}d` : "—"}
           </p>
-          <p className="mt-1 text-[11px] text-gray-500">
+          <p className="mt-1 text-[11px] text-[var(--text-muted)]">
             Estimated time to clear the roadmap at current pace
           </p>
         </div>
 
-        <div className="rounded-2xl border border-white/5 bg-[#0d0d0d] p-5">
-          <p className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+        <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5 shadow-lg">
+          <p className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)]">
             Next Milestone
           </p>
-          <p className="mt-2 text-2xl font-black text-white">
+          <p className="mt-2 text-2xl font-black text-[var(--text-primary)] font-display">
             {nextMilestonePct ? `${nextMilestonePct}%` : "—"}
           </p>
-          <p className="mt-1 text-[11px] text-gray-500">
+          <p className="mt-1 text-[11px] text-[var(--text-muted)]">
             {projectedDaysToNextMilestone
               ? `${projectedDaysToNextMilestone}d to reach this milestone`
               : "Keep solving to unlock a forecast"}
@@ -508,36 +504,36 @@ export default function Dashboard() {
 
       <div className="grid gap-6 md:grid-cols-12">
         <div className="md:col-span-8">
-          <div className="p-8 rounded-[2.5rem] bg-[#0d0d0d] border border-white/5 relative overflow-hidden h-full">
+          <div className="p-6 sm:p-8 rounded-[2.5rem] bg-[var(--bg-card)] border border-[var(--border-subtle)] relative overflow-hidden h-full shadow-xl">
             <div className="flex items-center gap-2 mb-8">
-              <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400">
+              <div className="p-2 rounded-lg bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]">
                 <LayoutGrid size={18} />
               </div>
               <div>
-                <h2 className="text-xl font-black text-white tracking-tight uppercase">
+                <h2 className="text-xl font-black text-[var(--text-primary)] tracking-tight uppercase font-display">
                   Consistency Map
                 </h2>
-                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">
+                <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-widest mt-1">
                   Your daily grind history
                 </p>
               </div>
             </div>
             <ActivityHeatmap data={activityData} />
 
-            <div className="mt-8 pt-6 border-t border-white/5">
+            <div className="mt-8 pt-6 border-t border-[var(--border-subtle)]">
               <div className="flex items-center justify-between gap-4 mb-4">
                 <div>
-                  <h3 className="text-sm font-black uppercase tracking-widest text-white flex items-center gap-2">
-                    <Network size={14} className="text-cyan-400" />
+                  <h3 className="text-sm font-black uppercase tracking-widest text-[var(--text-primary)] flex items-center gap-2">
+                    <Network size={14} className="text-[var(--accent-primary)]" />
                     Roadmap Progress Mini-Map
                   </h3>
-                  <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">
+                  <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-widest mt-1">
                     Current position and next unlock target
                   </p>
                 </div>
                 <Link
                   href="/roadmap"
-                  className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-cyan-300 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 rounded-md"
+                  className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-[var(--accent-primary)] hover:underline rounded-md"
                 >
                   Open Visual Roadmap
                   <ArrowRight size={12} />
@@ -547,19 +543,19 @@ export default function Dashboard() {
               {topicsSnapshot.length > 0 ? (
                 <>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-                    <div className="rounded-2xl border border-white/5 bg-white/3 px-4 py-3">
-                      <p className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+                    <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] px-4 py-3">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)]">
                         Total Topics
                       </p>
-                      <p className="text-lg font-black text-white mt-1">
+                      <p className="text-lg font-black text-[var(--text-primary)] mt-1 font-display">
                         {topicsSnapshot.length}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-green-500/20 bg-green-500/10 px-4 py-3">
-                      <p className="text-[9px] font-black uppercase tracking-widest text-green-300/80">
+                    <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-emerald-400">
                         Completed
                       </p>
-                      <p className="text-lg font-black text-green-300 mt-1">
+                      <p className="text-lg font-black text-emerald-400 mt-1 font-display">
                         {
                           topicsSnapshot.filter(
                             (topic) => topic.progressPercentage >= 100,
@@ -568,10 +564,10 @@ export default function Dashboard() {
                       </p>
                     </div>
                     <div className="rounded-2xl border border-blue-500/20 bg-blue-500/10 px-4 py-3">
-                      <p className="text-[9px] font-black uppercase tracking-widest text-blue-300/80">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-blue-400">
                         In Progress
                       </p>
-                      <p className="text-lg font-black text-blue-300 mt-1">
+                      <p className="text-lg font-black text-blue-400 mt-1 font-display">
                         {
                           topicsSnapshot.filter(
                             (topic) =>
@@ -582,10 +578,10 @@ export default function Dashboard() {
                       </p>
                     </div>
                     <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3">
-                      <p className="text-[9px] font-black uppercase tracking-widest text-amber-300/80">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-amber-400">
                         Next Unlock
                       </p>
-                      <p className="text-xs font-black text-amber-300 mt-1 truncate">
+                      <p className="text-xs font-black text-amber-400 mt-1 truncate">
                         {topicsSnapshot.find(
                           (topic) => topic.progressPercentage < 100,
                         )?.name || "Roadmap Complete"}
@@ -593,16 +589,16 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-white/5 bg-[#0a0a0f] p-4">
+                  <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-4">
                     <div className="grid grid-cols-10 gap-2">
                       {topicsSnapshot.slice(0, 30).map((topic) => {
                         const progress = topic.progressPercentage;
                         const tone =
                           progress >= 100
-                            ? "bg-green-400/80 border-green-300/80"
+                            ? "bg-emerald-400/80 border-emerald-300/80"
                             : progress > 0
                               ? "bg-blue-400/70 border-blue-300/70"
-                              : "bg-[#1a1a1a] border-white/10";
+                              : "bg-[var(--bg-tertiary)] border-[var(--border-subtle)]";
 
                         return (
                           <div
@@ -613,7 +609,7 @@ export default function Dashboard() {
                         );
                       })}
                     </div>
-                    <div className="mt-3 flex items-center justify-between text-[9px] font-black uppercase tracking-widest text-gray-500">
+                    <div className="mt-3 flex items-center justify-between text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)]">
                       <span>Locked</span>
                       <span>In Progress</span>
                       <span>Completed</span>
@@ -621,12 +617,12 @@ export default function Dashboard() {
                   </div>
 
                   <div className="mt-4 grid gap-4 lg:grid-cols-2">
-                    <div className="rounded-2xl border border-white/5 bg-[#0a0a0f] p-4">
+                    <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-4">
                       <div className="flex items-center justify-between gap-3 mb-3">
-                        <h4 className="text-[10px] font-black uppercase tracking-widest text-cyan-300">
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-[var(--accent-primary)]">
                           Up Next Topic Queue
                         </h4>
-                        <span className="text-[9px] font-black uppercase tracking-widest text-gray-500">
+                        <span className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)]">
                           Next 5
                         </span>
                       </div>
@@ -638,19 +634,19 @@ export default function Dashboard() {
                           .map((topic) => (
                             <div
                               key={`queue-${topic.id}`}
-                              className="rounded-xl border border-white/5 bg-white/3 px-3 py-2"
+                              className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] px-3 py-2"
                             >
                               <div className="flex items-center justify-between gap-2 mb-1.5">
-                                <p className="text-[11px] font-bold text-gray-200 truncate">
+                                <p className="text-[11px] font-bold text-[var(--text-secondary)] truncate">
                                   {topic.name}
                                 </p>
-                                <span className="text-[10px] font-black text-blue-300 shrink-0">
+                                <span className="text-[10px] font-black text-[var(--accent-primary)] shrink-0">
                                   {topic.progressPercentage}%
                                 </span>
                               </div>
-                              <div className="h-1.5 rounded-full bg-white/8 overflow-hidden">
+                              <div className="h-1.5 rounded-full bg-[var(--bg-tertiary)] overflow-hidden">
                                 <div
-                                  className="h-full rounded-full bg-blue-400/80 transition-all duration-500"
+                                  className="h-full rounded-full bg-[var(--accent-primary)] transition-all duration-500"
                                   style={{
                                     width: `${topic.progressPercentage}%`,
                                   }}
@@ -661,8 +657,8 @@ export default function Dashboard() {
                       </div>
                     </div>
 
-                    <div className="rounded-2xl border border-white/5 bg-[#0a0a0f] p-4">
-                      <h4 className="text-[10px] font-black uppercase tracking-widest text-cyan-300 mb-3">
+                    <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-4">
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-[var(--accent-primary)] mb-3">
                         Roadmap Distribution
                       </h4>
 
@@ -689,9 +685,9 @@ export default function Dashboard() {
 
                         return (
                           <>
-                            <div className="h-3 rounded-full overflow-hidden border border-white/5 bg-[#131313] flex">
+                            <div className="h-3 rounded-full overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-tertiary)] flex">
                               <div
-                                className="bg-[#1a1a1a]"
+                                className="bg-[var(--bg-tertiary)]"
                                 style={{ width: `${lockedPct}%` }}
                               />
                               <div
@@ -699,19 +695,19 @@ export default function Dashboard() {
                                 style={{ width: `${activePct}%` }}
                               />
                               <div
-                                className="bg-green-400/80"
+                                className="bg-emerald-400/80"
                                 style={{ width: `${completedPct}%` }}
                               />
                             </div>
 
                             <div className="mt-4 grid grid-cols-3 gap-2 text-[10px] font-black uppercase tracking-widest">
-                              <div className="rounded-xl border border-white/5 bg-white/3 p-2.5 text-gray-400">
+                              <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-2.5 text-[var(--text-muted)]">
                                 Locked {lockedPct}%
                               </div>
-                              <div className="rounded-xl border border-blue-500/20 bg-blue-500/10 p-2.5 text-blue-300">
+                              <div className="rounded-xl border border-blue-500/20 bg-blue-500/10 p-2.5 text-blue-400">
                                 Active {activePct}%
                               </div>
-                              <div className="rounded-xl border border-green-500/20 bg-green-500/10 p-2.5 text-green-300">
+                              <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-2.5 text-emerald-400">
                                 Done {completedPct}%
                               </div>
                             </div>
@@ -722,7 +718,7 @@ export default function Dashboard() {
                   </div>
                 </>
               ) : (
-                <div className="rounded-2xl border border-white/5 bg-white/3 p-5 text-center text-[10px] font-black uppercase tracking-widest text-gray-500">
+                <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-5 text-center text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">
                   Roadmap snapshot unavailable right now
                 </div>
               )}
@@ -765,16 +761,16 @@ export default function Dashboard() {
       </div>
 
       {/* Progress Bar overall */}
-      <div className="card-3d-hover p-6 rounded-2xl bg-[#111] border border-[#222]">
+      <div className="p-6 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] shadow-xl">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="font-semibold text-lg">Roadmap Completion</h3>
-          <span className="text-sm font-medium">
+          <h3 className="font-bold text-lg text-[var(--text-primary)] font-display">Roadmap Completion</h3>
+          <span className="text-sm font-semibold text-[var(--accent-primary)]">
             {stats.progressPercentage}%
           </span>
         </div>
-        <div className="w-full h-3 bg-[#222] rounded-full overflow-hidden">
+        <div className="w-full h-3 bg-[var(--bg-tertiary)] rounded-full overflow-hidden">
           <div
-            className="h-full bg-white transition-all duration-1000 ease-out"
+            className="h-full bg-[var(--accent-primary)] transition-all duration-1000 ease-out"
             style={{ width: `${stats.progressPercentage}%` }}
           />
         </div>
@@ -782,9 +778,9 @@ export default function Dashboard() {
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* Revision Reminders Panel */}
-        <div className="p-8 rounded-[2.5rem] bg-[#0d0d0d] border border-white/5 relative overflow-hidden group">
+        <div className="p-6 sm:p-8 rounded-[2.5rem] bg-[var(--bg-card)] border border-[var(--border-subtle)] relative overflow-hidden group shadow-xl">
           <div className="absolute top-0 left-0 w-24 h-24 bg-blue-500/5 blur-2xl rounded-full -ml-12 -mt-12 group-hover:bg-blue-500/10 transition-all duration-700" />
-          <h3 className="text-xl font-black text-white tracking-tight uppercase mb-6 flex items-center gap-3">
+          <h3 className="text-xl font-black text-[var(--text-primary)] tracking-tight uppercase mb-6 flex items-center gap-3 font-display">
             <Target size={20} className="text-blue-400" />
             Active Revision
           </h3>
@@ -793,15 +789,15 @@ export default function Dashboard() {
               stats.revisions.map((rev) => (
                 <div
                   key={rev.id}
-                  className="p-4 bg-white/2 hover:bg-white/5 rounded-3xl border border-white/5 flex justify-between items-center transition-all group/item"
+                  className="p-4 bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] rounded-3xl border border-[var(--border-subtle)] flex justify-between items-center transition-all group/item"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+                    <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
                     <div>
-                      <p className="font-bold text-sm text-gray-200 group-hover/item:text-white transition-colors">
+                      <p className="font-bold text-sm text-[var(--text-primary)]">
                         {rev.title}
                       </p>
-                      <p className="text-[10px] text-gray-600 font-bold uppercase tracking-widest">
+                      <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-widest">
                         {rev.topicName}
                       </p>
                     </div>
@@ -812,7 +808,7 @@ export default function Dashboard() {
                 </div>
               ))
             ) : (
-              <div className="py-12 text-center text-gray-600 font-bold uppercase tracking-widest text-xs">
+              <div className="py-12 text-center text-[var(--text-muted)] font-bold uppercase tracking-widest text-xs">
                 Curriculum fully synchronized
               </div>
             )}
@@ -820,10 +816,10 @@ export default function Dashboard() {
         </div>
 
         {/* Weak Topics Panel */}
-        <div className="p-8 rounded-[2.5rem] bg-[#0d0d0d] border border-white/5 relative overflow-hidden group">
-          <div className="absolute top-0 left-0 w-24 h-24 bg-red-500/5 blur-2xl rounded-full -ml-12 -mt-12 group-hover:bg-red-500/10 transition-all duration-700" />
-          <h3 className="text-xl font-black text-white tracking-tight uppercase mb-6 flex items-center gap-3">
-            <Flame size={20} className="text-red-400" />
+        <div className="p-6 sm:p-8 rounded-[2.5rem] bg-[var(--bg-card)] border border-[var(--border-subtle)] relative overflow-hidden group shadow-xl">
+          <div className="absolute top-0 left-0 w-24 h-24 bg-rose-500/5 blur-2xl rounded-full -ml-12 -mt-12 group-hover:bg-rose-500/10 transition-all duration-700" />
+          <h3 className="text-xl font-black text-[var(--text-primary)] tracking-tight uppercase mb-6 flex items-center gap-3 font-display">
+            <Flame size={20} className="text-rose-400" />
             Weakness Analysis
           </h3>
           <div className="space-y-4">
@@ -831,21 +827,21 @@ export default function Dashboard() {
               stats.weakTopics.map((topic, i) => (
                 <div
                   key={i}
-                  className="p-4 bg-white/2 hover:bg-white/5 rounded-3xl border border-white/5 flex justify-between items-center transition-all group/item"
+                  className="p-4 bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] rounded-3xl border border-[var(--border-subtle)] flex justify-between items-center transition-all group/item"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
-                    <span className="font-bold text-sm text-gray-200 group-hover/item:text-white transition-colors">
+                    <div className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]" />
+                    <span className="font-bold text-sm text-[var(--text-primary)]">
                       {topic.name}
                     </span>
                   </div>
-                  <span className="text-[10px] font-black text-red-400 bg-red-400/10 px-3 py-1 rounded-full border border-red-400/20">
+                  <span className="text-[10px] font-black text-rose-400 bg-rose-400/10 px-3 py-1 rounded-full border border-rose-400/20">
                     {topic.avgTimeSpent}M AVG PLUNGE
                   </span>
                 </div>
               ))
             ) : (
-              <div className="py-12 text-center text-gray-600 font-bold uppercase tracking-widest text-xs">
+              <div className="py-12 text-center text-[var(--text-muted)] font-bold uppercase tracking-widest text-xs">
                 Analyzing performance metrics...
               </div>
             )}
@@ -856,7 +852,7 @@ export default function Dashboard() {
       <div className="flex gap-4">
         <Link
           href="/topics"
-          className="bg-white text-black px-6 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+          className="bg-[var(--accent-primary)] text-black px-6 py-3 rounded-xl font-bold uppercase text-xs tracking-wider hover:opacity-90 transition-opacity shadow-md"
         >
           Continue Journey
         </Link>

@@ -27,10 +27,10 @@ export function StatCard({
     const rect = card.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    const rotateX = ((y - rect.height / 2) / (rect.height / 2)) * -6;
-    const rotateY = ((x - rect.width / 2) / (rect.width / 2)) * 6;
-    card.style.transform = `perspective(1400px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(3px)`;
-    card.style.boxShadow = `${rotateY * -1.2}px ${rotateX * 1.2}px 26px rgba(0,0,0,0.42), 0 0 0 1px rgba(255,255,255,0.04)`;
+    const rotateX = ((y - rect.height / 2) / (rect.height / 2)) * -5;
+    const rotateY = ((x - rect.width / 2) / (rect.width / 2)) * 5;
+    card.style.transform = `perspective(1400px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(2px)`;
+    card.style.boxShadow = `${rotateY * -1.2}px ${rotateX * 1.2}px 24px var(--accent-glow)`;
   };
 
   const handleMouseLeave = () => {
@@ -45,35 +45,45 @@ export function StatCard({
       ref={cardRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="p-6 rounded-2xl bg-[#111] border border-[#222] flex flex-col justify-between cursor-default relative overflow-hidden"
+      className="p-6 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] hover:border-[var(--border-medium)] flex flex-col justify-between cursor-default relative overflow-hidden shadow-lg transition-colors"
       style={{
-        transition: "transform 0.2s ease, box-shadow 0.2s ease",
+        transition: "transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease",
         willChange: "transform",
       }}
     >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_18%,rgba(255,255,255,0.08),transparent_42%)]" />
-      <div className="flex items-center justify-between text-gray-400">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_18%,rgba(255,255,255,0.06),transparent_42%)]" />
+      <div className="flex items-center justify-between text-[var(--text-muted)]">
         <span className="text-sm font-medium">{title}</span>
         <Icon
           size={20}
-          className={title.includes("Streak") ? "text-orange-500" : ""}
+          className={
+            title.includes("Streak")
+              ? "text-orange-400"
+              : "text-[var(--accent-primary)]"
+          }
         />
       </div>
 
       <div className="mt-4">
-        <h3 className="text-3xl font-bold text-white">{value}</h3>
+        <h3 className="text-3xl font-black tracking-tight text-[var(--text-primary)] font-display">
+          {value}
+        </h3>
       </div>
 
       {(description || trend) && (
         <div className="mt-2 flex items-center text-sm">
           {trend && (
             <span
-              className={`mr-2 font-medium ${trendUp ? "text-green-500" : "text-red-500"}`}
+              className={`mr-2 font-medium ${
+                trendUp ? "text-emerald-400" : "text-rose-400"
+              }`}
             >
               {trendUp ? "↑" : "↓"} {trend}
             </span>
           )}
-          {description && <span className="text-gray-500">{description}</span>}
+          {description && (
+            <span className="text-[var(--text-muted)] text-xs">{description}</span>
+          )}
         </div>
       )}
     </div>

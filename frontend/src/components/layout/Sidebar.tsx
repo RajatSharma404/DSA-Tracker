@@ -59,7 +59,7 @@ const navSections: Array<{ title: string; items: NavItem[] }> = [
       { icon: Sparkles, label: "Flashcards SM-2", href: "/flashcards" },
       { icon: Building2, label: "Company Tracks", href: "/company-tracks" },
       { icon: Brain, label: "AI Recommend", href: "/recommendations" },
-      { icon: Search, label: "Explore", href: "/search" },
+      { icon: Search, label: "Explore Problems", href: "/search" },
     ],
   },
   {
@@ -109,22 +109,22 @@ export function Sidebar() {
 
   return (
     <div
-      className={`flex flex-col h-screen bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-r border-[var(--border-subtle)] transition-all duration-300 ${
-        effectiveCollapsed ? "w-16" : "w-64"
+      className={`hidden md:flex flex-col h-screen bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-r border-[var(--border-subtle)] transition-all duration-300 ${
+        effectiveCollapsed ? "w-16 shrink-0" : "w-64 shrink-0"
       }`}
       role="navigation"
       aria-label="Main navigation"
     >
       <div className="flex items-center justify-between p-4 border-b border-[var(--border-subtle)]">
         {!effectiveCollapsed && (
-          <span className="text-[var(--text-primary)] font-bold text-lg tracking-wide flex items-center gap-2">
+          <span className="text-[var(--text-primary)] font-bold text-lg tracking-wide flex items-center gap-2 font-display">
             <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent-primary)] shadow-[0_0_8px_var(--accent-glow)]" />
             DSA Pro
           </span>
         )}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="p-1.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors ml-auto cursor-pointer focus-visible:outline-none"
+          className="p-1.5 rounded-lg hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors ml-auto cursor-pointer focus-visible:outline-none"
           aria-label={
             effectiveCollapsed ? "Expand navigation" : "Collapse navigation"
           }
@@ -141,7 +141,7 @@ export function Sidebar() {
         {displaySections.map((section) => (
           <div key={section.title} className="space-y-1">
             {!effectiveCollapsed && (
-              <p className="px-5 mb-1 text-[9px] font-black uppercase tracking-widest text-gray-500 line-clamp-1">
+              <p className="px-5 mb-1 text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] line-clamp-1">
                 {section.title}
               </p>
             )}
@@ -156,8 +156,8 @@ export function Sidebar() {
                     href={item.href}
                     className={`mx-2 flex items-center px-3 py-2.5 rounded-xl cursor-pointer transition-all text-sm font-medium ${
                       isActive
-                        ? "bg-white/10 text-white font-semibold shadow-inner"
-                        : "text-gray-400 hover:text-gray-200 hover:bg-white/5"
+                        ? "bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] font-semibold border border-[var(--accent-primary)]/30 shadow-inner"
+                        : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
                     }`}
                     aria-current={isActive ? "page" : undefined}
                     title={effectiveCollapsed ? item.label : undefined}
@@ -166,8 +166,8 @@ export function Sidebar() {
                       size={18}
                       className={`shrink-0 transition-colors ${
                         isActive
-                          ? "text-cyan-400"
-                          : "text-gray-400 group-hover:text-gray-200"
+                          ? "text-[var(--accent-primary)]"
+                          : "text-[var(--text-muted)]"
                       }`}
                     />
                     {!effectiveCollapsed && (
@@ -176,7 +176,7 @@ export function Sidebar() {
                       </span>
                     )}
                     {isActive && !effectiveCollapsed && (
-                      <span className="ml-auto w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
+                      <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)] shadow-[0_0_8px_var(--accent-glow)]" />
                     )}
                   </Link>
                 );
@@ -197,23 +197,23 @@ export function Sidebar() {
           <div className="flex items-center gap-3 pt-1 px-1">
             {session.user.image ? (
               <div
-                className="w-8 h-8 rounded-full bg-cover bg-center border border-white/10"
+                className="w-8 h-8 rounded-full bg-cover bg-center border border-[var(--border-subtle)]"
                 style={{ backgroundImage: `url(${session.user.image})` }}
                 aria-label={`${session.user.name}'s profile picture`}
               />
             ) : (
               <div
-                className="w-8 h-8 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-white text-xs font-bold"
+                className="w-8 h-8 rounded-full bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 flex items-center justify-center text-xs font-bold"
                 aria-label="Profile initials"
               >
                 {session.user.name?.charAt(0) || "U"}
               </div>
             )}
             <div className="flex flex-col overflow-hidden">
-              <span className="text-xs font-semibold text-white truncate">
+              <span className="text-xs font-semibold text-[var(--text-primary)] truncate">
                 {session.user.name}
               </span>
-              <span className="text-[10px] text-gray-500 truncate">
+              <span className="text-[10px] text-[var(--text-muted)] truncate">
                 {session.user.email}
               </span>
             </div>
@@ -222,7 +222,7 @@ export function Sidebar() {
 
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
-          className={`flex items-center w-full px-2.5 py-2 text-xs font-medium text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors cursor-pointer ${
+          className={`flex items-center w-full px-2.5 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] rounded-lg transition-colors cursor-pointer ${
             effectiveCollapsed ? "justify-center" : ""
           }`}
           aria-label="Sign out"

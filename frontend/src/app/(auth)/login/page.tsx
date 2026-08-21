@@ -58,13 +58,13 @@ export default function LoginPage() {
 
   if (status === "loading") {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-[#050505] px-6">
+      <div className="flex h-screen w-full items-center justify-center bg-[var(--bg-primary)] text-[var(--text-primary)] px-6">
         <div className="w-full max-w-110 space-y-4 animate-pulse">
-          <div className="mx-auto h-14 w-14 rounded-2xl bg-white/10" />
-          <div className="mx-auto h-8 w-56 rounded-full bg-white/10" />
-          <div className="mx-auto h-4 w-72 max-w-full rounded-full bg-white/10" />
-          <div className="h-12 w-full rounded-2xl bg-white/10" />
-          <div className="h-12 w-full rounded-2xl bg-white/10" />
+          <div className="mx-auto h-14 w-14 rounded-2xl bg-[var(--bg-card)]" />
+          <div className="mx-auto h-8 w-56 rounded-full bg-[var(--bg-card)]" />
+          <div className="mx-auto h-4 w-72 max-w-full rounded-full bg-[var(--bg-card)]" />
+          <div className="h-12 w-full rounded-2xl bg-[var(--bg-card)]" />
+          <div className="h-12 w-full rounded-2xl bg-[var(--bg-card)]" />
         </div>
       </div>
     );
@@ -72,7 +72,7 @@ export default function LoginPage() {
 
   return (
     <div
-      className="relative min-h-screen w-full bg-[#050505] flex items-center justify-center overflow-hidden p-6 font-sans"
+      className="relative min-h-screen w-full bg-[var(--bg-primary)] text-[var(--text-primary)] flex items-center justify-center overflow-hidden p-6 font-sans"
       data-scroll-reveal
     >
       {/* Balanced Radial Glows */}
