@@ -1,7 +1,10 @@
+"use client";
+
 import React, { useState, useRef, useEffect } from "react";
 import { TraceStep, DiagramType, TheoryData } from "../types";
 import { TheoryPanel } from "./TheoryPanel";
 import { StepDescriptionBar } from "./StepDescriptionBar";
+import { ComplexityHUD } from "./ComplexityHUD";
 import { BarDiagram } from "./diagrams/BarDiagram";
 import { ArrayBoxDiagram } from "./diagrams/ArrayBoxDiagram";
 import { SplitMergeDiagram } from "./diagrams/SplitMergeDiagram";
@@ -37,7 +40,8 @@ export function TracePanel({
     arrayState: [5, 3, 8, 1, 9, 2, 4],
     highlighting: {},
     variables: { status: "READY" },
-    description: "Write or select an algorithm and click 'Run & Trace' to start visual execution.",
+    description:
+      "Write or select an algorithm and click 'Run & Trace' to start visual execution.",
   };
 
   const activeStep = currentStep || allSteps[currentStepIndex] || fallbackStep;
@@ -140,18 +144,28 @@ export function TracePanel({
           title="Drag up/down to resize or collapse Theory panel"
           className="h-2 w-full shrink-0 cursor-row-resize flex items-center justify-center group py-0.5"
         >
-          <div className="h-1 w-16 rounded-full bg-white/10 group-hover:bg-cyan-400 group-active:bg-cyan-400 transition-colors flex items-center justify-center">
-            <GripHorizontal size={10} className="text-gray-400 opacity-0 group-hover:opacity-100" />
+          <div className="h-1 w-16 rounded-full bg-[var(--border-subtle)] group-hover:bg-[var(--accent-primary)] group-active:bg-[var(--accent-primary)] transition-colors flex items-center justify-center">
+            <GripHorizontal
+              size={10}
+              className="text-[var(--text-muted)] opacity-0 group-hover:opacity-100"
+            />
           </div>
         </div>
       )}
 
-      {/* 2. Visual Diagram Canvas (flex-1 fills all remaining height) */}
+      {/* 2. Live Complexity & Memory HUD */}
+      <ComplexityHUD
+        currentStepIndex={currentStepIndex}
+        allSteps={allSteps}
+        theory={theory}
+      />
+
+      {/* 3. Visual Diagram Canvas (flex-1 fills all remaining height) */}
       <div className="flex-1 min-h-0 w-full overflow-hidden">
         {renderDiagram()}
       </div>
 
-      {/* 3. Step Description Bar (68px fixed at bottom) */}
+      {/* 4. Step Description Bar (68px fixed at bottom) */}
       <StepDescriptionBar
         step={activeStep}
         currentStepIndex={currentStepIndex}

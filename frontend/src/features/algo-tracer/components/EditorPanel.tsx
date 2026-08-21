@@ -1,8 +1,11 @@
+"use client";
+
 import React, { useRef, useEffect, useState } from "react";
 import Editor, { Monaco } from "@monaco-editor/react";
 import { Trash2, Zap, Code2, GripHorizontal } from "lucide-react";
 import { SupportedLanguage, TraceStep } from "../types";
 import { VariableInspector } from "./VariableInspector";
+import { soundEffects } from "@/lib/soundEffects";
 
 interface EditorPanelProps {
   code: string;
@@ -30,7 +33,7 @@ export function EditorPanel({
   const decorationsRef = useRef<string[]>([]);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  const [inspectorHeight, setInspectorHeight] = useState(105);
+  const [inspectorHeight, setInspectorHeight] = useState(115);
   const [isDraggingInspector, setIsDraggingInspector] = useState(false);
 
   const handleEditorDidMount = (editor: any, monaco: Monaco) => {
@@ -38,7 +41,7 @@ export function EditorPanel({
     monacoRef.current = monaco;
   };
 
-  // Sync Monaco active line highlight with execution step
+  // Sync Monaco active line highlight and auto-scroll with execution step
   useEffect(() => {
     if (!editorRef.current || !monacoRef.current) return;
 
@@ -58,8 +61,10 @@ export function EditorPanel({
             range: new monacoRef.current.Range(activeLine, 1, activeLine, 1),
             options: {
               isWholeLine: true,
-              className: "bg-cyan-500/20 border-l-4 border-cyan-400 font-bold",
-              linesDecorationsClassName: "border-l-4 border-cyan-400",
+              className:
+                "bg-[var(--accent-primary)]/20 border-l-4 border-[var(--accent-primary)] font-bold transition-all duration-150",
+              linesDecorationsClassName:
+                "border-l-4 border-[var(--accent-primary)] text-[var(--accent-primary)] font-bold",
             },
           },
         ],
@@ -78,7 +83,7 @@ export function EditorPanel({
       if (!panelRef.current) return;
       const rect = panelRef.current.getBoundingClientRect();
       const newHeight = rect.bottom - e.clientY;
-      const clamped = Math.max(50, Math.min(260, newHeight));
+      const clamped = Math.max(50, Math.min(280, newHeight));
       setInspectorHeight(clamped);
     };
 
@@ -102,27 +107,33 @@ export function EditorPanel({
       }`}
     >
       {/* Editor Main Container */}
-      <div className="flex-1 min-h-0 w-full rounded-2xl bg-[#090910] border border-white/10 overflow-hidden shadow-2xl flex flex-col">
+      <div className="flex-1 min-h-0 w-full rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] overflow-hidden shadow-2xl flex flex-col">
         {/* Top Toolbar (slim 36px) */}
-        <div className="flex items-center justify-between px-3 py-1.5 bg-white/5 border-b border-white/5 shrink-0">
-          <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-gray-400">
-            <Code2 size={13} className="text-cyan-400" />
+        <div className="flex items-center justify-between px-3 py-1.5 bg-[var(--bg-secondary)] border-b border-[var(--border-subtle)] shrink-0">
+          <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-[var(--text-secondary)]">
+            <Code2 size={13} className="text-[var(--accent-primary)]" />
             <span>Editor</span>
           </div>
 
           <div className="flex items-center gap-1.5">
             <button
-              onClick={onClear}
+              onClick={() => {
+                soundEffects.playClick();
+                onClear();
+              }}
               title="Clear Code"
-              className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-rose-400 transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-rose-400 transition-colors cursor-pointer border border-[var(--border-subtle)]"
             >
               <Trash2 size={13} />
             </button>
 
             <button
-              onClick={onRunTrace}
+              onClick={() => {
+                soundEffects.playClick();
+                onRunTrace();
+              }}
               disabled={isTracing || !code.trim()}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-linear-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white font-black text-xs uppercase tracking-wider transition-all shadow-md shadow-purple-500/20 cursor-pointer disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-[var(--accent-primary)] text-black font-black text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40"
             >
               <Zap size={13} />
               <span>{isTracing ? "Tracing..." : "Run & Trace"}</span>
@@ -131,7 +142,7 @@ export function EditorPanel({
         </div>
 
         {/* Monaco Container */}
-        <div className="flex-1 min-h-0 w-full overflow-hidden bg-[#0c0c16]">
+        <div className="flex-1 min-h-0 w-full overflow-hidden bg-[var(--bg-primary)]">
           <Editor
             height="100%"
             theme="vs-dark"
@@ -163,8 +174,11 @@ export function EditorPanel({
         title="Drag up/down to resize Variable Inspector"
         className="h-2 w-full shrink-0 cursor-row-resize flex items-center justify-center group py-0.5"
       >
-        <div className="h-1 w-16 rounded-full bg-white/10 group-hover:bg-purple-400 group-active:bg-purple-400 transition-colors flex items-center justify-center">
-          <GripHorizontal size={10} className="text-gray-400 opacity-0 group-hover:opacity-100" />
+        <div className="h-1 w-16 rounded-full bg-[var(--border-subtle)] group-hover:bg-[var(--accent-primary)] group-active:bg-[var(--accent-primary)] transition-colors flex items-center justify-center">
+          <GripHorizontal
+            size={10}
+            className="text-[var(--text-muted)] opacity-0 group-hover:opacity-100"
+          />
         </div>
       </div>
 
@@ -173,10 +187,7 @@ export function EditorPanel({
         style={{ height: `${inspectorHeight}px` }}
         className="shrink-0 flex flex-col min-h-0 overflow-hidden"
       >
-        <VariableInspector
-          step={currentStep}
-          className="h-full"
-        />
+        <VariableInspector step={currentStep} className="h-full" />
       </div>
     </div>
   );

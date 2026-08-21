@@ -349,6 +349,7 @@ export function AlgoTracer({
       <ControlsBar
         currentStepIndex={currentStepIndex}
         totalSteps={steps.length}
+        allSteps={steps}
         isPlaying={isPlaying}
         onTogglePlay={togglePlay}
         onNext={nextStep}
@@ -363,6 +364,11 @@ export function AlgoTracer({
         codeToCopy={code}
         isInputDrawerOpen={isInputDrawerOpen}
         onToggleInputDrawer={() => setIsInputDrawerOpen(!isInputDrawerOpen)}
+        algoType={detection.type}
+        algoDisplayName={detection.displayName}
+        language={language}
+        inputArray={arrayInput}
+        targetValue={targetInput}
       />
     </div>
   );

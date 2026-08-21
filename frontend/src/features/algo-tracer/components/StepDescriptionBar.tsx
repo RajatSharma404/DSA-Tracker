@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { Sparkles } from "lucide-react";
 import { TraceStep } from "../types";
@@ -18,12 +20,12 @@ export function StepDescriptionBar({
       case "compare":
         return {
           label: "Compare",
-          color: "bg-[#ff6b6b]/20 border-[#ff6b6b]/40 text-[#ff6b6b]",
+          color: "bg-amber-500/20 border-amber-500/40 text-amber-300",
         };
       case "swap":
         return {
           label: "Swap",
-          color: "bg-[#ffd93d]/20 border-[#ffd93d]/40 text-[#ffd93d]",
+          color: "bg-rose-500/20 border-rose-500/40 text-rose-300",
         };
       case "found":
         return {
@@ -55,7 +57,7 @@ export function StepDescriptionBar({
       default:
         return {
           label: "Step",
-          color: "bg-white/10 border-white/20 text-gray-300",
+          color: "bg-[var(--bg-secondary)] border-[var(--border-subtle)] text-[var(--text-secondary)]",
         };
     }
   };
@@ -63,14 +65,14 @@ export function StepDescriptionBar({
   const badge = getTypeBadge(step?.type || "iterate");
 
   return (
-    <div className="h-17 px-3.5 py-2 rounded-2xl bg-[#0f0f1c] border border-cyan-500/20 shadow-md flex items-center gap-3 shrink-0 overflow-hidden">
-      <div className="p-2 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 shrink-0">
+    <div className="h-17 px-3.5 py-2 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] shadow-md flex items-center gap-3 shrink-0 overflow-hidden">
+      <div className="p-2 rounded-xl bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] shrink-0">
         <Sparkles size={15} />
       </div>
 
       <div className="flex-1 min-w-0 space-y-0.5">
         <div className="flex items-center gap-2 font-mono text-[11px]">
-          <span className="font-bold uppercase text-cyan-400">
+          <span className="font-bold uppercase text-[var(--accent-primary)]">
             Step {totalSteps > 0 ? currentStepIndex + 1 : 0}/{totalSteps}
           </span>
           <span
@@ -79,13 +81,13 @@ export function StepDescriptionBar({
             {badge.label}
           </span>
           {step?.line ? (
-            <span className="text-gray-400 font-mono">
+            <span className="text-[var(--text-muted)] font-mono">
               Line {step.line}
             </span>
           ) : null}
         </div>
 
-        <p className="text-[13px] sm:text-[13.5px] text-gray-100 font-medium leading-snug line-clamp-2 truncate">
+        <p className="text-[13px] sm:text-[13.5px] text-[var(--text-primary)] font-medium leading-snug line-clamp-2 truncate">
           {step?.description || "Ready to execute. Click 'Run & Trace' to start."}
         </p>
       </div>

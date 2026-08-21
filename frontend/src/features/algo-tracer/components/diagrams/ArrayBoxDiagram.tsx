@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { TraceStep } from "../../types";
 import { CheckCircle2, Crosshair } from "lucide-react";
@@ -25,23 +27,23 @@ export function ArrayBoxDiagram({ step }: ArrayBoxDiagramProps) {
   const right = step.variables?.right;
 
   return (
-    <div className="flex flex-col h-full w-full justify-between p-2.5 sm:p-3 bg-[#0a0a12]/90 rounded-2xl border border-white/5 shadow-xl overflow-hidden">
+    <div className="flex flex-col h-full w-full justify-between p-2.5 sm:p-3 bg-[var(--bg-card)] rounded-2xl border border-[var(--border-subtle)] shadow-xl overflow-hidden">
       {/* Status Bar */}
-      <div className="flex items-center justify-between pb-1.5 border-b border-white/5 shrink-0 text-[10px] font-mono">
-        <div className="flex items-center gap-1.5 text-gray-300">
-          <Crosshair size={12} className="text-cyan-400" />
+      <div className="flex items-center justify-between pb-1.5 border-b border-[var(--border-subtle)] shrink-0 text-[10px] font-mono">
+        <div className="flex items-center gap-1.5 text-[var(--text-secondary)]">
+          <Crosshair size={12} className="text-[var(--accent-primary)]" />
           <span>Window:</span>
           {low !== undefined && high !== undefined ? (
-            <span className="px-1.5 py-0.2 rounded bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 font-bold">
+            <span className="px-1.5 py-0.2 rounded bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] font-bold">
               [{low}..{high}]
             </span>
           ) : (
-            <span className="text-gray-500">Global</span>
+            <span className="text-[var(--text-muted)]">Global</span>
           )}
         </div>
 
         {foundIndex !== undefined && foundIndex !== null && foundIndex >= 0 && (
-          <div className="flex items-center gap-1 px-2 py-0.2 rounded-lg bg-emerald-500/20 text-emerald-400 font-bold animate-pulse">
+          <div className="flex items-center gap-1 px-2 py-0.2 rounded-lg bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30 animate-pulse">
             <CheckCircle2 size={12} />
             <span>Target Found at [{foundIndex}]!</span>
           </div>
@@ -68,7 +70,8 @@ export function ArrayBoxDiagram({ step }: ArrayBoxDiagramProps) {
             const inActiveRange =
               activeRange ? idx >= activeRange[0] && idx <= activeRange[1] : true;
 
-            let boxStyle = "bg-[#131320] border-white/10 text-gray-300 shadow-md";
+            let boxStyle =
+              "bg-[var(--bg-secondary)] border-[var(--border-subtle)] text-[var(--text-primary)] shadow-md";
 
             if (isFound) {
               boxStyle =
@@ -79,15 +82,19 @@ export function ArrayBoxDiagram({ step }: ArrayBoxDiagramProps) {
             } else if (isComparing) {
               boxStyle =
                 "bg-purple-500/20 border-purple-400 text-purple-200 font-extrabold shadow-[0_0_10px_rgba(168,85,247,0.4)]";
-            } else if (isEliminated || (!inActiveRange && (low !== undefined || high !== undefined))) {
-              boxStyle = "bg-white/2 border-white/5 text-gray-600 opacity-30 line-through";
+            } else if (
+              isEliminated ||
+              (!inActiveRange && (low !== undefined || high !== undefined))
+            ) {
+              boxStyle =
+                "bg-[var(--bg-tertiary)] border-[var(--border-subtle)] text-[var(--text-muted)] opacity-30 line-through";
             }
 
             return (
               <div key={idx} className="flex flex-col items-center gap-1 min-w-9">
                 <div className="h-4 flex items-center justify-center gap-0.5">
                   {isLow && (
-                    <span className="px-1 py-0.2 rounded text-[8px] font-black bg-cyan-500 text-black font-mono">
+                    <span className="px-1 py-0.2 rounded text-[8px] font-black bg-[var(--accent-primary)] text-black font-mono">
                       L
                     </span>
                   )}
@@ -126,7 +133,7 @@ export function ArrayBoxDiagram({ step }: ArrayBoxDiagramProps) {
                   )}
                 </div>
 
-                <span className="text-[9px] font-mono text-gray-500 font-bold">
+                <span className="text-[9px] font-mono text-[var(--text-muted)] font-bold">
                   [{idx}]
                 </span>
               </div>

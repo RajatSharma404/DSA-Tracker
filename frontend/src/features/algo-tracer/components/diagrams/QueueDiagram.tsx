@@ -1,6 +1,8 @@
+"use client";
+
 import React from "react";
 import { TraceStep } from "../../types";
-import { ArrowRight, MoveRight } from "lucide-react";
+import { MoveRight } from "lucide-react";
 
 interface QueueDiagramProps {
   step: TraceStep;
@@ -8,17 +10,20 @@ interface QueueDiagramProps {
 
 export function QueueDiagram({ step }: QueueDiagramProps) {
   const queueItems =
-    step.dataStructureState || (step.variables?.queue ? JSON.parse(String(step.variables.queue).replace(/'/g, '"')) : [10, 20, 30]);
+    step.dataStructureState ||
+    (step.variables?.queue
+      ? JSON.parse(String(step.variables.queue).replace(/'/g, '"'))
+      : [10, 20, 30]);
 
   return (
-    <div className="flex flex-col h-full w-full justify-between p-2.5 bg-[#0a0a12]/90 rounded-2xl border border-white/5 shadow-xl overflow-hidden">
-      <div className="flex items-center justify-between pb-1 border-b border-white/5 shrink-0 text-[10px] font-mono">
-        <div className="flex items-center gap-1.5 text-cyan-400 font-bold">
+    <div className="flex flex-col h-full w-full justify-between p-2.5 bg-[var(--bg-card)] rounded-2xl border border-[var(--border-subtle)] shadow-xl overflow-hidden">
+      <div className="flex items-center justify-between pb-1 border-b border-[var(--border-subtle)] shrink-0 text-[10px] font-mono">
+        <div className="flex items-center gap-1.5 text-[var(--accent-primary)] font-bold">
           <MoveRight size={13} />
           <span>FIFO Queue</span>
         </div>
-        <div className="text-gray-400">
-          Length: <strong className="text-white">{queueItems.length}</strong>
+        <div className="text-[var(--text-muted)]">
+          Length: <strong className="text-[var(--text-primary)]">{queueItems.length}</strong>
         </div>
       </div>
 
@@ -28,7 +33,7 @@ export function QueueDiagram({ step }: QueueDiagramProps) {
             EXIT
           </span>
 
-          <div className="flex items-center gap-1.5 border-t border-b border-cyan-500/40 p-2 bg-black/40 rounded-lg min-w-36 justify-center">
+          <div className="flex items-center gap-1.5 border-t border-b border-[var(--border-subtle)] p-2 bg-[var(--bg-secondary)] rounded-lg min-w-36 justify-center">
             {queueItems.length > 0 ? (
               queueItems.map((val: string | number, idx: number) => {
                 const isFront = idx === 0;
@@ -41,23 +46,25 @@ export function QueueDiagram({ step }: QueueDiagramProps) {
                       isFront
                         ? "bg-emerald-500/20 border-emerald-400 text-emerald-300 font-bold"
                         : isRear
-                          ? "bg-cyan-500/20 border-cyan-400 text-cyan-300 font-bold"
-                          : "bg-[#141422] border-white/10 text-gray-300"
+                          ? "bg-[var(--accent-primary)]/20 border-[var(--accent-primary)] text-[var(--accent-primary)] font-bold"
+                          : "bg-[var(--bg-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]"
                     }`}
                   >
-                    <span className="font-black">{val}</span>
-                    <span className="text-[8px] text-gray-500">
+                    <span className="font-black text-[var(--text-primary)]">{val}</span>
+                    <span className="text-[8px] text-[var(--text-muted)]">
                       {isFront ? "FRONT" : isRear ? "REAR" : `[${idx}]`}
                     </span>
                   </div>
                 );
               })
             ) : (
-              <span className="text-[10px] text-gray-600 italic py-1">Empty</span>
+              <span className="text-[10px] text-[var(--text-muted)] italic py-1">
+                Empty
+              </span>
             )}
           </div>
 
-          <span className="text-[9px] font-mono text-cyan-400 font-bold shrink-0">
+          <span className="text-[9px] font-mono text-[var(--accent-primary)] font-bold shrink-0">
             ENTER
           </span>
         </div>
