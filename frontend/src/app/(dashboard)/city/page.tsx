@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
-import Link from "next/link";
+import React, { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
+import { useSession } from "next-auth/react";
 import { PageTransition } from "@/components/layout/PageTransition";
 import {
   Building2,
@@ -17,181 +18,277 @@ import {
   Clock,
   Flame,
   Radio,
+  Users,
 } from "lucide-react";
 import { toast } from "sonner";
+import { dsaApi } from "@/lib/api";
+import { LeaderboardUser, CityTheme } from "@/components/3d/CityScene";
+import { CityLevelProgress } from "@/components/dashboard/CityLevelPath";
+import { soundEffects } from "@/lib/soundEffects";
 
-/*
- ==============================================================================
-  NOTE: DSA 3D City Scene Code is commented out below for upcoming v2.0 release.
- ==============================================================================
+const CityScene = dynamic(
+  () => import("@/components/3d/CityScene").then((mod) => mod.CityScene),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[520px] rounded-[2.5rem] bg-[var(--bg-card)] border border-[var(--border-subtle)] animate-pulse flex items-center justify-center text-[var(--text-muted)] font-mono text-xs">
+        Initializing WebGL 3D Spatial Canvas...
+      </div>
+    ),
+  },
+);
 
-import { CityScene, CityTheme, LeaderboardUser } from "@/components/3d/CityScene";
-import { CityLevelPath } from "@/components/dashboard/CityLevelPath";
-import { CityLeaderboard } from "@/components/dashboard/CityLeaderboard";
-import { UserInspectorModal } from "@/components/dashboard/UserInspectorModal";
-import { cityAudio } from "@/lib/cityAudio";
+const CityLevelPath = dynamic(
+  () =>
+    import("@/components/dashboard/CityLevelPath").then(
+      (mod) => mod.CityLevelPath,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-72 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-subtle)] animate-pulse" />
+    ),
+  },
+);
 
-(Original 3D City implementation preserved in version control and components/3d)
-==============================================================================
-*/
+const CityLeaderboard = dynamic(
+  () =>
+    import("@/components/dashboard/CityLeaderboard").then(
+      (mod) => mod.CityLeaderboard,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-72 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-subtle)] animate-pulse" />
+    ),
+  },
+);
+
+const UserInspectorModal = dynamic(
+  () =>
+    import("@/components/dashboard/UserInspectorModal").then(
+      (mod) => mod.UserInspectorModal,
+    ),
+  {
+    ssr: false,
+  },
+);
+
+const MOCK_LEVELS: CityLevelProgress[] = [
+  {
+    id: "arrays-and-hashing",
+    name: "Foundation: Arrays & Hashing",
+    isCompleted: true,
+    progress: {
+      easy: { solved: 3, required: 3, total: 3 },
+      medium: { solved: 3, required: 3, total: 3 },
+      hard: { solved: 1, required: 1, total: 1 },
+    },
+  },
+  {
+    id: "two-pointers",
+    name: "District 2: Two Pointers",
+    isCompleted: true,
+    progress: {
+      easy: { solved: 2, required: 2, total: 2 },
+      medium: { solved: 3, required: 3, total: 3 },
+      hard: { solved: 1, required: 1, total: 1 },
+    },
+  },
+  {
+    id: "sliding-window",
+    name: "District 3: Sliding Window",
+    isCompleted: false,
+    progress: {
+      easy: { solved: 2, required: 2, total: 2 },
+      medium: { solved: 1, required: 3, total: 3 },
+      hard: { solved: 0, required: 1, total: 1 },
+    },
+  },
+  {
+    id: "trees-and-graphs",
+    name: "District 4: Trees & Graphs",
+    isCompleted: false,
+    progress: {
+      easy: { solved: 1, required: 2, total: 2 },
+      medium: { solved: 0, required: 4, total: 4 },
+      hard: { solved: 0, required: 2, total: 2 },
+    },
+  },
+  {
+    id: "dynamic-programming",
+    name: "Central Spire: Dynamic Programming",
+    isCompleted: false,
+    progress: {
+      easy: { solved: 0, required: 2, total: 2 },
+      medium: { solved: 0, required: 5, total: 5 },
+      hard: { solved: 0, required: 3, total: 3 },
+    },
+  },
+];
+
+const MOCK_USERS: LeaderboardUser[] = [
+  {
+    id: "user-1",
+    username: "Alexey V. (DeepMind)",
+    completedLevels: 24,
+    lastActivityDate: "Just now",
+  },
+  {
+    id: "user-2",
+    username: "Elena Rostova",
+    completedLevels: 19,
+    lastActivityDate: "1h ago",
+  },
+  {
+    id: "user-3",
+    username: "Marcus Aurelius",
+    completedLevels: 14,
+    lastActivityDate: "3h ago",
+  },
+  {
+    id: "user-4",
+    username: "Priya Sharma",
+    completedLevels: 9,
+    lastActivityDate: "Yesterday",
+  },
+  {
+    id: "user-current",
+    username: "You (Gladiator)",
+    completedLevels: 7,
+    lastActivityDate: "Active",
+  },
+  {
+    id: "user-5",
+    username: "David Kim",
+    completedLevels: 5,
+    lastActivityDate: "2d ago",
+  },
+];
 
 export default function CityPage() {
-  const [notified, setNotified] = useState(false);
+  const { data: session } = useSession();
+  const [cityTheme, setCityTheme] = useState<CityTheme>("cyberpunk");
+  const [levels, setLevels] = useState<CityLevelProgress[]>(MOCK_LEVELS);
+  const [users, setUsers] = useState<LeaderboardUser[]>(MOCK_USERS);
+  const [focusedUserId, setFocusedUserId] = useState<string | null>(null);
+  const [hoveredUserId, setHoveredUserId] = useState<string | null>(null);
+  const [inspectedUser, setInspectedUser] = useState<LeaderboardUser | null>(
+    null,
+  );
 
-  const handleNotifyMe = () => {
-    setNotified(true);
-    toast.success("You're on the VIP list for the DSA 3D City launch!");
-  };
+  useEffect(() => {
+    dsaApi
+      .getCityProgress()
+      .then((data) => {
+        if (data?.levels && Array.isArray(data.levels) && data.levels.length > 0) {
+          setLevels(data.levels);
+        }
+        if (data?.users && Array.isArray(data.users) && data.users.length > 0) {
+          setUsers(data.users);
+        }
+      })
+      .catch(() => {
+        // Fallback to rich mock data
+      });
+  }, []);
 
-  const previewFeatures = [
-    {
-      icon: Building2,
-      color: "text-cyan-400 bg-cyan-500/10 border-cyan-500/20",
-      title: "3D Procedural Skyscrapers",
-      desc: "Every topic you master erects physical floors on your personal cyberpunk skyscraper with real-time neon lighting.",
-    },
-    {
-      icon: Trophy,
-      color: "text-amber-400 bg-amber-500/10 border-amber-500/20",
-      title: "Multiplayer Metropolitan Leaderboard",
-      desc: "Compare your skyline with peers and interview candidates worldwide in a live interactive 3D spatial grid.",
-    },
-    {
-      icon: Zap,
-      color: "text-purple-400 bg-purple-500/10 border-purple-500/20",
-      title: "Holographic Floor Elevators",
-      desc: "Solve Easy, Medium, and Hard problems to power the central elevator shaft and ascend to advanced algorithmic districts.",
-    },
-    {
-      icon: Brain,
-      color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
-      title: "Spaced Repetition Defense Tower",
-      desc: "Neglected topics cause simulated power flickers on past floors, urging you to complete revisions before they decay.",
-    },
-  ];
+  const currentUserId = session?.user?.email || "user-current";
 
   return (
     <PageTransition>
-      <div className="w-full space-y-10 py-6 sm:py-10 animate-in fade-in duration-700">
-        {/* Hero Section */}
-        <div className="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-linear-to-b from-[#0e0e18] via-[#090912] to-[#050508] p-8 sm:p-14 shadow-2xl">
-          {/* Ambient Glowing Blobs */}
-          <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-cyan-500/15 blur-[100px] pointer-events-none" />
-          <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-purple-500/15 blur-[100px] pointer-events-none" />
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-40 w-full max-w-2xl bg-linear-to-t from-cyan-500/10 to-transparent blur-3xl pointer-events-none" />
-
-          <div className="relative z-10 flex flex-col items-center text-center space-y-6 max-w-4xl mx-auto">
-            {/* Status Pill */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-cyan-300 shadow-[0_0_20px_rgba(6,182,212,0.25)]">
-              <Sparkles size={14} className="animate-spin text-cyan-400" />
-              <span>DSA City v2.0 • In Active Development</span>
+      <div className="w-full space-y-8 py-4 sm:py-6 animate-in fade-in duration-700">
+        {/* Header Bar */}
+        <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-4">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/20 text-[var(--accent-primary)] text-xs font-bold uppercase tracking-wider mb-2">
+              <Building2 size={13} />
+              <span>3D Spatial Metaverse</span>
             </div>
-
-            {/* Title */}
-            <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-white uppercase leading-none">
-              The 3D DSA <span className="bg-linear-to-r from-cyan-400 via-teal-300 to-purple-400 bg-clip-text text-transparent">Metaverse</span>
+            <h1 className="text-3xl sm:text-4xl font-black text-[var(--text-primary)] tracking-tight flex items-center gap-3 font-display">
+              DSA 3D City Metropolitan
             </h1>
-
-            {/* Description */}
-            <p className="text-sm sm:text-lg text-gray-300 max-w-2xl leading-relaxed">
-              We are upgrading DSA City into a full-scale WebGL 3D spatial world. Build procedural architectural towers as you solve algorithms, conquer districts, and visualize your progress like never before.
+            <p className="text-sm text-[var(--text-muted)] mt-1">
+              Every algorithm solved erects physical floors on your personal cyberpunk skyscraper.
             </p>
+          </div>
+        </div>
 
-            {/* Notify / Action Row */}
-            <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
-              <button
-                onClick={handleNotifyMe}
-                disabled={notified}
-                className={`inline-flex items-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-bold transition-all cursor-pointer ${
-                  notified
-                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow-lg shadow-emerald-500/10"
-                    : "bg-linear-to-r from-cyan-500 to-blue-600 text-black hover:from-cyan-400 hover:to-blue-500 shadow-xl shadow-cyan-500/20 hover:scale-[1.02] active:scale-[0.98]"
-                }`}
-              >
-                {notified ? <CheckCircle2 size={18} /> : <Radio size={18} className="animate-pulse" />}
-                {notified ? "You're On The VIP Waitlist!" : "Get Early Alpha Access"}
-              </button>
+        {/* 3D WebGL Metaverse Canvas */}
+        <div className="w-full h-[520px]">
+          <CityScene
+            users={users}
+            currentUserId={currentUserId}
+            focusedUserId={focusedUserId}
+            onFocusUser={(id) => setFocusedUserId(id)}
+            theme={cityTheme}
+            onThemeChange={(newTheme) => setCityTheme(newTheme)}
+            onInspectUser={(u) => setInspectedUser(u)}
+          />
+        </div>
 
-              <Link
-                href="/roadmap"
-                className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 px-6 py-3.5 text-sm font-bold text-gray-200 transition-all hover:border-white/20"
-              >
-                <Compass size={18} className="text-cyan-400" />
-                Explore Visual Roadmap
-                <ArrowRight size={16} />
-              </Link>
+        {/* Spatial Grid: District Progression Path vs Metropolitan Leaderboard */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Left: Level Progression Roadmap (7 cols) */}
+          <div className="lg:col-span-7 rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6 space-y-4 shadow-xl">
+            <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
+              <div className="flex items-center gap-2">
+                <Compass size={18} className="text-[var(--accent-primary)]" />
+                <h3 className="font-bold text-base text-[var(--text-primary)] font-display">
+                  Metropolitan District Path
+                </h3>
+              </div>
+              <span className="text-xs font-mono text-[var(--text-muted)]">
+                Ascend to Central Spire
+              </span>
+            </div>
+
+            <CityLevelPath levels={levels} />
+          </div>
+
+          {/* Right: Skyline Leaderboard (5 cols) */}
+          <div className="lg:col-span-5 rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6 space-y-4 shadow-xl flex flex-col">
+            <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
+              <div className="flex items-center gap-2">
+                <Trophy size={18} className="text-amber-400" />
+                <h3 className="font-bold text-base text-[var(--text-primary)] font-display">
+                  Skyscraper Leaderboard
+                </h3>
+              </div>
+              <span className="text-xs font-mono text-emerald-400 font-bold">
+                Live Skyline
+              </span>
+            </div>
+
+            <div className="flex-1 overflow-y-auto min-h-0">
+              <CityLeaderboard
+                users={users}
+                currentUserId={currentUserId}
+                hoveredUserId={hoveredUserId}
+                onHoverUser={(id) => setHoveredUserId(id)}
+                onClickUser={(id) => {
+                  const target = users.find((u) => u.id === id);
+                  if (target) {
+                    setInspectedUser(target);
+                    setFocusedUserId(id);
+                  }
+                }}
+              />
             </div>
           </div>
         </div>
 
-        {/* Feature Cards Grid */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <Layers size={20} className="text-cyan-400" />
-              What to Expect in City v2.0
-            </h2>
-            <span className="text-xs text-gray-500 font-semibold uppercase tracking-wider">
-              Sneak Peek
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {previewFeatures.map((feat, i) => (
-              <div
-                key={i}
-                className="group relative rounded-3xl border border-white/5 bg-[#0a0a0f] p-6 hover:border-cyan-500/30 hover:bg-[#0d0d18] transition-all duration-300 shadow-lg hover:shadow-cyan-500/10 flex flex-col justify-between"
-              >
-                <div className="space-y-4">
-                  <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center ${feat.color} shadow-sm group-hover:scale-110 transition-transform duration-300`}>
-                    <feat.icon size={22} />
-                  </div>
-                  <h3 className="text-base font-bold text-white group-hover:text-cyan-300 transition-colors">
-                    {feat.title}
-                  </h3>
-                  <p className="text-xs text-gray-400 leading-relaxed">
-                    {feat.desc}
-                  </p>
-                </div>
-
-                <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between text-[11px] text-gray-500 font-semibold">
-                  <span>Phase {i + 1} System</span>
-                  <span className="text-cyan-400 flex items-center gap-1">
-                    <Sparkles size={12} /> Coming Soon
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Quick Alternative Roadmaps */}
-        <div className="rounded-3xl border border-white/10 bg-linear-to-r from-purple-900/15 via-[#0c0c14] to-cyan-900/15 p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
-          <div className="space-y-1 text-center sm:text-left">
-            <h3 className="text-lg font-bold text-white flex items-center justify-center sm:justify-start gap-2">
-              <Flame size={20} className="text-orange-400" />
-              Keep Your Momentum Going
-            </h3>
-            <p className="text-xs text-gray-400">
-              Continue mastering topics sequentially or practice under pressure in the arena while the city builds.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/topics"
-              className="rounded-xl border border-white/10 bg-white/10 hover:bg-white/15 px-4 py-2.5 text-xs font-bold text-white transition-colors"
-            >
-              Solve DSA Topics
-            </Link>
-            <Link
-              href="/challenge"
-              className="rounded-xl bg-cyan-500 hover:bg-cyan-400 px-4 py-2.5 text-xs font-bold text-black transition-colors"
-            >
-              Enter The Arena
-            </Link>
-          </div>
-        </div>
+        {/* User Inspector Modal */}
+        {inspectedUser && (
+          <UserInspectorModal
+            user={inspectedUser}
+            currentUserId={currentUserId}
+            rank={
+              users.findIndex((u) => u.id === inspectedUser.id) + 1 || 1
+            }
+            onClose={() => setInspectedUser(null)}
+          />
+        )}
       </div>
     </PageTransition>
   );

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { CheckCircle2, Lock, Star } from "lucide-react";
 import { cn } from "@/lib/design-tokens";
+import { soundEffects } from "@/lib/soundEffects";
 
 export type CityLevelProgress = {
   id: string;
@@ -22,7 +23,6 @@ export const CityLevelPath = ({ levels }: { levels: CityLevelProgress[] }) => {
 
   useEffect(() => {
     if (!animatingLevelId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setAnimatedLevels(levels);
     }
   }, [levels, animatingLevelId]);
@@ -43,7 +43,11 @@ export const CityLevelPath = ({ levels }: { levels: CityLevelProgress[] }) => {
   }, [animatedLevels]);
 
   if (levels.length === 0) {
-    return <div className="text-center text-slate-500 py-10">No levels found.</div>;
+    return (
+      <div className="text-center text-[var(--text-muted)] py-10 font-mono text-sm">
+        No levels found.
+      </div>
+    );
   }
 
   const ITEM_HEIGHT = 160;
@@ -67,9 +71,11 @@ export const CityLevelPath = ({ levels }: { levels: CityLevelProgress[] }) => {
 
   const completedPathD = animatedLevels.reduce((acc, level, idx) => {
     if (idx === 0) return `M 35 0`;
-    const isPrevComplete = animatedLevels[idx - 1].isCompleted || animatingLevelId === animatedLevels[idx - 1].id;
+    const isPrevComplete =
+      animatedLevels[idx - 1].isCompleted ||
+      animatingLevelId === animatedLevels[idx - 1].id;
     if (!isPrevComplete) return acc;
-    
+
     const prev = getPosition(idx - 1);
     const curr = getPosition(idx);
     const controlY1 = prev.y + (curr.y - prev.y) / 2;
@@ -79,14 +85,32 @@ export const CityLevelPath = ({ levels }: { levels: CityLevelProgress[] }) => {
 
   const renderDots = (level: CityLevelProgress, isAnimating: boolean) => {
     const dots = [
-      ...Array(level.progress.easy.required).fill({ type: "easy", filled: false }),
-      ...Array(level.progress.medium.required).fill({ type: "medium", filled: false }),
-      ...Array(level.progress.hard.required).fill({ type: "hard", filled: false }),
+      ...Array(level.progress.easy.required).fill({
+        type: "easy",
+        filled: false,
+      }),
+      ...Array(level.progress.medium.required).fill({
+        type: "medium",
+        filled: false,
+      }),
+      ...Array(level.progress.hard.required).fill({
+        type: "hard",
+        filled: false,
+      }),
     ];
 
-    let easySolved = Math.min(level.progress.easy.solved, level.progress.easy.required);
-    let mediumSolved = Math.min(level.progress.medium.solved, level.progress.medium.required);
-    let hardSolved = Math.min(level.progress.hard.solved, level.progress.hard.required);
+    let easySolved = Math.min(
+      level.progress.easy.solved,
+      level.progress.easy.required,
+    );
+    let mediumSolved = Math.min(
+      level.progress.medium.solved,
+      level.progress.medium.required,
+    );
+    let hardSolved = Math.min(
+      level.progress.hard.solved,
+      level.progress.hard.required,
+    );
 
     if (isAnimating) {
       easySolved = level.progress.easy.required;
@@ -148,12 +172,18 @@ export const CityLevelPath = ({ levels }: { levels: CityLevelProgress[] }) => {
           preserveAspectRatio="none"
         >
           {/* Base Dashed Track */}
-          <path d={pathD} fill="none" stroke="#1e293b" strokeWidth="4" strokeDasharray="8 8" />
+          <path
+            d={pathD}
+            fill="none"
+            stroke="var(--border-subtle)"
+            strokeWidth="4"
+            strokeDasharray="8 8"
+          />
           {/* Completed Solid Track */}
           <path
             d={completedPathD}
             fill="none"
-            stroke="#4f46e5"
+            stroke="var(--accent-primary)"
             strokeWidth="4"
             className="transition-all duration-700 ease-in-out"
           />
@@ -166,7 +196,8 @@ export const CityLevelPath = ({ levels }: { levels: CityLevelProgress[] }) => {
           const isCompleted = level.isCompleted || isAnimatingThis;
           const isCurrent = isUnlocked && !isCompleted;
 
-          const baseNodeStyle = "relative flex items-center justify-center w-16 h-16 rounded-full border-4 shadow-xl transition-all duration-500 ease-out z-10";
+          const baseNodeStyle =
+            "relative flex items-center justify-center w-16 h-16 rounded-full border-4 shadow-xl transition-all duration-500 ease-out z-10";
 
           return (
             <div
@@ -180,33 +211,58 @@ export const CityLevelPath = ({ levels }: { levels: CityLevelProgress[] }) => {
               {!isUnlocked ? (
                 // Locked Node
                 <div className="flex flex-col items-center gap-2 opacity-50 select-none">
-                  <div className={cn(baseNodeStyle, "bg-slate-800 border-slate-700")}>
-                    <Lock className="w-6 h-6 text-slate-500" />
+                  <div
+                    className={cn(
+                      baseNodeStyle,
+                      "bg-[var(--bg-secondary)] border-[var(--border-subtle)]",
+                    )}
+                  >
+                    <Lock className="w-6 h-6 text-[var(--text-muted)]" />
                   </div>
-                  <span className="text-xs font-semibold text-slate-500">Locked</span>
+                  <span className="text-xs font-semibold text-[var(--text-muted)]">
+                    Locked
+                  </span>
                 </div>
               ) : isCurrent ? (
                 // Current / In Progress
-                <Link href={`/city/${encodeURIComponent(level.id)}`} className="flex flex-col items-center gap-2 group outline-none">
-                  <div className={cn(
-                    baseNodeStyle, 
-                    "bg-indigo-900 border-indigo-500 group-hover:scale-110 group-focus-visible:ring-4 ring-indigo-500/50 cursor-pointer shadow-indigo-500/20"
-                  )}>
-                    <div className="absolute inset-0 rounded-full animate-ping bg-indigo-500/20" />
-                    <Star className="w-7 h-7 text-indigo-400 fill-indigo-400/20" />
+                <Link
+                  href={`/city/${encodeURIComponent(level.id)}`}
+                  onClick={() => soundEffects.playClick()}
+                  className="flex flex-col items-center gap-2 group outline-none cursor-pointer"
+                >
+                  <div
+                    className={cn(
+                      baseNodeStyle,
+                      "bg-[var(--accent-primary)]/20 border-[var(--accent-primary)] group-hover:scale-110 group-focus-visible:ring-4 ring-[var(--accent-primary)]/50 shadow-[0_0_15px_var(--accent-glow)]",
+                    )}
+                  >
+                    <div className="absolute inset-0 rounded-full animate-ping bg-[var(--accent-primary)]/20" />
+                    <Star className="w-7 h-7 text-[var(--accent-primary)] fill-[var(--accent-primary)]/20" />
                   </div>
-                  <span className="text-xs font-bold text-indigo-300 drop-shadow-sm">{level.name}</span>
+                  <span className="text-xs font-bold text-[var(--accent-primary)] drop-shadow-sm font-display">
+                    {level.name}
+                  </span>
                 </Link>
               ) : (
                 // Completed
-                <Link href={`/city/${encodeURIComponent(level.id)}`} className="flex flex-col items-center gap-2 group outline-none">
-                  <div className={cn(
-                    baseNodeStyle,
-                    isAnimatingThis ? "bg-indigo-500 border-indigo-400 scale-110 shadow-indigo-500/40" : "bg-emerald-500 border-emerald-400 group-hover:scale-105 shadow-emerald-500/20 cursor-pointer"
-                  )}>
-                    <CheckCircle2 className="w-8 h-8 text-white" />
+                <Link
+                  href={`/city/${encodeURIComponent(level.id)}`}
+                  onClick={() => soundEffects.playClick()}
+                  className="flex flex-col items-center gap-2 group outline-none cursor-pointer"
+                >
+                  <div
+                    className={cn(
+                      baseNodeStyle,
+                      isAnimatingThis
+                        ? "bg-[var(--accent-primary)] border-[var(--accent-primary)] scale-110 shadow-[0_0_20px_var(--accent-glow)]"
+                        : "bg-emerald-500 border-emerald-400 group-hover:scale-105 shadow-emerald-500/20",
+                    )}
+                  >
+                    <CheckCircle2 className="w-8 h-8 text-black" />
                   </div>
-                  <span className="text-xs font-bold text-emerald-300">{level.name}</span>
+                  <span className="text-xs font-bold text-emerald-400 font-display">
+                    {level.name}
+                  </span>
                 </Link>
               )}
             </div>

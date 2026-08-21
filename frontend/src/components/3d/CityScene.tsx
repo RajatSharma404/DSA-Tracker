@@ -7,6 +7,7 @@ import * as THREE from "three";
 import { Building, BuildingProps } from "./Building";
 import { CentralSpire } from "./CentralSpire";
 import { cityAudio } from "@/lib/cityAudio";
+import { soundEffects } from "@/lib/soundEffects";
 import {
   Compass,
   Eye,
@@ -100,13 +101,13 @@ const CinematicOrbit = ({
 }) => {
   useFrame((_, delta) => {
     if (enabled && cameraControlsRef.current) {
-      cameraControlsRef.current.azimuthAngle += delta * 0.15;
+      cameraControlsRef.current.azimuthAngle += delta * 0.12;
     }
   });
   return null;
 };
 
-// Neon Connecting Pathways Ground Net
+// Glowing Neon Grid Ground Pathways connecting buildings to the Central Spire
 const ConnectingPaths = ({
   userPositions,
   theme,
@@ -115,34 +116,38 @@ const ConnectingPaths = ({
   theme: CityTheme;
 }) => {
   const pathColor = {
-    cyberpunk: "#818cf8",
-    sunset: "#f97316",
+    cyberpunk: "#06b6d4",
+    sunset: "#f59e0b",
     matrix: "#10b981",
   }[theme];
 
   const lines = useMemo(() => {
-    const points: THREE.Vector3[] = [];
-    Object.values(userPositions).forEach(([x, _, z]) => {
-      points.push(new THREE.Vector3(0, 0.02, 0));
-      points.push(new THREE.Vector3(x, 0.02, z));
+    return Object.values(userPositions).map(([x, , z]) => {
+      const points = [
+        new THREE.Vector3(x, 0.02, z),
+        new THREE.Vector3(x, 0.02, 0),
+        new THREE.Vector3(0, 0.02, 0),
+      ];
+      const curve = new THREE.CatmullRomCurve3(points);
+      const geometry = new THREE.TubeGeometry(curve, 16, 0.04, 6, false);
+      return geometry;
     });
-    return points;
   }, [userPositions]);
 
-  const lineGeo = useMemo(() => {
-    return new THREE.BufferGeometry().setFromPoints(lines);
-  }, [lines]);
-
   return (
-    <lineSegments geometry={lineGeo}>
-      <lineBasicMaterial color={pathColor} transparent opacity={0.3} linewidth={2} />
-    </lineSegments>
+    <group>
+      {lines.map((geom, i) => (
+        <mesh key={i} geometry={geom}>
+          <meshBasicMaterial color={pathColor} transparent opacity={0.4} />
+        </mesh>
+      ))}
+    </group>
   );
 };
 
 export const CityScene: React.FC<CitySceneProps> = ({
   users,
-  currentUserId = "u1",
+  currentUserId,
   reducedEffects = false,
   focusedUserId = null,
   onFocusUser = () => {},
@@ -152,7 +157,6 @@ export const CityScene: React.FC<CitySceneProps> = ({
 }) => {
   const cameraControlsRef = useRef<CameraControls>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-
   const [cameraMode, setCameraMode] = useState<CameraMode>("iso");
   const [isMuted, setIsMuted] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -162,43 +166,39 @@ export const CityScene: React.FC<CitySceneProps> = ({
   }, [users]);
 
   const totalFloors = useMemo(() => {
-    return users.reduce((acc, u) => acc + u.completedLevels, 0);
+    return users.reduce((sum, u) => sum + u.completedLevels, 0);
   }, [users]);
 
-  const { buildings, userPositions, gridCols, gridRows } = useMemo(() => {
-    const layout: BuildingProps[] = [];
+  // Spatial Grid Layout algorithm
+  const { buildings, userPositions } = useMemo(() => {
+    const layout: (BuildingProps & { isTopPerformer: boolean; isCurrentUser: boolean })[] = [];
     const posMap: Record<string, [number, number, number]> = {};
-    const SPACING = 3.2;
-    const count = sortedUsers.length;
-    const cols = Math.max(2, Math.ceil(Math.sqrt(count)));
-    const rows = Math.max(2, Math.ceil(count / cols));
 
-    const offsetX = ((cols - 1) * SPACING) / 2;
-    const offsetZ = ((rows - 1) * SPACING) / 2;
+    const count = sortedUsers.length;
+    const cols = Math.ceil(Math.sqrt(count)) || 1;
+    const rows = Math.ceil(count / cols) || 1;
+    const SPACING = 4.2;
 
     sortedUsers.forEach((user, index) => {
-      const rank = index + 1;
-      const col = index % cols;
       const row = Math.floor(index / cols);
+      const col = index % cols;
+      let x = (col - (cols - 1) / 2) * SPACING;
+      let z = (row - (rows - 1) / 2) * SPACING;
 
-      let x = col * SPACING - offsetX;
-      let z = row * SPACING - offsetZ;
-
-      // Keep origin center free for Central Spire
-      if (Math.abs(x) < 1.5 && Math.abs(z) < 1.5) {
-        x += SPACING;
+      // Leave center clearing for Central Spire
+      if (Math.abs(x) < SPACING && Math.abs(z) < SPACING) {
+        x += Math.sign(x || 1) * SPACING * 0.8;
+        z += Math.sign(z || 1) * SPACING * 0.8;
       }
 
       posMap[user.id] = [x, 0, z];
 
-      let tier: BuildingProps["status"] = "locked";
-      if (user.completedLevels > 0 && user.completedLevels <= 4) {
-        tier = "progress";
-      } else if (user.completedLevels > 4 && user.completedLevels <= 14) {
-        tier = "completed";
-      } else if (user.completedLevels > 14) {
-        tier = "master";
-      }
+      const rank = index + 1;
+      let tier: BuildingProps["status"] = "progress";
+      if (user.completedLevels >= 15 || rank <= 3) tier = "master";
+      else if (user.completedLevels >= 5) tier = "completed";
+      else if (user.completedLevels > 0) tier = "progress";
+      else tier = "locked";
 
       layout.push({
         userId: user.id,
@@ -213,13 +213,13 @@ export const CityScene: React.FC<CitySceneProps> = ({
       });
     });
 
-    return { buildings: layout, userPositions: posMap, gridCols: cols, gridRows: rows };
+    return { buildings: layout, userPositions: posMap };
   }, [sortedUsers, currentUserId]);
 
   // Handle Camera Mode Transitions
   useEffect(() => {
     if (!cameraControlsRef.current) return;
-    cityAudio.playSweep();
+    soundEffects.playOpen();
 
     if (focusedUserId && userPositions[focusedUserId]) {
       const [x, y, z] = userPositions[focusedUserId];
@@ -235,7 +235,7 @@ export const CityScene: React.FC<CitySceneProps> = ({
   }, [focusedUserId, cameraMode, userPositions]);
 
   const handleToggleMute = () => {
-    const muted = cityAudio.toggleMute();
+    const muted = soundEffects.toggleMute();
     setIsMuted(muted);
   };
 
@@ -257,7 +257,10 @@ export const CityScene: React.FC<CitySceneProps> = ({
   }[theme];
 
   return (
-    <div ref={containerRef} className="relative w-full h-full bg-[#090d16] select-none overflow-hidden">
+    <div
+      ref={containerRef}
+      className="relative w-full h-full min-h-[440px] bg-[var(--bg-primary)] select-none overflow-hidden rounded-[2.5rem] border border-[var(--border-subtle)] shadow-2xl"
+    >
       <Canvas gl={{ antialias: !reducedEffects, alpha: false }} dpr={reducedEffects ? 1 : [1, 2]}>
         <color attach="background" args={[themeColors.bg]} />
 
@@ -287,6 +290,7 @@ export const CityScene: React.FC<CitySceneProps> = ({
               reducedEffects={reducedEffects}
               isSelected={focusedUserId === b.userId}
               onSelect={(id) => {
+                soundEffects.playClick();
                 onFocusUser(id);
                 const u = users.find((item) => item.id === id);
                 if (u) onInspectUser(u);
@@ -340,107 +344,122 @@ export const CityScene: React.FC<CitySceneProps> = ({
       </Canvas>
 
       {/* Floating Canvas HUD Toolbar */}
-      <div className="absolute top-4 left-4 z-20 flex flex-wrap items-center gap-2 bg-slate-950/80 backdrop-blur-md border border-slate-800 p-2 rounded-2xl shadow-2xl">
+      <div className="absolute top-4 left-4 z-20 flex flex-wrap items-center gap-2 bg-[var(--bg-card)]/90 backdrop-blur-md border border-[var(--border-subtle)] p-2 rounded-2xl shadow-2xl">
         {/* Camera Preset Selector */}
-        <div className="flex items-center gap-1 bg-slate-900/80 p-1 rounded-xl border border-slate-800">
+        <div className="flex items-center gap-1 bg-[var(--bg-secondary)] p-1 rounded-xl border border-[var(--border-subtle)]">
           <button
             onClick={() => {
+              soundEffects.playClick();
               setCameraMode("iso");
               onFocusUser(null);
             }}
-            className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+            className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
               cameraMode === "iso" && !focusedUserId
-                ? "bg-indigo-500 text-white shadow-md shadow-indigo-500/20"
-                : "text-slate-400 hover:text-white hover:bg-slate-800"
+                ? "bg-[var(--accent-primary)] text-black shadow-md"
+                : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
             }`}
             title="Isometric View"
           >
             <Compass className="w-3.5 h-3.5" />
-            Iso
+            <span>Iso</span>
           </button>
 
           <button
             onClick={() => {
+              soundEffects.playClick();
               setCameraMode("cinematic");
               onFocusUser(null);
             }}
-            className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+            className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
               cameraMode === "cinematic"
-                ? "bg-indigo-500 text-white shadow-md shadow-indigo-500/20"
-                : "text-slate-400 hover:text-white hover:bg-slate-800"
+                ? "bg-[var(--accent-primary)] text-black shadow-md"
+                : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
             }`}
             title="Cinematic Orbit View"
           >
             <RotateCw className="w-3.5 h-3.5 animate-spin-slow" />
-            Orbit
+            <span>Orbit</span>
           </button>
 
           <button
             onClick={() => {
+              soundEffects.playClick();
               setCameraMode("top");
               onFocusUser(null);
             }}
-            className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+            className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
               cameraMode === "top"
-                ? "bg-indigo-500 text-white shadow-md shadow-indigo-500/20"
-                : "text-slate-400 hover:text-white hover:bg-slate-800"
+                ? "bg-[var(--accent-primary)] text-black shadow-md"
+                : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
             }`}
             title="Bird's Eye Top View"
           >
             <Eye className="w-3.5 h-3.5" />
-            Top
+            <span>Top</span>
           </button>
 
-          <button
-            onClick={() => {
-              setCameraMode("focus");
-              onFocusUser(currentUserId);
-            }}
-            className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-              focusedUserId === currentUserId
-                ? "bg-sky-500 text-white shadow-md shadow-sky-500/20"
-                : "text-slate-400 hover:text-white hover:bg-slate-800"
-            }`}
-            title="Focus My Skyscraper"
-          >
-            <Zap className="w-3.5 h-3.5" />
-            My Building
-          </button>
+          {currentUserId && (
+            <button
+              onClick={() => {
+                soundEffects.playClick();
+                setCameraMode("focus");
+                onFocusUser(currentUserId);
+              }}
+              className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                focusedUserId === currentUserId
+                  ? "bg-cyan-500 text-black shadow-md"
+                  : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
+              }`}
+              title="Focus My Skyscraper"
+            >
+              <Zap className="w-3.5 h-3.5" />
+              <span>My Building</span>
+            </button>
+          )}
         </div>
 
         {/* Divider */}
-        <div className="w-px h-5 bg-slate-800" />
+        <div className="w-px h-5 bg-[var(--border-subtle)]" />
 
         {/* Theme Preset Selector */}
-        <div className="flex items-center gap-1 bg-slate-900/80 p-1 rounded-xl border border-slate-800">
+        <div className="flex items-center gap-1 bg-[var(--bg-secondary)] p-1 rounded-xl border border-[var(--border-subtle)]">
           <button
-            onClick={() => onThemeChange("cyberpunk")}
-            className={`p-1.5 rounded-lg text-xs transition-all ${
+            onClick={() => {
+              soundEffects.playSuccess();
+              onThemeChange("cyberpunk");
+            }}
+            className={`p-1.5 rounded-lg text-xs transition-all cursor-pointer ${
               theme === "cyberpunk"
-                ? "bg-purple-500/20 text-purple-300 border border-purple-500/40"
-                : "text-slate-400 hover:text-white"
+                ? "bg-purple-500/20 text-purple-300 border border-purple-500/40 shadow-xs"
+                : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
             }`}
             title="Cyberpunk Theme"
           >
             <Moon className="w-4 h-4 text-purple-400" />
           </button>
           <button
-            onClick={() => onThemeChange("sunset")}
-            className={`p-1.5 rounded-lg text-xs transition-all ${
+            onClick={() => {
+              soundEffects.playSuccess();
+              onThemeChange("sunset");
+            }}
+            className={`p-1.5 rounded-lg text-xs transition-all cursor-pointer ${
               theme === "sunset"
-                ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
-                : "text-slate-400 hover:text-white"
+                ? "bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-xs"
+                : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
             }`}
             title="Golden Sunset Theme"
           >
             <Sun className="w-4 h-4 text-amber-400" />
           </button>
           <button
-            onClick={() => onThemeChange("matrix")}
-            className={`p-1.5 rounded-lg text-xs transition-all ${
+            onClick={() => {
+              soundEffects.playSuccess();
+              onThemeChange("matrix");
+            }}
+            className={`p-1.5 rounded-lg text-xs transition-all cursor-pointer ${
               theme === "matrix"
-                ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
-                : "text-slate-400 hover:text-white"
+                ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-xs"
+                : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
             }`}
             title="Matrix Theme"
           >
@@ -449,51 +468,62 @@ export const CityScene: React.FC<CitySceneProps> = ({
         </div>
 
         {/* Divider */}
-        <div className="w-px h-5 bg-slate-800" />
+        <div className="w-px h-5 bg-[var(--border-subtle)]" />
 
         {/* SFX Mute & Fullscreen Buttons */}
         <div className="flex items-center gap-1">
           <button
             onClick={handleToggleMute}
-            className={`p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-all`}
+            className="p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-all cursor-pointer"
             title={isMuted ? "Unmute Audio" : "Mute Audio"}
           >
-            {isMuted ? <VolumeX className="w-4 h-4 text-rose-400" /> : <Volume2 className="w-4 h-4 text-cyan-400" />}
+            {isMuted ? (
+              <VolumeX className="w-4 h-4 text-rose-400" />
+            ) : (
+              <Volume2 className="w-4 h-4 text-[var(--accent-primary)]" />
+            )}
           </button>
           <button
             onClick={handleToggleFullscreen}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-all"
+            className="p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-all cursor-pointer"
             title="Toggle Fullscreen"
           >
-            {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+            {isFullscreen ? (
+              <Minimize2 className="w-4 h-4" />
+            ) : (
+              <Maximize2 className="w-4 h-4" />
+            )}
           </button>
         </div>
       </div>
 
       {/* Focus Overlay Card */}
       {focusedUserId && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-slate-950/90 backdrop-blur-md border border-slate-700/80 p-4 rounded-2xl shadow-2xl flex flex-col items-center animate-in slide-in-from-bottom-4 z-20">
-          <div className="text-xs font-semibold text-slate-400 mb-1 flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-[var(--bg-card)]/95 backdrop-blur-md border border-[var(--border-medium)] p-4 rounded-2xl shadow-2xl flex flex-col items-center animate-in slide-in-from-bottom-4 z-20">
+          <div className="text-xs font-semibold text-[var(--text-muted)] mb-1 flex items-center gap-1.5 font-mono">
+            <span className="w-2 h-2 rounded-full bg-[var(--accent-primary)] animate-pulse" />
             Focused Building
           </div>
-          <div className="text-lg font-bold text-white flex items-center gap-2">
+          <div className="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2 font-display">
             {sortedUsers.find((u) => u.id === focusedUserId)?.username}
-            {focusedUserId === currentUserId && <span className="text-xs text-sky-400 font-normal">(You)</span>}
+            {focusedUserId === currentUserId && (
+              <span className="text-xs text-sky-400 font-normal">(You)</span>
+            )}
           </div>
           <div className="flex items-center gap-2 mt-2">
-            <span className="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-bold">
+            <span className="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-bold font-mono">
               Rank #{sortedUsers.findIndex((u) => u.id === focusedUserId) + 1}
             </span>
-            <span className="px-2.5 py-1 bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 rounded-lg text-xs font-bold">
+            <span className="px-2.5 py-1 bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 rounded-lg text-xs font-bold font-mono">
               {sortedUsers.find((u) => u.id === focusedUserId)?.completedLevels} Floors
             </span>
             <button
               onClick={() => {
+                soundEffects.playOpen();
                 const u = users.find((item) => item.id === focusedUserId);
                 if (u) onInspectUser(u);
               }}
-              className="px-3 py-1 bg-indigo-500 hover:bg-indigo-400 text-white rounded-lg text-xs font-bold transition-all shadow-md shadow-indigo-500/20"
+              className="px-3 py-1 bg-[var(--accent-primary)] text-black rounded-lg text-xs font-bold transition-all shadow-md cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
             >
               Inspect Stats
             </button>

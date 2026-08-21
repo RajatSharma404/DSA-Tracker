@@ -23,13 +23,14 @@ import {
   Layers3,
   Trophy,
 } from "lucide-react";
+import { soundEffects } from "@/lib/soundEffects";
 
 const TopicStudyGuide = dynamic(
   () => import("@/components/dashboard/TopicStudyGuide"),
   {
     ssr: false,
     loading: () => (
-      <div className="h-32 animate-pulse rounded-2xl border border-white/5 bg-white/5" />
+      <div className="h-32 animate-pulse rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)]" />
     ),
   },
 );
@@ -42,7 +43,7 @@ const LeetCodeEditor = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-112 animate-pulse rounded-3xl border border-white/5 bg-white/5" />
+      <div className="h-112 animate-pulse rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)]" />
     ),
   },
 );
@@ -52,7 +53,7 @@ const AIMentorHint = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-36 animate-pulse rounded-2xl border border-white/5 bg-white/5" />
+      <div className="h-36 animate-pulse rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)]" />
     ),
   },
 );
@@ -62,7 +63,7 @@ const AICodeArchitect = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-36 animate-pulse rounded-2xl border border-white/5 bg-white/5" />
+      <div className="h-36 animate-pulse rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)]" />
     ),
   },
 );
@@ -72,7 +73,7 @@ const ProblemNotes = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-36 animate-pulse rounded-2xl border border-white/5 bg-white/5" />
+      <div className="h-36 animate-pulse rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)]" />
     ),
   },
 );
@@ -85,7 +86,7 @@ const SolutionHistory = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-36 animate-pulse rounded-2xl border border-white/5 bg-white/5" />
+      <div className="h-36 animate-pulse rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)]" />
     ),
   },
 );
@@ -110,7 +111,13 @@ type ProblemDetails = {
   codeSnippets?: Array<{ langSlug: string; code: string }>;
 };
 
-type WorkspaceTab = "theory" | "questions" | "solve" | "hints" | "architect" | "notes";
+type WorkspaceTab =
+  | "theory"
+  | "questions"
+  | "solve"
+  | "hints"
+  | "architect"
+  | "notes";
 
 function extractSlugFromLink(link: string | null) {
   if (!link) return null;
@@ -123,12 +130,12 @@ function pickRequiredProblems(problems: Problem[]) {
   const sorted = [...problems].sort((left, right) => {
     const leftUnsolved = left.status !== "DONE" ? 1 : 0;
     const rightUnsolved = right.status !== "DONE" ? 1 : 0;
-    
+
     // Unsolved problems come FIRST
     if (leftUnsolved !== rightUnsolved) {
       return rightUnsolved - leftUnsolved;
     }
-    
+
     // Secondary sort by orderIndex
     return left.orderIndex - right.orderIndex;
   });
@@ -179,7 +186,8 @@ export default function CityLevelPage() {
         dsaApi.getTopicProblems(levelId),
       ]);
 
-      const nextCityProgressLevels = cityProgress.levels as CityLevelProgress[];
+      const nextCityProgressLevels =
+        (cityProgress?.levels as CityLevelProgress[]) || [];
 
       const matchedLevel =
         nextCityProgressLevels.find((item) => item.id === levelId) || null;
@@ -270,7 +278,7 @@ export default function CityLevelPage() {
   if (loading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-400" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--accent-primary)]" />
       </div>
     );
   }
@@ -278,13 +286,14 @@ export default function CityLevelPage() {
   if (error || !level) {
     return (
       <PageTransition>
-        <div className="mx-auto flex max-w-3xl flex-col items-center justify-center gap-4 rounded-3xl border border-white/10 bg-white/5 px-6 py-16 text-center">
-          <p className="text-lg font-semibold text-white">
+        <div className="mx-auto flex max-w-3xl flex-col items-center justify-center gap-4 rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-card)] px-6 py-16 text-center shadow-xl">
+          <p className="text-lg font-semibold text-[var(--text-primary)]">
             {error || "Level not found."}
           </p>
           <Link
             href="/city"
-            className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-bold text-black"
+            onClick={() => soundEffects.playClick()}
+            className="inline-flex items-center gap-2 rounded-xl bg-[var(--accent-primary)] px-4 py-2 text-sm font-bold text-black shadow-md"
           >
             <ArrowLeft size={16} /> Back to DSA City
           </Link>
@@ -302,7 +311,7 @@ export default function CityLevelPage() {
     level.progress.medium.required +
     level.progress.hard.required;
   const percent = Math.round(
-    (Math.min(totalSolved, totalRequired) / totalRequired) * 100,
+    (Math.min(totalSolved, totalRequired) / Math.max(1, totalRequired)) * 100,
   );
   const selectedSlug = extractSlugFromLink(selectedProblem?.link || null);
   const activeDifficultyStyle = selectedProblem
@@ -312,6 +321,7 @@ export default function CityLevelPage() {
   const handleSubmissionSuccess = async (timeSpent: number) => {
     if (!selectedProblem) return;
 
+    soundEffects.playSuccess();
     await dsaApi.updateProgress(selectedProblem.id, "DONE", timeSpent);
     setLastSubmission({ submittedAt: new Date().toISOString(), timeSpent });
     await loadLevel(selectedProblem.id);
@@ -324,17 +334,18 @@ export default function CityLevelPage() {
           <div className="space-y-3">
             <Link
               href="/city"
-              className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors"
+              onClick={() => soundEffects.playClick()}
+              className="inline-flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
             >
               <ArrowLeft size={16} /> Back to DSA City
             </Link>
-            <div className="inline-flex items-center gap-2 rounded-full border border-indigo-500/20 bg-indigo-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-indigo-300">
-              <Layers3 size={12} /> Floor {levelId}
+            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--accent-primary)]/20 bg-[var(--accent-primary)]/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent-primary)]">
+              <Layers3 size={12} /> District {levelId}
             </div>
-            <h1 className="text-3xl font-black tracking-tight text-white lg:text-5xl">
+            <h1 className="text-3xl font-black tracking-tight text-[var(--text-primary)] lg:text-5xl font-display">
               {level.name}
             </h1>
-            <p className="max-w-3xl text-sm leading-6 text-gray-400 lg:text-base">
+            <p className="max-w-3xl text-sm leading-6 text-[var(--text-muted)] lg:text-base">
               This floor bundles theory and the five required questions for the
               topic. Solve 2 Easy, 2 Medium, and 1 Hard problem to complete the
               floor and unlock the next one.
@@ -342,18 +353,22 @@ export default function CityLevelPage() {
           </div>
 
           <div className="grid min-w-56 gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-              <p className="text-[10px] uppercase tracking-[0.22em] text-gray-500">
+            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] px-4 py-3 shadow-md">
+              <p className="text-[10px] uppercase tracking-[0.22em] text-[var(--text-muted)]">
                 Progress
               </p>
-              <p className="mt-2 text-2xl font-black text-white">{percent}%</p>
+              <p className="mt-2 text-2xl font-black text-[var(--text-primary)] font-display">
+                {percent}%
+              </p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-              <p className="text-[10px] uppercase tracking-[0.22em] text-gray-500">
+            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] px-4 py-3 shadow-md">
+              <p className="text-[10px] uppercase tracking-[0.22em] text-[var(--text-muted)]">
                 Status
               </p>
               <p
-                className={`mt-2 text-sm font-bold ${level.isCompleted ? "text-emerald-300" : "text-amber-300"}`}
+                className={`mt-2 text-sm font-bold ${
+                  level.isCompleted ? "text-emerald-400" : "text-amber-400"
+                }`}
               >
                 {level.isCompleted ? "Floor completed" : "In progress"}
               </p>
@@ -362,64 +377,78 @@ export default function CityLevelPage() {
         </div>
 
         {!isUnlocked && (
-          <div className="flex items-center gap-3 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+          <div className="flex items-center gap-3 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-300">
             <Lock size={16} />
             Complete the previous floor in DSA City to unlock this level.
           </div>
         )}
 
-        <div className="rounded-3xl border border-white/10 bg-[#0a0a0a] shadow-2xl shadow-black/20">
-          <div className="flex flex-wrap items-center gap-2 border-b border-white/10 px-4 py-4 sm:px-6">
+        <div className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-card)] shadow-2xl overflow-hidden">
+          <div className="flex flex-wrap items-center gap-2 border-b border-[var(--border-subtle)] px-4 py-4 sm:px-6 bg-[var(--bg-secondary)]">
             <button
-              onClick={() => setWorkspaceTab("theory")}
-              className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${workspaceTab === "theory" ? "bg-white text-black" : "bg-white/5 text-gray-400 hover:bg-white/10"}`}
+              onClick={() => {
+                soundEffects.playClick();
+                setWorkspaceTab("theory");
+              }}
+              className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-colors cursor-pointer ${
+                workspaceTab === "theory"
+                  ? "bg-[var(--accent-primary)] text-black font-bold"
+                  : "bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]"
+              }`}
             >
               <BookOpen size={16} /> Theory
             </button>
             <button
-              onClick={() => setWorkspaceTab("questions")}
-              className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${workspaceTab === "questions" ? "bg-white text-black" : "bg-white/5 text-gray-400 hover:bg-white/10"}`}
+              onClick={() => {
+                soundEffects.playClick();
+                setWorkspaceTab("questions");
+              }}
+              className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-colors cursor-pointer ${
+                workspaceTab === "questions"
+                  ? "bg-[var(--accent-primary)] text-black font-bold"
+                  : "bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]"
+              }`}
             >
               <Code2 size={16} /> Questions
             </button>
-            <div className="ml-auto inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">
-              <Trophy size={12} /> 5 question floor
+            <div className="ml-auto inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-card)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-muted)]">
+              <Trophy size={12} className="text-amber-400" /> 5 question floor
             </div>
           </div>
 
           {workspaceTab === "theory" ? (
             <div className="space-y-6 p-4 sm:p-6">
               <div className="grid gap-3 sm:grid-cols-3">
-                <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-                  <p className="text-[10px] uppercase tracking-[0.22em] text-gray-500">
+                <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] px-4 py-3">
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-[var(--text-muted)]">
                     Easy
                   </p>
-                  <p className="mt-2 text-2xl font-black text-emerald-300">
+                  <p className="mt-2 text-2xl font-black text-emerald-400 font-display">
                     {level.progress.easy.solved}/{level.progress.easy.required}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-                  <p className="text-[10px] uppercase tracking-[0.22em] text-gray-500">
+                <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] px-4 py-3">
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-[var(--text-muted)]">
                     Medium
                   </p>
-                  <p className="mt-2 text-2xl font-black text-cyan-300">
+                  <p className="mt-2 text-2xl font-black text-[var(--accent-primary)] font-display">
                     {level.progress.medium.solved}/
                     {level.progress.medium.required}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-                  <p className="text-[10px] uppercase tracking-[0.22em] text-gray-500">
+                <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] px-4 py-3">
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-[var(--text-muted)]">
                     Hard
                   </p>
-                  <p className="mt-2 text-2xl font-black text-rose-300">
+                  <p className="mt-2 text-2xl font-black text-rose-400 font-display">
                     {level.progress.hard.solved}/{level.progress.hard.required}
                   </p>
                 </div>
               </div>
 
-              <div className="rounded-3xl border border-emerald-500/10 bg-emerald-500/5 p-4 sm:p-6">
-                <div className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-emerald-300">
-                  <Sparkles size={14} /> Topic theory
+              <div className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-4 sm:p-6">
+                <div className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[var(--accent-primary)]">
+                  <Sparkles size={14} /> Topic theory & Study Guide
                 </div>
                 <TopicStudyGuide topicName={level.name} />
               </div>
@@ -427,11 +456,11 @@ export default function CityLevelPage() {
           ) : (
             <div className="grid gap-6 p-4 sm:p-6 lg:grid-cols-[320px_1fr]">
               <aside className="space-y-3">
-                <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
-                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-gray-500">
+                <div className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-4">
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--text-muted)]">
                     Required Questions
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-gray-400">
+                  <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
                     The floor uses exactly 5 questions: 2 Easy, 2 Medium, 1
                     Hard.
                   </p>
@@ -444,16 +473,23 @@ export default function CityLevelPage() {
                     return (
                       <button
                         key={problem.id}
-                        onClick={() => setSelectedProblemId(problem.id)}
-                        className={`w-full rounded-2xl border px-4 py-3 text-left transition-colors ${active ? "border-indigo-500/40 bg-indigo-500/10" : "border-white/10 bg-white/5 hover:bg-white/10"}`}
+                        onClick={() => {
+                          soundEffects.playClick();
+                          setSelectedProblemId(problem.id);
+                        }}
+                        className={`w-full rounded-2xl border px-4 py-3 text-left transition-all cursor-pointer ${
+                          active
+                            ? "border-[var(--accent-primary)] bg-[var(--accent-primary)]/10 shadow-md"
+                            : "border-[var(--border-subtle)] bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)]"
+                        }`}
                       >
                         <div className="flex items-start gap-3">
-                          <div className="mt-0.5 rounded-full border border-white/10 bg-black/20 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                          <div className="mt-0.5 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-card)] px-2 py-1 text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">
                             {index + 1}
                           </div>
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2">
-                              <p className="truncate font-semibold text-white">
+                              <p className="truncate font-semibold text-[var(--text-primary)]">
                                 {problem.title}
                               </p>
                               {problem.status === "DONE" ? (
@@ -462,7 +498,10 @@ export default function CityLevelPage() {
                                   className="text-emerald-400"
                                 />
                               ) : (
-                                <Circle size={14} className="text-gray-500" />
+                                <Circle
+                                  size={14}
+                                  className="text-[var(--text-muted)]"
+                                />
                               )}
                             </div>
                             <div className="mt-2 flex items-center gap-2">
@@ -473,7 +512,7 @@ export default function CityLevelPage() {
                               </span>
                               {problem.status === "DONE" &&
                                 problem.timeSpent > 0 && (
-                                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-gray-500">
+                                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[var(--text-muted)] font-mono">
                                     <Timer size={11} /> {problem.timeSpent}m
                                   </span>
                                 )}
@@ -481,7 +520,7 @@ export default function CityLevelPage() {
                           </div>
                           <ChevronRight
                             size={14}
-                            className="shrink-0 text-gray-500"
+                            className="shrink-0 text-[var(--text-muted)]"
                           />
                         </div>
                       </button>
@@ -492,20 +531,20 @@ export default function CityLevelPage() {
 
               <section className="min-h-0 space-y-4">
                 {!selectedProblem ? (
-                  <div className="rounded-3xl border border-white/10 bg-white/5 px-6 py-12 text-center text-gray-400">
+                  <div className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] px-6 py-12 text-center text-[var(--text-muted)]">
                     Select a question to start.
                   </div>
                 ) : loadingProblem ? (
-                  <div className="rounded-3xl border border-white/10 bg-white/5 px-6 py-12 text-center text-gray-400">
-                    <Loader2 className="mx-auto mb-3 h-6 w-6 animate-spin" />
+                  <div className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] px-6 py-12 text-center text-[var(--text-muted)]">
+                    <Loader2 className="mx-auto mb-3 h-6 w-6 animate-spin text-[var(--accent-primary)]" />
                     Loading question workspace...
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    <div className="flex flex-wrap items-start justify-between gap-3 rounded-3xl border border-white/10 bg-white/5 p-4">
+                    <div className="flex flex-wrap items-start justify-between gap-3 rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-4">
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
-                          <h2 className="text-xl font-bold text-white">
+                          <h2 className="text-xl font-bold text-[var(--text-primary)] font-display">
                             {selectedProblem.title}
                           </h2>
                           {activeDifficultyStyle && (
@@ -516,7 +555,7 @@ export default function CityLevelPage() {
                             </span>
                           )}
                         </div>
-                        <p className="mt-2 text-sm text-gray-400">
+                        <p className="mt-2 text-sm text-[var(--text-muted)]">
                           Question{" "}
                           {requiredProblems.findIndex(
                             (problem) => problem.id === selectedProblem.id,
@@ -524,32 +563,32 @@ export default function CityLevelPage() {
                           of {requiredProblems.length}
                         </p>
                       </div>
-                      <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-gray-400">
+                      <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-card)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
                         <TrendingUp size={12} /> In-page workspace
                       </div>
                     </div>
 
                     <div className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
-                      <div className="rounded-3xl border border-white/10 bg-[#101010] p-5">
-                        <div className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-cyan-300">
+                      <div className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-5">
+                        <div className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[var(--accent-primary)]">
                           <Brain size={14} /> Imported problem details
                         </div>
-                        <div className="mb-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+                        <div className="mb-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4">
                           <div className="flex flex-wrap items-center justify-between gap-3">
                             <div>
-                              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-gray-500">
+                              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[var(--text-muted)]">
                                 Source
                               </p>
-                              <h3 className="mt-1 text-lg font-bold text-white">
+                              <h3 className="mt-1 text-lg font-bold text-[var(--text-primary)] font-display">
                                 {selectedProblemDetails?.title ||
                                   selectedProblem.title}
                               </h3>
                             </div>
                             <div className="text-right">
-                              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-gray-500">
+                              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[var(--text-muted)]">
                                 LeetCode slug
                               </p>
-                              <p className="mt-1 text-sm text-gray-300">
+                              <p className="mt-1 text-sm text-[var(--text-secondary)] font-mono">
                                 {selectedSlug || "Not available"}
                               </p>
                             </div>
@@ -560,20 +599,20 @@ export default function CityLevelPage() {
                               .map((tag) => (
                                 <span
                                   key={tag.name}
-                                  className="rounded-full border border-white/10 bg-black/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-300"
+                                  className="rounded-full border border-[var(--border-subtle)] bg-[var(--bg-secondary)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--text-secondary)] font-mono"
                                 >
                                   {tag.name}
                                 </span>
                               ))}
                             {!selectedProblemDetails?.topicTags?.length && (
-                              <span className="text-sm text-gray-500">
+                              <span className="text-sm text-[var(--text-muted)]">
                                 Topic tags will appear here when imported.
                               </span>
                             )}
                           </div>
                         </div>
                         <div
-                          className="prose prose-invert prose-sm max-w-none"
+                          className="prose prose-invert prose-sm max-w-none text-[var(--text-secondary)]"
                           dangerouslySetInnerHTML={{
                             __html:
                               selectedProblemDetails?.content ||
@@ -581,11 +620,11 @@ export default function CityLevelPage() {
                           }}
                         />
                         {selectedProblemDetails?.exampleTestcases && (
-                          <div className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-4">
-                            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-gray-500">
+                          <div className="mt-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4">
+                            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[var(--text-muted)]">
                               Example testcase
                             </p>
-                            <pre className="mt-2 whitespace-pre-wrap wrap-break-word text-sm leading-6 text-gray-300">
+                            <pre className="mt-2 whitespace-pre-wrap wrap-break-word text-sm leading-6 text-[var(--text-secondary)] font-mono">
                               {selectedProblemDetails.exampleTestcases}
                             </pre>
                           </div>
@@ -593,29 +632,57 @@ export default function CityLevelPage() {
                       </div>
 
                       <div className="space-y-4">
-                        <div className="rounded-3xl border border-white/10 bg-[#0c0c0c] p-4">
-                          <div className="flex flex-wrap gap-2 border-b border-white/10 pb-4">
+                        <div className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-4">
+                          <div className="flex flex-wrap gap-2 border-b border-[var(--border-subtle)] pb-4">
                             <button
-                              onClick={() => setWorkspaceTab("solve")}
-                              className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition-colors ${workspaceTab === "solve" ? "bg-white text-black" : "bg-white/5 text-gray-400 hover:bg-white/10"}`}
+                              onClick={() => {
+                                soundEffects.playClick();
+                                setWorkspaceTab("solve");
+                              }}
+                              className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition-colors cursor-pointer ${
+                                workspaceTab === "solve"
+                                  ? "bg-[var(--accent-primary)] text-black font-bold"
+                                  : "bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]"
+                              }`}
                             >
                               <Code2 size={14} /> Solve
                             </button>
                             <button
-                              onClick={() => setWorkspaceTab("hints")}
-                              className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition-colors ${workspaceTab === "hints" ? "bg-white text-black" : "bg-white/5 text-gray-400 hover:bg-white/10"}`}
+                              onClick={() => {
+                                soundEffects.playClick();
+                                setWorkspaceTab("hints");
+                              }}
+                              className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition-colors cursor-pointer ${
+                                workspaceTab === "hints"
+                                  ? "bg-[var(--accent-primary)] text-black font-bold"
+                                  : "bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]"
+                              }`}
                             >
                               <Sparkles size={14} /> Hints
                             </button>
                             <button
-                              onClick={() => setWorkspaceTab("architect")}
-                              className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition-colors ${workspaceTab === "architect" ? "bg-white text-black" : "bg-white/5 text-gray-400 hover:bg-white/10"}`}
+                              onClick={() => {
+                                soundEffects.playClick();
+                                setWorkspaceTab("architect");
+                              }}
+                              className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition-colors cursor-pointer ${
+                                workspaceTab === "architect"
+                                  ? "bg-[var(--accent-primary)] text-black font-bold"
+                                  : "bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]"
+                              }`}
                             >
                               <TrendingUp size={14} /> Review
                             </button>
                             <button
-                              onClick={() => setWorkspaceTab("notes")}
-                              className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition-colors ${workspaceTab === "notes" ? "bg-white text-black" : "bg-white/5 text-gray-400 hover:bg-white/10"}`}
+                              onClick={() => {
+                                soundEffects.playClick();
+                                setWorkspaceTab("notes");
+                              }}
+                              className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition-colors cursor-pointer ${
+                                workspaceTab === "notes"
+                                  ? "bg-[var(--accent-primary)] text-black font-bold"
+                                  : "bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]"
+                              }`}
                             >
                               <BookOpen size={14} /> Notes
                             </button>
@@ -634,7 +701,7 @@ export default function CityLevelPage() {
                                     }
                                   />
                                 ) : (
-                                  <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+                                  <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-300">
                                     This problem does not have a linked editor
                                     slug yet.
                                   </div>
@@ -648,13 +715,13 @@ export default function CityLevelPage() {
 
                                 {lastSubmission && (
                                   <div className="mt-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4">
-                                    <div className="flex items-center gap-2 text-emerald-300">
+                                    <div className="flex items-center gap-2 text-emerald-400">
                                       <CheckCircle2 size={16} />
                                       <p className="text-[10px] font-black uppercase tracking-widest">
                                         Submission Logged
                                       </p>
                                     </div>
-                                    <p className="mt-2 text-sm text-gray-200">
+                                    <p className="mt-2 text-sm text-[var(--text-secondary)]">
                                       Nice work. You completed this attempt in
                                       about {lastSubmission.timeSpent} minutes.
                                     </p>
