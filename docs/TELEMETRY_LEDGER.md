@@ -98,3 +98,4 @@ Automated audit trail of system performance benchmarks, test assertions, and tel
 | RUN-0092 | 2026-08-20 10:44:52 | cache | websocket keepalive ping response latency < 25ms | PASS | Mudit Atrey |
 | RUN-0093 | 2026-08-21 13:51:03 | core | capacitor offline sync queue dispatch | PASS | Mudit Atrey |
 | RUN-0094 | 2026-08-21 16:58:14 | db | service worker cache asset integrity check | PASS | Mudit Atrey |
+| RUN-0095 | 2026-08-21 19:05:25 | docker | docker multi-stage image size gate | PASS | Mudit Atrey |
