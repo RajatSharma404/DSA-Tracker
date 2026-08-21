@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle2, AlertTriangle, Download } from "lucide-react";
+import { CheckCircle2, AlertTriangle, Download, Puzzle } from "lucide-react";
 import {
   getExtensionHealth,
   ExtensionHealthState,
@@ -11,7 +11,11 @@ const STORE_URL =
   process.env.NEXT_PUBLIC_EXTENSION_STORE_URL?.trim() ||
   "https://chromewebstore.google.com";
 
-export function ExtensionStatusBadge() {
+interface ExtensionStatusBadgeProps {
+  compact?: boolean;
+}
+
+export function ExtensionStatusBadge({ compact = false }: ExtensionStatusBadgeProps) {
   const [state, setState] = useState<ExtensionHealthState>("NOT_INSTALLED");
 
   useEffect(() => {
@@ -31,9 +35,15 @@ export function ExtensionStatusBadge() {
 
   if (state === "READY") {
     return (
-      <div className="flex items-center gap-2 rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1.5 text-xs font-bold text-green-400">
-        <CheckCircle2 size={14} />
-        Extension Ready
+      <div
+        title="DSA Chrome Extension is active & auto-syncing solutions"
+        className={`flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 font-bold ${
+          compact ? "px-2.5 py-1 text-[11px]" : "px-3 py-1.5 text-xs"
+        }`}
+      >
+        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+        <span className="hidden sm:inline">Extension</span>
+        <span>Active</span>
       </div>
     );
   }
@@ -44,23 +54,28 @@ export function ExtensionStatusBadge() {
         href="https://leetcode.com"
         target="_blank"
         rel="noreferrer"
-        className="flex items-center gap-2 rounded-full border border-yellow-500/30 bg-yellow-500/10 px-3 py-1.5 text-xs font-bold text-yellow-300 hover:bg-yellow-500/20"
+        title="Extension is installed. Open LeetCode or Codeforces to sync session"
+        className={`flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 transition-colors font-bold ${
+          compact ? "px-2.5 py-1 text-[11px]" : "px-3 py-1.5 text-xs"
+        }`}
       >
-        <AlertTriangle size={14} />
-        Turn On Extension
+        <AlertTriangle size={compact ? 12 : 14} className="text-amber-400" />
+        <span>Sync LeetCode</span>
       </a>
     );
   }
 
   return (
     <a
-      href={STORE_URL}
-      target="_blank"
-      rel="noreferrer"
-      className="flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1.5 text-xs font-bold text-blue-300 hover:bg-blue-500/20"
+      href="/extension"
+      title="Download and configure the DSA Tracker browser extension"
+      className={`flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-medium)] transition-colors font-bold ${
+        compact ? "px-2.5 py-1 text-[11px]" : "px-3 py-1.5 text-xs"
+      }`}
     >
-      <Download size={14} />
-      Download Extension
+      <Puzzle size={compact ? 12 : 14} className="text-[var(--accent-primary)]" />
+      <span className="hidden sm:inline">Get</span>
+      <span>Extension</span>
     </a>
   );
 }
