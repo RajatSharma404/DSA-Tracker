@@ -1,14 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import { TheoryData } from "../types";
 import {
   BookOpen,
   ChevronDown,
   ChevronUp,
-  CheckCircle2,
-  XCircle,
-  Lightbulb,
-  Clock,
-  HardDrive,
 } from "lucide-react";
 
 interface TheoryPanelProps {
@@ -27,11 +22,11 @@ export function TheoryPanel({
   if (!theory) return null;
 
   return (
-    <div className="rounded-2xl bg-[#0e0e1a] border border-cyan-500/20 shadow-xl shrink-0 overflow-hidden transition-all">
-      {/* Header Bar (slim 32px) */}
+    <div className="h-full flex flex-col rounded-2xl bg-[#0e0e1a] border border-cyan-500/20 shadow-xl overflow-hidden transition-all">
+      {/* Header Bar (slim 34px) */}
       <button
         onClick={onToggleOpen}
-        className="w-full px-3 py-2 flex items-center justify-between bg-white/5 hover:bg-white/10 transition-colors cursor-pointer text-left"
+        className="w-full h-8.5 px-3 py-1.5 flex items-center justify-between bg-white/5 hover:bg-white/10 transition-colors cursor-pointer text-left shrink-0"
       >
         <div className="flex items-center gap-2">
           <BookOpen size={13} className="text-cyan-400" />
@@ -48,9 +43,9 @@ export function TheoryPanel({
         </div>
       </button>
 
-      {/* Internally Scrollable Body (capped at max-h-48) */}
+      {/* Body fills all dragged height and scrolls smoothly */}
       {isOpen && (
-        <div className="p-3 space-y-3 border-t border-white/5 text-xs max-h-44 overflow-y-auto [scrollbar-width:thin] [-ms-overflow-style:none]">
+        <div className="p-3 space-y-3 border-t border-white/5 text-xs flex-1 min-h-0 overflow-y-auto [scrollbar-width:thin] [-ms-overflow-style:none]">
           {/* Definition */}
           <p className="text-gray-300 leading-relaxed font-medium text-[11px]">
             {theory.definition}
