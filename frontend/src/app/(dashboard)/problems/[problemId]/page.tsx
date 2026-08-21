@@ -15,9 +15,14 @@ import {
   Focus,
   CheckCircle2,
   Activity,
+  Keyboard,
+  Minimize2,
+  Maximize2,
+  Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { trackEvent } from "@/lib/analytics";
+import { soundEffects } from "@/lib/soundEffects";
 
 const LeetCodeEditor = dynamic(
   () =>
@@ -27,7 +32,7 @@ const LeetCodeEditor = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-104 animate-pulse rounded-2xl border border-white/5 bg-white/3" />
+      <div className="h-104 animate-pulse rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)]" />
     ),
   },
 );
@@ -37,7 +42,7 @@ const AIMentorHint = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-56 animate-pulse rounded-2xl border border-white/5 bg-white/3" />
+      <div className="h-56 animate-pulse rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)]" />
     ),
   },
 );
@@ -47,7 +52,7 @@ const AICodeArchitect = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-56 animate-pulse rounded-2xl border border-white/5 bg-white/3" />
+      <div className="h-56 animate-pulse rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)]" />
     ),
   },
 );
@@ -57,7 +62,7 @@ const ProblemNotes = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-56 animate-pulse rounded-2xl border border-white/5 bg-white/3" />
+      <div className="h-56 animate-pulse rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)]" />
     ),
   },
 );
@@ -70,7 +75,7 @@ const SolutionHistory = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-36 animate-pulse rounded-2xl border border-white/5 bg-white/3" />
+      <div className="h-36 animate-pulse rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)]" />
     ),
   },
 );
@@ -80,8 +85,8 @@ const AlgoTracer = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-120 animate-pulse rounded-2xl border border-white/5 bg-white/3 flex items-center justify-center text-gray-500 font-mono text-xs">
-        Loading AlgoTracer...
+      <div className="h-120 animate-pulse rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)] font-mono text-xs">
+        Loading AlgoTracer 2.0 Engine...
       </div>
     ),
   },
@@ -125,6 +130,18 @@ export default function ProblemSolvePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [problemId]);
 
+  // Global Keyboard Shortcuts (Escape to toggle focus mode)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && focusMode) {
+        setFocusMode(false);
+        soundEffects.playToggle();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [focusMode]);
+
   useEffect(() => {
     if (!isResizing) return;
 
@@ -152,11 +169,9 @@ export default function ProblemSolvePage() {
     try {
       setLoading(true);
 
-      // Get problem from our database
       const problemData = await dsaApi.getProblem(problemId);
       setProblem(problemData);
 
-      // Extract slug from LeetCode link
       if (problemData.link) {
         const slug = extractSlugFromLink(problemData.link);
         if (slug) {
@@ -178,6 +193,7 @@ export default function ProblemSolvePage() {
 
   const handleSubmissionSuccess = async (timeSpent: number) => {
     if (problem) {
+      soundEffects.playSuccess();
       await dsaApi.updateProgress(problem.id, "DONE", timeSpent);
       const submittedAt = new Date().toISOString();
       setLastSubmission({ submittedAt, timeSpent });
@@ -189,7 +205,6 @@ export default function ProblemSolvePage() {
     }
   };
 
-  const elapsedMinutes = Math.max(1, Math.floor(elapsedSeconds / 60));
   const formatElapsed = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -201,23 +216,23 @@ export default function ProblemSolvePage() {
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case "EASY":
-        return "text-green-400 bg-green-400/10";
+        return "text-emerald-400 bg-emerald-500/10 border-emerald-500/20";
       case "MEDIUM":
-        return "text-yellow-400 bg-yellow-400/10";
+        return "text-amber-400 bg-amber-500/10 border-amber-500/20";
       case "HARD":
-        return "text-red-400 bg-red-400/10";
+        return "text-rose-400 bg-rose-500/10 border-rose-500/20";
       default:
-        return "text-gray-400 bg-gray-400/10";
+        return "text-[var(--text-muted)] bg-[var(--bg-secondary)] border-[var(--border-subtle)]";
     }
   };
 
   if (loading) {
     return (
       <div className="space-y-6 animate-pulse">
-        <div className="h-10 w-80 rounded-xl bg-white/8" />
+        <div className="h-10 w-80 rounded-xl bg-[var(--bg-secondary)]" />
         <div className="grid gap-6 lg:grid-cols-2">
-          <div className="h-[75vh] rounded-4xl bg-white/6" />
-          <div className="h-[75vh] rounded-4xl bg-white/6" />
+          <div className="h-[75vh] rounded-4xl bg-[var(--bg-secondary)]" />
+          <div className="h-[75vh] rounded-4xl bg-[var(--bg-secondary)]" />
         </div>
       </div>
     );
@@ -225,11 +240,14 @@ export default function ProblemSolvePage() {
 
   if (!problem || !problemDetails) {
     return (
-      <div className="flex flex-col items-center justify-center h-full gap-4">
-        <p className="text-gray-400">
+      <div className="flex flex-col items-center justify-center h-full gap-4 py-20 text-center">
+        <p className="text-[var(--text-muted)] font-medium">
           Problem not found or LeetCode link missing
         </p>
-        <Link href="/topics" className="text-blue-400 hover:underline">
+        <Link
+          href="/topics"
+          className="px-4 py-2 rounded-xl bg-[var(--accent-primary)] text-black font-bold text-xs uppercase tracking-wider"
+        >
           ← Back to Topics
         </Link>
       </div>
@@ -239,48 +257,60 @@ export default function ProblemSolvePage() {
   const problemSlug = extractSlugFromLink(problem.link || "");
 
   return (
-    <div className="h-full flex flex-col">
-      {/* Header */}
-      <div className="border-b border-white/10 bg-[#0a0a0a] px-6 py-4">
+    <div className="h-full flex flex-col w-full min-w-0">
+      {/* Header Bar */}
+      <div className="border-b border-[var(--border-subtle)] bg-[var(--bg-card)] px-6 py-4">
         <div className="max-w-450 mx-auto flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => router.back()}
+              onClick={() => {
+                soundEffects.playClick();
+                router.back();
+              }}
               aria-label="Go back"
-              className="p-2 hover:bg-white/5 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
+              className="p-2 hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded-xl transition-colors cursor-pointer border border-[var(--border-subtle)]"
             >
-              <ArrowLeft size={20} />
+              <ArrowLeft size={18} />
             </button>
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-xl font-bold">{problem.title}</h1>
+                <h1 className="text-xl font-bold text-[var(--text-primary)] font-display">
+                  {problem.title}
+                </h1>
                 <span
-                  className={`px-3 py-1 rounded-full text-xs font-bold ${getDifficultyColor(problem.difficulty)}`}
+                  className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border font-mono ${getDifficultyColor(
+                    problem.difficulty,
+                  )}`}
                 >
                   {problem.difficulty}
                 </span>
               </div>
-              <p className="text-sm text-gray-400 mt-1">
+              <p className="text-xs text-[var(--text-muted)] mt-0.5">
                 {problemDetails.topicTags
                   ?.map((tag: any) => tag.name)
                   .join(", ")}
               </p>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
-            <div className="px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-[10px] font-black uppercase tracking-widest text-gray-300 flex items-center gap-2">
-              <Timer size={12} />
-              Session {formatElapsed(elapsedSeconds)}
+
+          <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto font-mono">
+            <div className="px-3 py-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] flex items-center gap-2">
+              <Timer size={12} className="text-[var(--accent-primary)]" />
+              <span>Session {formatElapsed(elapsedSeconds)}</span>
             </div>
+
             <Link
               href="/tracer"
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 transition-colors text-xs font-bold font-mono"
+              onClick={() => soundEffects.playClick()}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--accent-primary)]/10 hover:bg-[var(--accent-primary)]/20 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] transition-colors text-xs font-bold font-mono"
             >
               <Activity size={14} />
-              Open in Tracer
+              <span>Open in Tracer</span>
             </Link>
+
             <button
               onClick={() => {
+                soundEffects.playToggle();
                 const next = !focusMode;
                 setFocusMode(next);
                 if (next) {
@@ -289,32 +319,33 @@ export default function ProblemSolvePage() {
                 }
               }}
               aria-pressed={focusMode}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors text-sm border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 ${
+              className={`flex items-center gap-2 px-4 py-1.5 rounded-xl transition-all text-xs font-bold border cursor-pointer ${
                 focusMode
-                  ? "bg-white text-black border-white"
-                  : "bg-white/5 hover:bg-white/10 border-white/10"
+                  ? "bg-[var(--accent-primary)] text-black border-[var(--accent-primary)] shadow-md"
+                  : "bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] border-[var(--border-subtle)]"
               }`}
             >
-              <Focus size={16} />
-              {focusMode ? "Focus On" : "Focus Mode"}
+              {focusMode ? <Minimize2 size={14} /> : <Focus size={14} />}
+              <span>{focusMode ? "Exit Focus" : "Focus Mode"}</span>
             </button>
+
             {problem.link && (
               <a
                 href={problem.link}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Open problem on LeetCode"
-                className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded-xl border border-[var(--border-subtle)] transition-colors text-xs font-bold"
               >
-                <ExternalLink size={16} />
-                LeetCode
+                <ExternalLink size={13} />
+                <span>LeetCode</span>
               </a>
             )}
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Main Content Split Arena */}
       <div className="flex-1 overflow-hidden">
         <div
           ref={splitContainerRef}
@@ -329,7 +360,7 @@ export default function ProblemSolvePage() {
               style={{ width: `calc(${leftPanelWidth}% - 2px)` }}
             >
               <div
-                className="prose prose-invert prose-sm max-w-none"
+                className="prose prose-invert prose-sm max-w-none text-[var(--text-secondary)] leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: problemDetails.content }}
               />
             </div>
@@ -341,13 +372,13 @@ export default function ProblemSolvePage() {
               aria-orientation="vertical"
               aria-label="Resize problem and editor panels"
               onMouseDown={() => setIsResizing(true)}
-              className="hidden lg:block w-1 shrink-0 cursor-col-resize bg-white/10 hover:bg-blue-500/40 active:bg-blue-500/60 transition-colors"
+              className="hidden lg:block w-1 shrink-0 cursor-col-resize bg-[var(--border-subtle)] hover:bg-[var(--accent-primary)] active:bg-[var(--accent-primary)] transition-colors"
             />
           )}
 
           {/* Right Panel - Code Editor & Tools */}
           <div
-            className="h-full overflow-y-auto p-6 space-y-6 border-t lg:border-t-0 lg:border-l border-white/10"
+            className="h-full overflow-y-auto p-6 space-y-6 border-t lg:border-t-0 lg:border-l border-[var(--border-subtle)]"
             style={
               focusMode
                 ? { width: "100%" }
@@ -359,84 +390,99 @@ export default function ProblemSolvePage() {
               <div
                 role="tablist"
                 aria-label="Problem workspace tabs"
-                className="flex flex-wrap gap-2 border-b border-white/10 pb-4"
+                className="flex flex-wrap gap-2 border-b border-[var(--border-subtle)] pb-4"
               >
                 <button
-                  onClick={() => setActiveTab("solve")}
+                  onClick={() => {
+                    soundEffects.playClick();
+                    setActiveTab("solve");
+                  }}
                   role="tab"
                   aria-selected={activeTab === "solve"}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     activeTab === "solve"
-                      ? "bg-white text-black"
-                      : "bg-white/5 text-gray-400 hover:bg-white/10"
+                      ? "bg-[var(--accent-primary)] text-black shadow-md"
+                      : "bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]"
                   }`}
                 >
-                  <Code2 size={16} />
-                  Code Editor
+                  <Code2 size={15} />
+                  <span>Code Editor</span>
                 </button>
                 <button
-                  onClick={() => setActiveTab("trace")}
+                  onClick={() => {
+                    soundEffects.playClick();
+                    setActiveTab("trace");
+                  }}
                   role="tab"
                   aria-selected={activeTab === "trace"}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     activeTab === "trace"
-                      ? "bg-cyan-500 text-black font-bold shadow-sm"
-                      : "bg-white/5 text-gray-400 hover:bg-white/10"
+                      ? "bg-cyan-500 text-black font-bold shadow-md"
+                      : "bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]"
                   }`}
                 >
-                  <Activity size={16} />
-                  AlgoTracer
+                  <Activity size={15} />
+                  <span>AlgoTracer 2.0</span>
                 </button>
                 <button
-                  onClick={() => setActiveTab("hints")}
+                  onClick={() => {
+                    soundEffects.playClick();
+                    setActiveTab("hints");
+                  }}
                   role="tab"
                   aria-selected={activeTab === "hints"}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     activeTab === "hints"
-                      ? "bg-white text-black"
-                      : "bg-white/5 text-gray-400 hover:bg-white/10"
+                      ? "bg-[var(--accent-primary)] text-black shadow-md"
+                      : "bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]"
                   }`}
                 >
-                  <Sparkles size={16} />
-                  AI Hints
+                  <Sparkles size={15} />
+                  <span>AI Hints</span>
                 </button>
                 <button
-                  onClick={() => setActiveTab("architect")}
+                  onClick={() => {
+                    soundEffects.playClick();
+                    setActiveTab("architect")}
+                  }
                   role="tab"
                   aria-selected={activeTab === "architect"}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     activeTab === "architect"
-                      ? "bg-white text-black"
-                      : "bg-white/5 text-gray-400 hover:bg-white/10"
+                      ? "bg-[var(--accent-primary)] text-black shadow-md"
+                      : "bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]"
                   }`}
                 >
-                  <TrendingUp size={16} />
-                  Code Review
+                  <TrendingUp size={15} />
+                  <span>Code Review</span>
                 </button>
                 <button
-                  onClick={() => setActiveTab("notes")}
+                  onClick={() => {
+                    soundEffects.playClick();
+                    setActiveTab("notes");
+                  }}
                   role="tab"
                   aria-selected={activeTab === "notes"}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     activeTab === "notes"
-                      ? "bg-white text-black"
-                      : "bg-white/5 text-gray-400 hover:bg-white/10"
+                      ? "bg-[var(--accent-primary)] text-black shadow-md"
+                      : "bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]"
                   }`}
                 >
-                  <BookOpen size={16} />
-                  Notes
+                  <BookOpen size={15} />
+                  <span>Notes</span>
                 </button>
               </div>
             )}
 
             {focusMode && (
-              <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-                <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">
-                  Focus Session
+              <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] px-4 py-3">
+                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] font-mono">
+                  Zen Focus Session
                 </p>
-                <p className="text-sm text-gray-300 mt-1">
-                  Distraction-free coding mode is active. Session timer:{" "}
-                  {formatElapsed(elapsedSeconds)}.
+                <p className="text-sm text-[var(--text-secondary)] mt-1">
+                  Distraction-free coding mode is active. Session elapsed:{" "}
+                  {formatElapsed(elapsedSeconds)}. Press <kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-secondary)] border border-[var(--border-subtle)] font-mono text-xs">Esc</kbd> to exit.
                 </p>
               </div>
             )}
@@ -454,31 +500,32 @@ export default function ProblemSolvePage() {
                   <SolutionHistory problemId={problem.id} />
                 </div>
                 {lastSubmission && (
-                  <div className="mt-6 rounded-2xl border border-green-500/20 bg-green-500/10 p-4">
-                    <div className="flex items-center gap-2 text-green-300 mb-1">
+                  <div className="mt-6 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 shadow-sm">
+                    <div className="flex items-center gap-2 text-emerald-400 mb-1">
                       <CheckCircle2 size={16} />
-                      <p className="text-[10px] font-black uppercase tracking-widest">
+                      <p className="text-[10px] font-black uppercase tracking-widest font-mono">
                         Submission Logged
                       </p>
                     </div>
-                    <p className="text-sm text-gray-200">
+                    <p className="text-sm text-[var(--text-secondary)]">
                       Nice work. You completed this attempt in about{" "}
                       {lastSubmission.timeSpent} minutes.
                     </p>
-                    <p className="text-[11px] text-gray-400 mt-1">
-                      Next best move: review one due problem, then attempt one
-                      weakness-targeted problem.
+                    <p className="text-[11px] text-[var(--text-muted)] mt-1">
+                      Next best move: review one due problem in spaced repetition, then attempt a weakness-targeted challenge.
                     </p>
                     <div className="mt-3 flex flex-wrap gap-2">
                       <Link
                         href="/review"
-                        className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-[10px] font-black uppercase tracking-widest text-black transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
+                        onClick={() => soundEffects.playClick()}
+                        className="inline-flex items-center gap-2 rounded-xl bg-[var(--accent-primary)] px-4 py-2 text-[10px] font-black uppercase tracking-widest text-black transition-transform hover:scale-[1.02]"
                       >
                         Open Review Queue
                       </Link>
                       <Link
                         href="/recommendations"
-                        className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-gray-300 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
+                        onClick={() => soundEffects.playClick()}
+                        className="inline-flex items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] px-4 py-2 text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)]"
                       >
                         Practice Weak Topic
                       </Link>
