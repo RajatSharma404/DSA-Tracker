@@ -15,7 +15,12 @@ import {
   PanelRightClose,
   Tag,
   Cpu,
+  Flame,
+  Zap,
+  ArrowLeft,
+  Trophy,
 } from "lucide-react";
+import { soundEffects } from "@/lib/soundEffects";
 
 const CodeEditor = dynamic(
   () =>
@@ -23,7 +28,7 @@ const CodeEditor = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-full min-h-96 animate-pulse rounded-3xl border border-white/5 bg-white/3" />
+      <div className="h-full min-h-96 animate-pulse rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)]" />
     ),
   },
 );
@@ -32,6 +37,7 @@ export default function ChallengeSimulator() {
   const { id } = useParams();
   const router = useRouter();
   const [session, setSession] = useState<any>(null);
+  const [totalDurationSecs, setTotalDurationSecs] = useState(2700);
   const [timeLeft, setTimeLeft] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
   const [activeProblem, setActiveProblem] = useState(0);
@@ -48,8 +54,10 @@ export default function ChallengeSimulator() {
       try {
         const data = await dsaApi.getChallenge(id as string);
         setSession(data);
+        const durationSecs = (data.duration || 45) * 60;
+        setTotalDurationSecs(durationSecs);
         const startTime = new Date(data.startTime).getTime();
-        const durationMs = data.duration * 60 * 1000;
+        const durationMs = durationSecs * 1000;
         const now = new Date().getTime();
         const remaining = Math.max(
           0,
@@ -156,13 +164,13 @@ export default function ChallengeSimulator() {
   const handleFinish = async (status: "COMPLETED" | "FAILED") => {
     setIsFinished(true);
     if (timerRef.current) clearInterval(timerRef.current);
+    if (status === "COMPLETED") {
+      soundEffects.playSuccess();
+    } else {
+      soundEffects.playClick();
+    }
     try {
       await dsaApi.completeChallenge(id as string, status);
-      alert(
-        status === "COMPLETED"
-          ? "Challenge successfully completed!"
-          : "Time is up! Challenge failed.",
-      );
     } catch (err) {
       console.error(err);
     }
@@ -170,12 +178,12 @@ export default function ChallengeSimulator() {
 
   if (!session)
     return (
-      <div className="space-y-6 animate-pulse bg-[#050505] -m-6 md:-m-10 p-6 md:p-10 min-h-screen">
-        <div className="h-10 w-72 rounded-xl bg-white/8" />
-        <div className="h-16 rounded-2xl bg-white/6" />
+      <div className="space-y-6 animate-pulse bg-[var(--bg-primary)] -m-6 md:-m-10 p-6 md:p-10 min-h-screen">
+        <div className="h-10 w-72 rounded-xl bg-[var(--bg-secondary)]" />
+        <div className="h-16 rounded-2xl bg-[var(--bg-secondary)]" />
         <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
-          <div className="h-[70vh] rounded-4xl bg-white/6" />
-          <div className="h-[70vh] rounded-4xl bg-white/6" />
+          <div className="h-[70vh] rounded-4xl bg-[var(--bg-secondary)]" />
+          <div className="h-[70vh] rounded-4xl bg-[var(--bg-secondary)]" />
         </div>
       </div>
     );
@@ -184,43 +192,51 @@ export default function ChallengeSimulator() {
   const isUrgent = timeLeft < 60 && !isFinished;
   const isWarning = timeLeft < 180 && !isFinished;
 
+  // Circular timer calculation
+  const progressRatio = totalDurationSecs > 0 ? timeLeft / totalDurationSecs : 0;
+  const strokeDash = 2 * Math.PI * 18;
+  const strokeOffset = strokeDash * (1 - progressRatio);
+
   return (
     <div
-      className="bg-[#050505] -m-6 md:-m-10 flex flex-col overflow-hidden"
+      className="bg-[var(--bg-primary)] -m-6 md:-m-10 flex flex-col overflow-hidden relative"
       style={{ height: "100vh" }}
     >
       {/* Pressure pulse overlay */}
       {isUrgent && (
-        <div className="absolute inset-0 bg-red-500/5 animate-pulse pointer-events-none z-0" />
+        <div className="absolute inset-0 bg-rose-500/5 animate-pulse pointer-events-none z-0" />
       )}
 
       {/* ── TOP BAR ─────────────────────────────────────────────── */}
-      <header className="shrink-0 flex items-center justify-between gap-4 px-6 py-3 bg-[#0d0d0d] border-b border-white/5 backdrop-blur-xl z-10">
+      <header className="shrink-0 flex items-center justify-between gap-4 px-6 py-3 bg-[var(--bg-card)] border-b border-[var(--border-subtle)] backdrop-blur-xl z-10">
         {/* Left: branding */}
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-white/5">
-            <ShieldAlert size={20} className="text-white" />
+          <div className="p-2 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] text-[var(--accent-primary)]">
+            <ShieldAlert size={20} />
           </div>
           <div>
-            <p className="text-sm font-black text-white uppercase tracking-tight">
-              Active Session
+            <p className="text-sm font-black text-[var(--text-primary)] uppercase tracking-tight font-display">
+              Arena Pressure Room
             </p>
-            <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">
-              FAANG Simulation
+            <p className="text-[10px] text-[var(--text-muted)] font-bold tracking-widest uppercase font-mono">
+              Speed & Precision Mode
             </p>
           </div>
         </div>
 
         {/* Center: problem tabs */}
-        <div className="flex items-center gap-1 bg-white/5 rounded-2xl p-1">
+        <div className="flex items-center gap-1 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-2xl p-1">
           {session.problems.map((p: any, idx: number) => (
             <button
               key={p.id}
-              onClick={() => setActiveProblem(idx)}
-              className={`px-4 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
+              onClick={() => {
+                soundEffects.playClick();
+                setActiveProblem(idx);
+              }}
+              className={`px-4 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer font-mono ${
                 activeProblem === idx
-                  ? "bg-white text-black shadow"
-                  : "text-gray-500 hover:text-white"
+                  ? "bg-[var(--accent-primary)] text-black shadow-md"
+                  : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
               }`}
             >
               P{idx + 1}
@@ -230,42 +246,75 @@ export default function ChallengeSimulator() {
 
         {/* Right: timer + actions */}
         <div className="flex items-center gap-3">
+          {/* Circular SVG Pomodoro Timer */}
           <div
-            className={`flex items-center gap-2 px-5 py-2 rounded-2xl border font-black tabular-nums text-lg transition-all ${
+            className={`flex items-center gap-2.5 px-4 py-1.5 rounded-2xl border font-black tabular-nums text-sm font-mono transition-all ${
               isUrgent
-                ? "border-red-500/50 bg-red-500/10 text-red-500"
+                ? "border-rose-500/50 bg-rose-500/10 text-rose-400 animate-pulse"
                 : isWarning
-                  ? "border-orange-500/50 bg-orange-500/10 text-orange-400"
-                  : "border-yellow-500/30 bg-yellow-500/10 text-yellow-500"
+                  ? "border-amber-500/50 bg-amber-500/10 text-amber-400"
+                  : "border-[var(--accent-primary)]/30 bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]"
             }`}
           >
-            <Timer size={18} className={isUrgent ? "animate-bounce" : ""} />
-            {formatTime(timeLeft)}
+            <div className="relative w-7 h-7 flex items-center justify-center">
+              <svg className="w-7 h-7 -rotate-90" viewBox="0 0 44 44">
+                <circle
+                  cx="22"
+                  cy="22"
+                  r="18"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeOpacity="0.2"
+                  strokeWidth="4"
+                />
+                <circle
+                  cx="22"
+                  cy="22"
+                  r="18"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                  strokeDasharray={strokeDash}
+                  strokeDashoffset={strokeOffset}
+                  strokeLinecap="round"
+                  className="transition-all duration-1000"
+                />
+              </svg>
+              <Timer size={12} className="absolute text-current" />
+            </div>
+            <span className="text-base">{formatTime(timeLeft)}</span>
           </div>
 
           <button
             onClick={() => handleFinish("COMPLETED")}
             disabled={isFinished}
-            className="px-5 py-2 bg-green-500 text-black text-xs font-black uppercase tracking-wider rounded-xl hover:bg-green-400 disabled:opacity-50 transition-all flex items-center gap-1.5"
+            className="px-5 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-black uppercase tracking-wider rounded-xl disabled:opacity-50 transition-all flex items-center gap-1.5 cursor-pointer shadow-md"
           >
-            <CheckCircle2 size={15} /> Submit
+            <CheckCircle2 size={15} />
+            <span>Submit</span>
           </button>
 
           <button
-            onClick={() => router.push("/challenge")}
-            className="px-4 py-2 bg-white/5 text-white text-xs font-bold rounded-xl border border-white/10 hover:bg-white/10 transition-all"
+            onClick={() => {
+              soundEffects.playClick();
+              router.push("/challenge");
+            }}
+            className="px-4 py-2 bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-xs font-bold rounded-xl border border-[var(--border-subtle)] transition-all cursor-pointer"
           >
             Exit
           </button>
 
           {/* Hamburger — problem panel toggle */}
           <button
-            onClick={() => setShowPanel((v) => !v)}
-            title={showPanel ? "Hide problem" : "Show problem"}
-            className={`p-2 rounded-xl border transition-all ${
+            onClick={() => {
+              soundEffects.playClick();
+              setShowPanel((v) => !v);
+            }}
+            title={showPanel ? "Hide problem panel" : "Show problem panel"}
+            className={`p-2 rounded-xl border transition-all cursor-pointer ${
               showPanel
-                ? "bg-blue-500/20 border-blue-500/30 text-blue-400"
-                : "bg-white/5 border-white/10 text-gray-400 hover:text-white"
+                ? "bg-[var(--accent-primary)]/10 border-[var(--accent-primary)]/40 text-[var(--accent-primary)]"
+                : "bg-[var(--bg-secondary)] border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
             }`}
           >
             {showPanel ? (
@@ -280,40 +329,79 @@ export default function ChallengeSimulator() {
       {/* ── MAIN AREA ────────────────────────────────────────────── */}
       <div
         ref={mainAreaRef}
-        className={`flex-1 flex overflow-hidden relative z-10 ${isResizingPanel ? "select-none" : ""}`}
+        className={`flex-1 flex overflow-hidden relative z-10 ${
+          isResizingPanel ? "select-none" : ""
+        }`}
       >
         {/* Code Editor — full width, slides when panel open */}
         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
           {isFinished ? (
             /* ── RESULT SCREEN ── */
-            <div className="flex-1 flex items-center justify-center p-10">
+            <div className="flex-1 flex items-center justify-center p-10 bg-[var(--bg-primary)]">
               <div
-                className={`max-w-lg w-full p-10 rounded-[3rem] text-center space-y-6 ${
+                className={`max-w-lg w-full p-10 rounded-[3rem] text-center space-y-6 shadow-2xl ${
                   session.status === "COMPLETED"
-                    ? "bg-green-500/10 border border-green-500/20"
-                    : "bg-red-500/10 border border-red-500/20"
+                    ? "bg-emerald-500/10 border border-emerald-500/30"
+                    : "bg-rose-500/10 border border-rose-500/30"
                 }`}
               >
-                <div className="inline-flex p-5 rounded-full bg-white/5">
+                <div
+                  className={`w-20 h-20 rounded-3xl mx-auto flex items-center justify-center text-3xl shadow-xl ${
+                    session.status === "COMPLETED"
+                      ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-emerald-500/10"
+                      : "bg-rose-500/20 text-rose-400 border border-rose-500/40 shadow-rose-500/10"
+                  }`}
+                >
                   {session.status === "COMPLETED" ? (
-                    <CheckCircle2 size={64} className="text-green-500" />
+                    <Trophy size={40} />
                   ) : (
-                    <XCircle size={64} className="text-red-500" />
+                    <XCircle size={40} />
                   )}
                 </div>
-                <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter">
-                  Challenge {session.status}
-                </h2>
-                <p className="text-gray-400">
-                  {session.status === "COMPLETED"
-                    ? "Impressive focus. You handled the pressure and solved the assigned tasks."
-                    : "The clock won this round. Use the Spaced Repetition engine to master these topics and try again."}
-                </p>
+                <div className="space-y-1">
+                  <h2 className="text-3xl font-black text-[var(--text-primary)] uppercase italic tracking-tight font-display">
+                    {session.status === "COMPLETED"
+                      ? "Challenge Conquered!"
+                      : "Time Limit Exceeded"}
+                  </h2>
+                  <p className="text-xs text-[var(--text-muted)] leading-relaxed">
+                    {session.status === "COMPLETED"
+                      ? "Flawless execution. You maintained composure under severe pressure."
+                      : "The clock won this round. Review your invariants and try again."}
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] flex items-center justify-around font-mono text-sm">
+                  <div>
+                    <span className="text-[10px] text-[var(--text-muted)] uppercase font-sans">
+                      Performance ELO
+                    </span>
+                    <div
+                      className={`font-black ${
+                        session.status === "COMPLETED"
+                          ? "text-emerald-400"
+                          : "text-rose-400"
+                      }`}
+                    >
+                      {session.status === "COMPLETED" ? "+32 ELO" : "-12 ELO"}
+                    </div>
+                  </div>
+                  <div className="w-px h-8 bg-[var(--border-subtle)]" />
+                  <div>
+                    <span className="text-[10px] text-[var(--text-muted)] uppercase font-sans">
+                      Speed Bonus
+                    </span>
+                    <div className="font-black text-amber-400">
+                      {session.status === "COMPLETED" ? "1.5x Multiplier" : "0x"}
+                    </div>
+                  </div>
+                </div>
+
                 <button
                   onClick={() => router.push("/challenge")}
-                  className="px-10 py-4 bg-white text-black font-black uppercase rounded-2xl hover:scale-105 transition-all"
+                  className="px-8 py-3.5 bg-[var(--accent-primary)] text-black font-extrabold uppercase text-xs rounded-2xl hover:scale-105 transition-all shadow-md cursor-pointer"
                 >
-                  Continue Training
+                  Continue Arena Training
                 </button>
               </div>
             </div>
@@ -322,7 +410,9 @@ export default function ChallengeSimulator() {
             <div className="flex-1 p-4 overflow-hidden">
               <CodeEditor
                 key={prob.id}
-                initialCode={`// Problem: ${prob.title}\n// Topic: ${prob.topic?.name ?? ""}\n\nfunction solve() {\n  // Write your logic here\n  \n}\n\nconsole.log(solve());`}
+                initialCode={`// Problem: ${prob.title}\n// Topic: ${
+                  prob.topic?.name ?? ""
+                }\n\nfunction solve() {\n  // Write your logic here\n  \n}\n\nconsole.log(solve());`}
                 layout="vertical"
                 className="h-full rounded-3xl"
               />
@@ -331,10 +421,10 @@ export default function ChallengeSimulator() {
 
           {/* Warning banner */}
           {isWarning && !isUrgent && (
-            <div className="shrink-0 mx-4 mb-3 px-5 py-3 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center gap-3 text-orange-400">
+            <div className="shrink-0 mx-4 mb-3 px-5 py-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center gap-3 text-amber-400">
               <AlertTriangle size={18} />
-              <p className="text-xs font-black uppercase tracking-wider">
-                Less than 3 minutes — finish up!
+              <p className="text-xs font-black uppercase tracking-wider font-mono">
+                Less than 3 minutes remaining — wrap up your test cases!
               </p>
             </div>
           )}
@@ -347,14 +437,14 @@ export default function ChallengeSimulator() {
             aria-orientation="vertical"
             aria-label="Resize problem panel"
             onMouseDown={() => setIsResizingPanel(true)}
-            className="group shrink-0 w-1 cursor-col-resize bg-white/5 hover:bg-blue-500/40 active:bg-blue-500/60 transition-colors"
+            className="group shrink-0 w-1 cursor-col-resize bg-[var(--border-subtle)] hover:bg-[var(--accent-primary)] active:bg-[var(--accent-primary)] transition-colors"
           >
-            <div className="h-full w-full opacity-0 group-hover:opacity-100 bg-blue-500/20" />
+            <div className="h-full w-full opacity-0 group-hover:opacity-100 bg-[var(--accent-primary)]/20" />
           </div>
         )}
 
         <aside
-          className={`shrink-0 overflow-y-auto border-l border-white/5 bg-[#0a0a0a] transition-all duration-300 ease-in-out ${
+          className={`shrink-0 overflow-y-auto border-l border-[var(--border-subtle)] bg-[var(--bg-card)] transition-all duration-300 ease-in-out ${
             showPanel ? "" : "w-0 overflow-hidden border-none"
           }`}
           style={showPanel ? { width: `${panelWidth}px` } : undefined}
@@ -367,50 +457,50 @@ export default function ChallengeSimulator() {
               {/* Problem header */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] bg-white/5 px-2 py-1 rounded">
+                  <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.3em] bg-[var(--bg-secondary)] px-2 py-1 rounded border border-[var(--border-subtle)] font-mono">
                     Problem {activeProblem + 1} / {session.problems.length}
                   </span>
                   <span
-                    className={`text-[10px] font-black uppercase px-2 py-1 rounded border ${
+                    className={`text-[10px] font-black uppercase px-2 py-1 rounded border font-mono ${
                       prob.difficulty === "EASY"
-                        ? "text-green-400 border-green-500/20 bg-green-500/10"
+                        ? "text-emerald-400 border-emerald-500/20 bg-emerald-500/10"
                         : prob.difficulty === "MEDIUM"
-                          ? "text-orange-400 border-orange-500/20 bg-orange-500/10"
-                          : "text-red-400 border-red-500/20 bg-red-500/10"
+                          ? "text-amber-400 border-amber-500/20 bg-amber-500/10"
+                          : "text-rose-400 border-rose-500/20 bg-rose-500/10"
                     }`}
                   >
                     {prob.difficulty}
                   </span>
                 </div>
-                <h2 className="text-2xl font-black text-white leading-tight">
+                <h2 className="text-2xl font-black text-[var(--text-primary)] leading-tight font-display">
                   {prob.title}
                 </h2>
               </div>
 
               {/* Meta */}
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-gray-400">
-                  <Tag size={14} className="text-gray-600" />
+                <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
+                  <Tag size={14} className="text-[var(--accent-primary)]" />
                   <span>{prob.topic?.name}</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-gray-400">
-                  <Cpu size={14} className="text-gray-600" />
-                  <span>Algorithmic Challenge</span>
+                <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
+                  <Cpu size={14} className="text-purple-400" />
+                  <span>Speed Challenge Problem</span>
                 </div>
               </div>
 
-              <div className="h-px bg-white/5" />
+              <div className="h-px bg-[var(--border-subtle)]" />
 
               {/* Problem description */}
               <div className="space-y-2">
-                <p className="text-[10px] font-black uppercase tracking-widest text-gray-600">
+                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] font-mono">
                   Description
                 </p>
                 {loadingContent ? (
-                  <div className="h-32 animate-pulse rounded-xl bg-white/5" />
+                  <div className="h-32 animate-pulse rounded-xl bg-[var(--bg-secondary)]" />
                 ) : (
                   <div
-                    className="custom-scrollbar max-h-75 overflow-y-auto pr-2 text-sm text-gray-300"
+                    className="custom-scrollbar max-h-75 overflow-y-auto pr-2 text-sm text-[var(--text-secondary)] leading-relaxed"
                     dangerouslySetInnerHTML={{
                       __html:
                         problemContent || "<p>No description available.</p>",
@@ -419,54 +509,57 @@ export default function ChallengeSimulator() {
                 )}
               </div>
 
-              <div className="h-px bg-white/5" />
+              <div className="h-px bg-[var(--border-subtle)]" />
 
               {/* Problem list nav */}
               <div className="space-y-2">
-                <p className="text-[10px] font-black uppercase tracking-widest text-gray-600">
+                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] font-mono">
                   All Problems
                 </p>
                 {session.problems.map((p: any, idx: number) => (
                   <button
                     key={p.id}
-                    onClick={() => setActiveProblem(idx)}
-                    className={`w-full text-left px-4 py-3 rounded-2xl border transition-all text-sm ${
+                    onClick={() => {
+                      soundEffects.playClick();
+                      setActiveProblem(idx);
+                    }}
+                    className={`w-full text-left px-4 py-3 rounded-2xl border transition-all text-sm cursor-pointer ${
                       activeProblem === idx
-                        ? "bg-white/10 border-white/20 text-white"
-                        : "bg-white/3 border-white/5 text-gray-400 hover:text-white hover:bg-white/5"
+                        ? "bg-[var(--accent-primary)]/10 border-[var(--accent-primary)]/40 text-[var(--text-primary)] font-bold shadow-xs"
+                        : "bg-[var(--bg-secondary)] border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-bold">{p.title}</span>
                       <span
-                        className={`text-[10px] font-black uppercase ml-2 shrink-0 ${
+                        className={`text-[10px] font-black uppercase ml-2 shrink-0 font-mono ${
                           p.difficulty === "EASY"
-                            ? "text-green-400"
+                            ? "text-emerald-400"
                             : p.difficulty === "MEDIUM"
-                              ? "text-orange-400"
-                              : "text-red-400"
+                              ? "text-amber-400"
+                              : "text-rose-400"
                         }`}
                       >
                         {p.difficulty}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-500 mt-0.5">
+                    <p className="text-xs text-[var(--text-muted)] mt-0.5">
                       {p.topic?.name}
                     </p>
                   </button>
                 ))}
               </div>
 
-              <div className="h-px bg-white/5" />
+              <div className="h-px bg-[var(--border-subtle)]" />
 
               {/* LeetCode link */}
               <a
                 href={prob.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between w-full px-4 py-3 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-bold hover:bg-blue-500/20 transition-all"
+                className="flex items-center justify-between w-full px-4 py-3 rounded-2xl bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/20 text-[var(--accent-primary)] text-sm font-bold hover:bg-[var(--accent-primary)]/20 transition-all cursor-pointer"
               >
-                Open on LeetCode
+                <span>Open on LeetCode</span>
                 <ExternalLink size={15} />
               </a>
             </div>
