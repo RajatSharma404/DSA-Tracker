@@ -12,6 +12,9 @@ import {
   Lock,
   PlayCircle,
   Rocket,
+  Lightbulb,
+  HelpCircle,
+  XCircle,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 
@@ -28,6 +31,97 @@ function normalizeMultiline(text: string): string {
     .replace(/\\r\\n/g, "\n")
     .replace(/\\n/g, "\n")
     .replace(/\\t/g, "\t");
+}
+
+function CalloutNoteBlock({ markdown }: { markdown: string }) {
+  return (
+    <div className="rounded-2xl border border-cyan-500/30 bg-cyan-950/20 p-5 backdrop-blur-sm">
+      <div className="flex items-center gap-2 text-cyan-300 font-bold text-xs uppercase tracking-wider mb-2">
+        <Lightbulb size={16} className="text-cyan-400" />
+        <span>Key Concept & Invariant</span>
+      </div>
+      <div className="prose prose-invert prose-sm max-w-none text-gray-200 leading-relaxed">
+        <ReactMarkdown>{normalizeMultiline(markdown)}</ReactMarkdown>
+      </div>
+    </div>
+  );
+}
+
+function InteractiveQuizBlock({
+  content,
+}: {
+  content: Record<string, unknown>;
+}) {
+  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+  const question =
+    typeof content.question === "string"
+      ? content.question
+      : "Checkpoint Question";
+  const options = Array.isArray(content.options)
+    ? (content.options as string[])
+    : [];
+  const correctAnswerIndex =
+    typeof content.correctAnswerIndex === "number"
+      ? content.correctAnswerIndex
+      : 0;
+  const explanation =
+    typeof content.explanation === "string" ? content.explanation : "";
+
+  return (
+    <div className="rounded-2xl border border-amber-500/30 bg-amber-950/15 p-5 backdrop-blur-sm space-y-4">
+      <div className="flex items-center gap-2 text-amber-300 font-bold text-xs uppercase tracking-wider">
+        <HelpCircle size={16} className="text-amber-400" />
+        <span>Knowledge Check</span>
+      </div>
+      <p className="text-sm font-semibold text-white">{question}</p>
+
+      <div className="space-y-2">
+        {options.map((opt, idx) => {
+          const isSelected = selectedIdx === idx;
+          const isCorrect = idx === correctAnswerIndex;
+          let btnClass =
+            "border-white/10 bg-white/5 hover:bg-white/10 text-gray-200";
+
+          if (selectedIdx !== null) {
+            if (isCorrect) {
+              btnClass =
+                "border-emerald-500/50 bg-emerald-500/20 text-emerald-200 font-semibold";
+            } else if (isSelected) {
+              btnClass = "border-red-500/50 bg-red-500/20 text-red-200";
+            } else {
+              btnClass = "border-white/5 bg-white/2 text-gray-400 opacity-60";
+            }
+          }
+
+          return (
+            <button
+              key={idx}
+              onClick={() => setSelectedIdx(idx)}
+              className={`w-full text-left rounded-xl border p-3 text-xs transition-all flex items-center justify-between cursor-pointer ${btnClass}`}
+            >
+              <span>{opt}</span>
+              {selectedIdx !== null && isCorrect && (
+                <CheckCircle2
+                  size={14}
+                  className="text-emerald-400 shrink-0 ml-2"
+                />
+              )}
+              {selectedIdx !== null && isSelected && !isCorrect && (
+                <XCircle size={14} className="text-red-400 shrink-0 ml-2" />
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {selectedIdx !== null && explanation && (
+        <div className="rounded-xl border border-white/10 bg-black/40 p-3 text-xs text-gray-300 space-y-1">
+          <p className="font-bold text-amber-300">Explanation:</p>
+          <p>{explanation}</p>
+        </div>
+      )}
+    </div>
+  );
 }
 
 function renderBlock(block: LearnLessonDetail["blocks"][number]) {
@@ -52,6 +146,18 @@ function renderBlock(block: LearnLessonDetail["blocks"][number]) {
         </pre>
       </div>
     );
+  }
+
+  if (block.blockType === "NOTE") {
+    const markdown =
+      typeof content.markdown === "string"
+        ? normalizeMultiline(content.markdown)
+        : "";
+    return <CalloutNoteBlock markdown={markdown} />;
+  }
+
+  if (block.blockType === "QUIZ") {
+    return <InteractiveQuizBlock content={content} />;
   }
 
   const markdown =

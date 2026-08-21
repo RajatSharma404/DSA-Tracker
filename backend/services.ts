@@ -43,8 +43,12 @@ export const getRevisionReminders = async (userId: string) => {
     title: p.problem.title,
     topicName: p.problem.topic.name,
     daysSince: p.completedAt
-      ? Math.floor(
-          (new Date().getTime() - p.completedAt.getTime()) / (1000 * 3600 * 24),
+      ? Math.max(
+          0,
+          Math.floor(
+            (new Date().getTime() - new Date(p.completedAt).getTime()) /
+              (1000 * 3600 * 24),
+          ),
         )
       : 0,
   }));

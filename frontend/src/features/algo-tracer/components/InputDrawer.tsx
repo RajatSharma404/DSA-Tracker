@@ -59,15 +59,27 @@ export function InputDrawer({
 
   const handleApplyManualArray = () => {
     try {
-      const parsed = JSON.parse(rawArrayStr);
-      if (Array.isArray(parsed)) {
-        const numArr = parsed.map(Number).filter((n) => !isNaN(n));
-        if (numArr.length > 0) {
-          setArrayInput(numArr);
-          setArraySize(numArr.length);
-          setIsManualEditing(false);
-          setTimeout(onRerun, 50);
+      let numArr: number[] = [];
+      const trimmed = rawArrayStr.trim();
+      if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+        const parsed = JSON.parse(trimmed);
+        if (Array.isArray(parsed)) {
+          numArr = parsed.map(Number).filter((n) => !isNaN(n));
         }
+      } else {
+        // Fallback: parse comma or space separated values
+        numArr = trimmed
+          .split(/[\s,]+/)
+          .map(Number)
+          .filter((n) => !isNaN(n));
+      }
+
+      if (numArr.length > 0) {
+        setArrayInput(numArr);
+        setRawArrayStr(JSON.stringify(numArr));
+        setArraySize(numArr.length);
+        setIsManualEditing(false);
+        setTimeout(onRerun, 50);
       }
     } catch {
       // ignore
