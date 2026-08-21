@@ -299,6 +299,7 @@ export function AlgoTracer({
             onClear={handleClearCode}
             isTracing={isTracing}
             activeLine={currentStep?.line}
+            currentStep={currentStep}
           />
         </div>
 

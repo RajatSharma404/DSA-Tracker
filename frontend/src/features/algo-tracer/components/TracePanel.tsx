@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { TraceStep, DiagramType, TheoryData } from "../types";
 import { TheoryPanel } from "./TheoryPanel";
 import { StepDescriptionBar } from "./StepDescriptionBar";
-import { VariableInspector } from "./VariableInspector";
 import { BarDiagram } from "./diagrams/BarDiagram";
 import { ArrayBoxDiagram } from "./diagrams/ArrayBoxDiagram";
 import { SplitMergeDiagram } from "./diagrams/SplitMergeDiagram";
@@ -72,7 +71,7 @@ export function TracePanel({
 
   return (
     <div className="flex flex-col h-full min-h-0 w-full space-y-2 overflow-hidden">
-      {/* 1. Collapsible Theory Section (max-h-44 internally scrollable) */}
+      {/* 1. Collapsible Theory Section */}
       {theory && (
         <TheoryPanel
           theory={theory}
@@ -82,24 +81,17 @@ export function TracePanel({
         />
       )}
 
-      {/* 2. Visual Diagram Canvas (dynamic height based on theory state) */}
-      <div
-        className={`w-full transition-all duration-200 shrink-0 ${
-          isTheoryOpen ? "h-38 sm:h-40" : "h-48 sm:h-56"
-        }`}
-      >
+      {/* 2. Visual Diagram Canvas (flex-1 fills available height) */}
+      <div className="flex-1 min-h-0 w-full overflow-hidden">
         {renderDiagram()}
       </div>
 
-      {/* 3. Step Description Bar (68px fixed) */}
+      {/* 3. Step Description Bar (68px fixed at bottom) */}
       <StepDescriptionBar
         step={activeStep}
         currentStepIndex={currentStepIndex}
         totalSteps={allSteps.length}
       />
-
-      {/* 4. Variable Watch Inspector (flex-1 takes remaining space, scrolls internally) */}
-      <VariableInspector step={activeStep} />
     </div>
   );
 }

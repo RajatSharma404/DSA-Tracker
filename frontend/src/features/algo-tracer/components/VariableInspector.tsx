@@ -3,16 +3,19 @@ import { Eye } from "lucide-react";
 import { TraceStep } from "../types";
 
 interface VariableInspectorProps {
-  step: TraceStep;
+  step?: TraceStep;
+  className?: string;
 }
 
-export function VariableInspector({ step }: VariableInspectorProps) {
+export function VariableInspector({ step, className = "" }: VariableInspectorProps) {
   const variables = step?.variables || {};
   const entries = Object.entries(variables);
 
   return (
-    <div className="flex-1 min-h-0 rounded-2xl bg-[#0c0c16] border border-white/5 p-2.5 flex flex-col shadow-lg overflow-hidden">
-      <div className="flex items-center justify-between border-b border-white/5 pb-1.5 mb-1.5 shrink-0">
+    <div
+      className={`rounded-2xl bg-[#090912] border border-white/5 p-2.5 flex flex-col shadow-lg overflow-hidden shrink-0 ${className}`}
+    >
+      <div className="flex items-center justify-between border-b border-white/5 pb-1 mb-1.5 shrink-0">
         <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-300 uppercase tracking-wider">
           <Eye size={12} className="text-purple-400" />
           <span>Variable Inspector</span>
