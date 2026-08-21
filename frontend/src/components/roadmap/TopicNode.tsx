@@ -11,6 +11,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
+import { soundEffects } from "@/lib/soundEffects";
 
 interface TopicNodeProps {
   data: {
@@ -34,14 +35,17 @@ const TopicNode = ({ data }: TopicNodeProps) => {
 
   return (
     <div
-      onClick={data.onOpenDrawer}
+      onClick={() => {
+        soundEffects.playClick();
+        data.onOpenDrawer?.();
+      }}
       className={`group relative px-5 py-4 rounded-2xl border-2 transition-all duration-200 cursor-pointer min-w-68 max-w-76 select-none shadow-xl
         ${
           isTarget
-            ? "ring-4 ring-cyan-500/50 bg-[#121024] border-cyan-400 shadow-cyan-500/20"
+            ? "ring-4 ring-[var(--accent-primary)]/40 bg-[var(--bg-card)] border-[var(--accent-primary)] shadow-[0_0_20px_var(--accent-glow)]"
             : isCompleted
-              ? "bg-linear-to-b from-[#0a1812] to-[#070e0a] border-emerald-500/60 hover:border-emerald-400 shadow-emerald-500/10"
-              : "bg-linear-to-b from-[#101018] to-[#0a0a0f] border-white/10 hover:border-cyan-500/50 hover:shadow-cyan-500/10"
+              ? "bg-[var(--bg-card)] border-emerald-500/60 hover:border-emerald-400 shadow-emerald-500/10"
+              : "bg-[var(--bg-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/50 hover:shadow-[0_0_15px_var(--accent-glow)]"
         }
         hover:-translate-y-1 hover:scale-[1.01] active:scale-[0.99]
       `}
@@ -51,12 +55,12 @@ const TopicNode = ({ data }: TopicNodeProps) => {
       <Handle
         type="target"
         position={Position.Left}
-        className="w-3! h-3! bg-cyan-400! border-2! border-black! rounded-full!"
+        className="w-3! h-3! bg-[var(--accent-primary)]! border-2! border-black! rounded-full!"
       />
       <Handle
         type="source"
         position={Position.Right}
-        className="w-3! h-3! bg-cyan-400! border-2! border-black! rounded-full!"
+        className="w-3! h-3! bg-[var(--accent-primary)]! border-2! border-black! rounded-full!"
       />
 
       {/* Top Meta Bar */}
@@ -66,13 +70,13 @@ const TopicNode = ({ data }: TopicNodeProps) => {
             className={`p-1.5 rounded-lg shrink-0 ${
               isCompleted
                 ? "bg-emerald-500/20 text-emerald-400"
-                : "bg-cyan-500/20 text-cyan-400"
+                : "bg-[var(--accent-primary)]/20 text-[var(--accent-primary)]"
             }`}
           >
             <BookOpen size={14} />
           </div>
           {data.tier && (
-            <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-white/5 text-gray-400 border border-white/5 truncate">
+            <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-[var(--bg-secondary)] text-[var(--text-muted)] border border-[var(--border-subtle)] truncate font-mono">
               {data.tier}
             </span>
           )}
@@ -81,7 +85,7 @@ const TopicNode = ({ data }: TopicNodeProps) => {
         <div className="text-right shrink-0">
           <span
             className={`text-xs font-black font-mono ${
-              isCompleted ? "text-emerald-400" : "text-cyan-400"
+              isCompleted ? "text-emerald-400" : "text-[var(--accent-primary)]"
             }`}
           >
             {data.solvedProblems}/{data.totalProblems}
@@ -91,30 +95,34 @@ const TopicNode = ({ data }: TopicNodeProps) => {
 
       {/* Title & Description */}
       <div className="space-y-1 mb-3">
-        <h3 className="text-sm font-black text-white group-hover:text-cyan-300 transition-colors leading-snug line-clamp-1">
+        <h3 className="text-sm font-black text-[var(--text-primary)] group-hover:text-[var(--accent-primary)] transition-colors leading-snug line-clamp-1 font-display">
           {data.label}
         </h3>
         {data.description && (
-          <p className="text-[11px] text-gray-400 line-clamp-2 leading-relaxed">
+          <p className="text-[11px] text-[var(--text-muted)] line-clamp-2 leading-relaxed">
             {data.description}
           </p>
         )}
       </div>
 
       {/* Progress Bar & Click Trigger */}
-      <div className="space-y-2 pt-1 border-t border-white/5">
-        <div className="flex justify-between items-center text-[10px] font-bold text-gray-400">
+      <div className="space-y-2 pt-1 border-t border-[var(--border-subtle)]">
+        <div className="flex justify-between items-center text-[10px] font-bold text-[var(--text-muted)] font-mono">
           <span>Mastery</span>
-          <span className={isCompleted ? "text-emerald-400" : "text-cyan-400 font-mono"}>
+          <span
+            className={
+              isCompleted
+                ? "text-emerald-400"
+                : "text-[var(--accent-primary)] font-mono"
+            }
+          >
             {data.progressPercentage}%
           </span>
         </div>
-        <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+        <div className="w-full h-1.5 bg-[var(--bg-secondary)] rounded-full overflow-hidden">
           <div
             className={`h-full rounded-full transition-all duration-500 ${
-              isCompleted
-                ? "bg-emerald-500"
-                : "bg-linear-to-r from-cyan-500 to-blue-500"
+              isCompleted ? "bg-emerald-500" : "bg-[var(--accent-primary)]"
             }`}
             style={{ width: `${data.progressPercentage}%` }}
           />
@@ -127,12 +135,13 @@ const TopicNode = ({ data }: TopicNodeProps) => {
             type="button"
             onClick={(e) => {
               e.stopPropagation();
+              soundEffects.playClick();
               data.onToggleExpand?.();
             }}
-            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer font-mono ${
               isExpanded
                 ? "bg-purple-500/20 text-purple-300 border border-purple-500/40"
-                : "bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10"
+                : "bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]"
             }`}
           >
             {isExpanded ? (
@@ -149,9 +158,12 @@ const TopicNode = ({ data }: TopicNodeProps) => {
           </button>
 
           {/* Drawer trigger */}
-          <span className="text-[10px] font-bold text-gray-500 group-hover:text-cyan-400 transition-colors inline-flex items-center gap-0.5">
+          <span className="text-[10px] font-bold text-[var(--text-muted)] group-hover:text-[var(--accent-primary)] transition-colors inline-flex items-center gap-0.5 font-mono">
             <span>Matrix</span>
-            <ChevronRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
+            <ChevronRight
+              size={12}
+              className="group-hover:translate-x-0.5 transition-transform"
+            />
           </span>
         </div>
       </div>

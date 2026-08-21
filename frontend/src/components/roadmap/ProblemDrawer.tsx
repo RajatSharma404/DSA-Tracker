@@ -17,6 +17,7 @@ import {
   SlidersHorizontal,
   ChevronRight,
 } from "lucide-react";
+import { soundEffects } from "@/lib/soundEffects";
 
 interface ProblemDrawerProps {
   isOpen: boolean;
@@ -77,7 +78,7 @@ export default function ProblemDrawer({
       case "EASY":
         return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
       case "HARD":
-        return "bg-red-500/10 text-red-400 border-red-500/20";
+        return "bg-rose-500/10 text-rose-400 border-rose-500/20";
       default:
         return "bg-amber-500/10 text-amber-400 border-amber-500/20";
     }
@@ -88,49 +89,55 @@ export default function ProblemDrawer({
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/70 backdrop-blur-xs transition-opacity"
-        onClick={onClose}
+        onClick={() => {
+          soundEffects.playClick();
+          onClose();
+        }}
       />
 
       {/* Drawer Panel */}
-      <div className="relative z-10 flex h-full w-full max-w-xl flex-col border-l border-white/10 bg-[#0c0c14] shadow-2xl animate-in slide-in-from-right duration-300">
+      <div className="relative z-10 flex h-full w-full max-w-xl flex-col border-l border-[var(--border-subtle)] bg-[var(--bg-card)] shadow-2xl animate-in slide-in-from-right duration-300">
         {/* Header */}
-        <div className="border-b border-white/10 p-6 space-y-4">
+        <div className="border-b border-[var(--border-subtle)] p-6 space-y-4">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
-              <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-black uppercase tracking-wider">
+              <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/20 text-[var(--accent-primary)] text-[10px] font-black uppercase tracking-wider">
                 <BookOpen size={11} />
                 <span>Topic Curriculum</span>
               </div>
-              <h2 className="text-2xl font-black text-white tracking-tight">
+              <h2 className="text-2xl font-black text-[var(--text-primary)] tracking-tight font-display">
                 {topic.name}
               </h2>
             </div>
 
             <button
-              onClick={onClose}
-              className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all cursor-pointer"
+              onClick={() => {
+                soundEffects.playClick();
+                onClose();
+              }}
+              className="p-2 rounded-xl bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all cursor-pointer border border-[var(--border-subtle)]"
             >
               <X size={18} />
             </button>
           </div>
 
           {topic.description && (
-            <p className="text-xs text-gray-400 leading-relaxed">
+            <p className="text-xs text-[var(--text-muted)] leading-relaxed">
               {topic.description}
             </p>
           )}
 
           {/* Progress Bar & Solved Gauge */}
-          <div className="p-4 rounded-2xl bg-black/40 border border-white/5 space-y-2">
-            <div className="flex justify-between items-center text-xs font-bold">
-              <span className="text-gray-400">Mastery Progress</span>
-              <span className="text-cyan-400">
+          <div className="p-4 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] space-y-2">
+            <div className="flex justify-between items-center text-xs font-bold font-mono">
+              <span className="text-[var(--text-muted)]">Mastery Progress</span>
+              <span className="text-[var(--accent-primary)]">
                 {solvedCount} / {problems.length} Solved ({progressPct}%)
               </span>
             </div>
-            <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+            <div className="w-full h-2 bg-[var(--bg-tertiary)] rounded-full overflow-hidden">
               <div
-                className="h-full bg-linear-to-r from-cyan-500 to-blue-500 rounded-full transition-all duration-500"
+                className="h-full bg-[var(--accent-primary)] rounded-full transition-all duration-500"
                 style={{ width: `${progressPct}%` }}
               />
             </div>
@@ -141,43 +148,49 @@ export default function ProblemDrawer({
             <div className="relative">
               <Search
                 size={15}
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500"
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]"
               />
               <input
                 type="text"
                 placeholder="Search problem title..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs text-white placeholder:text-gray-500 focus:outline-none focus:border-cyan-500/50"
+                className="w-full pl-10 pr-4 py-2 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)]"
               />
             </div>
 
             {/* Filter Pills */}
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex flex-wrap items-center gap-1.5 font-mono">
               {(["ALL", "EASY", "MEDIUM", "HARD"] as const).map((d) => (
                 <button
                   key={d}
-                  onClick={() => setDifficultyFilter(d)}
+                  onClick={() => {
+                    soundEffects.playClick();
+                    setDifficultyFilter(d);
+                  }}
                   className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
                     difficultyFilter === d
-                      ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-black"
-                      : "bg-white/5 text-gray-400 border border-white/5 hover:text-white"
+                      ? "bg-[var(--accent-primary)] text-black font-black shadow-xs"
+                      : "bg-[var(--bg-secondary)] text-[var(--text-muted)] border border-[var(--border-subtle)] hover:text-[var(--text-primary)]"
                   }`}
                 >
                   {d}
                 </button>
               ))}
 
-              <div className="w-px h-4 bg-white/10 mx-1" />
+              <div className="w-px h-4 bg-[var(--border-subtle)] mx-1" />
 
               {(["ALL", "TODO", "DOING", "DONE", "DUE"] as const).map((s) => (
                 <button
                   key={s}
-                  onClick={() => setStatusFilter(s)}
+                  onClick={() => {
+                    soundEffects.playClick();
+                    setStatusFilter(s);
+                  }}
                   className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
                     statusFilter === s
-                      ? "bg-purple-500/20 text-purple-300 border border-purple-500/30 font-black"
-                      : "bg-white/5 text-gray-400 border border-white/5 hover:text-white"
+                      ? "bg-purple-500/20 text-purple-300 border border-purple-500/30 font-black shadow-xs"
+                      : "bg-[var(--bg-secondary)] text-[var(--text-muted)] border border-[var(--border-subtle)] hover:text-[var(--text-primary)]"
                   }`}
                 >
                   {s === "DUE" ? "Due Review" : s}
@@ -190,103 +203,86 @@ export default function ProblemDrawer({
         {/* Problems List */}
         <div className="flex-1 overflow-y-auto p-6 space-y-3">
           {loading ? (
-            <div className="py-20 text-center text-xs text-gray-500">
+            <div className="py-20 text-center text-xs text-[var(--text-muted)] font-mono">
               Loading problems...
             </div>
           ) : filteredProblems.length === 0 ? (
             <div className="py-20 text-center space-y-2">
-              <p className="text-sm font-bold text-gray-400">
+              <p className="text-sm font-bold text-[var(--text-muted)]">
                 No matching problems found
               </p>
-              <p className="text-xs text-gray-600">
-                Try clearing your search or filter selections.
+              <p className="text-xs text-[var(--text-muted)]">
+                Try loosening your filters or search query
               </p>
             </div>
           ) : (
-            filteredProblems.map((prob) => {
-              const isDone = prob.status === "DONE";
+            filteredProblems.map((p) => {
+              const isDone = p.status === "DONE";
+              const isDoing = p.status === "DOING";
               const isDue =
                 isDone &&
-                !!prob.nextReviewDate &&
-                new Date(prob.nextReviewDate) <= new Date();
+                !!p.nextReviewDate &&
+                new Date(p.nextReviewDate) <= new Date();
 
               return (
                 <div
-                  key={prob.id}
-                  className={`p-4 rounded-2xl border transition-all flex flex-col justify-between gap-3 ${
-                    isDue
-                      ? "bg-amber-950/20 border-amber-500/30"
-                      : isDone
-                        ? "bg-emerald-950/10 border-emerald-500/20"
-                        : "bg-[#11111a] border-white/5 hover:border-white/15"
-                  }`}
+                  key={p.id}
+                  className="group flex items-center justify-between p-3.5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] hover:border-[var(--border-medium)] transition-all"
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-3 min-w-0">
-                      <div className="mt-0.5 shrink-0">
-                        {isDue ? (
-                          <AlertTriangle size={16} className="text-amber-400" />
-                        ) : isDone ? (
-                          <CheckCircle2
-                            size={16}
-                            className="text-emerald-400"
-                          />
-                        ) : (
-                          <Circle size={16} className="text-gray-600" />
-                        )}
-                      </div>
-                      <div className="min-w-0 space-y-1">
-                        <Link
-                          href={`/problems/${prob.id}`}
-                          className="text-sm font-bold text-white hover:text-cyan-400 transition-colors block line-clamp-1"
-                        >
-                          {prob.title}
-                        </Link>
-                        <div className="flex items-center gap-2 text-[11px] text-gray-500">
-                          {prob.timeSpent > 0 && (
-                            <span className="flex items-center gap-1">
-                              <Clock size={12} /> {prob.timeSpent}m
-                            </span>
-                          )}
-                          {isDue && (
-                            <span className="text-amber-400 font-bold">
-                              • Due for SM-2 Review
-                            </span>
-                          )}
-                        </div>
-                      </div>
+                  <div className="flex items-center gap-3 min-w-0 pr-3">
+                    <div className="shrink-0">
+                      {isDone ? (
+                        <CheckCircle2
+                          size={18}
+                          className="text-emerald-400 fill-emerald-500/10"
+                        />
+                      ) : isDoing ? (
+                        <div className="w-4 h-4 rounded-full border-2 border-amber-400 border-t-transparent animate-spin" />
+                      ) : (
+                        <Circle
+                          size={18}
+                          className="text-[var(--text-muted)]"
+                        />
+                      )}
                     </div>
 
-                    <span
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${getDiffBadge(prob.difficulty)}`}
-                    >
-                      {prob.difficulty}
-                    </span>
+                    <div className="space-y-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/problems/${p.id}`}
+                          onClick={() => soundEffects.playClick()}
+                          className="text-xs font-bold text-[var(--text-primary)] group-hover:text-[var(--accent-primary)] transition-colors truncate"
+                        >
+                          {p.title}
+                        </Link>
+                      </div>
+
+                      <div className="flex items-center gap-2 font-mono">
+                        <span
+                          className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full border ${getDiffBadge(
+                            p.difficulty,
+                          )}`}
+                        >
+                          {p.difficulty}
+                        </span>
+
+                        {isDue && (
+                          <span className="text-[9px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20 flex items-center gap-1">
+                            <Clock size={10} /> Due Review
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-white/5">
-                    {prob.link ? (
-                      <a
-                        href={prob.link}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-[11px] text-gray-400 hover:text-white transition-colors"
-                      >
-                        <ExternalLink size={12} />
-                        LeetCode
-                      </a>
-                    ) : (
-                      <span className="text-[11px] text-gray-600">
-                        Standard Problem
-                      </span>
-                    )}
-
+                  <div className="flex items-center gap-2 shrink-0">
                     <Link
-                      href={`/problems/${prob.id}`}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/20 text-xs font-bold transition-all"
+                      href={`/problems/${p.id}`}
+                      onClick={() => soundEffects.playClick()}
+                      className="p-2 rounded-xl bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--accent-primary)]/40 transition-all"
+                      title="Open in Workspace"
                     >
-                      <span>Solve in IDE</span>
-                      <ChevronRight size={14} />
+                      <ChevronRight size={15} />
                     </Link>
                   </div>
                 </div>
