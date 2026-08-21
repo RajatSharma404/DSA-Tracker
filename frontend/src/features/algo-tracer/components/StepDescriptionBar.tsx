@@ -63,13 +63,13 @@ export function StepDescriptionBar({
   const badge = getTypeBadge(step?.type || "iterate");
 
   return (
-    <div className="h-17 px-3 py-2 rounded-2xl bg-[#0f0f1c] border border-cyan-500/20 shadow-md flex items-center gap-2.5 shrink-0 overflow-hidden">
-      <div className="p-1.5 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 shrink-0">
-        <Sparkles size={14} />
+    <div className="h-17 px-3.5 py-2 rounded-2xl bg-[#0f0f1c] border border-cyan-500/20 shadow-md flex items-center gap-3 shrink-0 overflow-hidden">
+      <div className="p-2 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 shrink-0">
+        <Sparkles size={15} />
       </div>
 
       <div className="flex-1 min-w-0 space-y-0.5">
-        <div className="flex items-center gap-1.5 font-mono text-[10px]">
+        <div className="flex items-center gap-2 font-mono text-[11px]">
           <span className="font-bold uppercase text-cyan-400">
             Step {totalSteps > 0 ? currentStepIndex + 1 : 0}/{totalSteps}
           </span>
@@ -79,13 +79,13 @@ export function StepDescriptionBar({
             {badge.label}
           </span>
           {step?.line ? (
-            <span className="text-gray-500 font-mono">
-              L{step.line}
+            <span className="text-gray-400 font-mono">
+              Line {step.line}
             </span>
           ) : null}
         </div>
 
-        <p className="text-[11px] text-gray-200 font-medium leading-snug line-clamp-2 truncate">
+        <p className="text-[13px] sm:text-[13.5px] text-gray-100 font-medium leading-snug line-clamp-2 truncate">
           {step?.description || "Ready to execute. Click 'Run & Trace' to start."}
         </p>
       </div>

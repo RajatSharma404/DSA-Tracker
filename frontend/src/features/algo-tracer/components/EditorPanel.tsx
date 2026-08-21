@@ -142,7 +142,7 @@ export function EditorPanel({
             options={{
               minimap: { enabled: false },
               automaticLayout: true,
-              fontSize: 13,
+              fontSize: 14,
               fontFamily: '"Fira Code", "JetBrains Mono", monospace',
               fontLigatures: true,
               padding: { top: 10, bottom: 10 },
