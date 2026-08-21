@@ -135,7 +135,7 @@ export function Sidebar() {
       </div>
 
       <nav
-        className="flex-1 overflow-y-auto py-3 space-y-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        className="flex-1 overflow-y-auto py-3 space-y-4 no-scrollbar"
         aria-label="Navigation menu"
       >
         {displaySections.map((section) => (

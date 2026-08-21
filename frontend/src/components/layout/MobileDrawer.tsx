@@ -170,7 +170,7 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
         </div>
 
         {/* Navigation Link Sections */}
-        <nav className="flex-1 overflow-y-auto p-4 space-y-6">
+        <nav className="flex-1 overflow-y-auto p-4 space-y-6 no-scrollbar">
           {displaySections.map((section) => (
             <div key={section.title} className="space-y-1">
               <p className="px-3 mb-1.5 text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">
