@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { CommandPalette } from "@/components/layout/CommandPalette";
 import { PageTransition } from "@/components/layout/PageTransition";
@@ -8,6 +8,7 @@ import { TopNavbar } from "@/components/layout/TopNavbar";
 import { MobileHeader } from "@/components/layout/MobileHeader";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { MobileDrawer } from "@/components/layout/MobileDrawer";
+import { KeyboardShortcutsModal } from "@/components/layout/KeyboardShortcutsModal";
 
 const Sidebar = dynamic(
   () => import("@/components/layout/Sidebar").then((mod) => mod.Sidebar),
@@ -25,6 +26,18 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+  const [isShortcutsModalOpen, setIsShortcutsModalOpen] = useState(false);
+
+  useEffect(() => {
+    const handleOpenShortcuts = () => {
+      setIsShortcutsModalOpen(true);
+    };
+
+    window.addEventListener("dsa-open-shortcuts", handleOpenShortcuts);
+    return () => {
+      window.removeEventListener("dsa-open-shortcuts", handleOpenShortcuts);
+    };
+  }, []);
 
   const handleOpenCommandPalette = () => {
     window.dispatchEvent(new CustomEvent("dsa-open-command-palette"));
@@ -56,6 +69,10 @@ export default function DashboardLayout({
             {children}
           </PageTransition>
           <CommandPalette />
+          <KeyboardShortcutsModal
+            isOpen={isShortcutsModalOpen}
+            onClose={() => setIsShortcutsModalOpen(false)}
+          />
         </main>
       </div>
 
