@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { dsaApi } from "@/lib/api";
 import {
   FileText,
@@ -26,6 +26,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { toast } from "sonner";
+import { soundEffects } from "@/lib/soundEffects";
 
 interface WeeklyReport {
   period: { start: string; end: string };
@@ -89,11 +90,14 @@ export default function WeeklyReportPage() {
   if (loading) {
     return (
       <div className="w-full space-y-8 min-w-0 animate-pulse">
-        <div className="h-12 w-80 rounded-2xl bg-white/5" />
-        <div className="h-52 rounded-[2.5rem] bg-white/5" />
+        <div className="h-12 w-80 rounded-2xl bg-[var(--bg-secondary)]" />
+        <div className="h-52 rounded-[2.5rem] bg-[var(--bg-secondary)]" />
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-32 rounded-3xl bg-white/5" />
+            <div
+              key={i}
+              className="h-32 rounded-3xl bg-[var(--bg-secondary)]"
+            />
           ))}
         </div>
       </div>
@@ -119,123 +123,159 @@ export default function WeeklyReportPage() {
 
   const overallPct =
     data.overall?.totalProblems > 0
-      ? Math.round((data.overall.totalSolved / data.overall.totalProblems) * 100)
+      ? Math.round(
+          (data.overall.totalSolved / data.overall.totalProblems) * 100,
+        )
       : 0;
 
   const handleCopyReport = () => {
-    const text = `📊 DSA Weekly Report (${startDate} - ${endDate})\n• Solved: ${data.thisWeek?.solved || 0} problems (${(data.solvedChange || 0) >= 0 ? "+" : ""}${data.solvedChange || 0} vs last week)\n• Time Invested: ${formatMinutes(data.thisWeek?.timeMinutes || 0)}\n• Current Streak: ${data.streak?.current || 0} days\n• Overall Progress: ${overallPct}% mastered\n#DSA #LeetCode #CodingPrep`;
+    soundEffects.playSuccess();
+    const text = `📊 DSA Weekly Performance Card (${startDate} - ${endDate})\n• Solved: ${
+      data.thisWeek?.solved || 0
+    } problems (${(data.solvedChange || 0) >= 0 ? "+" : ""}${
+      data.solvedChange || 0
+    } vs last week)\n• Time Invested: ${formatMinutes(
+      data.thisWeek?.timeMinutes || 0,
+    )}\n• Current Streak: ${data.streak?.current || 0} days 🔥\n• Overall Progress: ${overallPct}% mastered 🎯\n#DSA #LeetCode #CodingPrep #AlgorithmPractice`;
     navigator.clipboard.writeText(text);
     setCopied(true);
-    toast.success("Weekly summary copied to clipboard!");
+    toast.success("Weekly summary card copied to clipboard!");
     setTimeout(() => setCopied(false), 2500);
   };
 
   const diffTotal =
     (data.thisWeek?.diffBreakdown?.EASY || 0) +
-    (data.thisWeek?.diffBreakdown?.MEDIUM || 0) +
-    (data.thisWeek?.diffBreakdown?.HARD || 0) || 1;
+      (data.thisWeek?.diffBreakdown?.MEDIUM || 0) +
+      (data.thisWeek?.diffBreakdown?.HARD || 0) || 1;
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 w-full min-w-0">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold uppercase tracking-wider mb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/20 text-[var(--accent-primary)] text-xs font-bold uppercase tracking-wider mb-2 font-mono">
             <FileText size={13} />
             <span>Executive Performance Summary</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight flex items-center gap-3">
+          <h1 className="text-3xl sm:text-4xl font-black text-[var(--text-primary)] tracking-tight flex items-center gap-3 font-display">
             Weekly Progress Report
           </h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <p className="text-sm text-[var(--text-muted)] mt-1 font-mono">
             Period: {startDate} — {endDate}
           </p>
         </div>
 
         <button
           onClick={handleCopyReport}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-white/5 hover:bg-white/10 rounded-2xl text-xs font-bold text-gray-200 transition-all border border-white/5 hover:border-white/15 cursor-pointer self-start sm:self-auto"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[var(--accent-primary)] hover:bg-[var(--accent-hover)] text-black font-extrabold rounded-2xl text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer self-start sm:self-auto font-mono hover:scale-[1.02] active:scale-[0.98]"
         >
-          {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
-          <span>{copied ? "Copied to Clipboard!" : "Copy Report Card"}</span>
+          {copied ? <Check size={14} /> : <Share2 size={14} />}
+          <span>{copied ? "Copied to Clipboard!" : "Share Summary Card"}</span>
         </button>
       </div>
 
       {/* Hero Performance Briefing Banner */}
-      <div className="relative overflow-hidden rounded-[2.5rem] border border-cyan-500/20 bg-linear-to-r from-[#0a141f] via-[#0b0e18] to-[#070914] p-6 sm:p-8 shadow-2xl">
-        <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-cyan-500/15 blur-[100px] pointer-events-none" />
-        <div className="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-blue-500/15 blur-[100px] pointer-events-none" />
+      <div className="relative overflow-hidden rounded-[2.5rem] border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6 sm:p-8 shadow-2xl">
+        <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-[var(--accent-primary)]/10 blur-[100px] pointer-events-none" />
+        <div className="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-purple-500/10 blur-[100px] pointer-events-none" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-3 max-w-3xl">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-cyan-400">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[var(--accent-primary)] font-mono">
               <Sparkles size={14} />
               <span>AI Executive Summary</span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-black text-white leading-relaxed">
-              {data.summary || "Steady momentum this week! Your consistency is reinforcing core algorithmic patterns."}
+            <h2 className="text-xl sm:text-2xl font-black text-[var(--text-primary)] leading-relaxed font-display">
+              {data.summary ||
+                "Steady momentum this week! Your consistency is reinforcing core algorithmic patterns."}
             </h2>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-[var(--text-muted)]">
               Keep pushing through medium difficulty invariants to maximize your interview clearance odds.
             </p>
           </div>
 
-          <div className="p-5 rounded-3xl bg-black/50 border border-white/10 backdrop-blur-md text-center shrink-0">
-            <span className="text-[10px] uppercase font-bold text-gray-400">Global Mastery</span>
-            <div className="text-3xl font-black text-cyan-400 mt-1">{overallPct}%</div>
-            <span className="text-[11px] text-gray-500">{data.overall.totalSolved} / {data.overall.totalProblems} Solved</span>
+          <div className="p-5 rounded-3xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] backdrop-blur-md text-center shrink-0 shadow-sm">
+            <span className="text-[10px] uppercase font-bold text-[var(--text-muted)] font-mono">
+              Global Mastery
+            </span>
+            <div className="text-3xl font-black text-[var(--accent-primary)] mt-1 font-display">
+              {overallPct}%
+            </div>
+            <span className="text-[11px] text-[var(--text-muted)] font-mono">
+              {data.overall.totalSolved} / {data.overall.totalProblems} Solved
+            </span>
           </div>
         </div>
       </div>
 
       {/* Key Metric Velocity Delta Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-5 rounded-3xl bg-[#0a0a0f] border border-white/5 flex flex-col justify-between">
-          <div className="flex items-center justify-between text-gray-400 text-xs font-semibold uppercase tracking-wider">
+        <div className="p-5 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-subtle)] flex flex-col justify-between shadow-sm">
+          <div className="flex items-center justify-between text-[var(--text-muted)] text-xs font-semibold uppercase tracking-wider font-mono">
             <span>Problems Solved</span>
-            <Target size={16} className="text-cyan-400" />
+            <Target size={16} className="text-[var(--accent-primary)]" />
           </div>
           <div className="mt-4 flex items-baseline gap-2">
-            <span className="text-3xl font-black text-white">{data.thisWeek.solved}</span>
-            <span className={`text-xs font-bold flex items-center ${
-              data.solvedChange >= 0 ? "text-emerald-400" : "text-red-400"
-            }`}>
-              {data.solvedChange >= 0 ? <ArrowUp size={12} /> : <ArrowDown size={12} />}
+            <span className="text-3xl font-black text-[var(--text-primary)] font-display">
+              {data.thisWeek.solved}
+            </span>
+            <span
+              className={`text-xs font-bold flex items-center font-mono ${
+                data.solvedChange >= 0 ? "text-emerald-400" : "text-rose-400"
+              }`}
+            >
+              {data.solvedChange >= 0 ? (
+                <ArrowUp size={12} />
+              ) : (
+                <ArrowDown size={12} />
+              )}
               {Math.abs(data.solvedChange)} vs last week
             </span>
           </div>
         </div>
 
-        <div className="p-5 rounded-3xl bg-[#0a0a0f] border border-white/5 flex flex-col justify-between">
-          <div className="flex items-center justify-between text-gray-400 text-xs font-semibold uppercase tracking-wider">
+        <div className="p-5 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-subtle)] flex flex-col justify-between shadow-sm">
+          <div className="flex items-center justify-between text-[var(--text-muted)] text-xs font-semibold uppercase tracking-wider font-mono">
             <span>Time Invested</span>
             <Clock size={16} className="text-blue-400" />
           </div>
           <div className="mt-4 flex items-baseline gap-2">
-            <span className="text-3xl font-black text-white">{formatMinutes(data.thisWeek.timeMinutes)}</span>
-            <span className="text-xs text-gray-500 font-medium">this week</span>
+            <span className="text-3xl font-black text-[var(--text-primary)] font-display">
+              {formatMinutes(data.thisWeek.timeMinutes)}
+            </span>
+            <span className="text-xs text-[var(--text-muted)] font-medium font-mono">
+              this week
+            </span>
           </div>
         </div>
 
-        <div className="p-5 rounded-3xl bg-[#0a0a0f] border border-white/5 flex flex-col justify-between">
-          <div className="flex items-center justify-between text-gray-400 text-xs font-semibold uppercase tracking-wider">
+        <div className="p-5 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-subtle)] flex flex-col justify-between shadow-sm">
+          <div className="flex items-center justify-between text-[var(--text-muted)] text-xs font-semibold uppercase tracking-wider font-mono">
             <span>Current Streak</span>
             <Flame size={16} className="text-orange-400" />
           </div>
           <div className="mt-4 flex items-baseline gap-2">
-            <span className="text-3xl font-black text-orange-400">{data.streak.current}</span>
-            <span className="text-xs text-gray-500 font-medium">days (Best: {data.streak.longest}d)</span>
+            <span className="text-3xl font-black text-orange-400 font-display">
+              {data.streak.current}
+            </span>
+            <span className="text-xs text-[var(--text-muted)] font-medium font-mono">
+              days (Best: {data.streak.longest}d)
+            </span>
           </div>
         </div>
 
-        <div className="p-5 rounded-3xl bg-[#0a0a0f] border border-white/5 flex flex-col justify-between">
-          <div className="flex items-center justify-between text-gray-400 text-xs font-semibold uppercase tracking-wider">
+        <div className="p-5 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-subtle)] flex flex-col justify-between shadow-sm">
+          <div className="flex items-center justify-between text-[var(--text-muted)] text-xs font-semibold uppercase tracking-wider font-mono">
             <span>Topics Touched</span>
             <Layers size={16} className="text-purple-400" />
           </div>
           <div className="mt-4 flex items-baseline gap-2">
-            <span className="text-3xl font-black text-purple-400">{data.thisWeek.topicsTouched.length}</span>
-            <span className="text-xs text-gray-500 font-medium">domains</span>
+            <span className="text-3xl font-black text-purple-400 font-display">
+              {data.thisWeek.topicsTouched.length}
+            </span>
+            <span className="text-xs text-[var(--text-muted)] font-medium font-mono">
+              domains
+            </span>
           </div>
         </div>
       </div>
@@ -243,76 +283,121 @@ export default function WeeklyReportPage() {
       {/* Difficulty Breakdown & Topic Progress */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Difficulty Distribution (6 cols) */}
-        <div className="lg:col-span-6 rounded-3xl border border-white/10 bg-[#0a0a0f] p-6 sm:p-7 space-y-5 shadow-xl">
-          <div className="flex items-center justify-between border-b border-white/5 pb-4">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Award size={18} className="text-cyan-400" />
+        <div className="lg:col-span-6 rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6 sm:p-7 space-y-5 shadow-xl">
+          <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-4">
+            <h3 className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2 font-display">
+              <Award size={18} className="text-[var(--accent-primary)]" />
               Difficulty Distribution
             </h3>
-            <span className="text-xs text-gray-500 font-bold">{data.thisWeek.solved} Total Solves</span>
+            <span className="text-xs text-[var(--text-muted)] font-bold font-mono">
+              {data.thisWeek.solved} Total Solves
+            </span>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-3 font-mono">
             <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-center">
-              <span className="text-[10px] font-black uppercase text-emerald-400">Easy</span>
-              <div className="text-2xl font-black text-white mt-1">{data.thisWeek.diffBreakdown.EASY}</div>
+              <span className="text-[10px] font-black uppercase text-emerald-400">
+                Easy
+              </span>
+              <div className="text-2xl font-black text-[var(--text-primary)] mt-1">
+                {data.thisWeek.diffBreakdown.EASY}
+              </div>
             </div>
             <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-center">
-              <span className="text-[10px] font-black uppercase text-amber-400">Medium</span>
-              <div className="text-2xl font-black text-white mt-1">{data.thisWeek.diffBreakdown.MEDIUM}</div>
+              <span className="text-[10px] font-black uppercase text-amber-400">
+                Medium
+              </span>
+              <div className="text-2xl font-black text-[var(--text-primary)] mt-1">
+                {data.thisWeek.diffBreakdown.MEDIUM}
+              </div>
             </div>
-            <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-center">
-              <span className="text-[10px] font-black uppercase text-red-400">Hard</span>
-              <div className="text-2xl font-black text-white mt-1">{data.thisWeek.diffBreakdown.HARD}</div>
+            <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-center">
+              <span className="text-[10px] font-black uppercase text-rose-400">
+                Hard
+              </span>
+              <div className="text-2xl font-black text-[var(--text-primary)] mt-1">
+                {data.thisWeek.diffBreakdown.HARD}
+              </div>
             </div>
           </div>
 
           {/* Ratio Bar */}
-          <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden flex">
-            <div className="bg-emerald-500 h-full" style={{ width: `${(data.thisWeek.diffBreakdown.EASY / diffTotal) * 100}%` }} />
-            <div className="bg-amber-500 h-full" style={{ width: `${(data.thisWeek.diffBreakdown.MEDIUM / diffTotal) * 100}%` }} />
-            <div className="bg-red-500 h-full" style={{ width: `${(data.thisWeek.diffBreakdown.HARD / diffTotal) * 100}%` }} />
+          <div className="w-full h-3 bg-[var(--bg-secondary)] rounded-full overflow-hidden flex">
+            <div
+              className="bg-emerald-500 h-full"
+              style={{
+                width: `${
+                  (data.thisWeek.diffBreakdown.EASY / diffTotal) * 100
+                }%`,
+              }}
+            />
+            <div
+              className="bg-amber-500 h-full"
+              style={{
+                width: `${
+                  (data.thisWeek.diffBreakdown.MEDIUM / diffTotal) * 100
+                }%`,
+              }}
+            />
+            <div
+              className="bg-rose-500 h-full"
+              style={{
+                width: `${
+                  (data.thisWeek.diffBreakdown.HARD / diffTotal) * 100
+                }%`,
+              }}
+            />
           </div>
         </div>
 
         {/* Strengths & Growth Areas (6 cols) */}
-        <div className="lg:col-span-6 rounded-3xl border border-white/10 bg-[#0a0a0f] p-6 sm:p-7 space-y-5 shadow-xl">
-          <h3 className="text-base font-bold text-white flex items-center gap-2 border-b border-white/5 pb-4">
+        <div className="lg:col-span-6 rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6 sm:p-7 space-y-5 shadow-xl">
+          <h3 className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2 border-b border-[var(--border-subtle)] pb-4 font-display">
             <Brain size={18} className="text-purple-400" />
             Strategic Growth Roadmap
           </h3>
 
           <div className="space-y-3">
             <div className="space-y-2">
-              <span className="text-xs font-bold text-red-400 flex items-center gap-1.5">
+              <span className="text-xs font-bold text-rose-400 flex items-center gap-1.5 font-mono">
                 <AlertTriangle size={14} /> Weakest Focus Areas for Next Week
               </span>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 font-mono">
                 {data.weakTopics.length > 0 ? (
                   data.weakTopics.map((t, idx) => (
-                    <span key={idx} className="px-3 py-1 rounded-xl bg-red-500/10 text-red-300 border border-red-500/20 text-xs font-bold">
+                    <span
+                      key={idx}
+                      className="px-3 py-1 rounded-xl bg-rose-500/10 text-rose-300 border border-rose-500/20 text-xs font-bold"
+                    >
                       {t.name} ({t.pct}%)
                     </span>
                   ))
                 ) : (
-                  <span className="text-xs text-gray-500">All topic masteries well balanced!</span>
+                  <span className="text-xs text-[var(--text-muted)]">
+                    All topic masteries well balanced!
+                  </span>
                 )}
               </div>
             </div>
 
-            <div className="space-y-2 pt-2 border-t border-white/5">
-              <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+            <div className="space-y-2 pt-2 border-t border-[var(--border-subtle)]">
+              <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5 font-mono">
                 <CheckCircle2 size={14} /> Mastered Top Strengths
               </span>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 font-mono">
                 {data.strongTopics.length > 0 ? (
                   data.strongTopics.map((t, idx) => (
-                    <span key={idx} className="px-3 py-1 rounded-xl bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 text-xs font-bold">
+                    <span
+                      key={idx}
+                      className="px-3 py-1 rounded-xl bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 text-xs font-bold"
+                    >
                       {t.name} ({t.pct}%)
                     </span>
                   ))
                 ) : (
-                  <span className="text-xs text-gray-500">Keep solving to solidify mastery tiers!</span>
+                  <span className="text-xs text-[var(--text-muted)]">
+                    Keep solving to solidify mastery tiers!
+                  </span>
                 )}
               </div>
             </div>

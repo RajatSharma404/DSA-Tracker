@@ -22,6 +22,8 @@ import {
   X,
   Save,
 } from "lucide-react";
+import { soundEffects } from "@/lib/soundEffects";
+import { toast } from "sonner";
 
 interface Template {
   id: string;
@@ -61,9 +63,9 @@ const NOTE_TYPE_STYLES: Record<
   { bg: string; border: string; text: string; label: string }
 > = {
   GOTCHA: {
-    bg: "bg-red-500/10",
-    border: "border-red-500/30",
-    text: "text-red-400",
+    bg: "bg-rose-500/10",
+    border: "border-rose-500/30",
+    text: "text-rose-400",
     label: "⚠️ Gotcha",
   },
   LEARNING: {
@@ -73,9 +75,9 @@ const NOTE_TYPE_STYLES: Record<
     label: "💡 Learning",
   },
   TIP: {
-    bg: "bg-green-500/10",
-    border: "border-green-500/30",
-    text: "text-green-400",
+    bg: "bg-emerald-500/10",
+    border: "border-emerald-500/30",
+    text: "text-emerald-400",
     label: "✨ Tip",
   },
 };
@@ -84,9 +86,9 @@ export default function VaultPage() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [notes, setNotes] = useState<ProblemNote[]>([]);
   const [solutions, setSolutions] = useState<SolutionHistory[]>([]);
-  const [activeTab, setActiveTab] = useState<"templates" | "notes" | "solutions">(
-    "templates",
-  );
+  const [activeTab, setActiveTab] = useState<
+    "templates" | "notes" | "solutions"
+  >("templates");
   const [expandedTemplate, setExpandedTemplate] = useState<string | null>(null);
   const [expandedSolution, setExpandedSolution] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -117,8 +119,10 @@ export default function VaultPage() {
   };
 
   const handleCopy = (id: string, code: string) => {
+    soundEffects.playSuccess();
     navigator.clipboard.writeText(code);
     setCopiedId(id);
+    toast.success("Snippet copied to clipboard!");
     setTimeout(() => setCopiedId(null), 2000);
   };
 
@@ -127,6 +131,7 @@ export default function VaultPage() {
     try {
       await dsaApi.deleteNote(noteId);
       setNotes(notes.filter((n) => n.id !== noteId));
+      toast.success("Note deleted");
     } catch (err) {
       console.error(err);
     }
@@ -157,67 +162,76 @@ export default function VaultPage() {
   return (
     <div className="w-full space-y-8 min-w-0">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end gap-6">
+      <div className="flex flex-col sm:flex-row sm:items-end gap-6 justify-between">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-3 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 text-amber-400 border border-amber-500/20">
+            <div className="p-3 rounded-2xl bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border border-[var(--accent-primary)]/20 shadow-sm">
               <BookOpen size={24} />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-white tracking-tight">
+              <h1 className="text-2xl font-black text-[var(--text-primary)] tracking-tight font-display">
                 The Vault
               </h1>
-              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
-                DSA Wiki & Cheat Sheets
+              <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-widest font-mono">
+                DSA Invariants & Algorithmic Templates
               </p>
             </div>
           </div>
         </div>
 
         {/* Tab Toggle */}
-        <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/5 sm:ml-auto">
+        <div className="flex items-center gap-1 bg-[var(--bg-card)] p-1 rounded-2xl border border-[var(--border-subtle)] sm:ml-auto font-mono">
           <button
-            onClick={() => setActiveTab("templates")}
+            onClick={() => {
+              soundEffects.playClick();
+              setActiveTab("templates");
+            }}
             aria-pressed={activeTab === "templates"}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all cursor-pointer ${
               activeTab === "templates"
-                ? "bg-amber-500 text-black shadow-lg shadow-amber-500/20"
-                : "text-gray-500 hover:text-white"
+                ? "bg-[var(--accent-primary)] text-black shadow-md"
+                : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
             }`}
           >
             <Code2 size={14} />
-            Templates
+            <span>Templates</span>
           </button>
           <button
-            onClick={() => setActiveTab("notes")}
+            onClick={() => {
+              soundEffects.playClick();
+              setActiveTab("notes");
+            }}
             aria-pressed={activeTab === "notes"}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all cursor-pointer ${
               activeTab === "notes"
-                ? "bg-blue-500 text-white shadow-lg shadow-blue-500/20"
-                : "text-gray-500 hover:text-white"
+                ? "bg-[var(--accent-primary)] text-black shadow-md"
+                : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
             }`}
           >
             <StickyNote size={14} />
-            My Notes
+            <span>My Notes</span>
             {notes.length > 0 && (
-              <span className="px-1.5 py-0.5 bg-white/20 rounded text-[9px]">
+              <span className="px-1.5 py-0.5 bg-black/20 rounded text-[9px]">
                 {notes.length}
               </span>
             )}
           </button>
           <button
-            onClick={() => setActiveTab("solutions")}
+            onClick={() => {
+              soundEffects.playClick();
+              setActiveTab("solutions");
+            }}
             aria-pressed={activeTab === "solutions"}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all cursor-pointer ${
               activeTab === "solutions"
-                ? "bg-purple-500 text-white shadow-lg shadow-purple-500/20"
-                : "text-gray-500 hover:text-white"
+                ? "bg-[var(--accent-primary)] text-black shadow-md"
+                : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
             }`}
           >
             <Code2 size={14} />
-            My Solutions
+            <span>My Solutions</span>
             {solutions.length > 0 && (
-              <span className="px-1.5 py-0.5 bg-white/20 rounded text-[9px]">
+              <span className="px-1.5 py-0.5 bg-black/20 rounded text-[9px]">
                 {solutions.length}
               </span>
             )}
@@ -229,7 +243,7 @@ export default function VaultPage() {
       <div className="relative">
         <Search
           size={16}
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600"
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]"
         />
         <input
           type="text"
@@ -237,10 +251,10 @@ export default function VaultPage() {
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder={
             activeTab === "templates"
-              ? 'Search patterns... (e.g. "binary search", "BFS")'
+              ? 'Search patterns... (e.g. "binary search", "BFS", "Dijkstra")'
               : "Search your notes..."
           }
-          className="w-full bg-white/[0.03] border border-white/5 rounded-2xl py-3.5 pl-11 pr-4 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-amber-500/30 transition-colors"
+          className="w-full bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-2xl py-3.5 pl-11 pr-4 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors"
         />
       </div>
 
@@ -248,16 +262,19 @@ export default function VaultPage() {
       {activeTab === "templates" && (
         <div className="space-y-6 animate-in fade-in duration-500">
           {/* Category Pills */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 font-mono">
             {categories.map((cat) => (
               <button
                 key={cat}
-                onClick={() => setActiveCategory(cat)}
+                onClick={() => {
+                  soundEffects.playClick();
+                  setActiveCategory(cat);
+                }}
                 aria-pressed={activeCategory === cat}
-                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 ${
+                className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer ${
                   activeCategory === cat
-                    ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                    : "bg-white/5 text-gray-500 border border-white/5 hover:text-white"
+                    ? "bg-[var(--accent-primary)] text-black font-extrabold shadow-sm"
+                    : "bg-[var(--bg-card)] text-[var(--text-muted)] border border-[var(--border-subtle)] hover:text-[var(--text-primary)]"
                 }`}
               >
                 {cat}
@@ -272,29 +289,30 @@ export default function VaultPage() {
               return (
                 <div
                   key={t.id}
-                  className="bg-[#0a0a0f] border border-white/5 rounded-2xl overflow-hidden transition-all hover:border-white/10"
+                  className="bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-3xl overflow-hidden transition-all hover:border-[var(--border-medium)] shadow-sm"
                 >
                   {/* Header */}
                   <button
-                    onClick={() =>
-                      setExpandedTemplate(isExpanded ? null : t.id)
-                    }
+                    onClick={() => {
+                      soundEffects.playClick();
+                      setExpandedTemplate(isExpanded ? null : t.id);
+                    }}
                     aria-expanded={isExpanded}
-                    className="w-full flex items-center gap-4 p-5 text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
+                    className="w-full flex items-center gap-4 p-5 text-left cursor-pointer"
                   >
                     <span className="text-2xl">{t.icon}</span>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-black text-white">
+                      <h3 className="text-sm font-black text-[var(--text-primary)] font-display">
                         {t.name}
                       </h3>
-                      <p className="text-[11px] text-gray-500 mt-0.5 break-words">
+                      <p className="text-[11px] text-[var(--text-muted)] mt-0.5 break-words">
                         {t.description}
                       </p>
                     </div>
-                    <div className="hidden sm:flex items-center gap-3 shrink-0">
-                      <div className="flex items-center gap-1.5 px-2.5 py-1 bg-cyan-500/10 rounded-lg border border-cyan-500/20">
-                        <Clock size={10} className="text-cyan-400" />
-                        <span className="text-[9px] font-black text-cyan-400">
+                    <div className="hidden sm:flex items-center gap-3 shrink-0 font-mono">
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[var(--accent-primary)]/10 rounded-lg border border-[var(--accent-primary)]/20">
+                        <Clock size={10} className="text-[var(--accent-primary)]" />
+                        <span className="text-[9px] font-black text-[var(--accent-primary)]">
                           {t.timeComplexity}
                         </span>
                       </div>
@@ -305,7 +323,7 @@ export default function VaultPage() {
                         </span>
                       </div>
                     </div>
-                    <div className="text-gray-500">
+                    <div className="text-[var(--text-muted)]">
                       {isExpanded ? (
                         <ChevronDown size={16} />
                       ) : (
@@ -316,12 +334,12 @@ export default function VaultPage() {
 
                   {/* Expanded Content */}
                   {isExpanded && (
-                    <div className="px-5 pb-5 space-y-4 border-t border-white/5 pt-4 animate-in slide-in-from-top-2 fade-in duration-300">
+                    <div className="px-5 pb-5 space-y-4 border-t border-[var(--border-subtle)] pt-4 animate-in slide-in-from-top-2 fade-in duration-300">
                       {/* Complexity on mobile */}
-                      <div className="flex sm:hidden items-center gap-3 mb-2">
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-cyan-500/10 rounded-lg border border-cyan-500/20">
-                          <Clock size={10} className="text-cyan-400" />
-                          <span className="text-[9px] font-black text-cyan-400">
+                      <div className="flex sm:hidden items-center gap-3 mb-2 font-mono">
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[var(--accent-primary)]/10 rounded-lg border border-[var(--accent-primary)]/20">
+                          <Clock size={10} className="text-[var(--accent-primary)]" />
+                          <span className="text-[9px] font-black text-[var(--accent-primary)]">
                             {t.timeComplexity}
                           </span>
                         </div>
@@ -334,10 +352,10 @@ export default function VaultPage() {
                       </div>
 
                       {/* When to Use */}
-                      <div className="p-4 bg-green-500/5 border border-green-500/10 rounded-xl">
+                      <div className="p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl">
                         <div className="flex items-center gap-2 mb-2">
-                          <Lightbulb size={12} className="text-green-400" />
-                          <span className="text-[9px] font-black text-green-400/70 uppercase tracking-widest">
+                          <Lightbulb size={12} className="text-emerald-400" />
+                          <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest font-mono">
                             When to use
                           </span>
                         </div>
@@ -345,10 +363,10 @@ export default function VaultPage() {
                           {t.whenToUse.map((w, i) => (
                             <li
                               key={i}
-                              className="flex items-start gap-2 text-[11px] text-green-200/70 font-medium"
+                              className="flex items-start gap-2 text-[11px] text-[var(--text-secondary)] font-medium"
                             >
-                              <span className="text-green-500 mt-0.5">→</span>
-                              {w}
+                              <span className="text-emerald-400 mt-0.5">→</span>
+                              <span>{w}</span>
                             </li>
                           ))}
                         </ul>
@@ -356,8 +374,8 @@ export default function VaultPage() {
 
                       {/* Code Template */}
                       <div className="relative">
-                        <div className="flex items-center justify-between bg-[#121218] border border-white/5 rounded-t-xl px-4 py-2">
-                          <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">
+                        <div className="flex items-center justify-between bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-t-2xl px-4 py-2">
+                          <span className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest font-mono">
                             Template Code
                           </span>
                           <button
@@ -367,28 +385,28 @@ export default function VaultPage() {
                                 ? "Copied template code"
                                 : "Copy template code"
                             }
-                            className="flex items-center gap-1.5 px-2.5 py-1 bg-white/5 hover:bg-white/10 rounded-lg text-[10px] font-bold text-gray-400 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
+                            className="flex items-center gap-1.5 px-2.5 py-1 bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] rounded-xl text-[10px] font-bold text-[var(--text-secondary)] transition-all cursor-pointer border border-[var(--border-subtle)] font-mono"
                           >
                             {copiedId === t.id ? (
-                              <Check size={12} className="text-green-400" />
+                              <Check size={12} className="text-emerald-400" />
                             ) : (
                               <Copy size={12} />
                             )}
-                            {copiedId === t.id ? "Copied!" : "Copy"}
+                            <span>{copiedId === t.id ? "Copied!" : "Copy"}</span>
                           </button>
                         </div>
-                        <pre className="p-4 bg-[#0c0c12] border border-white/5 border-t-0 rounded-b-xl overflow-x-auto">
-                          <code className="text-[11px] font-mono text-blue-200/80 leading-relaxed whitespace-pre-wrap break-words">
+                        <pre className="p-4 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] border-t-0 rounded-b-2xl overflow-x-auto">
+                          <code className="text-[11px] font-mono text-[var(--text-primary)] leading-relaxed whitespace-pre-wrap break-words">
                             {t.template}
                           </code>
                         </pre>
                       </div>
 
                       {/* Gotchas */}
-                      <div className="p-4 bg-amber-500/5 border border-amber-500/10 rounded-xl">
+                      <div className="p-4 bg-amber-500/5 border border-amber-500/10 rounded-2xl">
                         <div className="flex items-center gap-2 mb-3">
                           <AlertTriangle size={12} className="text-amber-400" />
-                          <span className="text-[9px] font-black text-amber-400/70 uppercase tracking-widest">
+                          <span className="text-[9px] font-black text-amber-400 uppercase tracking-widest font-mono">
                             Common Gotchas
                           </span>
                         </div>
@@ -396,9 +414,9 @@ export default function VaultPage() {
                           {t.gotchas.map((g, i) => (
                             <li
                               key={i}
-                              className="flex items-start gap-2 text-[11px] text-amber-200/70 font-medium"
+                              className="flex items-start gap-2 text-[11px] text-[var(--text-secondary)] font-medium"
                             >
-                              <span className="text-amber-500 shrink-0 mt-0.5">
+                              <span className="text-amber-400 shrink-0 mt-0.5">
                                 ⚠
                               </span>
                               <span className="break-words">{g}</span>
@@ -413,7 +431,7 @@ export default function VaultPage() {
             })}
 
             {filteredTemplates.length === 0 && (
-              <div className="py-16 text-center text-gray-600">
+              <div className="py-16 text-center text-[var(--text-muted)]">
                 <Code2 size={40} className="mx-auto mb-4 opacity-20" />
                 <p className="text-sm font-bold">
                   No templates match your search
@@ -429,11 +447,11 @@ export default function VaultPage() {
         <div className="space-y-4 animate-in fade-in duration-500">
           {filteredNotes.length === 0 ? (
             <div className="py-20 text-center">
-              <StickyNote size={48} className="mx-auto mb-4 text-gray-800" />
-              <h3 className="text-lg font-black text-gray-500 mb-1">
+              <StickyNote size={48} className="mx-auto mb-4 text-[var(--text-muted)] opacity-30" />
+              <h3 className="text-lg font-black text-[var(--text-muted)] mb-1 font-display">
                 No notes yet
               </h3>
-              <p className="text-[11px] text-gray-600 font-medium max-w-sm mx-auto">
+              <p className="text-[11px] text-[var(--text-muted)] font-medium max-w-sm mx-auto">
                 Add notes to problems from the Topics page. Your gotchas,
                 learnings, and tips will appear here for quick review before
                 interviews.
@@ -447,40 +465,32 @@ export default function VaultPage() {
                 return (
                   <div
                     key={note.id}
-                    className="p-5 bg-[#0a0a0f] border border-white/5 rounded-2xl hover:border-white/10 transition-all group"
+                    className="p-5 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-3xl hover:border-[var(--border-medium)] transition-all group shadow-sm flex flex-col justify-between"
                   >
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <div className="min-w-0">
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-3">
                         <span
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 ${style.bg} ${style.border} border rounded-lg ${style.text} text-[9px] font-black uppercase tracking-widest mb-2`}
+                          className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md border font-mono ${style.bg} ${style.border} ${style.text}`}
                         >
                           {style.label}
                         </span>
-                        <h4 className="text-sm font-bold text-white truncate">
-                          {note.problem.title}
-                        </h4>
-                        <span className="text-[10px] text-gray-600 font-medium">
-                          {note.problem.topic.name}
-                        </span>
+                        <button
+                          onClick={() => handleDeleteNote(note.id)}
+                          className="opacity-0 group-hover:opacity-100 p-1 text-[var(--text-muted)] hover:text-rose-400 transition-all cursor-pointer"
+                        >
+                          <Trash2 size={13} />
+                        </button>
                       </div>
-                      <button
-                        onClick={() => handleDeleteNote(note.id)}
-                        aria-label="Delete note"
-                        className="p-1.5 text-gray-700 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                      <h4 className="text-xs font-bold text-[var(--text-primary)] mb-1 font-display">
+                        {note.problem?.title || "Problem Note"}
+                      </h4>
+                      <p className="text-xs text-[var(--text-secondary)] leading-relaxed whitespace-pre-wrap">
+                        {note.content}
+                      </p>
                     </div>
-                    <p className="text-[12px] text-gray-300 leading-relaxed break-words whitespace-pre-wrap">
-                      {note.content}
-                    </p>
-                    <p className="text-[9px] text-gray-700 mt-3 font-medium">
-                      {new Date(note.updatedAt).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
-                    </p>
+                    <div className="text-[10px] text-[var(--text-muted)] font-mono pt-3 border-t border-[var(--border-subtle)] mt-3">
+                      {new Date(note.updatedAt || note.createdAt).toLocaleDateString()}
+                    </div>
                   </div>
                 );
               })}
@@ -494,96 +504,44 @@ export default function VaultPage() {
         <div className="space-y-4 animate-in fade-in duration-500">
           {solutions.length === 0 ? (
             <div className="py-20 text-center">
-              <Code2 size={48} className="mx-auto mb-4 text-gray-800" />
-              <h3 className="text-lg font-black text-gray-500 mb-1">
-                No solutions yet
+              <Code2 size={48} className="mx-auto mb-4 text-[var(--text-muted)] opacity-30" />
+              <h3 className="text-lg font-black text-[var(--text-muted)] mb-1 font-display">
+                No archived solutions yet
               </h3>
-              <p className="text-[11px] text-gray-600 font-medium max-w-sm mx-auto">
-                Your submitted solutions will appear here, complete with time and space complexity metrics.
+              <p className="text-[11px] text-[var(--text-muted)] font-medium max-w-sm mx-auto">
+                Submit solutions in the Code Editor to automatically archive your code history and Big-O milestones.
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-3">
-              {solutions
-                .filter(s => !searchQuery || s.problem.title.toLowerCase().includes(searchQuery.toLowerCase()) || s.code.toLowerCase().includes(searchQuery.toLowerCase()))
-                .map((solution) => {
-                const isExpanded = expandedSolution === solution.id;
-                return (
-                  <div
-                    key={solution.id}
-                    className="bg-[#0a0a0f] border border-white/5 rounded-2xl overflow-hidden transition-all hover:border-white/10"
-                  >
+            <div className="space-y-3">
+              {solutions.map((sol) => (
+                <div
+                  key={sol.id}
+                  className="p-5 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-3xl space-y-3 shadow-sm"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-bold text-[var(--text-primary)] font-display">
+                        {sol.problem?.title || "Problem Solution"}
+                      </h4>
+                      <span className="text-[10px] text-[var(--text-muted)] font-mono">
+                        {sol.problem?.topic?.name} • {sol.language}
+                      </span>
+                    </div>
                     <button
-                      onClick={() => setExpandedSolution(isExpanded ? null : solution.id)}
-                      className="w-full flex items-center gap-4 p-5 text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70"
+                      onClick={() => handleCopy(sol.id, sol.code)}
+                      className="px-3 py-1 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] text-[10px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-xl font-bold font-mono transition-all cursor-pointer"
                     >
-                      <div className="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400">
-                        <Code2 size={16} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="text-sm font-bold text-white truncate">
-                            {solution.problem.title}
-                          </h4>
-                          {solution.isOptimal && (
-                            <span className="px-1.5 py-0.5 bg-green-500/10 text-green-400 border border-green-500/20 rounded text-[8px] font-black uppercase tracking-widest">
-                              Optimal
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-[10px] text-gray-500 font-medium uppercase tracking-widest">
-                          {solution.problem.topic.name} • {solution.language}
-                        </span>
-                      </div>
-                      <div className="hidden sm:flex items-center gap-3 shrink-0">
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-cyan-500/10 rounded-lg border border-cyan-500/20">
-                          <Clock size={10} className="text-cyan-400" />
-                          <span className="text-[9px] font-black text-cyan-400">
-                            {solution.timeComplexity || "O(?)"}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-purple-500/10 rounded-lg border border-purple-500/20">
-                          <Cpu size={10} className="text-purple-400" />
-                          <span className="text-[9px] font-black text-purple-400">
-                            {solution.spaceComplexity || "O(?)"}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="text-gray-500">
-                        {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-                      </div>
+                      {copiedId === sol.id ? "Copied!" : "Copy Code"}
                     </button>
-
-                    {isExpanded && (
-                      <div className="px-5 pb-5 pt-2 border-t border-white/5 animate-in slide-in-from-top-2 fade-in duration-300">
-                        <div className="relative mt-2">
-                          <div className="flex items-center justify-between bg-[#121218] border border-white/5 rounded-t-xl px-4 py-2">
-                            <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">
-                              {solution.language} Solution
-                            </span>
-                            <button
-                              onClick={() => handleCopy(solution.id, solution.code)}
-                              className="flex items-center gap-1.5 px-2.5 py-1 bg-white/5 hover:bg-white/10 rounded-lg text-[10px] font-bold text-gray-400 transition-all focus-visible:outline-none"
-                            >
-                              {copiedId === solution.id ? (
-                                <Check size={12} className="text-green-400" />
-                              ) : (
-                                <Copy size={12} />
-                              )}
-                              {copiedId === solution.id ? "Copied!" : "Copy"}
-                            </button>
-                          </div>
-                          <pre className="p-4 bg-[#0c0c12] border border-white/5 border-t-0 rounded-b-xl overflow-x-auto">
-                            <code className="text-[11px] font-mono text-gray-300 leading-relaxed whitespace-pre-wrap break-words">
-                              {solution.code}
-                            </code>
-                          </pre>
-                        </div>
-                      </div>
-                    )}
                   </div>
-                );
-              })}
+                  <pre className="p-4 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-2xl overflow-x-auto">
+                    <code className="text-xs font-mono text-[var(--text-primary)]">
+                      {sol.code}
+                    </code>
+                  </pre>
+                </div>
+              ))}
             </div>
           )}
         </div>
