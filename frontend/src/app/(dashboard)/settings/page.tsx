@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { dsaApi } from "@/lib/api";
+import Link from "next/link";
 import { ThemeSelector } from "@/components/ui/ThemeSelector";
-import { Palette, Key, Type, Sparkles, CheckCircle2 } from "lucide-react";
+import { Palette, Key, Type, Sparkles, CheckCircle2, Puzzle, BookOpen, ArrowRight } from "lucide-react";
 
 export default function SettingsPage() {
   const { data: session } = useSession();
@@ -124,11 +125,20 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <div className="p-4 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)] space-y-2">
-          <h3 className="font-semibold text-[var(--text-primary)] flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-[var(--accent-primary)]" />
-            How to get your LeetCode Session Cookie:
-          </h3>
+        <div className="p-4 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)] space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <h3 className="font-semibold text-[var(--text-primary)] flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 text-[var(--accent-primary)]" />
+              How to get your LeetCode Session Cookie:
+            </h3>
+            <Link
+              href="/extension?tab=cookie"
+              className="inline-flex items-center gap-1 text-xs font-bold text-[var(--accent-primary)] hover:underline"
+            >
+              <span>Full Visual Step-by-Step Guide</span>
+              <ArrowRight size={13} />
+            </Link>
+          </div>
           <ol className="list-decimal list-inside space-y-1 text-[var(--text-muted)]">
             <li>
               Go to{" "}
@@ -142,7 +152,7 @@ export default function SettingsPage() {
               </a>{" "}
               and sign in to your account
             </li>
-            <li>Press F12 to open Chrome Developer Tools</li>
+            <li>Press <kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-card)] border border-[var(--border-medium)] font-mono text-[10px] text-amber-300">F12</kbd> to open Chrome Developer Tools</li>
             <li>
               Navigate to <strong>Application</strong> tab → <strong>Cookies</strong> → <strong>https://leetcode.com</strong>
             </li>
@@ -150,6 +160,20 @@ export default function SettingsPage() {
               Locate the cookie named <strong>LEETCODE_SESSION</strong> and copy its value
             </li>
           </ol>
+        </div>
+
+        {/* Extension Banner */}
+        <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2.5 text-emerald-300">
+            <Puzzle className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span>Prefer automatic sync? Install our Chrome extension for 0-click solve recording.</span>
+          </div>
+          <Link
+            href="/extension?tab=extension"
+            className="px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 font-bold border border-emerald-500/30 transition-all shrink-0"
+          >
+            Extension Setup Guide →
+          </Link>
         </div>
 
         <div className="space-y-2">

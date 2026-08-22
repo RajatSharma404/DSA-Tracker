@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { dsaApi } from "@/lib/api";
-import { RefreshCcw, Save, CheckCircle2 } from "lucide-react";
+import { RefreshCcw, Save, CheckCircle2, HelpCircle, ArrowRight } from "lucide-react";
 
 interface LeetCodeSyncProps {
   onSyncComplete?: () => void;
@@ -177,9 +178,18 @@ export default function LeetCodeSync({ onSyncComplete }: LeetCodeSyncProps) {
               )}
             </button>
           </div>
-          <p className="text-[10px] text-gray-500 font-medium px-1">
-            Required to sync your <b>complete historical progress</b> (all solved problems) and actual source code. Copied from DevTools.
-          </p>
+          <div className="flex items-center justify-between px-1">
+            <p className="text-[10px] text-gray-500 font-medium">
+              Required to sync your <b>complete historical progress</b> (all solved problems).
+            </p>
+            <Link
+              href="/extension?tab=cookie"
+              className="text-[10px] font-bold text-blue-400 hover:text-blue-300 flex items-center gap-0.5"
+            >
+              <span>Step-by-Step Guide</span>
+              <ArrowRight size={10} />
+            </Link>
+          </div>
         </div>
       </div>
 
