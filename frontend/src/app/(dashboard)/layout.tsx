@@ -9,6 +9,7 @@ import { MobileHeader } from "@/components/layout/MobileHeader";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { MobileDrawer } from "@/components/layout/MobileDrawer";
 import { KeyboardShortcutsModal } from "@/components/layout/KeyboardShortcutsModal";
+import { SyncInstructionModal } from "@/components/layout/SyncInstructionModal";
 
 const Sidebar = dynamic(
   () => import("@/components/layout/Sidebar").then((mod) => mod.Sidebar),
@@ -27,15 +28,31 @@ export default function DashboardLayout({
 }) {
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [isShortcutsModalOpen, setIsShortcutsModalOpen] = useState(false);
+  const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
+  const [syncModalTab, setSyncModalTab] = useState<
+    "extension" | "cookie" | "compare"
+  >("extension");
 
   useEffect(() => {
     const handleOpenShortcuts = () => {
       setIsShortcutsModalOpen(true);
     };
 
+    const handleOpenSyncGuide = (e: Event) => {
+      const customEvent = e as CustomEvent<{
+        tab?: "extension" | "cookie" | "compare";
+      }>;
+      if (customEvent.detail?.tab) {
+        setSyncModalTab(customEvent.detail.tab);
+      }
+      setIsSyncModalOpen(true);
+    };
+
     window.addEventListener("dsa-open-shortcuts", handleOpenShortcuts);
+    window.addEventListener("dsa-open-sync-guide", handleOpenSyncGuide);
     return () => {
       window.removeEventListener("dsa-open-shortcuts", handleOpenShortcuts);
+      window.removeEventListener("dsa-open-sync-guide", handleOpenSyncGuide);
     };
   }, []);
 
@@ -72,6 +89,11 @@ export default function DashboardLayout({
           <KeyboardShortcutsModal
             isOpen={isShortcutsModalOpen}
             onClose={() => setIsShortcutsModalOpen(false)}
+          />
+          <SyncInstructionModal
+            isOpen={isSyncModalOpen}
+            onClose={() => setIsSyncModalOpen(false)}
+            defaultTab={syncModalTab}
           />
         </main>
       </div>

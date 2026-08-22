@@ -28,6 +28,7 @@ import {
   Check,
   Code2,
   ExternalLink,
+  HelpCircle,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { dsaApi, SearchProblem, Topic } from "@/lib/api";
@@ -400,11 +401,22 @@ export function CommandPalette() {
             Weekly Progress Report
           </Command.Item>
           <Command.Item
+            onSelect={() =>
+              runCommand(() =>
+                window.dispatchEvent(new CustomEvent("dsa-open-sync-guide"))
+              )
+            }
+            className="relative flex cursor-pointer select-none items-center rounded-xl px-3 py-2 text-sm text-[var(--text-secondary)] outline-none aria-selected:bg-[var(--accent-primary)]/15 aria-selected:text-[var(--accent-primary)] aria-selected:font-semibold"
+          >
+            <HelpCircle className="mr-3 h-4 w-4 shrink-0 text-[var(--accent-primary)]" />
+            Setup & Sync Instructions (Popup)
+          </Command.Item>
+          <Command.Item
             onSelect={() => runCommand(() => router.push("/extension"))}
             className="relative flex cursor-pointer select-none items-center rounded-xl px-3 py-2 text-sm text-[var(--text-secondary)] outline-none aria-selected:bg-[var(--accent-primary)]/15 aria-selected:text-[var(--accent-primary)] aria-selected:font-semibold"
           >
             <Puzzle className="mr-3 h-4 w-4 shrink-0" />
-            Chrome Extension Auto-Sync
+            Chrome Extension Auto-Sync Page
           </Command.Item>
           <Command.Item
             onSelect={() => runCommand(() => router.push("/vault"))}

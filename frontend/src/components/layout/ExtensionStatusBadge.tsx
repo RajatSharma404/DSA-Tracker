@@ -33,49 +33,54 @@ export function ExtensionStatusBadge({ compact = false }: ExtensionStatusBadgePr
     };
   }, []);
 
+  const handleBadgeClick = (tab: "extension" | "cookie" = "extension") => {
+    window.dispatchEvent(
+      new CustomEvent("dsa-open-sync-guide", { detail: { tab } }),
+    );
+  };
+
   if (state === "READY") {
     return (
-      <div
-        title="DSA Chrome Extension is active & auto-syncing solutions"
-        className={`flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 font-bold ${
+      <button
+        onClick={() => handleBadgeClick("extension")}
+        title="DSA Chrome Extension is active & auto-syncing solutions (Click for details)"
+        className={`flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 font-bold hover:bg-emerald-500/20 transition-all cursor-pointer ${
           compact ? "px-2.5 py-1 text-[11px]" : "px-3 py-1.5 text-xs"
         }`}
       >
         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
         <span className="hidden sm:inline">Extension</span>
         <span>Active</span>
-      </div>
+      </button>
     );
   }
 
   if (state === "INSTALLED_NOT_READY") {
     return (
-      <a
-        href="https://leetcode.com"
-        target="_blank"
-        rel="noreferrer"
-        title="Extension is installed. Open LeetCode or Codeforces to sync session"
-        className={`flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 transition-colors font-bold ${
+      <button
+        onClick={() => handleBadgeClick("extension")}
+        title="Extension is installed. Click to view instructions to sync LeetCode"
+        className={`flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 transition-all font-bold cursor-pointer ${
           compact ? "px-2.5 py-1 text-[11px]" : "px-3 py-1.5 text-xs"
         }`}
       >
         <AlertTriangle size={compact ? 12 : 14} className="text-amber-400" />
         <span>Sync LeetCode</span>
-      </a>
+      </button>
     );
   }
 
   return (
-    <a
-      href="/extension"
-      title="Download and configure the DSA Tracker browser extension"
-      className={`flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-medium)] transition-colors font-bold ${
+    <button
+      onClick={() => handleBadgeClick("extension")}
+      title="Download and configure the DSA Tracker browser extension (Click for instructions)"
+      className={`flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-medium)] transition-all font-bold cursor-pointer ${
         compact ? "px-2.5 py-1 text-[11px]" : "px-3 py-1.5 text-xs"
       }`}
     >
       <Puzzle size={compact ? 12 : 14} className="text-[var(--accent-primary)]" />
       <span className="hidden sm:inline">Get</span>
       <span>Extension</span>
-    </a>
+    </button>
   );
 }

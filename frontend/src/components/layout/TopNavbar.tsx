@@ -78,6 +78,20 @@ export function TopNavbar({
         {/* Extension Health Badge */}
         <ExtensionStatusBadge compact />
 
+        {/* Setup & Sync Instructions Modal Button */}
+        <button
+          onClick={() => {
+            soundEffects.playClick();
+            window.dispatchEvent(new CustomEvent("dsa-open-sync-guide"));
+          }}
+          title="Extension & LeetCode Setup Instructions (Click to open)"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border-subtle)] hover:border-[var(--border-medium)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-xs font-semibold transition-all cursor-pointer shadow-xs hover:bg-[var(--bg-hover)]"
+          aria-label="Open Setup Instructions"
+        >
+          <HelpCircle size={14} className="text-[var(--accent-primary)]" />
+          <span className="hidden lg:inline">Setup Guide</span>
+        </button>
+
         {/* Streak Counter */}
         <Link
           href="/achievements"

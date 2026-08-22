@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Menu, X, Sparkles, Flame, Search } from "lucide-react";
+import { Menu, X, Sparkles, Flame, Search, HelpCircle } from "lucide-react";
 import { ThemeSelector } from "@/components/ui/ThemeSelector";
 
 interface MobileHeaderProps {
@@ -30,6 +30,16 @@ export function MobileHeader({
 
       {/* Action buttons */}
       <div className="flex items-center gap-2">
+        {/* Sync Guide Modal Button */}
+        <button
+          onClick={() => window.dispatchEvent(new CustomEvent("dsa-open-sync-guide"))}
+          className="p-1.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-medium)] transition-colors cursor-pointer"
+          aria-label="Open Setup Instructions"
+          title="Extension & Cookie Setup Instructions"
+        >
+          <HelpCircle size={16} className="text-[var(--accent-primary)]" />
+        </button>
+
         {/* Streak Pill */}
         <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold">
           <Flame size={12} className="fill-amber-400" />
