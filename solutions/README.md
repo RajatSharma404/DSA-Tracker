@@ -6,11 +6,11 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **2** | **2** | **0** | **0** |
+| **3** | **3** | **0** | **0** |
 
 ### 📂 Topic Directories
 
-- [**Arrays And Hashing**](./01-arrays-and-hashing/) (2 problems)
+- [**Arrays And Hashing**](./01-arrays-and-hashing/) (3 problems)
 
 ### 📝 Problem Index
 
@@ -18,6 +18,7 @@
 | :--- | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
 | 1 | Two Sum | Arrays & Hashing | 🟢 Easy | `C++` | `O(n)` | `O(n)` | [Code](./01-arrays-and-hashing/0001-two-sum.cpp) |
 | 217 | Contains Duplicate | Arrays & Hashing | 🟢 Easy | `C++` | `O(n)` | `O(n)` | [Code](./01-arrays-and-hashing/0217-contains-duplicate.cpp) |
+| 242 | Valid Anagram | Arrays & Hashing | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0242-valid-anagram.cpp) |
 
 ---
 *Updated automatically via `scripts/sync-solutions.js`*
