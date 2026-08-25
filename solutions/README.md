@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **19** | **12** | **7** | **0** |
+| **20** | **12** | **8** | **0** |
 
 ### 📂 Topic Directories
 
@@ -18,7 +18,7 @@
 - [**Linked List**](./06-linked-list/) (2 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (2 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (1 problems)
-- [**Dynamic Programming**](./11-dynamic-programming/) (1 problems)
+- [**Dynamic Programming**](./11-dynamic-programming/) (2 problems)
 
 ### 📝 Problem Index
 
@@ -31,6 +31,7 @@
 | 20 | Valid Parentheses | Stack | 🟢 Easy | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0020-valid-parentheses.cpp) |
 | 33 | Search In Rotated Sorted Array | Binary Search | 🟡 Medium | `C++` | `O(log n)` | `O(1)` | [Code](./05-binary-search/0033-search-in-rotated-sorted-array.cpp) |
 | 49 | Group Anagrams | Arrays & Hashing | 🟡 Medium | `C++` | `O(N * K log K) where N is the number of strings and K is the maximum length of a string` | `O(N * K)` | [Code](./01-arrays-and-hashing/0049-group-anagrams.cpp) |
+| 53 | Maximum Subarray | Dynamic Programming | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0053-maximum-subarray.cpp) |
 | 70 | Climbing Stairs | Dynamic Programming | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0070-climbing-stairs.cpp) |
 | 104 | Maximum Depth Of Binary Tree | Trees & Tries | 🟢 Easy | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0104-maximum-depth-of-binary-tree.cpp) |
 | 121 | Best Time To Buy And Sell Stock | Sliding Window | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./03-sliding-window/0121-best-time-to-buy-and-sell-stock.cpp) |
