@@ -6,12 +6,12 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **13** | **10** | **3** | **0** |
+| **14** | **10** | **4** | **0** |
 
 ### 📂 Topic Directories
 
 - [**Arrays And Hashing**](./01-arrays-and-hashing/) (4 problems)
-- [**Two Pointers**](./02-two-pointers/) (2 problems)
+- [**Two Pointers**](./02-two-pointers/) (3 problems)
 - [**Sliding Window**](./03-sliding-window/) (1 problems)
 - [**Stack**](./04-stack/) (1 problems)
 - [**Binary Search**](./05-binary-search/) (1 problems)
@@ -25,6 +25,7 @@
 | # | Title | Topic | Difficulty | Language | Time | Space | Solution |
 | :--- | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
 | 1 | Two Sum | Arrays & Hashing | 🟢 Easy | `C++` | `O(n)` | `O(n)` | [Code](./01-arrays-and-hashing/0001-two-sum.cpp) |
+| 11 | Container With Most Water | Two Pointers | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0011-container-with-most-water.cpp) |
 | 15 | 3sum | Two Pointers | 🟡 Medium | `C++` | `O(n^2)` | `O(1) extra space excluding result` | [Code](./02-two-pointers/0015-3sum.cpp) |
 | 20 | Valid Parentheses | Stack | 🟢 Easy | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0020-valid-parentheses.cpp) |
 | 49 | Group Anagrams | Arrays & Hashing | 🟡 Medium | `C++` | `O(N * K log K) where N is the number of strings and K is the maximum length of a string` | `O(N * K)` | [Code](./01-arrays-and-hashing/0049-group-anagrams.cpp) |
