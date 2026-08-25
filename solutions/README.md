@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **11** | **10** | **1** | **0** |
+| **12** | **10** | **2** | **0** |
 
 ### 📂 Topic Directories
 
@@ -17,6 +17,7 @@
 - [**Binary Search**](./05-binary-search/) (1 problems)
 - [**Linked List**](./06-linked-list/) (1 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (1 problems)
+- [**Heap Priority Queue**](./08-heap-priority-queue/) (1 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (1 problems)
 
 ### 📝 Problem Index
@@ -33,6 +34,7 @@
 | 217 | Contains Duplicate | Arrays & Hashing | 🟢 Easy | `C++` | `O(n)` | `O(n)` | [Code](./01-arrays-and-hashing/0217-contains-duplicate.cpp) |
 | 226 | Invert Binary Tree | Trees & Tries | 🟢 Easy | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0226-invert-binary-tree.cpp) |
 | 242 | Valid Anagram | Arrays & Hashing | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0242-valid-anagram.cpp) |
+| 347 | Top K Frequent Elements | Heap / Priority Queue | 🟡 Medium | `C++` | `O(N log k)` | `O(N)` | [Code](./08-heap-priority-queue/0347-top-k-frequent-elements.cpp) |
 | 704 | Binary Search | Binary Search | 🟢 Easy | `C++` | `O(log n)` | `O(1)` | [Code](./05-binary-search/0704-binary-search.cpp) |
 
 ---
