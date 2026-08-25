@@ -6,13 +6,13 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **14** | **10** | **4** | **0** |
+| **15** | **10** | **5** | **0** |
 
 ### 📂 Topic Directories
 
 - [**Arrays And Hashing**](./01-arrays-and-hashing/) (4 problems)
 - [**Two Pointers**](./02-two-pointers/) (3 problems)
-- [**Sliding Window**](./03-sliding-window/) (1 problems)
+- [**Sliding Window**](./03-sliding-window/) (2 problems)
 - [**Stack**](./04-stack/) (1 problems)
 - [**Binary Search**](./05-binary-search/) (1 problems)
 - [**Linked List**](./06-linked-list/) (1 problems)
@@ -25,6 +25,7 @@
 | # | Title | Topic | Difficulty | Language | Time | Space | Solution |
 | :--- | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
 | 1 | Two Sum | Arrays & Hashing | 🟢 Easy | `C++` | `O(n)` | `O(n)` | [Code](./01-arrays-and-hashing/0001-two-sum.cpp) |
+| 3 | Longest Substring Without Repeating Characters | Sliding Window | 🟡 Medium | `C++` | `O(n)` | `O(min(n, m))` | [Code](./03-sliding-window/0003-longest-substring-without-repeating-characters.cpp) |
 | 11 | Container With Most Water | Two Pointers | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0011-container-with-most-water.cpp) |
 | 15 | 3sum | Two Pointers | 🟡 Medium | `C++` | `O(n^2)` | `O(1) extra space excluding result` | [Code](./02-two-pointers/0015-3sum.cpp) |
 | 20 | Valid Parentheses | Stack | 🟢 Easy | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0020-valid-parentheses.cpp) |
