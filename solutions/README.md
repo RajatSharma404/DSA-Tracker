@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **16** | **10** | **6** | **0** |
+| **17** | **10** | **7** | **0** |
 
 ### 📂 Topic Directories
 
@@ -14,7 +14,7 @@
 - [**Two Pointers**](./02-two-pointers/) (3 problems)
 - [**Sliding Window**](./03-sliding-window/) (2 problems)
 - [**Stack**](./04-stack/) (2 problems)
-- [**Binary Search**](./05-binary-search/) (1 problems)
+- [**Binary Search**](./05-binary-search/) (2 problems)
 - [**Linked List**](./06-linked-list/) (1 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (1 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (1 problems)
@@ -29,6 +29,7 @@
 | 11 | Container With Most Water | Two Pointers | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0011-container-with-most-water.cpp) |
 | 15 | 3sum | Two Pointers | 🟡 Medium | `C++` | `O(n^2)` | `O(1) extra space excluding result` | [Code](./02-two-pointers/0015-3sum.cpp) |
 | 20 | Valid Parentheses | Stack | 🟢 Easy | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0020-valid-parentheses.cpp) |
+| 33 | Search In Rotated Sorted Array | Binary Search | 🟡 Medium | `C++` | `O(log n)` | `O(1)` | [Code](./05-binary-search/0033-search-in-rotated-sorted-array.cpp) |
 | 49 | Group Anagrams | Arrays & Hashing | 🟡 Medium | `C++` | `O(N * K log K) where N is the number of strings and K is the maximum length of a string` | `O(N * K)` | [Code](./01-arrays-and-hashing/0049-group-anagrams.cpp) |
 | 70 | Climbing Stairs | Dynamic Programming | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0070-climbing-stairs.cpp) |
 | 121 | Best Time To Buy And Sell Stock | Sliding Window | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./03-sliding-window/0121-best-time-to-buy-and-sell-stock.cpp) |
