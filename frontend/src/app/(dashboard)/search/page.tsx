@@ -15,9 +15,14 @@ import {
   ChevronDown,
   Download,
   ExternalLink,
+  CheckCircle2,
+  Circle,
 } from "lucide-react";
 import { getDifficultyStyle, getStatusStyle } from "@/lib/design-tokens";
 import { soundEffects } from "@/lib/soundEffects";
+import { queryCache } from "@/lib/queryCache";
+import { FixedSizeList as List } from "react-window";
+import { toast } from "sonner";
 
 interface SearchResult {
   id: string;
@@ -39,6 +44,24 @@ interface UserTag {
   problems: Array<{ id: string }>;
 }
 
+const getDifficultyColor = (d: string) => {
+  const style = getDifficultyStyle(d as "EASY" | "MEDIUM" | "HARD");
+  return `${style.text} ${style.bg} ${style.border}`;
+};
+
+const getStatusColor = (s: string) => {
+  if (s === "DONE") {
+    const style = getStatusStyle("success");
+    return `${style.text} ${style.bg} ${style.border}`;
+  }
+  if (s === "DOING") {
+    const style = getStatusStyle("info");
+    return `${style.text} ${style.bg} ${style.border}`;
+  }
+  const style = getStatusStyle("warning");
+  return `${style.text} ${style.bg} ${style.border}`;
+};
+
 export default function SearchPage() {
   const [query, setQuery] = useState("");
   const [difficulty, setDifficulty] = useState<string>("");
@@ -47,8 +70,11 @@ export default function SearchPage() {
   const [bookmarkedOnly, setBookmarkedOnly] = useState(false);
   const [selectedTag, setSelectedTag] = useState<string>("");
   const [results, setResults] = useState<SearchResult[]>([]);
-  const [topics, setTopics] = useState<Topic[]>([]);
-  const [tags, setTags] = useState<UserTag[]>([]);
+  
+  const cachedTopics = queryCache.get<Topic[]>("topics");
+  const cachedTags = queryCache.get<UserTag[]>("user_tags");
+  const [topics, setTopics] = useState<Topic[]>(cachedTopics || []);
+  const [tags, setTags] = useState<UserTag[]>(cachedTags || []);
   const [loading, setLoading] = useState(false);
   const [showTagCreate, setShowTagCreate] = useState(false);
   const [newTagName, setNewTagName] = useState("");
@@ -59,11 +85,17 @@ export default function SearchPage() {
   useEffect(() => {
     dsaApi
       .getTopics()
-      .then(setTopics)
+      .then((data) => {
+        setTopics(data);
+        queryCache.set("topics", data);
+      })
       .catch(() => setTopics([]));
     dsaApi
       .getTags()
-      .then(setTags)
+      .then((data) => {
+        setTags(data);
+        queryCache.set("user_tags", data);
+      })
       .catch(() => {});
     handleSearch();
   }, []);
@@ -103,6 +135,27 @@ export default function SearchPage() {
       );
     } catch (err) {
       console.error("Bookmark toggle failed:", err);
+    }
+  };
+
+  const handleToggleStatus = async (problemId: string, currentStatus: string) => {
+    const nextStatus = currentStatus === "DONE" ? "TODO" : "DONE";
+    if (nextStatus === "DONE") soundEffects.playSuccess();
+    else soundEffects.playClick();
+
+    // Optimistic UI Update
+    setResults((prev) =>
+      prev.map((r) => (r.id === problemId ? { ...r, status: nextStatus } : r)),
+    );
+
+    try {
+      await dsaApi.updateProgress(problemId, nextStatus as any, 0);
+    } catch (err) {
+      console.error("Status update failed:", err);
+      toast.error("Failed to update status. Reverting...");
+      setResults((prev) =>
+        prev.map((r) => (r.id === problemId ? { ...r, status: currentStatus } : r)),
+      );
     }
   };
 
@@ -160,23 +213,7 @@ export default function SearchPage() {
     }
   };
 
-  const getDifficultyColor = (d: string) => {
-    const style = getDifficultyStyle(d as "EASY" | "MEDIUM" | "HARD");
-    return `${style.text} ${style.bg} ${style.border}`;
-  };
 
-  const getStatusColor = (s: string) => {
-    if (s === "DONE") {
-      const style = getStatusStyle("success");
-      return `${style.text} ${style.bg} ${style.border}`;
-    }
-    if (s === "DOING") {
-      const style = getStatusStyle("info");
-      return `${style.text} ${style.bg} ${style.border}`;
-    }
-    const style = getStatusStyle("warning");
-    return `${style.text} ${style.bg} ${style.border}`;
-  };
 
   const TAG_COLORS = [
     "#6366f1",
@@ -352,73 +389,138 @@ export default function SearchPage() {
             <p className="text-base font-bold">No problems found</p>
             <p className="text-xs">Try adjusting your filters or search keywords</p>
           </div>
+        ) : results.length > 30 ? (
+          <div className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-2 overflow-hidden shadow-sm">
+            <List
+              height={Math.min(700, results.length * 88)}
+              itemCount={results.length}
+              itemSize={88}
+              width="100%"
+            >
+              {({ index, style }) => {
+                const p = results[index];
+                return (
+                  <div style={style} className="p-1">
+                    <ProblemRow
+                      problem={p}
+                      onToggleBookmark={() => handleToggleBookmark(p.id)}
+                      onToggleStatus={() => handleToggleStatus(p.id, p.status)}
+                    />
+                  </div>
+                );
+              }}
+            </List>
+          </div>
         ) : (
           results.map((p) => (
-            <div
+            <ProblemRow
               key={p.id}
-              className="p-4 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-subtle)] hover:border-[var(--border-medium)] transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm"
-            >
-              <div className="space-y-1.5 flex-1 min-w-0">
-                <div className="flex items-center gap-2 font-mono">
-                  <span className="text-[10px] text-[var(--text-muted)] font-semibold">
-                    {p.topicName}
-                  </span>
-                  <span
-                    className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full border ${getDifficultyColor(
-                      p.difficulty,
-                    )}`}
-                  >
-                    {p.difficulty}
-                  </span>
-                  <span
-                    className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${getStatusColor(
-                      p.status,
-                    )}`}
-                  >
-                    {p.status}
-                  </span>
-                </div>
-
-                <Link
-                  href={`/problems/${p.id}`}
-                  onClick={() => soundEffects.playClick()}
-                  className="text-sm font-bold text-[var(--text-primary)] hover:text-[var(--accent-primary)] transition-colors block truncate font-display"
-                >
-                  {p.title}
-                </Link>
-              </div>
-
-              <div className="flex items-center gap-2 shrink-0">
-                <button
-                  onClick={() => handleToggleBookmark(p.id)}
-                  className={`p-2 rounded-xl border transition-all cursor-pointer ${
-                    p.isBookmarked
-                      ? "bg-amber-500/10 border-amber-500/30 text-amber-400"
-                      : "bg-[var(--bg-secondary)] border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-                  }`}
-                  title={p.isBookmarked ? "Remove Bookmark" : "Add Bookmark"}
-                >
-                  {p.isBookmarked ? (
-                    <BookmarkCheck size={16} />
-                  ) : (
-                    <Bookmark size={16} />
-                  )}
-                </button>
-
-                {p.link && (
-                  <a
-                    href={p.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all"
-                    title="Open on LeetCode"
-                  >
-                    <ExternalLink size={16} />
-                  </a>
-                )}
-              </div>
-            </div>
+              problem={p}
+              onToggleBookmark={() => handleToggleBookmark(p.id)}
+              onToggleStatus={() => handleToggleStatus(p.id, p.status)}
+            />
           ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ProblemRow({
+  problem: p,
+  onToggleBookmark,
+  onToggleStatus,
+}: {
+  problem: SearchResult;
+  onToggleBookmark: () => void;
+  onToggleStatus: () => void;
+}) {
+  const isDone = p.status === "DONE";
+
+  return (
+    <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] hover:border-[var(--border-medium)] transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+      <div className="flex items-center gap-3 flex-1 min-w-0">
+        <button
+          type="button"
+          onClick={onToggleStatus}
+          className="shrink-0 cursor-pointer transition-transform active:scale-90 hover:scale-110"
+          title={isDone ? "Mark as TODO" : "Mark as Solved"}
+        >
+          {isDone ? (
+            <CheckCircle2
+              size={20}
+              className="text-emerald-400 fill-emerald-500/20 shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+            />
+          ) : (
+            <Circle
+              size={20}
+              className="text-[var(--text-muted)] hover:text-emerald-400 transition-colors"
+            />
+          )}
+        </button>
+
+        <div className="space-y-1 flex-1 min-w-0">
+          <div className="flex items-center gap-2 font-mono">
+            <span className="text-[10px] text-[var(--text-muted)] font-semibold">
+              {p.topicName}
+            </span>
+            <span
+              className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full border ${getDifficultyColor(
+                p.difficulty,
+              )}`}
+            >
+              {p.difficulty}
+            </span>
+            <span
+              className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${getStatusColor(
+                p.status,
+              )}`}
+            >
+              {p.status}
+            </span>
+          </div>
+
+          <Link
+            href={`/problems/${p.id}`}
+            onMouseEnter={() => {
+              // Pre-fetch problem details on hover for instant 0ms transition
+              void dsaApi.getProblem(p.id);
+            }}
+            onClick={() => soundEffects.playClick()}
+            className="text-sm font-bold text-[var(--text-primary)] hover:text-[var(--accent-primary)] transition-colors block truncate font-display"
+          >
+            {p.title}
+          </Link>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 shrink-0">
+        <button
+          onClick={onToggleBookmark}
+          className={`p-2 rounded-xl border transition-all cursor-pointer ${
+            p.isBookmarked
+              ? "bg-amber-500/10 border-amber-500/30 text-amber-400"
+              : "bg-[var(--bg-secondary)] border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+          }`}
+          title={p.isBookmarked ? "Remove Bookmark" : "Add Bookmark"}
+        >
+          {p.isBookmarked ? (
+            <BookmarkCheck size={16} />
+          ) : (
+            <Bookmark size={16} />
+          )}
+        </button>
+
+        {p.link && (
+          <a
+            href={p.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all"
+            title="Open on LeetCode"
+          >
+            <ExternalLink size={16} />
+          </a>
         )}
       </div>
     </div>
