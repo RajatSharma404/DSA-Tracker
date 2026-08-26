@@ -1,0 +1,58 @@
+{
+  "name": "DSA Tracker Pro",
+  "short_name": "DSA Tracker",
+  "description": "Precision Technical Interview & Data Structures Mastery Platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050811",
+  "theme_color": "#090d16",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/logo.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Visual Roadmap",
+      "short_name": "Roadmap",
+      "description": "Navigate interactive curriculum graph",
+      "url": "/roadmap",
+      "icons": [{ "src": "/logo.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Problem Bank",
+      "short_name": "Problems",
+      "description": "Search 2000+ technical interview questions",
+      "url": "/search",
+      "icons": [{ "src": "/logo.svg", "sizes": "any" }]
+    },
+    {
+      "name": "1v1 PvP Arena",
+      "short_name": "PvP",
+      "description": "Real-time competitive coding battles",
+      "url": "/pvp",
+      "icons": [{ "src": "/logo.svg", "sizes": "any" }]
+    },
+    {
+      "name": "AlgoTracer",
+      "short_name": "Tracer",
+      "description": "Live algorithm memory & call stack visualizer",
+      "url": "/tracer",
+      "icons": [{ "src": "/logo.svg", "sizes": "any" }]
+    }
+  ]
+}
