@@ -159,16 +159,16 @@ export default function ActivityHeatmap({ data }: ActivityHeatmapProps) {
         </div>
       </div>
 
-      <div className="relative border border-white/5 bg-white/1 p-6 rounded-4xl overflow-hidden group/heatmap">
+      <div className="relative border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-6 rounded-3xl overflow-hidden group/heatmap shadow-inner">
         {/* Watermark Icon */}
-        <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none group-hover/heatmap:opacity-[0.05] transition-opacity duration-700">
-          <Calendar size={120} className="text-white" />
+        <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none group-hover/heatmap:opacity-[0.06] transition-opacity duration-700">
+          <Calendar size={120} className="text-[var(--text-primary)]" />
         </div>
 
         <div className="overflow-x-auto scrollbar-hide pb-4 w-full">
           <div className="min-w-max flex flex-col">
             {/* Month labels */}
-            <div className="flex mb-3 text-[9px] text-gray-500 font-black uppercase tracking-widest h-4">
+            <div className="flex mb-3 text-[9px] text-[var(--text-muted)] font-black uppercase tracking-widest h-4">
               <div className="w-10 shrink-0" />
               <div
                 className="relative ml-4"
@@ -188,7 +188,7 @@ export default function ActivityHeatmap({ data }: ActivityHeatmapProps) {
 
             <div className="flex gap-4">
               {/* Day labels */}
-              <div className="flex flex-col justify-between text-[8px] text-gray-600 font-black uppercase py-1 w-10 shrink-0">
+              <div className="flex flex-col justify-between text-[8px] text-[var(--text-muted)] font-black uppercase py-1 w-10 shrink-0 font-mono">
                 <span className="h-2.75 leading-2.75">Mon</span>
                 <span className="h-2.75 leading-2.75 opacity-0">Tue</span>
                 <span className="h-2.75 leading-2.75">Wed</span>
@@ -212,12 +212,19 @@ export default function ActivityHeatmap({ data }: ActivityHeatmapProps) {
                       return (
                         <div
                           key={dateStr || `placeholder-${weekIdx}-${dayIdx}`}
-                          title={
+                          style={{
+                            animationDelay: isPlaceholder ? undefined : `${Math.min(weekIdx, 52) * 12}ms`,
+                          }}
+                          data-tooltip={
                             isPlaceholder
                               ? undefined
-                              : `${count} problems on ${format(day, "MMM d, yyyy")}`
+                              : `${count} solved • ${format(day, "MMM d, yyyy")}`
                           }
-                          className={`w-2.75 h-2.75 rounded-xs transition-all ${isPlaceholder ? "opacity-0" : `hover:scale-125 hover:z-10 ${getColor(count)}`}`}
+                          className={`w-2.75 h-2.75 rounded-xs transition-all ${
+                            isPlaceholder
+                              ? "opacity-0"
+                              : `cell-pop hover:scale-135 hover:z-20 hover:shadow-[0_0_8px_var(--accent-glow)] ${getColor(count)}`
+                          }`}
                         />
                       );
                     })}
@@ -229,20 +236,20 @@ export default function ActivityHeatmap({ data }: ActivityHeatmapProps) {
         </div>
 
         {/* Legend */}
-        <div className="mt-6 pt-6 border-t border-white/5 flex items-center justify-between text-[9px] font-black uppercase tracking-widest text-gray-600">
+        <div className="mt-6 pt-6 border-t border-[var(--border-subtle)] flex items-center justify-between text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] font-mono">
           <div className="flex items-center gap-2">
-            <span className="opacity-50">Mastery Consistency</span>
+            <span className="opacity-70">Mastery Consistency</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="opacity-50">Less</span>
+            <span className="opacity-70">Less</span>
             <div className="flex gap-1">
-              <div className="w-2.5 h-2.5 bg-[#1a1a1a] rounded-xs" />
+              <div className="w-2.5 h-2.5 bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] rounded-xs" />
               <div className="w-2.5 h-2.5 bg-blue-900/40 rounded-xs" />
               <div className="w-2.5 h-2.5 bg-blue-700/60 rounded-xs" />
               <div className="w-2.5 h-2.5 bg-blue-500/80 rounded-xs" />
-              <div className="w-2.5 h-2.5 bg-blue-400 rounded-xs" />
+              <div className="w-2.5 h-2.5 bg-blue-400 rounded-xs shadow-[0_0_6px_rgba(96,165,250,0.5)]" />
             </div>
-            <span className="opacity-50">More</span>
+            <span className="opacity-70">More</span>
           </div>
         </div>
       </div>
