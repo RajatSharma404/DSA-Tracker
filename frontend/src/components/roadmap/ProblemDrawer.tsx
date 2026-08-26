@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Topic, Problem } from "@/lib/api";
 import Link from "next/link";
 import {
@@ -19,21 +19,32 @@ import {
 } from "lucide-react";
 import { soundEffects } from "@/lib/soundEffects";
 
+import { dsaApi } from "@/lib/api";
+import { toast } from "sonner";
+
 interface ProblemDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   topic: Topic | null;
   problems: Problem[];
   loading?: boolean;
+  onProblemStatusChange?: (problemId: string, newStatus: "TODO" | "DOING" | "DONE") => void;
 }
 
 export default function ProblemDrawer({
   isOpen,
   onClose,
   topic,
-  problems,
+  problems: initialProblems,
   loading = false,
+  onProblemStatusChange,
 }: ProblemDrawerProps) {
+  const [localProblems, setLocalProblems] = useState<Problem[]>(initialProblems);
+
+  useEffect(() => {
+    setLocalProblems(initialProblems);
+  }, [initialProblems]);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [difficultyFilter, setDifficultyFilter] = useState<
     "ALL" | "EASY" | "MEDIUM" | "HARD"
@@ -42,8 +53,34 @@ export default function ProblemDrawer({
     "ALL" | "TODO" | "DOING" | "DONE" | "DUE"
   >("ALL");
 
+  const handleToggleStatus = async (problemId: string, currentStatus: string) => {
+    const nextStatus = currentStatus === "DONE" ? "TODO" : "DONE";
+    if (nextStatus === "DONE") {
+      soundEffects.playSuccess();
+    } else {
+      soundEffects.playClick();
+    }
+
+    // Optimistic Update
+    setLocalProblems((prev) =>
+      prev.map((p) => (p.id === problemId ? { ...p, status: nextStatus as any } : p)),
+    );
+    onProblemStatusChange?.(problemId, nextStatus as any);
+
+    try {
+      await dsaApi.updateProgress(problemId, nextStatus as any, 0);
+    } catch (err) {
+      console.error("Failed to update status", err);
+      toast.error("Failed to save progress. Reverting...");
+      setLocalProblems((prev) =>
+        prev.map((p) => (p.id === problemId ? { ...p, status: currentStatus as any } : p)),
+      );
+      onProblemStatusChange?.(problemId, currentStatus as any);
+    }
+  };
+
   const filteredProblems = useMemo(() => {
-    return problems.filter((prob) => {
+    return localProblems.filter((prob) => {
       const matchesSearch =
         !searchQuery.trim() ||
         prob.title.toLowerCase().includes(searchQuery.toLowerCase());
@@ -65,11 +102,11 @@ export default function ProblemDrawer({
 
       return matchesSearch && matchesDiff && matchesStatus;
     });
-  }, [problems, searchQuery, difficultyFilter, statusFilter]);
+  }, [localProblems, searchQuery, difficultyFilter, statusFilter]);
 
-  const solvedCount = problems.filter((p) => p.status === "DONE").length;
+  const solvedCount = localProblems.filter((p) => p.status === "DONE").length;
   const progressPct =
-    problems.length > 0 ? Math.round((solvedCount / problems.length) * 100) : 0;
+    localProblems.length > 0 ? Math.round((solvedCount / localProblems.length) * 100) : 0;
 
   if (!isOpen || !topic) return null;
 
@@ -132,7 +169,7 @@ export default function ProblemDrawer({
             <div className="flex justify-between items-center text-xs font-bold font-mono">
               <span className="text-[var(--text-muted)]">Mastery Progress</span>
               <span className="text-[var(--accent-primary)]">
-                {solvedCount} / {problems.length} Solved ({progressPct}%)
+                {solvedCount} / {localProblems.length} Solved ({progressPct}%)
               </span>
             </div>
             <div className="w-full h-2 bg-[var(--bg-tertiary)] rounded-full overflow-hidden">
@@ -230,26 +267,34 @@ export default function ProblemDrawer({
                   className="group flex items-center justify-between p-3.5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] hover:border-[var(--border-medium)] transition-all"
                 >
                   <div className="flex items-center gap-3 min-w-0 pr-3">
-                    <div className="shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleStatus(p.id, p.status)}
+                      className="shrink-0 transition-transform active:scale-90 hover:scale-110 cursor-pointer"
+                      title={isDone ? "Mark as Incomplete" : "Mark as Solved"}
+                    >
                       {isDone ? (
                         <CheckCircle2
-                          size={18}
-                          className="text-emerald-400 fill-emerald-500/10"
+                          size={20}
+                          className="text-emerald-400 fill-emerald-500/20 shadow-[0_0_8px_rgba(16,185,129,0.5)]"
                         />
                       ) : isDoing ? (
-                        <div className="w-4 h-4 rounded-full border-2 border-amber-400 border-t-transparent animate-spin" />
+                        <div className="w-4.5 h-4.5 rounded-full border-2 border-amber-400 border-t-transparent animate-spin" />
                       ) : (
                         <Circle
-                          size={18}
-                          className="text-[var(--text-muted)]"
+                          size={20}
+                          className="text-[var(--text-muted)] hover:text-emerald-400 transition-colors"
                         />
                       )}
-                    </div>
+                    </button>
 
                     <div className="space-y-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <Link
                           href={`/problems/${p.id}`}
+                          onMouseEnter={() => {
+                            void dsaApi.getProblem(p.id);
+                          }}
                           onClick={() => soundEffects.playClick()}
                           className="text-xs font-bold text-[var(--text-primary)] group-hover:text-[var(--accent-primary)] transition-colors truncate"
                         >
