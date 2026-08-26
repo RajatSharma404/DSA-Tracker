@@ -40,12 +40,11 @@ const TopicNode = ({ data }: TopicNodeProps) => {
         data.onOpenDrawer?.();
       }}
       className={`group relative px-5 py-4 rounded-2xl border-2 transition-all duration-200 cursor-pointer min-w-68 max-w-76 select-none shadow-xl
-        ${
-          isTarget
-            ? "ring-4 ring-[var(--accent-primary)]/40 bg-[var(--bg-card)] border-[var(--accent-primary)] shadow-[0_0_20px_var(--accent-glow)]"
-            : isCompleted
-              ? "bg-[var(--bg-card)] border-emerald-500/60 hover:border-emerald-400 shadow-emerald-500/10"
-              : "bg-[var(--bg-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/50 hover:shadow-[0_0_15px_var(--accent-glow)]"
+        ${isTarget
+          ? "ring-4 ring-[var(--accent-primary)]/40 bg-[var(--bg-card)] border-[var(--accent-primary)] shadow-[0_0_20px_var(--accent-glow)]"
+          : isCompleted
+            ? "bg-[var(--bg-card)] border-emerald-500/60 hover:border-emerald-400 shadow-emerald-500/10"
+            : "bg-[var(--bg-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/50 hover:shadow-[0_0_15px_var(--accent-glow)]"
         }
         hover:-translate-y-1 hover:scale-[1.01] active:scale-[0.99]
       `}
@@ -67,11 +66,10 @@ const TopicNode = ({ data }: TopicNodeProps) => {
       <div className="flex items-center justify-between gap-2 mb-2.5">
         <div className="flex items-center gap-1.5 min-w-0">
           <div
-            className={`p-1.5 rounded-lg shrink-0 ${
-              isCompleted
+            className={`p-1.5 rounded-lg shrink-0 ${isCompleted
                 ? "bg-emerald-500/20 text-emerald-400"
                 : "bg-[var(--accent-primary)]/20 text-[var(--accent-primary)]"
-            }`}
+              }`}
           >
             <BookOpen size={14} />
           </div>
@@ -84,9 +82,8 @@ const TopicNode = ({ data }: TopicNodeProps) => {
 
         <div className="text-right shrink-0">
           <span
-            className={`text-xs font-black font-mono ${
-              isCompleted ? "text-emerald-400" : "text-[var(--accent-primary)]"
-            }`}
+            className={`text-xs font-black font-mono ${isCompleted ? "text-emerald-400" : "text-[var(--accent-primary)]"
+              }`}
           >
             {data.solvedProblems}/{data.totalProblems}
           </span>
@@ -121,9 +118,8 @@ const TopicNode = ({ data }: TopicNodeProps) => {
         </div>
         <div className="w-full h-1.5 bg-[var(--bg-secondary)] rounded-full overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all duration-500 ${
-              isCompleted ? "bg-emerald-500" : "bg-[var(--accent-primary)]"
-            }`}
+            className={`h-full rounded-full transition-all duration-500 ${isCompleted ? "bg-emerald-500" : "bg-[var(--accent-primary)]"
+              }`}
             style={{ width: `${data.progressPercentage}%` }}
           />
         </div>
@@ -138,11 +134,10 @@ const TopicNode = ({ data }: TopicNodeProps) => {
               soundEffects.playClick();
               data.onToggleExpand?.();
             }}
-            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer font-mono ${
-              isExpanded
+            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer font-mono ${isExpanded
                 ? "bg-purple-500/20 text-purple-300 border border-purple-500/40"
                 : "bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]"
-            }`}
+              }`}
           >
             {isExpanded ? (
               <>
