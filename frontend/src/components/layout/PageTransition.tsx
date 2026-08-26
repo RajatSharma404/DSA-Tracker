@@ -3,18 +3,18 @@
 import { motion } from "framer-motion";
 
 const variants = {
-  hidden: { opacity: 0, y: 15 },
+  hidden: { opacity: 0, y: 8 },
   enter: { 
     opacity: 1, 
     y: 0, 
     transition: { 
       type: "spring" as const, 
-      stiffness: 100, 
-      damping: 15,
-      mass: 1
+      stiffness: 260, 
+      damping: 22,
+      mass: 0.8
     } 
   },
-  exit: { opacity: 0, y: -15, transition: { duration: 0.2 } },
+  exit: { opacity: 0, y: -6, transition: { duration: 0.15, ease: "easeIn" as const } },
 };
 
 export function PageTransition({ children }: { children: React.ReactNode }) {
