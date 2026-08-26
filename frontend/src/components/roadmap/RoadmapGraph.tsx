@@ -21,6 +21,7 @@ import TopicNode from "./TopicNode";
 import ProblemNode from "./ProblemNode";
 import ProblemDrawer from "./ProblemDrawer";
 import { Topic, Problem, dsaApi } from "@/lib/api";
+import { queryCache } from "@/lib/queryCache";
 import {
   Search,
   Maximize2,
@@ -140,10 +141,11 @@ function getMultiTierLayout(
 
 function InnerRoadmapGraph() {
   const reactFlow = useReactFlow();
+  const cachedTopics = queryCache.get<Topic[]>("topics");
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [loading, setLoading] = useState(true);
-  const [topicsData, setTopicsData] = useState<Topic[]>([]);
+  const [loading, setLoading] = useState(!cachedTopics);
+  const [topicsData, setTopicsData] = useState<Topic[]>(cachedTopics || []);
   const [problemsByTopic, setProblemsByTopic] = useState<Record<string, Problem[]>>({});
   const [expandedTopicIds, setExpandedTopicIds] = useState<Set<string>>(new Set());
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
@@ -155,7 +157,7 @@ function InnerRoadmapGraph() {
 
   // Initialize Topics & Problems
   const initData = async () => {
-    setLoading(true);
+    if (!cachedTopics) setLoading(true);
     try {
       const topics = await dsaApi.getTopics();
       const problemPromises = topics.map((t) =>
@@ -300,17 +302,20 @@ function InnerRoadmapGraph() {
             source: `topic-${topic.id}`,
             target: `prob-${topic.id}-${prob.id}`,
             type: "default", // Smooth cubic bezier curve
+            className: "edge-flow-anim",
             style: {
               stroke: isDue
                 ? "#f59e0b"
                 : isDone
                   ? "#10b981"
-                  : "rgba(56, 189, 248, 0.4)",
-              strokeWidth: isDone ? 1.8 : 1.2,
+                  : "var(--accent-primary)",
+              strokeWidth: isDone ? 2 : 1.5,
+              strokeDasharray: "6 6",
+              opacity: isDone ? 0.9 : 0.6,
             },
             markerEnd: {
               type: MarkerType.ArrowClosed,
-              color: isDue ? "#f59e0b" : isDone ? "#10b981" : "#38bdf8",
+              color: isDue ? "#f59e0b" : isDone ? "#10b981" : "var(--accent-primary)",
               width: 12,
               height: 12,
             },
@@ -338,14 +343,19 @@ function InnerRoadmapGraph() {
           source: `topic-${from.id}`,
           target: `topic-${to.id}`,
           type: "default", // Smooth curved bezier
+          className: "edge-flow-anim",
           animated: !isCompleted && from.progressPercentage > 0,
           style: {
-            stroke: isCompleted ? "#10b981" : "rgba(56, 189, 248, 0.45)",
-            strokeWidth: 2,
+            stroke: isCompleted ? "#10b981" : "var(--accent-primary)",
+            strokeWidth: 2.2,
+            strokeDasharray: "8 6",
+            filter: isCompleted
+              ? "drop-shadow(0 0 4px rgba(16,185,129,0.5))"
+              : "drop-shadow(0 0 4px var(--accent-glow))",
           },
           markerEnd: {
             type: MarkerType.ArrowClosed,
-            color: isCompleted ? "#10b981" : "#38bdf8",
+            color: isCompleted ? "#10b981" : "var(--accent-primary)",
             width: 14,
             height: 14,
           },
@@ -365,11 +375,15 @@ function InnerRoadmapGraph() {
             source: `topic-${from.id}`,
             target: `topic-${to.id}`,
             type: "default", // Smooth curved bezier
+            className: "edge-flow-anim",
             animated: true,
             style: {
               stroke: isCompleted ? "#10b981" : "#c084fc",
-              strokeWidth: 2.5,
-              strokeDasharray: "5 5",
+              strokeWidth: 2.8,
+              strokeDasharray: "8 8",
+              filter: isCompleted
+                ? "drop-shadow(0 0 6px rgba(16,185,129,0.6))"
+                : "drop-shadow(0 0 6px rgba(192,132,252,0.6))",
             },
             markerEnd: {
               type: MarkerType.ArrowClosed,
@@ -437,10 +451,10 @@ function InnerRoadmapGraph() {
 
   if (loading) {
     return (
-      <div className="flex h-160 w-full items-center justify-center rounded-[2.5rem] border border-white/5 bg-[#050508]">
+      <div className="flex h-160 w-full items-center justify-center rounded-[2.5rem] border border-[var(--border-subtle)] bg-[var(--bg-card)]">
         <div className="flex flex-col items-center gap-3">
-          <div className="h-10 w-10 animate-spin rounded-full border-2 border-cyan-500/20 border-t-cyan-400" />
-          <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-[var(--accent-primary)]/20 border-t-[var(--accent-primary)] shadow-[0_0_12px_var(--accent-glow)]" />
+          <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest font-mono">
             Compiling Curriculum Metro Map...
           </span>
         </div>
@@ -449,7 +463,7 @@ function InnerRoadmapGraph() {
   }
 
   return (
-    <div className="relative h-185 w-full rounded-[2.5rem] border border-white/10 bg-[#07070c] overflow-hidden shadow-2xl">
+    <div className="relative h-185 w-full rounded-[2.5rem] border border-[var(--border-subtle)] bg-[var(--bg-card)] overflow-hidden shadow-2xl">
       {/* Top Floating Control Console */}
       <div className="absolute top-5 left-5 right-5 z-20 flex flex-wrap items-center justify-between gap-3 pointer-events-none">
         {/* Left: Search Bar & Filters */}
