@@ -279,10 +279,11 @@ export function ControlsBar({
           {/* Speed presets */}
           <div className="hidden sm:flex items-center gap-0.5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] p-0.5 rounded-xl">
             {[
+              { label: "0.25x", delay: 2000 },
               { label: "0.5x", delay: 1200 },
               { label: "1x", delay: 600 },
               { label: "2x", delay: 300 },
-              { label: "4x", delay: 100 },
+              { label: "5x", delay: 80 },
             ].map((spd) => (
               <button
                 key={spd.label}
@@ -290,9 +291,9 @@ export function ControlsBar({
                   soundEffects.playClick();
                   setSpeedDelay(spd.delay);
                 }}
-                className={`px-2 py-0.5 rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer ${
+                className={`px-1.5 py-0.5 rounded-lg text-[9px] font-mono font-bold transition-all cursor-pointer ${
                   speedDelay === spd.delay
-                    ? "bg-[var(--accent-primary)] text-black font-black"
+                    ? "bg-[var(--accent-primary)] text-black font-black shadow-xs"
                     : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                 }`}
               >
