@@ -144,6 +144,85 @@ class CityAudioSynthesizer {
       // Audio fallback
     }
   }
+
+  // Play building construction audio
+  public playConstruct() {
+    if (this.isMuted) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    try {
+      const now = this.ctx.currentTime;
+      const freqs = [220, 329.63, 440, 659.25, 880];
+      freqs.forEach((f, idx) => {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(f, now + idx * 0.04);
+        gain.gain.setValueAtTime(0.08, now + idx * 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.04 + 0.2);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now + idx * 0.04);
+        osc.stop(now + idx * 0.04 + 0.2);
+      });
+    } catch {
+      // Fallback
+    }
+  }
+
+  // Play futuristic holographic citizen pass unlock fanfare
+  public playPassUnlocked() {
+    if (this.isMuted) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    try {
+      const now = this.ctx.currentTime;
+      const notes = [440, 554.37, 659.25, 880, 1108.73, 1318.51];
+      notes.forEach((freq, index) => {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(freq, now + index * 0.06);
+        gain.gain.setValueAtTime(0.1, now + index * 0.06);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + index * 0.06 + 0.35);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now + index * 0.06);
+        osc.stop(now + index * 0.06 + 0.35);
+      });
+    } catch {
+      // Fallback
+    }
+  }
+
+  // Play subtle glitch sound
+  public playGlitch() {
+    if (this.isMuted) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    try {
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = "square";
+      osc.frequency.setValueAtTime(120, now);
+      osc.frequency.setValueAtTime(840, now + 0.02);
+      osc.frequency.setValueAtTime(320, now + 0.04);
+      gain.gain.setValueAtTime(0.05, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.07);
+    } catch {
+      // Fallback
+    }
+  }
 }
 
 export const cityAudio = new CityAudioSynthesizer();
