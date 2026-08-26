@@ -55,13 +55,19 @@ export default function RoadmapPage() {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 pb-2">
+        {/* Cyberpunk Sliding Neon Toggle */}
+        <div className="relative inline-flex p-1.5 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] shadow-xl">
+          <div
+            className={`absolute top-1.5 bottom-1.5 rounded-xl bg-[var(--accent-primary)] shadow-[0_0_15px_var(--accent-glow)] transition-all duration-300 ease-out pointer-events-none ${
+              mode === "custom" ? "left-1.5 w-[calc(50%-6px)]" : "left-[calc(50%+3px)] w-[calc(50%-6px)]"
+            }`}
+          />
           <button
             onClick={() => handleToggleMode("custom")}
-            className={`inline-flex items-center gap-2 rounded-2xl border px-4 py-2 text-xs font-black uppercase tracking-[0.18em] transition-all cursor-pointer font-mono ${
+            className={`relative z-10 inline-flex items-center justify-center gap-2 px-5 py-2 text-xs font-black uppercase tracking-[0.16em] transition-colors cursor-pointer font-mono ${
               mode === "custom"
-                ? "border-[var(--accent-primary)] bg-[var(--accent-primary)] text-black shadow-md"
-                : "border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
+                ? "text-black"
+                : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
             }`}
           >
             <PencilLine size={14} />
@@ -69,10 +75,10 @@ export default function RoadmapPage() {
           </button>
           <button
             onClick={() => handleToggleMode("visual")}
-            className={`inline-flex items-center gap-2 rounded-2xl border px-4 py-2 text-xs font-black uppercase tracking-[0.18em] transition-all cursor-pointer font-mono ${
+            className={`relative z-10 inline-flex items-center justify-center gap-2 px-5 py-2 text-xs font-black uppercase tracking-[0.16em] transition-colors cursor-pointer font-mono ${
               mode === "visual"
-                ? "border-[var(--accent-primary)] bg-[var(--accent-primary)] text-black shadow-md"
-                : "border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
+                ? "text-black"
+                : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
             }`}
           >
             <Grid2X2 size={14} />
