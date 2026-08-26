@@ -5,13 +5,15 @@ import { TraceStep, DiagramType, TheoryData } from "../types";
 import { TheoryPanel } from "./TheoryPanel";
 import { StepDescriptionBar } from "./StepDescriptionBar";
 import { ComplexityHUD } from "./ComplexityHUD";
+import { CallStackVisualizer } from "./CallStackVisualizer";
 import { BarDiagram } from "./diagrams/BarDiagram";
 import { ArrayBoxDiagram } from "./diagrams/ArrayBoxDiagram";
 import { SplitMergeDiagram } from "./diagrams/SplitMergeDiagram";
 import { GraphDiagram } from "./diagrams/GraphDiagram";
 import { StackDiagram } from "./diagrams/StackDiagram";
 import { QueueDiagram } from "./diagrams/QueueDiagram";
-import { GripHorizontal } from "lucide-react";
+import { GripHorizontal, Cpu, LayoutTemplate } from "lucide-react";
+import { soundEffects } from "@/lib/soundEffects";
 
 interface TracePanelProps {
   currentStep?: TraceStep;
@@ -28,6 +30,7 @@ export function TracePanel({
   diagramType,
   theory,
 }: TracePanelProps) {
+  const [viewMode, setViewMode] = useState<"diagram" | "stack">("diagram");
   const [isTheoryOpen, setIsTheoryOpen] = useState(false);
   const [theoryHeight, setTheoryHeight] = useState(190);
   const [isDraggingTheory, setIsDraggingTheory] = useState(false);
@@ -154,15 +157,61 @@ export function TracePanel({
       )}
 
       {/* 2. Live Complexity & Memory HUD */}
-      <ComplexityHUD
-        currentStepIndex={currentStepIndex}
-        allSteps={allSteps}
-        theory={theory}
-      />
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex-1 min-w-0">
+          <ComplexityHUD
+            currentStepIndex={currentStepIndex}
+            allSteps={allSteps}
+            theory={theory}
+          />
+        </div>
 
-      {/* 3. Visual Diagram Canvas (flex-1 fills all remaining height) */}
+        {/* View Mode Switcher */}
+        <div className="flex items-center gap-1 p-1 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] shrink-0 font-mono text-[10px]">
+          <button
+            onClick={() => {
+              soundEffects.playClick();
+              setViewMode("diagram");
+            }}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+              viewMode === "diagram"
+                ? "bg-[var(--accent-primary)] text-black font-black shadow-xs"
+                : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+            }`}
+          >
+            <LayoutTemplate size={12} />
+            <span>Diagram</span>
+          </button>
+          <button
+            onClick={() => {
+              soundEffects.playClick();
+              setViewMode("stack");
+            }}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+              viewMode === "stack"
+                ? "bg-[var(--accent-primary)] text-black font-black shadow-xs"
+                : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+            }`}
+          >
+            <Cpu size={12} />
+            <span>Stack & Memory</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 3. Visual Diagram Canvas or Call Stack */}
       <div className="flex-1 min-h-0 w-full overflow-hidden">
-        {renderDiagram()}
+        {viewMode === "diagram" ? (
+          renderDiagram()
+        ) : (
+          <div className="h-full overflow-y-auto pr-1">
+            <CallStackVisualizer
+              currentStep={activeStep}
+              currentStepIndex={currentStepIndex}
+              totalSteps={allSteps.length}
+            />
+          </div>
+        )}
       </div>
 
       {/* 4. Step Description Bar (68px fixed at bottom) */}
