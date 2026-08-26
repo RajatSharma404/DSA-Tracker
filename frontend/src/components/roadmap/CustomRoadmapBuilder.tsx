@@ -1452,41 +1452,41 @@ function TextTab({
   return (
     <div className="h-full overflow-y-auto pr-1 scrollbar-hide">
       <div className="space-y-4">
-        <div className="rounded-3xl border border-white/5 bg-white/2 p-4">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">
-                Export
+        {/* Terminal Output Panel */}
+        <div className="terminal-crt rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-4 shadow-2xl relative overflow-hidden font-mono">
+          <div className="flex items-center justify-between gap-3 border-b border-[var(--border-subtle)] pb-3">
+            <div className="flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" />
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400">
+                TERMINAL // EXPORT STREAM
               </p>
-              <h3 className="mt-1 text-lg font-black text-white">
-                Plain text roadmap format
-              </h3>
             </div>
-            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-gray-300">
-              auto-updated
+            <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-0.5 text-[9px] font-black uppercase tracking-[0.2em] text-emerald-400">
+              LIVE SYNC
             </span>
           </div>
 
-          <textarea
-            readOnly
-            value={text}
-            rows={14}
-            className="mt-4 w-full rounded-[1.2rem] border border-white/10 bg-black/50 px-4 py-3 font-mono text-[12px] leading-6 text-gray-200 outline-none"
-          />
+          <div className="mt-3 relative">
+            <textarea
+              readOnly
+              value={text}
+              rows={14}
+              className="w-full rounded-2xl border border-[var(--border-subtle)] bg-black/80 px-4 py-3 font-mono text-[12px] leading-6 text-emerald-400/90 outline-none shadow-inner selection:bg-emerald-500/30 selection:text-emerald-200"
+            />
+          </div>
         </div>
 
-        <div className="rounded-3xl border border-white/5 bg-white/2 p-4">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">
-                Import
+        {/* Terminal Input Panel */}
+        <div className="terminal-crt rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-4 shadow-2xl relative overflow-hidden font-mono">
+          <div className="flex items-center justify-between gap-3 border-b border-[var(--border-subtle)] pb-3">
+            <div className="flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full bg-[var(--accent-primary)] shadow-[0_0_8px_var(--accent-glow)]" />
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--accent-primary)]">
+                TERMINAL // IMPORT BUFFER
               </p>
-              <h3 className="mt-1 text-lg font-black text-white">
-                Paste or load a roadmap text file.
-              </h3>
             </div>
-            <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-gray-200 transition-colors hover:bg-white/10">
-              <FileUp size={14} /> Upload
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] px-3 py-1.5 text-xs font-bold text-[var(--text-secondary)] transition-all hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] hover:border-[var(--accent-primary)]/40 shadow-sm">
+              <FileUp size={13} /> Upload File
               <input
                 type="file"
                 accept=".txt,.roadmap,.map,text/plain"
@@ -1500,25 +1500,25 @@ function TextTab({
             </label>
           </div>
 
-          <textarea
-            value={importDraft}
-            onChange={(event) => setImportDraft(event.target.value)}
-            rows={11}
-            className="mt-4 w-full rounded-[1.2rem] border border-white/10 bg-black/50 px-4 py-3 font-mono text-[12px] leading-6 text-gray-200 outline-none focus:border-sky-400/40"
-            placeholder="Paste a roadmap file here to import it."
-          />
+          <div className="mt-3">
+            <textarea
+              value={importDraft}
+              onChange={(event) => setImportDraft(event.target.value)}
+              rows={10}
+              className="w-full rounded-2xl border border-[var(--border-subtle)] bg-black/80 px-4 py-3 font-mono text-[12px] leading-6 text-cyan-400/90 outline-none focus:border-[var(--accent-primary)] shadow-inner placeholder:text-gray-600 selection:bg-cyan-500/30 selection:text-cyan-200"
+              placeholder="// Paste roadmap syntax buffer here to parse..."
+            />
+          </div>
 
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-            <p className="text-xs text-gray-500">
-              Format uses a node list at the top and simple{" "}
-              <span className="font-bold text-gray-300">-&gt;</span> edge links
-              below.
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[var(--border-subtle)]">
+            <p className="text-[11px] text-[var(--text-muted)] font-mono">
+              Syntax: node definition lines followed by <span className="font-bold text-[var(--text-primary)]">-&gt;</span> edge connections.
             </p>
             <button
               onClick={onImport}
-              className="inline-flex items-center gap-2 rounded-xl border border-sky-500/20 bg-sky-500/10 px-4 py-2 text-xs font-bold text-sky-200 transition-colors hover:bg-sky-500/20"
+              className="inline-flex items-center gap-2 rounded-xl bg-[var(--accent-primary)] px-4 py-2 text-xs font-black uppercase tracking-widest text-black transition-all hover:scale-[1.02] active:scale-[0.98] shadow-md shadow-[var(--accent-glow)]/30 font-mono cursor-pointer"
             >
-              <Layers3 size={14} /> Import text
+              <Layers3 size={14} /> Parse & Build Graph
             </button>
           </div>
         </div>
