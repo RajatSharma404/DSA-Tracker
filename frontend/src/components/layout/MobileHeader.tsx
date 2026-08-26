@@ -2,8 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Menu, X, Sparkles, Flame, Search, HelpCircle } from "lucide-react";
-import { ThemeSelector } from "@/components/ui/ThemeSelector";
+import { Menu, X, HelpCircle } from "lucide-react";
 
 interface MobileHeaderProps {
   isDrawerOpen: boolean;
@@ -39,17 +38,6 @@ export function MobileHeader({
         >
           <HelpCircle size={16} className="text-[var(--accent-primary)]" />
         </button>
-
-        {/* Streak Pill */}
-        <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold">
-          <Flame size={12} className="fill-amber-400" />
-          <span>{streakCount}d</span>
-        </div>
-
-        {/* Quick Theme Switcher */}
-        <div className="scale-90">
-          <ThemeSelector variant="dropdown" />
-        </div>
 
         {/* Hamburger Toggle */}
         <button

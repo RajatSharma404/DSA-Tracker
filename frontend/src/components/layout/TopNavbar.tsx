@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import {
   Search,
-  Flame,
   Volume2,
   VolumeX,
   Sparkles,
@@ -13,7 +12,6 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { ExtensionStatusBadge } from "@/components/layout/ExtensionStatusBadge";
-import { ThemeSelector } from "@/components/ui/ThemeSelector";
 import { soundEffects } from "@/lib/soundEffects";
 
 interface TopNavbarProps {
@@ -92,16 +90,6 @@ export function TopNavbar({
           <span className="hidden lg:inline">Setup Guide</span>
         </button>
 
-        {/* Streak Counter */}
-        <Link
-          href="/achievements"
-          title="Daily Grind Streak"
-          className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-400 text-xs font-bold hover:bg-amber-500/20 hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-xs"
-        >
-          <Flame size={13} className="fill-amber-400 animate-pulse drop-shadow-[0_0_6px_rgba(251,191,36,0.5)]" />
-          <span>{streakCount}d Streak</span>
-        </Link>
-
         {/* Global Sound FX Toggle */}
         <button
           onClick={handleToggleSound}
@@ -115,11 +103,6 @@ export function TopNavbar({
         >
           {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
         </button>
-
-        {/* Theme Selector */}
-        <div className="shrink-0">
-          <ThemeSelector variant="dropdown" />
-        </div>
 
         {/* User Mini Profile */}
         {session?.user && (
