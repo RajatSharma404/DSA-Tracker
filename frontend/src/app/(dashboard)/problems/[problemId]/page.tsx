@@ -194,7 +194,8 @@ export default function ProblemSolvePage() {
   const handleSubmissionSuccess = async (timeSpent: number) => {
     if (problem) {
       soundEffects.playSuccess();
-      await dsaApi.updateProgress(problem.id, "DONE", timeSpent);
+      const previousStatus = problem.status;
+      setProblem((prev) => (prev ? { ...prev, status: "DONE" as any } : null));
       const submittedAt = new Date().toISOString();
       setLastSubmission({ submittedAt, timeSpent });
       trackEvent("problem_submitted", {
@@ -202,6 +203,13 @@ export default function ProblemSolvePage() {
         timeSpent,
         focusMode,
       });
+
+      try {
+        await dsaApi.updateProgress(problem.id, "DONE", timeSpent);
+      } catch (err) {
+        console.error("Failed to save submission progress:", err);
+        setProblem((prev) => (prev ? { ...prev, status: previousStatus } : null));
+      }
     }
   };
 
