@@ -58,7 +58,7 @@ export function TopNavbar({
       <div className="flex items-center gap-3 flex-1 max-w-md">
         <button
           onClick={handleSearchClick}
-          className="w-full flex items-center justify-between px-3.5 py-1.5 rounded-xl bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--border-medium)] transition-all cursor-pointer shadow-xs group"
+          className="w-full flex items-center justify-between px-3.5 py-1.5 rounded-xl bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--accent-primary)]/50 hover:shadow-[0_0_0_2px_var(--accent-glow)] transition-all cursor-pointer shadow-xs group"
           aria-label="Open Command Search (⌘K)"
         >
           <div className="flex items-center gap-2 text-xs">
@@ -96,9 +96,9 @@ export function TopNavbar({
         <Link
           href="/achievements"
           title="Daily Grind Streak"
-          className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold hover:bg-amber-500/15 transition-colors cursor-pointer"
+          className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-400 text-xs font-bold hover:bg-amber-500/20 hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-xs"
         >
-          <Flame size={13} className="fill-amber-400 animate-pulse" />
+          <Flame size={13} className="fill-amber-400 animate-pulse drop-shadow-[0_0_6px_rgba(251,191,36,0.5)]" />
           <span>{streakCount}d Streak</span>
         </Link>
 
@@ -106,10 +106,10 @@ export function TopNavbar({
         <button
           onClick={handleToggleSound}
           title={isMuted ? "Unmute Sound Effects" : "Mute Sound Effects"}
-          className={`p-2 rounded-xl border transition-colors cursor-pointer ${
+          className={`p-2 rounded-xl border transition-all cursor-pointer ${
             isMuted
               ? "bg-[var(--bg-card)] border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-              : "bg-[var(--accent-primary)]/10 border-[var(--accent-primary)]/30 text-[var(--accent-primary)] shadow-[0_0_10px_var(--accent-glow)]"
+              : "bg-[var(--accent-primary)]/10 border-[var(--accent-primary)]/40 text-[var(--accent-primary)] glow-pulse"
           }`}
           aria-label="Toggle Sound Effects"
         >
