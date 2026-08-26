@@ -341,18 +341,26 @@ export interface LearnLessonDetail {
   }>;
 }
 
+import { queryCache } from "./queryCache";
+
 export const dsaApi = {
-  getDashboardStats: async (): Promise<DashboardStats> => {
-    const res = await api.get("/dashboard");
-    return res.data;
+  getDashboardStats: async (force = false): Promise<DashboardStats> => {
+    return queryCache.fetch(
+      "dashboard_stats",
+      async () => (await api.get("/dashboard")).data,
+      { force, staleTime: 20_000 },
+    );
   },
   getCityProgress: async () => {
     const res = await api.get("/city/progress");
     return res.data;
   },
-  getTopics: async (): Promise<Topic[]> => {
-    const res = await api.get("/topics");
-    return res.data;
+  getTopics: async (force = false): Promise<Topic[]> => {
+    return queryCache.fetch(
+      "topics",
+      async () => (await api.get("/topics")).data,
+      { force, staleTime: 45_000 },
+    );
   },
   getLearnTracks: async (): Promise<LearnTrackSummary[]> => {
     const res = await api.get("/learn/tracks", {
@@ -397,9 +405,12 @@ export const dsaApi = {
     const res = await api.post("/admin/learn/seed-learncpp");
     return res.data;
   },
-  getTopicProblems: async (topicId: string): Promise<Problem[]> => {
-    const res = await api.get(`/topics/${topicId}/problems`);
-    return res.data;
+  getTopicProblems: async (topicId: string, force = false): Promise<Problem[]> => {
+    return queryCache.fetch(
+      `topic_problems_${topicId}`,
+      async () => (await api.get(`/topics/${topicId}/problems`)).data,
+      { force, staleTime: 30_000 },
+    );
   },
   getProblem: async (problemId: string): Promise<Problem> => {
     const res = await api.get(`/problems/${problemId}`);
@@ -410,8 +421,33 @@ export const dsaApi = {
     status: "TODO" | "DOING" | "DONE",
     timeSpent: number,
   ): Promise<Record<string, unknown> & { levelCleared?: boolean; newFloorCount?: number; currentUnlockedLevel?: string | null }> => {
-    const res = await api.post("/progress", { problemId, status, timeSpent });
-    return res.data;
+    // Check if offline in browser
+    if (typeof window !== "undefined" && !navigator.onLine) {
+      const { offlineQueue } = await import("./offlineQueue");
+      offlineQueue.enqueue("UPDATE_PROGRESS", { problemId, status, timeSpent });
+      queryCache.invalidate("dashboard_stats");
+      queryCache.invalidate("activity_data");
+      queryCache.invalidate("topics");
+      queryCache.invalidate("topic_problems_");
+      return { success: true, offlineQueued: true };
+    }
+
+    try {
+      const res = await api.post("/progress", { problemId, status, timeSpent });
+      queryCache.invalidate("dashboard_stats");
+      queryCache.invalidate("activity_data");
+      queryCache.invalidate("topics");
+      queryCache.invalidate("topic_problems_");
+      queryCache.invalidate("mastery_stats");
+      return res.data;
+    } catch (err: any) {
+      if (typeof window !== "undefined" && (!navigator.onLine || !err.response)) {
+        const { offlineQueue } = await import("./offlineQueue");
+        offlineQueue.enqueue("UPDATE_PROGRESS", { problemId, status, timeSpent });
+        return { success: true, offlineQueued: true };
+      }
+      throw err;
+    }
   },
   getInterviews: async (): Promise<MockInterview[]> => {
     const res = await api.get("/interviews");
@@ -489,15 +525,21 @@ export const dsaApi = {
     const res = await api.post("/admin/seed");
     return res.data;
   },
-  getActivityData: async (): Promise<
+  getActivityData: async (force = false): Promise<
     Array<{ date: string; count: number }>
   > => {
-    const res = await api.get("/analytics/activity");
-    return res.data;
+    return queryCache.fetch(
+      "activity_data",
+      async () => (await api.get("/analytics/activity")).data,
+      { force, staleTime: 30_000 },
+    );
   },
-  getMasteryStats: async () => {
-    const res = await api.get("/analytics/mastery");
-    return res.data;
+  getMasteryStats: async (force = false) => {
+    return queryCache.fetch(
+      "mastery_stats",
+      async () => (await api.get("/analytics/mastery")).data,
+      { force, staleTime: 45_000 },
+    );
   },
   updateLeetcodeUsername: async (leetcodeUsername: string) => {
     const res = await api.patch("/user/leetcode", { leetcodeUsername });
@@ -521,6 +563,12 @@ export const dsaApi = {
   },
   syncLeetcode: async () => {
     const res = await api.post("/user/sync-leetcode");
+    // Invalidate caches when LeetCode sync finishes
+    queryCache.invalidate("dashboard_stats");
+    queryCache.invalidate("activity_data");
+    queryCache.invalidate("topics");
+    queryCache.invalidate("topic_problems_");
+    queryCache.invalidate("mastery_stats");
     return res.data;
   },
   getAllSolutionHistory: async () => {
