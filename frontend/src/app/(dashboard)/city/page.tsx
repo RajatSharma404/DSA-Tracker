@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { PageTransition } from "@/components/layout/PageTransition";
 import {
@@ -10,54 +9,24 @@ import {
   Zap,
   Volume2,
   VolumeX,
-  Layers,
   Compass,
-  ArrowRight,
   ShieldCheck,
   Trophy,
   Swords,
   Radio,
   Network,
-  Users,
   Clock,
   Terminal,
 } from "lucide-react";
 import { cityAudio } from "@/lib/cityAudio";
-import { CityCountdownTimer } from "@/components/city/CityCountdownTimer";
 import { CityHoloSimulator } from "@/components/city/CityHoloSimulator";
 import { CityDistrictBlueprints } from "@/components/city/CityDistrictBlueprints";
 import { CityEarlyAccessSection } from "@/components/city/CityEarlyAccessSection";
 import { CityFeatureShowcase } from "@/components/city/CityFeatureShowcase";
 import { CityTransmissionFeed } from "@/components/city/CityTransmissionFeed";
-import { LeaderboardUser, CityTheme } from "@/components/3d/CityScene";
-
-// Dynamically import 3D WebGL Scene to keep initial load blistering fast
-const CityScene = dynamic(
-  () => import("@/components/3d/CityScene").then((mod) => mod.CityScene),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="w-full h-[480px] rounded-3xl bg-[var(--bg-card)] border border-[var(--border-subtle)] animate-pulse flex flex-col items-center justify-center gap-3 text-[var(--text-muted)] font-mono text-xs">
-        <Building2 size={28} className="text-[var(--accent-primary)] animate-bounce" />
-        <span>Initializing WebGL 3D Spatial Holographic Engine...</span>
-      </div>
-    ),
-  },
-);
-
-const MOCK_TEASER_USERS: LeaderboardUser[] = [
-  { id: "user-1", username: "Alexey V. (DeepMind)", completedLevels: 24, lastActivityDate: "Just now" },
-  { id: "user-2", username: "Elena Rostova", completedLevels: 19, lastActivityDate: "1h ago" },
-  { id: "user-3", username: "Marcus Aurelius", completedLevels: 14, lastActivityDate: "3h ago" },
-  { id: "user-4", username: "Priya Sharma", completedLevels: 9, lastActivityDate: "Yesterday" },
-  { id: "user-current", username: "You (VIP Architect)", completedLevels: 7, lastActivityDate: "Active" },
-  { id: "user-5", username: "David Kim", completedLevels: 5, lastActivityDate: "2d ago" },
-];
 
 export default function CityComingSoonPage() {
   const [isAudioMuted, setIsAudioMuted] = useState(false);
-  const [cityTheme, setCityTheme] = useState<CityTheme>("cyberpunk");
-  const [focusedUserId, setFocusedUserId] = useState<string | null>(null);
 
   useEffect(() => {
     setIsAudioMuted(cityAudio.getMuted());
@@ -160,39 +129,6 @@ export default function CityComingSoonPage() {
                 <p className="text-[10px] text-[var(--text-muted)]">Target: Global Beta Release</p>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* =========================================================================
-            COUNTDOWN TIMER MODULE
-            ========================================================================= */}
-        <CityCountdownTimer />
-
-        {/* =========================================================================
-            3D WEBGL SPATIAL CANVAS TEASER
-            ========================================================================= */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[var(--accent-primary)] shadow-[0_0_8px_var(--accent-primary)]" />
-              <h2 className="text-sm font-black uppercase tracking-widest text-[var(--text-primary)] font-mono">
-                Live 3D Holographic Spatial Canvas Preview
-              </h2>
-            </div>
-            <span className="text-[11px] font-mono text-[var(--text-muted)]">
-              Interactive 3D WebGL Canvas
-            </span>
-          </div>
-
-          <div className="w-full h-[480px] rounded-3xl overflow-hidden border border-[var(--border-subtle)] shadow-2xl relative bg-[var(--bg-card)]">
-            <CityScene
-              users={MOCK_TEASER_USERS}
-              currentUserId="user-current"
-              focusedUserId={focusedUserId}
-              onFocusUser={(id) => setFocusedUserId(id)}
-              theme={cityTheme}
-              onThemeChange={(newTheme) => setCityTheme(newTheme)}
-            />
           </div>
         </div>
 
