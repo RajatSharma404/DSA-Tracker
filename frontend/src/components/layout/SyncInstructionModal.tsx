@@ -22,6 +22,14 @@ import {
   ArrowRight,
   Info,
   CheckCheck,
+  Keyboard,
+  Compass,
+  Flame,
+  WifiOff,
+  Command,
+  Sliders,
+  Cpu,
+  Dices,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -31,7 +39,7 @@ import {
 import { dsaApi } from "@/lib/api";
 import { soundEffects } from "@/lib/soundEffects";
 
-type ActiveTab = "extension" | "cookie" | "compare";
+type ActiveTab = "extension" | "cookie" | "keyboard" | "features" | "compare";
 type BrowserType = "chrome" | "firefox" | "edge" | "arc";
 
 interface SyncInstructionModalProps {
@@ -158,10 +166,10 @@ export function SyncInstructionModal({
             </div>
             <div>
               <h2 className="text-lg sm:text-xl font-black text-[var(--text-primary)] font-display flex items-center gap-2">
-                <span>Integration & Sync Instructions</span>
+                <span>Setup & Power User Guide</span>
               </h2>
               <p className="text-xs text-[var(--text-muted)]">
-                Step-by-step setup for Chrome Extension auto-sync & LeetCode session cookie
+                LeetCode sync, two-stroke keyboard navigation, PWA install & power features
               </p>
             </div>
           </div>
@@ -236,34 +244,73 @@ export function SyncInstructionModal({
           </div>
 
           {/* Tabs */}
-          <div className="flex space-x-2">
+          <div className="flex space-x-2 overflow-x-auto no-scrollbar">
             <button
-              onClick={() => setActiveTab("extension")}
-              className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer ${
+              onClick={() => {
+                soundEffects.playClick();
+                setActiveTab("extension");
+              }}
+              className={`flex items-center gap-2 px-3.5 py-2 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                 activeTab === "extension"
                   ? "border-[var(--accent-primary)] text-[var(--accent-primary)] bg-[var(--accent-primary)]/5 rounded-t-xl"
                   : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]"
               }`}
             >
               <Puzzle size={14} />
-              <span>Chrome Extension (0-Click Auto-Sync)</span>
+              <span>Chrome Extension</span>
             </button>
 
             <button
-              onClick={() => setActiveTab("cookie")}
-              className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer ${
+              onClick={() => {
+                soundEffects.playClick();
+                setActiveTab("cookie");
+              }}
+              className={`flex items-center gap-2 px-3.5 py-2 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                 activeTab === "cookie"
                   ? "border-[var(--accent-primary)] text-[var(--accent-primary)] bg-[var(--accent-primary)]/5 rounded-t-xl"
                   : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]"
               }`}
             >
               <Key size={14} />
-              <span>LEETCODE_SESSION Cookie</span>
+              <span>Session Cookie</span>
             </button>
 
             <button
-              onClick={() => setActiveTab("compare")}
-              className={`hidden sm:flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer ${
+              onClick={() => {
+                soundEffects.playClick();
+                setActiveTab("keyboard");
+              }}
+              className={`flex items-center gap-2 px-3.5 py-2 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+                activeTab === "keyboard"
+                  ? "border-[var(--accent-primary)] text-[var(--accent-primary)] bg-[var(--accent-primary)]/5 rounded-t-xl"
+                  : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              }`}
+            >
+              <Keyboard size={14} />
+              <span>Keyboard & Vim Chords</span>
+            </button>
+
+            <button
+              onClick={() => {
+                soundEffects.playClick();
+                setActiveTab("features");
+              }}
+              className={`flex items-center gap-2 px-3.5 py-2 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+                activeTab === "features"
+                  ? "border-[var(--accent-primary)] text-[var(--accent-primary)] bg-[var(--accent-primary)]/5 rounded-t-xl"
+                  : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              }`}
+            >
+              <Sparkles size={14} />
+              <span>PWA & Power Features</span>
+            </button>
+
+            <button
+              onClick={() => {
+                soundEffects.playClick();
+                setActiveTab("compare");
+              }}
+              className={`flex items-center gap-2 px-3.5 py-2 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                 activeTab === "compare"
                   ? "border-[var(--accent-primary)] text-[var(--accent-primary)] bg-[var(--accent-primary)]/5 rounded-t-xl"
                   : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]"
@@ -474,7 +521,168 @@ export function SyncInstructionModal({
             </div>
           )}
 
-          {/* TAB 3: COMPARISON */}
+          {/* TAB 3: KEYBOARD & VIM NAVIGATION */}
+          {activeTab === "keyboard" && (
+            <div className="space-y-5 text-xs">
+              <div className="p-4 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] space-y-2">
+                <div className="flex items-center gap-2 text-[var(--accent-primary)] font-bold font-mono uppercase tracking-wider text-[11px]">
+                  <Compass size={14} />
+                  <span>Two-Stroke Vim Navigation Chords</span>
+                </div>
+                <p className="text-[var(--text-muted)] leading-relaxed">
+                  Press <kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-card)] border border-[var(--border-subtle)] font-mono text-[var(--text-primary)]">g</kbd> followed quickly by any target key to teleport across the platform from anywhere:
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 pt-2">
+                  {[
+                    { chord: "g d", label: "Dashboard", desc: "Overview & Streak" },
+                    { chord: "g r", label: "Roadmap", desc: "Curriculum Graph" },
+                    { chord: "g t", label: "Topics", desc: "Curriculum Lists" },
+                    { chord: "g s", label: "Search", desc: "Problem Bank" },
+                    { chord: "g p", label: "1v1 PvP", desc: "Colosseum Arena" },
+                    { chord: "g a", label: "AlgoTracer", desc: "Call Stack Runtime" },
+                    { chord: "g f", label: "Flashcards", desc: "Spaced Repetition" },
+                    { chord: "g c", label: "Palette", desc: "Command Center" },
+                  ].map((item) => (
+                    <div
+                      key={item.chord}
+                      className="p-2.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border-subtle)] space-y-1"
+                    >
+                      <div className="flex items-center justify-between">
+                        <kbd className="px-2 py-0.5 rounded-lg bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] font-mono font-bold text-xs border border-[var(--accent-primary)]/30">
+                          {item.chord}
+                        </kbd>
+                        <span className="font-bold text-[var(--text-primary)] text-[11px]">{item.label}</span>
+                      </div>
+                      <p className="text-[10px] text-[var(--text-muted)]">{item.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Command Palette Power Features */}
+                <div className="p-4 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] space-y-2.5">
+                  <div className="flex items-center gap-2 text-cyan-400 font-bold font-mono uppercase text-[11px]">
+                    <Command size={14} />
+                    <span>Command Palette (⌘K)</span>
+                  </div>
+                  <ul className="space-y-1.5 text-[11px] text-[var(--text-secondary)]">
+                    <li className="flex items-center justify-between">
+                      <span>Pick Random Problem:</span>
+                      <span className="font-mono text-amber-400">🎲 Random</span>
+                    </li>
+                    <li className="flex items-center justify-between">
+                      <span>Trigger LeetCode Sync:</span>
+                      <span className="font-mono text-emerald-400">🔄 Sync</span>
+                    </li>
+                    <li className="flex items-center justify-between">
+                      <span>Start SM-2 Daily Review:</span>
+                      <span className="font-mono text-purple-400">⚡ Review</span>
+                    </li>
+                    <li className="flex items-center justify-between">
+                      <span>Search with Difficulty Filter:</span>
+                      <span className="font-mono text-cyan-300">#easy / #hard</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Workspace & Gesture Controls */}
+                <div className="p-4 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] space-y-2.5">
+                  <div className="flex items-center gap-2 text-purple-400 font-bold font-mono uppercase text-[11px]">
+                    <Sliders size={14} />
+                    <span>Interactive Workspace & Gestures</span>
+                  </div>
+                  <ul className="space-y-1.5 text-[11px] text-[var(--text-secondary)]">
+                    <li className="flex items-center justify-between">
+                      <span>Submit Solution (Monaco):</span>
+                      <kbd className="font-mono bg-[var(--bg-card)] px-1.5 py-0.5 rounded border border-[var(--border-subtle)]">Ctrl + Enter</kbd>
+                    </li>
+                    <li className="flex items-center justify-between">
+                      <span>Run Sample Tests:</span>
+                      <kbd className="font-mono bg-[var(--bg-card)] px-1.5 py-0.5 rounded border border-[var(--border-subtle)]">Ctrl + &apos;</kbd>
+                    </li>
+                    <li className="flex items-center justify-between">
+                      <span>Flip Flashcard:</span>
+                      <kbd className="font-mono bg-[var(--bg-card)] px-1.5 py-0.5 rounded border border-[var(--border-subtle)]">Space</kbd>
+                    </li>
+                    <li className="flex items-center justify-between">
+                      <span>Flashcard Swipe Gesture:</span>
+                      <span className="font-mono text-emerald-400">Right: Easy / Left: Hard</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: PWA & POWER FEATURES */}
+          {activeTab === "features" && (
+            <div className="space-y-4 text-xs">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* PWA Standalone App */}
+                <div className="p-4 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] space-y-2">
+                  <div className="flex items-center gap-2 text-emerald-400 font-bold font-mono uppercase text-[11px]">
+                    <Zap size={14} />
+                    <span>PWA Standalone App</span>
+                  </div>
+                  <p className="text-[var(--text-muted)] leading-relaxed text-[11px]">
+                    DSA Tracker Pro is a certified Progressive Web App. Install it directly from your browser toolbar (or Chrome install prompt) to run in a dedicated distraction-free window with native OS integration.
+                  </p>
+                  <div className="pt-1">
+                    <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-mono text-[10px]">
+                      ✓ Zero Tab Clutter &bull; Native Desktop Shortcuts
+                    </span>
+                  </div>
+                </div>
+
+                {/* Offline Mutation Buffer */}
+                <div className="p-4 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] space-y-2">
+                  <div className="flex items-center gap-2 text-amber-400 font-bold font-mono uppercase text-[11px]">
+                    <WifiOff size={14} />
+                    <span>Offline Resilience & Auto-Sync</span>
+                  </div>
+                  <p className="text-[var(--text-muted)] leading-relaxed text-[11px]">
+                    Internet dropped on the train or plane? You can continue marking problems as solved and organizing bookmarks. All actions are buffered in an encrypted offline queue and automatically replay once connection returns.
+                  </p>
+                  <div className="pt-1">
+                    <span className="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-300 border border-amber-500/20 font-mono text-[10px]">
+                      ⚡ Automatic Replay on Reconnect
+                    </span>
+                  </div>
+                </div>
+
+                {/* Procedural Streak Flame Milestones */}
+                <div className="p-4 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] space-y-2">
+                  <div className="flex items-center gap-2 text-orange-400 font-bold font-mono uppercase text-[11px]">
+                    <Flame size={14} />
+                    <span>4-Tier Procedural Streak Flame</span>
+                  </div>
+                  <ul className="space-y-1 text-[11px] text-[var(--text-secondary)]">
+                    <li>• <strong>1–6 Days (Spark):</strong> Gentle warm amber glow.</li>
+                    <li>• <strong>7–29 Days (Blaze):</strong> Electric flame with animated spark embers.</li>
+                    <li>• <strong>30–99 Days (Plasma):</strong> Cyan/Violet dual-core cyberpunk plasma.</li>
+                    <li>• <strong>100+ Days (Supernova):</strong> Celestial golden core with revolving ring.</li>
+                  </ul>
+                </div>
+
+                {/* AlgoTracer 2.0 & PvP Speedometer */}
+                <div className="p-4 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] space-y-2">
+                  <div className="flex items-center gap-2 text-cyan-400 font-bold font-mono uppercase text-[11px]">
+                    <Cpu size={14} />
+                    <span>AlgoTracer 2.0 & 1v1 PvP</span>
+                  </div>
+                  <ul className="space-y-1 text-[11px] text-[var(--text-secondary)]">
+                    <li>• <strong>Speed Presets:</strong> 0.25x (2s), 0.5x, 1x, 2x, 5x speed rates.</li>
+                    <li>• <strong>Call Stack Visualizer:</strong> Recursion depth & memory allocator.</li>
+                    <li>• <strong>Live Speedometer:</strong> Real-time WPM/CPM gauge in 1v1 battle arena.</li>
+                    <li>• <strong>Victory Podium:</strong> Fanfares, ELO gain breakdown & confetti cannons.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 5: COMPARISON */}
           {activeTab === "compare" && (
             <div className="space-y-4 text-xs">
               <div className="p-4 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] space-y-2">
