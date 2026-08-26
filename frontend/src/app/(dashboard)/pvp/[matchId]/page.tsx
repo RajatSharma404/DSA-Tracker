@@ -23,9 +23,14 @@ import {
   Check,
   X,
   Layers,
+  Gauge,
+  CheckCircle,
+  AlertCircle,
+  TrendingUp,
 } from "lucide-react";
 import { toast } from "sonner";
 import { soundEffects } from "@/lib/soundEffects";
+import confetti from "canvas-confetti";
 
 interface PvPBattleProps {
   params: Promise<{ matchId: string }>;
@@ -89,6 +94,39 @@ export default function PvPMatchBattlePage({ params }: PvPBattleProps) {
     },
   ]);
   const [matchStatus, setMatchStatus] = useState<"ACTIVE" | "VICTORY" | "DEFEAT">("ACTIVE");
+
+  // Live Typing Speedometer & Syntax Checker State
+  const [wpm, setWpm] = useState(48);
+  const [keystrokes, setKeystrokes] = useState(120);
+  const startTimeRef = React.useRef(Date.now());
+
+  // Simple syntax bracket balance checker
+  const syntaxCheck = React.useMemo(() => {
+    let brackets = 0;
+    let parens = 0;
+    let braces = 0;
+    for (const char of code) {
+      if (char === "{") braces++;
+      else if (char === "}") braces--;
+      else if (char === "(") parens++;
+      else if (char === ")") parens--;
+      else if (char === "[") brackets++;
+      else if (char === "]") brackets--;
+    }
+    const isValid = brackets === 0 && parens === 0 && braces === 0;
+    return {
+      isValid,
+      message: isValid ? "Clean Syntax" : "Unbalanced brackets / parentheses",
+    };
+  }, [code]);
+
+  const handleCodeChange = (newCode: string) => {
+    setCode(newCode);
+    setKeystrokes((prev) => prev + 1);
+    const elapsedMinutes = Math.max(0.1, (Date.now() - startTimeRef.current) / 60000);
+    const calculatedWpm = Math.min(180, Math.round((newCode.length / 5) / elapsedMinutes));
+    setWpm(calculatedWpm);
+  };
 
   // Opponent Live Simulation
   const [opponentName] = useState("Alex Chen (Meta Senior Lead)");
@@ -196,6 +234,16 @@ export default function PvPMatchBattlePage({ params }: PvPBattleProps) {
       setMatchStatus("VICTORY");
       soundEffects.playSuccess();
       toast.success("All 4/4 Test Cases Passed! You Won the Match!");
+      try {
+        confetti({
+          particleCount: 160,
+          spread: 80,
+          origin: { y: 0.6 },
+          colors: ["#38bdf8", "#ec4899", "#10b981", "#fbbf24"],
+        });
+      } catch {
+        // ignore confetti errors
+      }
     }, 1100);
   };
 
@@ -249,15 +297,40 @@ export default function PvPMatchBattlePage({ params }: PvPBattleProps) {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1 min-h-0">
         {/* Left Column (8 cols): Monaco Editor & Test Drawer */}
         <div className="lg:col-span-8 flex flex-col rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-card)] overflow-hidden shadow-xl">
-          {/* Editor Header */}
-          <div className="flex items-center justify-between px-5 py-3 border-b border-[var(--border-subtle)] bg-[var(--bg-secondary)] text-xs font-bold text-[var(--text-secondary)]">
+          {/* Editor Header with WPM Speedometer & Syntax Indicator */}
+          <div className="flex flex-wrap items-center justify-between px-5 py-2.5 border-b border-[var(--border-subtle)] bg-[var(--bg-secondary)] text-xs font-bold text-[var(--text-secondary)] gap-2">
             <span className="flex items-center gap-2">
               <Code2 size={15} className="text-[var(--accent-primary)]" />
               <span>Your Solution (TypeScript)</span>
             </span>
-            <span className="text-[var(--accent-primary)] font-mono">
-              {userTestsPassed}/{testCases.length} Tests Passed
-            </span>
+
+            {/* Live Typing Speedometer & Syntax Indicator */}
+            <div className="flex items-center gap-3 font-mono text-[10px]">
+              <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--bg-card)] border border-[var(--border-subtle)]">
+                <Gauge size={12} className="text-cyan-400" />
+                <span className="text-[var(--text-muted)]">Speed:</span>
+                <span className="text-cyan-400 font-bold">{wpm} WPM</span>
+              </div>
+
+              <div
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-lg border ${
+                  syntaxCheck.isValid
+                    ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                    : "bg-amber-500/10 border-amber-500/20 text-amber-400"
+                }`}
+              >
+                {syntaxCheck.isValid ? (
+                  <CheckCircle size={11} />
+                ) : (
+                  <AlertCircle size={11} />
+                )}
+                <span>{syntaxCheck.message}</span>
+              </div>
+
+              <span className="text-[var(--accent-primary)]">
+                {userTestsPassed}/{testCases.length} Tests Passed
+              </span>
+            </div>
           </div>
 
           {/* Monaco Editor */}
@@ -267,7 +340,7 @@ export default function PvPMatchBattlePage({ params }: PvPBattleProps) {
               theme="vs-dark"
               language="typescript"
               value={code}
-              onChange={(val) => setCode(val || "")}
+              onChange={(val) => handleCodeChange(val || "")}
               options={{
                 minimap: { enabled: false },
                 automaticLayout: true,
@@ -433,68 +506,77 @@ export default function PvPMatchBattlePage({ params }: PvPBattleProps) {
         </div>
       </div>
 
-      {/* Victory / Defeat Modal Overlay */}
+      {/* Victory / Defeat Podium Modal Overlay */}
       {matchStatus !== "ACTIVE" && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in zoom-in-95 duration-300">
-          <div className="bg-[var(--bg-card)] border border-[var(--border-medium)] rounded-3xl p-8 max-w-md w-full text-center space-y-6 shadow-2xl">
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xl flex items-center justify-center p-4 animate-in zoom-in-95 duration-300">
+          <div className="relative bg-[var(--bg-card)] border-2 border-[var(--border-medium)] rounded-[2.5rem] p-8 sm:p-10 max-w-lg w-full text-center space-y-6 shadow-[0_0_50px_var(--accent-glow)] overflow-hidden">
+            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.15),transparent_60%)]" />
+
+            {/* Victory Podium Badge */}
             <div
-              className={`w-20 h-20 rounded-3xl mx-auto flex items-center justify-center text-3xl shadow-xl ${
+              className={`relative z-10 w-24 h-24 rounded-3xl mx-auto flex items-center justify-center text-4xl shadow-2xl transition-transform animate-bounce ${
                 matchStatus === "VICTORY"
-                  ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-emerald-500/10"
-                  : "bg-rose-500/20 text-rose-400 border border-rose-500/30 shadow-rose-500/10"
+                  ? "bg-gradient-to-tr from-amber-500/30 to-yellow-400/20 text-yellow-400 border border-yellow-400/50 shadow-yellow-500/20"
+                  : "bg-rose-500/20 text-rose-400 border border-rose-500/30 shadow-rose-500/20"
               }`}
+              style={{ animationDuration: "2s" }}
             >
               {matchStatus === "VICTORY" ? (
-                <Trophy size={40} />
+                <Trophy size={48} className="drop-shadow-[0_0_12px_rgba(234,179,8,0.8)]" />
               ) : (
-                <AlertTriangle size={40} />
+                <AlertTriangle size={48} />
               )}
             </div>
 
-            <div className="space-y-1">
-              <h3 className="text-2xl font-black text-[var(--text-primary)] font-display">
+            <div className="relative z-10 space-y-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] text-[10px] font-mono font-black uppercase tracking-widest">
+                <Crown size={12} />
+                <span>1v1 Match Result</span>
+              </div>
+              <h3 className="text-3xl font-black text-[var(--text-primary)] font-display tracking-tight">
                 {matchStatus === "VICTORY"
-                  ? "GLADIATOR VICTORY!"
+                  ? "COLOSSEUM CHAMPION!"
                   : "MATCH DEFEAT"}
               </h3>
-              <p className="text-xs text-[var(--text-muted)]">
+              <p className="text-xs text-[var(--text-muted)] max-w-sm mx-auto">
                 {matchStatus === "VICTORY"
-                  ? "You solved all test cases before your opponent!"
-                  : "Your opponent finished the test suite first."}
+                  ? "You crushed all test cases and dominated the arena before your opponent!"
+                  : "Your opponent completed the test suite first. Study the invariants and return stronger."}
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] flex items-center justify-around font-mono text-sm">
-              <div>
-                <span className="text-[10px] text-[var(--text-muted)] uppercase font-sans">
-                  ELO Change
-                </span>
-                <div
-                  className={`font-black ${
-                    matchStatus === "VICTORY"
-                      ? "text-emerald-400"
-                      : "text-rose-400"
-                  }`}
-                >
-                  {matchStatus === "VICTORY" ? "+24 ELO" : "-16 ELO"}
-                </div>
+            {/* Metrics Breakdown Grid */}
+            <div className="relative z-10 p-4 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] grid grid-cols-3 gap-2 font-mono text-xs">
+              <div className="p-2 rounded-xl bg-[var(--bg-card)]">
+                <span className="text-[9px] text-[var(--text-muted)] uppercase block">ELO Gain</span>
+                <span className="font-black text-emerald-400 text-sm">+25 ELO</span>
               </div>
-              <div className="w-px h-8 bg-[var(--border-subtle)]" />
-              <div>
-                <span className="text-[10px] text-[var(--text-muted)] uppercase font-sans">
-                  New Rating
-                </span>
-                <div className="font-black text-[var(--text-primary)]">
-                  {matchStatus === "VICTORY" ? "1,914 ELO" : "1,874 ELO"}
-                </div>
+              <div className="p-2 rounded-xl bg-[var(--bg-card)]">
+                <span className="text-[9px] text-[var(--text-muted)] uppercase block">Type Velocity</span>
+                <span className="font-black text-cyan-400 text-sm">{wpm} WPM</span>
+              </div>
+              <div className="p-2 rounded-xl bg-[var(--bg-card)]">
+                <span className="text-[9px] text-[var(--text-muted)] uppercase block">New Rating</span>
+                <span className="font-black text-amber-400 text-sm">1,915 ELO</span>
               </div>
             </div>
 
-            <div className="flex gap-3 justify-center pt-2">
+            <div className="relative z-10 flex flex-wrap gap-3 justify-center pt-2 font-mono">
+              <button
+                onClick={() => {
+                  soundEffects.playSuccess();
+                  try {
+                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                  } catch {}
+                }}
+                className="px-4 py-2.5 rounded-xl bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] border border-[var(--border-subtle)] text-[var(--text-primary)] font-bold text-xs uppercase tracking-wider cursor-pointer"
+              >
+                🎉 Confetti Blast
+              </button>
               <Link
                 href="/pvp"
                 onClick={() => soundEffects.playClick()}
-                className="px-6 py-3 rounded-2xl bg-[var(--accent-primary)] text-black font-extrabold text-xs uppercase tracking-wider hover:scale-[1.02] active:scale-[0.98] transition-all shadow-md"
+                className="px-6 py-2.5 rounded-xl bg-[var(--accent-primary)] text-black font-black text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg cursor-pointer"
               >
                 Back to Colosseum
               </Link>
