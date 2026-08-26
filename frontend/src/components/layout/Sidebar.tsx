@@ -138,8 +138,8 @@ export function Sidebar() {
         className="flex-1 overflow-y-auto py-3 space-y-4 no-scrollbar"
         aria-label="Navigation menu"
       >
-        {displaySections.map((section) => (
-          <div key={section.title} className="space-y-1">
+        {displaySections.map((section, sectionIdx) => (
+          <div key={section.title} className={`space-y-1 ${sectionIdx > 0 ? "pt-2 border-t border-[var(--border-subtle)]/40 mt-2" : ""}`}>
             {!effectiveCollapsed && (
               <p className="px-5 mb-1 text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] line-clamp-1">
                 {section.title}
@@ -166,7 +166,7 @@ export function Sidebar() {
                       size={18}
                       className={`shrink-0 transition-colors ${
                         isActive
-                          ? "text-[var(--accent-primary)]"
+                          ? "text-[var(--accent-primary)] drop-shadow-[0_0_6px_var(--accent-glow)]"
                           : "text-[var(--text-muted)]"
                       }`}
                     />
@@ -176,7 +176,7 @@ export function Sidebar() {
                       </span>
                     )}
                     {isActive && !effectiveCollapsed && (
-                      <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)] shadow-[0_0_8px_var(--accent-glow)]" />
+                      <span className="ml-auto w-2 h-2 rounded-full bg-[var(--accent-primary)] glow-pulse" />
                     )}
                   </Link>
                 );
