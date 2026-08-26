@@ -6,13 +6,13 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **22** | **12** | **10** | **0** |
+| **23** | **12** | **11** | **0** |
 
 ### 📂 Topic Directories
 
 - [**Arrays And Hashing**](./01-arrays-and-hashing/) (6 problems)
 - [**Two Pointers**](./02-two-pointers/) (3 problems)
-- [**Sliding Window**](./03-sliding-window/) (2 problems)
+- [**Sliding Window**](./03-sliding-window/) (3 problems)
 - [**Stack**](./04-stack/) (2 problems)
 - [**Binary Search**](./05-binary-search/) (2 problems)
 - [**Linked List**](./06-linked-list/) (2 problems)
@@ -45,6 +45,7 @@
 | 238 | Product Of Array Except Self | Arrays & Hashing | 🟡 Medium | `C++` | `O(n)` | `O(1) auxiliary space (excluding return vector)` | [Code](./01-arrays-and-hashing/0238-product-of-array-except-self.cpp) |
 | 242 | Valid Anagram | Arrays & Hashing | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0242-valid-anagram.cpp) |
 | 347 | Top K Frequent Elements | Heap / Priority Queue | 🟡 Medium | `C++` | `O(N log k)` | `O(N)` | [Code](./08-heap-priority-queue/0347-top-k-frequent-elements.cpp) |
+| 424 | Longest Repeating Character Replacement | Sliding Window | 🟡 Medium | `C++` | `O(n)` | `O(1) (26 uppercase letters)` | [Code](./03-sliding-window/0424-longest-repeating-character-replacement.cpp) |
 | 704 | Binary Search | Binary Search | 🟢 Easy | `C++` | `O(log n)` | `O(1)` | [Code](./05-binary-search/0704-binary-search.cpp) |
 
 ---
