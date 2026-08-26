@@ -53,6 +53,9 @@ const DIFFICULTY_STYLES: Record<string, { bg: string; text: string; border: stri
   },
 };
 
+import { toast } from "sonner";
+import { Dices, RefreshCw, Keyboard as KeyboardIcon } from "lucide-react";
+
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -68,7 +71,7 @@ export function CommandPalette() {
     dsaApi
       .getTopics()
       .then((data) => setTopics(data))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   // Listen for ⌘K or Ctrl+K shortcut & custom open events
@@ -96,7 +99,7 @@ export function CommandPalette() {
     };
   }, []);
 
-  // Debounced live problem search
+  // Debounced live problem search with tag/difficulty prefix parsing
   const handleQueryChange = useCallback((newQuery: string) => {
     setQuery(newQuery);
     if (!newQuery.trim() || newQuery.length < 2) {
@@ -112,7 +115,24 @@ export function CommandPalette() {
     setIsSearching(true);
     searchTimeoutRef.current = setTimeout(async () => {
       try {
-        const results = await dsaApi.searchProblems({ q: newQuery.trim() });
+        let cleanQuery = newQuery.trim();
+        let difficulty: string | undefined = undefined;
+
+        if (cleanQuery.includes("#easy")) {
+          difficulty = "EASY";
+          cleanQuery = cleanQuery.replace("#easy", "").trim();
+        } else if (cleanQuery.includes("#medium")) {
+          difficulty = "MEDIUM";
+          cleanQuery = cleanQuery.replace("#medium", "").trim();
+        } else if (cleanQuery.includes("#hard")) {
+          difficulty = "HARD";
+          cleanQuery = cleanQuery.replace("#hard", "").trim();
+        }
+
+        const results = await dsaApi.searchProblems({
+          q: cleanQuery || undefined,
+          difficulty,
+        });
         setSearchedProblems(results.slice(0, 8));
       } catch {
         setSearchedProblems([]);
@@ -134,6 +154,37 @@ export function CommandPalette() {
     setTheme(themeId);
     soundEffects.playSuccess();
     setOpen(false);
+  };
+
+  const handlePickRandomProblem = async () => {
+    try {
+      soundEffects.playClick();
+      toast.info("Selecting random problem from bank...");
+      const res = await dsaApi.searchProblems({});
+      if (res && res.length > 0) {
+        const randomItem = res[Math.floor(Math.random() * res.length)];
+        soundEffects.playSuccess();
+        runCommand(() => router.push(`/problems/${randomItem.id}`));
+      } else {
+        toast.error("No problems found");
+      }
+    } catch {
+      toast.error("Failed to pick random problem");
+    }
+  };
+
+  const handleSyncLeetCode = async () => {
+    soundEffects.playClick();
+    setOpen(false);
+    toast.info("Initiating background LeetCode sync...");
+    try {
+      await dsaApi.syncLeetcode();
+      soundEffects.playSuccess();
+      toast.success("LeetCode submissions synced successfully!");
+    } catch (err) {
+      soundEffects.playError();
+      toast.error("Failed to sync LeetCode. Check your session cookie in settings.");
+    }
   };
 
   return (
@@ -210,6 +261,71 @@ export function CommandPalette() {
             })}
           </Command.Group>
         )}
+
+        {/* Power Actions & Quick Automation */}
+        <Command.Group
+          heading="Power Actions & Automations"
+          className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-bold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-[var(--accent-primary)]"
+        >
+          <Command.Item
+            value="action-random-problem-pick"
+            onSelect={handlePickRandomProblem}
+            className="relative flex cursor-pointer select-none items-center justify-between rounded-xl px-3 py-2 text-sm text-[var(--text-secondary)] outline-none aria-selected:bg-[var(--accent-primary)]/15 aria-selected:text-[var(--accent-primary)] aria-selected:font-semibold"
+          >
+            <div className="flex items-center gap-3">
+              <Dices className="h-4 w-4 shrink-0 text-amber-400" />
+              <span>Pick Random Problem</span>
+            </div>
+            <kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-secondary)] border border-[var(--border-subtle)] font-mono text-[10px] text-[var(--text-muted)]">
+              🎲 Random
+            </kbd>
+          </Command.Item>
+
+          <Command.Item
+            value="action-sync-leetcode-submissions"
+            onSelect={handleSyncLeetCode}
+            className="relative flex cursor-pointer select-none items-center justify-between rounded-xl px-3 py-2 text-sm text-[var(--text-secondary)] outline-none aria-selected:bg-[var(--accent-primary)]/15 aria-selected:text-[var(--accent-primary)] aria-selected:font-semibold"
+          >
+            <div className="flex items-center gap-3">
+              <RefreshCw className="h-4 w-4 shrink-0 text-emerald-400" />
+              <span>Sync LeetCode Submissions</span>
+            </div>
+            <kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-secondary)] border border-[var(--border-subtle)] font-mono text-[10px] text-[var(--text-muted)]">
+              🔄 Sync
+            </kbd>
+          </Command.Item>
+
+          <Command.Item
+            value="action-daily-review-sm2"
+            onSelect={() => runCommand(() => router.push("/review"))}
+            className="relative flex cursor-pointer select-none items-center justify-between rounded-xl px-3 py-2 text-sm text-[var(--text-secondary)] outline-none aria-selected:bg-[var(--accent-primary)]/15 aria-selected:text-[var(--accent-primary)] aria-selected:font-semibold"
+          >
+            <div className="flex items-center gap-3">
+              <Sparkles className="h-4 w-4 shrink-0 text-purple-400" />
+              <span>Start SM-2 Daily Review Session</span>
+            </div>
+            <kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-secondary)] border border-[var(--border-subtle)] font-mono text-[10px] text-[var(--text-muted)]">
+              ⚡ Review
+            </kbd>
+          </Command.Item>
+
+          <Command.Item
+            value="action-keyboard-shortcuts-sheet"
+            onSelect={() => {
+              setOpen(false);
+              window.dispatchEvent(new CustomEvent("dsa-open-shortcuts"));
+            }}
+            className="relative flex cursor-pointer select-none items-center justify-between rounded-xl px-3 py-2 text-sm text-[var(--text-secondary)] outline-none aria-selected:bg-[var(--accent-primary)]/15 aria-selected:text-[var(--accent-primary)] aria-selected:font-semibold"
+          >
+            <div className="flex items-center gap-3">
+              <KeyboardIcon className="h-4 w-4 shrink-0 text-cyan-400" />
+              <span>Open Keyboard Shortcuts Sheet</span>
+            </div>
+            <kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-secondary)] border border-[var(--border-subtle)] font-mono text-[10px] text-[var(--text-muted)]">
+              ?
+            </kbd>
+          </Command.Item>
+        </Command.Group>
 
         {/* Theme Switching Commands */}
         <Command.Group
