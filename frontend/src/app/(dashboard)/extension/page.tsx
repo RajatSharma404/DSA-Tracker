@@ -19,6 +19,13 @@ import {
   Lock,
   Info,
   CheckCheck,
+  Keyboard,
+  Compass,
+  Flame,
+  WifiOff,
+  Command,
+  Sliders,
+  Cpu,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -27,7 +34,7 @@ import {
 } from "@/lib/extensionBridge";
 import { dsaApi } from "@/lib/api";
 
-type ActiveTab = "extension" | "cookie" | "compare";
+type ActiveTab = "extension" | "cookie" | "keyboard" | "features" | "compare";
 type BrowserType = "chrome" | "firefox" | "edge" | "arc";
 
 function ExtensionHubContent() {
@@ -35,7 +42,7 @@ function ExtensionHubContent() {
   const initialTab = (searchParams.get("tab") as ActiveTab) || "extension";
 
   const [activeTab, setActiveTab] = useState<ActiveTab>(
-    ["extension", "cookie", "compare"].includes(initialTab)
+    ["extension", "cookie", "keyboard", "features", "compare"].includes(initialTab)
       ? initialTab
       : "extension",
   );
@@ -255,6 +262,30 @@ function ExtensionHubContent() {
           <span className="text-[10px] font-mono uppercase bg-cyan-500/10 text-cyan-400 px-2 py-0.5 rounded-full border border-cyan-500/20 hidden sm:inline">
             Full Backlog Sync
           </span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab("keyboard")}
+          className={`flex items-center gap-2.5 px-5 py-3 text-xs sm:text-sm font-bold border-b-2 transition-all cursor-pointer ${
+            activeTab === "keyboard"
+              ? "border-[var(--accent-primary)] text-[var(--accent-primary)] bg-[var(--accent-primary)]/5 rounded-t-xl"
+              : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+          }`}
+        >
+          <Keyboard size={16} />
+          <span>Keyboard & Vim Chords</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab("features")}
+          className={`flex items-center gap-2.5 px-5 py-3 text-xs sm:text-sm font-bold border-b-2 transition-all cursor-pointer ${
+            activeTab === "features"
+              ? "border-[var(--accent-primary)] text-[var(--accent-primary)] bg-[var(--accent-primary)]/5 rounded-t-xl"
+              : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+          }`}
+        >
+          <Sparkles size={16} />
+          <span>PWA & Power Features</span>
         </button>
 
         <button
@@ -637,7 +668,191 @@ function ExtensionHubContent() {
       )}
 
       {/* ========================================================================= */}
-      {/* TAB 3: COMPARISON MATRIX & TROUBLESHOOTING FAQ */}
+      {/* TAB 3: KEYBOARD & VIM NAVIGATION CHORDS */}
+      {/* ========================================================================= */}
+      {activeTab === "keyboard" && (
+        <div className="space-y-8 animate-in fade-in duration-300">
+          <div className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6 sm:p-8 shadow-xl space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border border-[var(--accent-primary)]/20 shadow-xs">
+                <Compass size={20} />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-[var(--text-primary)] font-display">
+                  Two-Stroke Vim Navigation Chords
+                </h3>
+                <p className="text-xs text-[var(--text-muted)] font-mono">
+                  Press <kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-secondary)] border border-[var(--border-subtle)] text-[var(--text-primary)]">g</kbd> followed by any target key to teleport across the platform
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-2">
+              {[
+                { chord: "g d", label: "Dashboard Overview", desc: "Jump to metrics & streak", path: "/" },
+                { chord: "g r", label: "Visual Roadmap", desc: "Interactive curriculum graph", path: "/roadmap" },
+                { chord: "g t", label: "Topic Curriculum", desc: "Topic lists & breakdown", path: "/topics" },
+                { chord: "g s", label: "Problem Search Bank", desc: "Filter 2000+ problems", path: "/search" },
+                { chord: "g p", label: "1v1 PvP Colosseum", desc: "Battle live opponents", path: "/pvp" },
+                { chord: "g a", label: "AlgoTracer 2.0", desc: "Call stack & memory runtime", path: "/tracer" },
+                { chord: "g f", label: "Flashcards Deck", desc: "SM-2 spaced repetition", path: "/flashcards" },
+                { chord: "g c", label: "Command Center", desc: "Open global palette (⌘K)", path: "⌘K" },
+              ].map((item) => (
+                <div
+                  key={item.chord}
+                  className="p-4 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] space-y-1.5"
+                >
+                  <div className="flex items-center justify-between">
+                    <kbd className="px-2.5 py-1 rounded-xl bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] font-mono font-black text-xs border border-[var(--accent-primary)]/30 shadow-xs">
+                      {item.chord}
+                    </kbd>
+                    <span className="font-bold text-[var(--text-primary)] text-xs font-display">{item.label}</span>
+                  </div>
+                  <p className="text-[11px] text-[var(--text-muted)]">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Command Palette Power Shortcuts */}
+            <div className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6 shadow-xl space-y-4">
+              <div className="flex items-center gap-2 text-cyan-400 font-bold font-mono uppercase text-xs">
+                <Command size={16} />
+                <span>Command Palette & Tag Filters (⌘K)</span>
+              </div>
+              <ul className="space-y-2.5 text-xs text-[var(--text-secondary)]">
+                <li className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)]">
+                  <span>Pick Random Problem:</span>
+                  <span className="font-mono text-amber-400 font-bold">🎲 Random</span>
+                </li>
+                <li className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)]">
+                  <span>Sync LeetCode Submissions:</span>
+                  <span className="font-mono text-emerald-400 font-bold">🔄 Sync</span>
+                </li>
+                <li className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)]">
+                  <span>Start SM-2 Daily Review:</span>
+                  <span className="font-mono text-purple-400 font-bold">⚡ Review</span>
+                </li>
+                <li className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)]">
+                  <span>Filter by Difficulty in Search:</span>
+                  <span className="font-mono text-cyan-300 font-bold">#easy / #hard</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Monaco & Gesture Controls */}
+            <div className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6 shadow-xl space-y-4">
+              <div className="flex items-center gap-2 text-purple-400 font-bold font-mono uppercase text-xs">
+                <Sliders size={16} />
+                <span>Editor & Gesture Controls</span>
+              </div>
+              <ul className="space-y-2.5 text-xs text-[var(--text-secondary)]">
+                <li className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)]">
+                  <span>Submit Code Solution:</span>
+                  <kbd className="font-mono bg-[var(--bg-card)] px-2 py-0.5 rounded border border-[var(--border-subtle)]">Ctrl + Enter</kbd>
+                </li>
+                <li className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)]">
+                  <span>Run Sample Test Cases:</span>
+                  <kbd className="font-mono bg-[var(--bg-card)] px-2 py-0.5 rounded border border-[var(--border-subtle)]">Ctrl + &apos;</kbd>
+                </li>
+                <li className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)]">
+                  <span>Flip 3D Flashcard:</span>
+                  <kbd className="font-mono bg-[var(--bg-card)] px-2 py-0.5 rounded border border-[var(--border-subtle)]">Space</kbd>
+                </li>
+                <li className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)]">
+                  <span>Flashcard Swipe Rating:</span>
+                  <span className="font-mono text-emerald-400 font-bold">Right: Easy / Left: Hard</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* TAB 4: PWA & POWER FEATURES */}
+      {/* ========================================================================= */}
+      {activeTab === "features" && (
+        <div className="space-y-6 animate-in fade-in duration-300">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* PWA Standalone App */}
+            <div className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6 sm:p-8 shadow-xl space-y-3">
+              <div className="flex items-center gap-2 text-emerald-400 font-bold font-mono uppercase text-xs">
+                <Zap size={16} />
+                <span>PWA Standalone Application</span>
+              </div>
+              <h4 className="text-lg font-bold text-[var(--text-primary)] font-display">
+                Install as a Native Desktop / Mobile App
+              </h4>
+              <p className="text-xs text-[var(--text-muted)] leading-relaxed">
+                DSA Tracker Pro includes full Web App Manifest and Service Worker caching. Click the install icon in your browser URL bar or use your browser menu to install DSA Tracker directly onto your desktop or home screen for distraction-free coding.
+              </p>
+              <div className="pt-2">
+                <span className="px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-mono text-[11px]">
+                  ✓ Zero Tab Overhead &bull; Native Window &bull; Offline Shell
+                </span>
+              </div>
+            </div>
+
+            {/* Offline Mutation Buffer */}
+            <div className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6 sm:p-8 shadow-xl space-y-3">
+              <div className="flex items-center gap-2 text-amber-400 font-bold font-mono uppercase text-xs">
+                <WifiOff size={16} />
+                <span>Offline Resilience & Auto-Sync Queue</span>
+              </div>
+              <h4 className="text-lg font-bold text-[var(--text-primary)] font-display">
+                Code Without Internet Worries
+              </h4>
+              <p className="text-xs text-[var(--text-muted)] leading-relaxed">
+                If your network connection drops, problem completion states and bookmark changes are safely queued in an encrypted local storage buffer. When connection is restored, DSA Tracker automatically replays your updates and alerts you with a confirmation toast.
+              </p>
+              <div className="pt-2">
+                <span className="px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-300 border border-amber-500/20 font-mono text-[11px]">
+                  ⚡ Automatic Background Replay on Reconnect
+                </span>
+              </div>
+            </div>
+
+            {/* 4-Tier Procedural Streak Flame */}
+            <div className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6 sm:p-8 shadow-xl space-y-3">
+              <div className="flex items-center gap-2 text-orange-400 font-bold font-mono uppercase text-xs">
+                <Flame size={16} />
+                <span>Procedural Milestone Streak Flame</span>
+              </div>
+              <h4 className="text-lg font-bold text-[var(--text-primary)] font-display">
+                Dynamic SVG Particle Fire Milestones
+              </h4>
+              <ul className="space-y-2 text-xs text-[var(--text-secondary)]">
+                <li>• <strong>1–6 Days (Spark):</strong> Gentle warm amber glow with subtle pulsation.</li>
+                <li>• <strong>7–29 Days (Blaze):</strong> Electric orange flame with floating spark particles.</li>
+                <li>• <strong>30–99 Days (Plasma):</strong> Cyan/Violet dual-core cyberpunk plasma flame.</li>
+                <li>• <strong>100+ Days (Supernova):</strong> Celestial golden core with revolving planetary ring.</li>
+              </ul>
+            </div>
+
+            {/* AlgoTracer 2.0 & 1v1 PvP Arena */}
+            <div className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6 sm:p-8 shadow-xl space-y-3">
+              <div className="flex items-center gap-2 text-cyan-400 font-bold font-mono uppercase text-xs">
+                <Cpu size={16} />
+                <span>AlgoTracer 2.0 & 1v1 PvP Colosseum</span>
+              </div>
+              <h4 className="text-lg font-bold text-[var(--text-primary)] font-display">
+                Deep Visual Debugging & Competitive Battles
+              </h4>
+              <ul className="space-y-2 text-xs text-[var(--text-secondary)]">
+                <li>• <strong>Speed Presets:</strong> Toggle between 0.25x, 0.5x, 1x, 2x, and 5x speeds.</li>
+                <li>• <strong>Call Stack Visualizer:</strong> Track active stack frames and memory allocations.</li>
+                <li>• <strong>Live Speedometer:</strong> Real-time WPM/CPM gauge in 1v1 PvP arena.</li>
+                <li>• <strong>Victory Podium:</strong> Audio fanfares, ELO gain breakdown, and confetti blast.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* TAB 5: COMPARISON & RECOMMENDATION */}
       {/* ========================================================================= */}
       {activeTab === "compare" && (
         <div className="space-y-8 animate-in fade-in duration-300">
