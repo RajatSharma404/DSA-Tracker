@@ -11,11 +11,24 @@ interface ShortcutGroup {
 
 const SHORTCUT_GROUPS: ShortcutGroup[] = [
   {
-    category: "Global Navigation",
+    category: "Vim Fast Navigation (Two-Stroke Chords)",
     shortcuts: [
-      { key: "⌘ K / Ctrl K", description: "Open Command Palette & Quick Search" },
+      { key: "g d", description: "Jump to Dashboard Overview" },
+      { key: "g r", description: "Jump to Visual Roadmap Graph" },
+      { key: "g t", description: "Jump to Topics & Curriculum" },
+      { key: "g s", description: "Jump to Problem Search Bank" },
+      { key: "g p", description: "Jump to 1v1 PvP Colosseum" },
+      { key: "g a", description: "Jump to AlgoTracer Visualizer" },
+      { key: "g f", description: "Jump to Spaced Repetition Flashcards" },
+      { key: "g c", description: "Open Global Command Palette" },
+    ],
+  },
+  {
+    category: "Global Shortcuts & Palette",
+    shortcuts: [
+      { key: "⌘ K / Ctrl K", description: "Open Command Palette & Quick Actions" },
       { key: "?", description: "Open / Close Keyboard Shortcuts Cheat Sheet" },
-      { key: "Esc", description: "Close modals, drawers, or exit Focus Mode" },
+      { key: "Esc", description: "Close active modals, drawers, or exit Focus Mode" },
     ],
   },
   {
