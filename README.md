@@ -3,26 +3,26 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <img src="frontend/public/logo.svg" alt="Logo" width="90" height="90">
-  <h1 align="center">🚀 DSA Tracker Mastery Ecosystem - "Project Ascend"</h1>
+  <img src="frontend/public/logo.svg" alt="Logo" width="95" height="95">
+  <h1 align="center">🚀 DSA Tracker Pro — Precision Technical Interview System</h1>
 
   <p align="center">
-    <strong>The Ultimate Competitive Algorithmic Training, LeetCode Intelligence & FAANG Interview Preparation Platform</strong>
+    <strong>The Premier Algorithmic Mastery Platform, LeetCode Intelligence Hub & FAANG Technical Interview Accelerator</strong>
     <br />
-    <em>1v1 PvP Battles • 3D DSA City Metaverse • 1,500+ Node Curriculum DAG • AlgoTracer 2.0 Stepper • LeetCode Auto-Sync Extension • FlashRecall SM-2 Deck • Company Hiring Tracks & Monte Carlo Simulator</em>
+    <em>Two-Stroke Vim Navigation • 1v1 PvP Battlefield • 4-Tier Procedural Streak Flame • AlgoTracer 2.0 Call Stack Runtime • PWA & Offline Mutation Queue • FlashRecall SM-2 Deck • 3D DSA City Metaverse</em>
     <br />
     <br />
-    <a href="#-leetcode-ecosystem-spotlight">🌟 LeetCode Spotlight</a>
+    <a href="#-quick-start-guide-5-minutes">⚡ Quick Start</a>
     ·
-    <a href="#-flagship-features--deep-dive">Explore Features</a>
+    <a href="#-flagship-features--deep-dive">🌟 Explore Features</a>
     ·
-    <a href="#-architecture--tech-stack">Tech Stack</a>
+    <a href="#-keyboard-shortcuts-cheat-sheet">⌨️ Keyboard Shortcuts</a>
     ·
-    <a href="#-quick-start-guide-5-minutes">Quick Start</a>
+    <a href="#-architecture--tech-stack">🏗️ Tech Stack</a>
     ·
-    <a href="#-step-by-step-local-setup-guide">Setup Guide</a>
+    <a href="#-step-by-step-local-setup-guide">🛠️ Setup Guide</a>
     ·
-    <a href="#-keyboard-shortcuts-cheat-sheet">Keyboard Shortcuts</a>
+    <a href="#-pwa--offline-resilience">📱 PWA & Offline</a>
   </p>
 </div>
 
@@ -32,44 +32,38 @@
   <summary><strong>📑 Table of Contents (Click to Expand)</strong></summary>
   <ol>
     <li><a href="#-about-the-project">About The Project</a></li>
-    <li><a href="#-leetcode-ecosystem-spotlight">🌟 LeetCode Intelligence Ecosystem Spotlight</a>
+    <li><a href="#-leetcode-intelligence-ecosystem">🌟 LeetCode Intelligence Ecosystem</a>
       <ul>
-        <li><a href="#1-zero-click-leetcode-browser-extension-auto-sync">Zero-Click LeetCode Browser Extension Auto-Sync</a></li>
-        <li><a href="#2-split-screen-leetcode-ide-workspace-problemsid">Split-Screen LeetCode IDE Workspace (`/problems/[id]`)</a></li>
-        <li><a href="#3-curated-leetcode-study-sheets--sheet-filters">Curated LeetCode Study Sheets (Blind 75, NeetCode 150, Striver)</a></li>
-        <li><a href="#4-leetcode-speed-benchmarks--time-analytics">LeetCode Solve Velocity Benchmarks (<10m, <22m, <38m)</a></li>
-        <li><a href="#5-ai-mock-technical-interviews-interviews">AI Mock Technical Interview Room (`/interviews`)</a></li>
-        <li><a href="#6-leetcode-algotracer-20-interactive-stepper-tracer">LeetCode AlgoTracer 2.0 Execution Stepper (`/tracer`)</a></li>
+        <li><a href="#1-zero-click-browser-extension-auto-sync">Zero-Click Browser Extension Auto-Sync</a></li>
+        <li><a href="#2-split-screen-leetcode-ide-workspace">Split-Screen LeetCode IDE Workspace (`/problems/[id]`)</a></li>
+        <li><a href="#3-curated-leetcode-study-packs">Curated Study Packs (Blind 75, NeetCode 150, Striver SDE)</a></li>
+        <li><a href="#4-speed-benchmarks--solve-velocity">Speed Benchmarks & Solve Velocity (<10m, <22m, <38m)</a></li>
+        <li><a href="#5-ai-mock-technical-interviews">AI Mock Technical Interviews (`/interviews`)</a></li>
       </ul>
     </li>
     <li><a href="#-flagship-features--deep-dive">Flagship Features Deep Dive</a>
       <ul>
-        <li><a href="#1-1v1-gladiator-pvp-arena-pvp--pvpmatchid">1v1 Gladiator PvP Code Arena (`/pvp`)</a></li>
-        <li><a href="#2-the-arena-speed-coding-challenge-challenge--challengeid">The Arena Speed Challenge Hub (`/challenge`)</a></li>
-        <li><a href="#3-3d-dsa-city-metaverse-city--citylevelid">3D DSA City Metaverse (`/city`)</a></li>
-        <li><a href="#4-interactive-curriculum-roadmap-roadmap">Interactive Curriculum Roadmap (`/roadmap`)</a></li>
-        <li><a href="#5-algotracer-20-execution-stepper--custom-code-engine-tracer">AlgoTracer 2.0 Execution Stepper (`/tracer`)</a></li>
-        <li><a href="#6-flashrecall-sm-2-pattern-flashcard-deck-flashcards">FlashRecall SM-2 3D Flashcard Deck (`/flashcards`)</a></li>
-        <li><a href="#7-sm-2-spaced-repetition-review-queue-review">SuperMemo-2 Spaced Repetition Queue (`/review`)</a></li>
-        <li><a href="#8-tier-1-company-hiring-tracks--monte-carlo-predictor-company-tracks">Tier-1 Company Tracks & Monte Carlo Simulator (`/company-tracks`)</a></li>
-        <li><a href="#9-neural-ai-recommendations--study-blueprint-recommendations">Neural AI Recommendations (`/recommendations`)</a></li>
-        <li><a href="#10-executive-time-analytics--velocity-curves-analytics">Time & Velocity Analytics (`/analytics`)</a></li>
-        <li><a href="#11-weekly-ai-executive-report-card-weekly-report">Weekly AI Performance Report Card (`/weekly-report`)</a></li>
-        <li><a href="#12-the-vault-wiki--solution-archive-vault">The Vault & Algorithmic Templates (`/vault`)</a></li>
-        <li><a href="#13-problems-explorer--smart-tag-search-search--problems">Problems Explorer & Search (`/search` & `/problems`)</a></li>
-        <li><a href="#14-theory-first-bootcamp-learn-tracks-learn">Theory-First Bootcamp Learn Tracks (`/learn`)</a></li>
-        <li><a href="#15-gladiator-achievements--exp-leveling-engine-achievements">Achievements & EXP Leveling Engine (`/achievements`)</a></li>
-        <li><a href="#16-dynamic-6-theme-engine-system">Dynamic 6-Theme Engine & Web Audio Synthesizer</a></li>
-        <li><a href="#17-admin-control-center-admin">Admin Control Center (`/admin`)</a></li>
+        <li><a href="#1-procedural-4-tier-streak-flame--ai-next-best-problem">Procedural 4-Tier Streak Flame & AI Next Best Problem</a></li>
+        <li><a href="#2-two-stroke-vim-fast-navigation--command-palette-20">Two-Stroke Vim Fast Navigation & Command Palette 2.0 (`⌘K`)</a></li>
+        <li><a href="#3-algotracer-20-call-stack-runtime--speed-presets">AlgoTracer 2.0 Call Stack Runtime & Speed Presets (`/tracer`)</a></li>
+        <li><a href="#4-1v1-gladiator-pvp-arena--victory-podium">1v1 Gladiator PvP Arena & Victory Podium (`/pvp`)</a></li>
+        <li><a href="#5-flashrecall-sm-2-swipe-gestures--cheat-codes">FlashRecall SM-2 Swipe Gestures & Cheat Codes (`/flashcards`)</a></li>
+        <li><a href="#6-3d-dsa-city-metaverse">3D DSA City Metaverse (`/city`)</a></li>
+        <li><a href="#7-interactive-curriculum-roadmap-20">Interactive Curriculum Roadmap 2.0 (`/roadmap`)</a></li>
+        <li><a href="#8-pwa-service-worker--offline-mutation-buffer">PWA Service Worker & Offline Mutation Buffer</a></li>
+        <li><a href="#9-high-performance-0ms-swr-cache--virtualization">High-Performance 0ms SWR Cache & Table Virtualization</a></li>
+        <li><a href="#10-supermemo-2-spaced-repetition-queue">SuperMemo-2 Spaced Repetition Queue (`/review`)</a></li>
+        <li><a href="#11-company-hiring-tracks--monte-carlo-predictor">Company Hiring Tracks & Monte Carlo Predictor (`/company-tracks`)</a></li>
+        <li><a href="#12-dynamic-6-theme-engine--web-audio-synthesizer">Dynamic 6-Theme Engine & Web Audio Synthesizer</a></li>
       </ul>
     </li>
+    <li><a href="#-keyboard-shortcuts-cheat-sheet">Keyboard Shortcuts & Vim Chords Cheat Sheet</a></li>
     <li><a href="#-architecture--tech-stack">Architecture & Tech Stack</a></li>
     <li><a href="#-quick-start-guide-5-minutes">Quick Start Guide (5 Minutes)</a></li>
     <li><a href="#-step-by-step-local-setup-guide">Step-by-Step Local Setup Guide</a></li>
-    <li><a href="#-keyboard-shortcuts-cheat-sheet">Keyboard Shortcuts Cheat Sheet</a></li>
     <li><a href="#-environment-variables-reference">Environment Variables Reference</a></li>
     <li><a href="#-npm-scripts-reference">NPM Scripts Reference</a></li>
-    <li><a href="#-browser-extension-setup">Browser Extension Setup</a></li>
+    <li><a href="#-pwa--offline-resilience">PWA & Offline Resilience</a></li>
     <li><a href="#-production-deployment">Production Deployment</a></li>
     <li><a href="#-license">License</a></li>
   </ol>
@@ -79,15 +73,13 @@
 
 ## 🌟 About The Project
 
-**DSA Tracker Mastery Ecosystem ("Project Ascend")** is a premier, enterprise-grade competitive programming and algorithmic mastery platform. It is engineered to bridge the gap between casual problem solving and elite FAANG / Tier-1 hiring bar readiness (Google, Meta, Amazon, Apple, Netflix, Uber, Citadel, and Quantitative Trading firms).
+**DSA Tracker Pro ("Project Ascend")** is an enterprise-grade algorithmic mastery and technical interview preparation platform designed to bridge the gap between casual problem solving and elite FAANG / Tier-1 hiring bar readiness (Google, Meta, Amazon, Apple, Netflix, Uber, Citadel, and Quantitative Trading firms).
 
-Unlike static spreadsheets or simple bookmarkers, **DSA Tracker** is an intelligent full-stack ecosystem combining cognitive science, WebGL spatial gamification, real-time code combat, and deep LeetCode integration.
+Engineered with cutting-edge web technologies (Next.js 16 App Router, React 19, Tailwind CSS v4, Monaco Editor, Three.js WebGL, and Web Audio synthesizers), DSA Tracker Pro unites cognitive spaced repetition, real-time code combat, zero-latency caching, offline resilience, and deep LeetCode automation into a unified, cyber-aesthetic ecosystem.
 
 ---
 
-## 🌟 LeetCode Ecosystem Spotlight
-
-DSA Tracker is built from the ground up to supercharge your daily LeetCode workflow. Here is how it integrates with and elevates your LeetCode prep:
+## 🌟 LeetCode Intelligence Ecosystem
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────────┐
@@ -103,187 +95,135 @@ DSA Tracker is built from the ground up to supercharge your daily LeetCode workf
 └────────────────────────────┴────────────────────────────┴────────────────────────┘
 ```
 
-### 1. 🔌 Zero-Click LeetCode Browser Extension Auto-Sync
-- **Seamless Manifest V3 Extension**: Connects with Chrome or Edge via private cryptographic API token.
-- **Automatic Submission Capture**: When you click "Submit" on LeetCode.com, the extension automatically intercepts:
+### 1. 🔌 Zero-Click Browser Extension Auto-Sync
+- **Manifest V3 Extension**: Connects with Chrome, Edge, Brave, or Arc via secure cryptographic token.
+- **Automated Submission Capture**: Whenever you submit code on LeetCode.com, the extension intercepts:
   - Problem title, slug, and difficulty (`EASY`, `MEDIUM`, `HARD`).
-  - Exact time taken to solve (in seconds/minutes).
-  - Submitted code solution in your preferred language.
+  - Exact time taken to solve.
+  - Complete code solution in JavaScript, TypeScript, C++, Python, or Java.
   - Acceptance status and runtime/memory percentiles.
-- **Direct Database Sync**: Instantly schedules the problem into your **SM-2 Spaced Repetition Queue** without needing manual entry.
+- **Direct Database Scheduling**: Immediately schedules the problem into your **SM-2 Spaced Repetition Queue** without manual entry.
 
 ### 2. 💻 Split-Screen LeetCode IDE Workspace (`/problems/[id]`)
-- **Fluid Resizable Split-Pane**: LeetCode problem description on the left pane and Monaco code editor on the right pane.
+- **Fluid Resizable Split-Pane**: Problem description on left pane and Monaco code editor on right pane.
 - **AI Algorithmic Architect**:
-  - ✨ *AI Mentor Hints*: Progressive hints without spoiling the direct solution.
-  - 📈 *AI Code Review*: Evaluates Big-O time/space trade-offs and code modularity.
-  - 🔍 *AlgoTracer Sync*: Click "Open in Tracer" to execute and step through the algorithm in 2D diagrams.
-- **Distraction-Free Zen Focus Mode**: One-click maximize button hiding all sidebars and distractions. Press <kbd>Esc</kbd> anytime to restore dual panes.
-- **Submission History**: Automatically archives code versions and time spent per attempt.
+  - ✨ *AI Mentor Hints*: Progressive invariant nudges without spoiling solutions.
+  - 📈 *AI Code Review*: Evaluates Big-O time/space trade-offs and loop invariant soundness.
+  - 🔍 *AlgoTracer Sync*: 1-click jump to step through code execution in synchronized diagrams.
+- **Distraction-Free Zen Focus Mode**: Press <kbd>Esc</kbd> anytime to toggle fullscreen focus mode.
 
-### 3. 📑 Curated LeetCode Study Sheets & Sheet Filters
-- **Instant Study Pack Filters**: One-click filters across the Roadmap, Search, and Vault:
+### 3. 📑 Curated LeetCode Study Packs
+- **Instant Study Pack Filtering**: Filter across the Visual Roadmap, Problem Search, and Vault:
   - 🟢 **Blind 75**: Essential algorithmic pattern core.
   - 🔵 **NeetCode 150**: Comprehensive topic-by-topic curriculum.
-  - 🟣 **Striver SDE Sheet**: India & Global Tier-1 technical roadmap.
+  - 🟣 **Striver SDE Sheet**: Premier Tier-1 technical roadmap.
   - 🟡 **Grind 75**: Hours-based flexible scheduling.
   - 🔴 **Top Interview 150**: LeetCode classic FAANG company collection.
 
-### 4. ⏱️ LeetCode Solve Velocity Benchmarks (<10m, <22m, <38m)
-- **Real-Time Stopwatch & Session Counters**: Track solve speeds against FAANG candidate benchmarks:
-  - 🟢 **Easy Target**: `< 10 minutes` (Reflex patterns & linear scans).
-  - 🟡 **Medium Target**: `< 22 minutes` (Two Pointers, Tree BFS/DFS, DP state transitions).
-  - 🔴 **Hard Target**: `< 38 minutes` (Advanced Graphs, Monotonic Stacks, Segment Trees).
-- **Executive Velocity Curves**: Weekly cohort graphs measuring whether your solve velocity is accelerating over time.
+### 4. ⏱️ Speed Benchmarks & Solve Velocity
+- **Solve Speed Benchmarks**: Real-time timer benchmarked against FAANG on-site clearance:
+  - 🟢 **Easy Target**: `< 10 minutes` (Linear scans, two pointers, basic maps).
+  - 🟡 **Medium Target**: `< 22 minutes` (Sliding window, binary search, tree traversals, DP transitions).
+  - 🔴 **Hard Target**: `< 38 minutes` (Advanced graphs, monotonic stacks, segment trees).
 
-### 5. 🎙️ AI Mock Technical Interview Room (`/interviews`)
-- **Real LeetCode Medium/Hard Invariants**: Experience realistic 45-minute virtual technical interview rounds.
-- **Target Company Presets**: Google, Meta, Amazon, Apple, Microsoft, Netflix, Uber, Citadel/HFT, and YC Startup.
-- **3 Interviewer Personas**:
-  - 🎯 *Strict Bar Raiser*: Zero hints, scrutinizes edge cases and Big-O bounds.
-  - 🤝 *Senior Lead*: Balanced peer discussion with directional nudges.
-  - 🌟 *Friendly Mentor*: Encouraging walkthrough for initial practice.
-- **Live AI Evaluation Matrix HUD**: Tracks performance across 4 hiring pillars: Invariant Recall, Edge Case Handling, Code Cleanliness, and Complexity Articulation.
-
-### 6. 🔍 LeetCode AlgoTracer 2.0 Execution Stepper (`/tracer`)
-- **Line-by-Line LeetCode Execution**: Paste any LeetCode solution (JavaScript, TypeScript, C++, Python) to generate an interactive step-by-step visual animation.
-- **Synchronized Visual Diagrams**:
-  - 📊 *Array Box & Bar Diagrams*: Live pointer badges ($L, R, \text{Low}, \text{Mid}, \text{High}$) and glowing active indices.
-  - 🌲 *Interactive Draggable SVG Trees & Graphs*: Pan, zoom, and drag nodes to inspect BFS/DFS traversals.
-  - 🥞 *Stack & Queue Diagrams*: Visual push/pop operations with collision alerts.
-  - 🎛️ *Complexity HUD*: Real-time operation count and auxiliary stack depth monitor.
+### 5. 🎙️ AI Mock Technical Interviews (`/interviews`)
+- **Realistic 45-Minute Coding Screens**: Practice under realistic time constraints on LeetCode Medium/Hard challenges.
+- **Interviewer Personas**: Strict Bar Raiser (zero hints, scrutinizes edge cases), Senior Lead (balanced peer discussion), and Friendly Mentor.
+- **Live AI Evaluation Matrix HUD**: Scores performance across Invariant Recall, Edge Case Handling, Code Cleanliness, and Big-O Complexity Articulation.
 
 ---
 
 ## 🚀 Flagship Features — Deep Dive
 
-### 1. ⚔️ 1v1 Gladiator PvP Code Arena (`/pvp` & `/pvp/[matchId]`)
-- **Live Matchmaker Radar**: Circular radar sweep scanning for active combatants with dynamic matchmaking queues.
-- **Dual Monaco Battlefield**: Side-by-side code editor with simulated opponent keystroke pace, line velocity, and test case race bars (`[3/4 Passed]`).
-- **3 Match Formats**:
-  - ⚡ *15-Minute Speed Blitz* (1.2x ELO): High-tempo reflex sprint on classic patterns.
-  - 🏆 *30-Minute Ranked Competitive* (1.5x ELO): Medium/Hard challenges with strict runtime bounds.
-  - 💀 *25-Minute Sudden Death* (2.0x ELO): Single submission permitted; any wrong answer immediately forfeits the duel.
-- **Victory Ceremony & ELO Ladder**: Post-duel victory modal with animated ELO rating adjustments ($\pm \Delta$) and celebration confetti.
+### 1. 🔥 Procedural 4-Tier Streak Flame & AI Next Best Problem
+- **Procedural Particle Flame (`StreakFlame.tsx`)**:
+  - 🕯️ **Tier 1 (1–6d Spark)**: Warm amber core with gentle ambient warmth.
+  - 🔥 **Tier 2 (7–29d Blaze)**: Electric orange flame with floating ember spark particles.
+  - ⚡ **Tier 3 (30–99d Plasma)**: Cyan/Violet dual-core cyberpunk plasma with expanding radial pulsar.
+  - 👑 **Tier 4 (100d+ Supernova)**: Celestial golden core with continuous revolving planetary ring.
+- **"Next Best Problem" Recommendation Banner**: Dynamically detects your weakest topic domain, surfaces solve time differentials, and provides an instant 1-click **"Solve Problem Now"** action.
 
 ---
 
-### 2. ⚡ The Arena Speed Challenge Hub (`/challenge` & `/challenge/[id]`)
-- **Battle Mode Cards**: Speed Blitz, Sudden Death, FAANG Gauntlet, and Blind Roulette.
-- **Circular SVG Pomodoro Countdown Ring**: Real-time circular timer with progressive color warning (Emerald $\to$ Amber $\to$ Pulsing Rose under 3 minutes).
-- **Multi-Pane Problem Workspace**: Resizable editor with collapsible problem metadata panel and post-challenge scorecard.
+### 2. ⌨️ Two-Stroke Vim Fast Navigation & Command Palette 2.0 (`⌘K`)
+- **Global Two-Stroke Chords (`g + key`)**:
+  - Teleport across views from anywhere outside text inputs:
+    - <kbd>g</kbd> <kbd>d</kbd> $\to$ Dashboard Overview (`/`)
+    - <kbd>g</kbd> <kbd>r</kbd> $\to$ Visual Roadmap Graph (`/roadmap`)
+    - <kbd>g</kbd> <kbd>t</kbd> $\to$ Curriculum Topics (`/topics`)
+    - <kbd>g</kbd> <kbd>s</kbd> $\to$ Problem Search Bank (`/search`)
+    - <kbd>g</kbd> <kbd>p</kbd> $\to$ 1v1 PvP Colosseum (`/pvp`)
+    - <kbd>g</kbd> <kbd>a</kbd> $\to$ AlgoTracer 2.0 Visualizer (`/tracer`)
+    - <kbd>g</kbd> <kbd>f</kbd> $\to$ Spaced Repetition Flashcards (`/flashcards`)
+    - <kbd>g</kbd> <kbd>c</kbd> $\to$ Open Command Palette (`⌘K`)
+    - <kbd>?</kbd> $\to$ Toggle Keyboard Shortcuts Modal
+- **Command Palette Power Actions**:
+  - 🎲 **Pick Random Problem**
+  - 🔄 **Sync LeetCode Submissions**
+  - ⚡ **Start SM-2 Daily Review**
+  - Search prefix filters: `#easy`, `#medium`, `#hard`, `@dp`, `@arrays`.
 
 ---
 
-### 3. 🌆 3D DSA City Metaverse (`/city` & `/city/[levelId]`)
-- **Interactive Three.js WebGL City**: Procedurally generated cyberpunk skyscrapers where each building's height and neon glow represents your solve progress in that algorithmic domain.
-- **4 Camera View Modes**:
-  - 📐 *Isometric Overview*
-  - 🎥 *Cinematic 360° Orbit*
-  - 🗺️ *Top-Down Grid Map*
-  - 🎯 *Focus My Skyscraper*
-- **3 Lighting Themes**: Cyberpunk Neon, Golden Sunset, and Terminal Matrix.
-- **District Workspaces**: Step inside any topic district (Graphs, Dynamic Programming, Trees) to tackle the 5-question ascent path.
+### 3. 🔍 AlgoTracer 2.0 Call Stack Runtime & Speed Presets (`/tracer`)
+- **Call Stack & Memory Visualizer (`CallStackVisualizer.tsx`)**:
+  - Live inspection of active stack frames, recursion depth levels, function arguments, active program counter line, and real-time auxiliary space & stack memory gauge (`KB` allocated).
+- **Speed Presets & Timeline Scrubbing**:
+  - 5 speed presets: `0.25x` (2000ms), `0.5x` (1200ms), `1x` (600ms), `2x` (300ms), and `5x` (80ms).
+  - Milestone bookmarks on the scrubber bar to jump directly to algorithm pivot points (swaps, partitions, merges, found).
 
 ---
 
-### 4. 🗺️ Interactive Curriculum Roadmap (`/roadmap`)
-- **2D Multi-Tier Metro-Map DAG**:
-  - 🔵 **Phase 1: Foundations** (*Arrays, Strings, Two Pointers, Sliding Window, Math*)
-  - 🟢 **Phase 2: Core Data Structures** (*Linked Lists, Stacks, Queues, Trees, Heaps*)
-  - 🟡 **Phase 3: Search & Graphs** (*Binary Search, Recursion, Backtracking, BFS/DFS, DSU*)
-  - 🟣 **Phase 4: Advanced DP & Optimization** (*Greedy, Dynamic Programming, Tries, Bit Manipulation*)
-- **Mastery Rings**: Visual progress percentage ($0\dots 100\%$) on every topic node.
-- **Slide-Out Problem Matrix Drawer**: Click any topic node to open a multi-filter problem sheet with direct solve shortcuts.
-- **Plain-Text Roadmap Builder**: Switch between the Live Visual Graph and the Markdown Roadmap Builder.
+### 4. ⚔️ 1v1 Gladiator PvP Arena & Victory Podium (`/pvp` & `/pvp/[matchId]`)
+- **Live Typing Speedometer**: Real-time words-per-minute (WPM) and characters-per-minute (CPM) speed gauge.
+- **Live Syntax Validator**: Real-time bracket and delimiter scanner checking for clean syntax.
+- **Cyber Victory Podium Modal**: Full-screen celebration upon clearing test cases with ELO rating gain breakdown (+25 ELO), Web Audio victory chimes, and confetti cannons (`canvas-confetti`).
 
 ---
 
-### 5. 🎴 FlashRecall SM-2 3D Flashcard Deck (`/flashcards`)
-- **CSS 3D Perspective Flip Engine**: Flip cards realistically in 3D using the <kbd>Spacebar</kbd> or mouse click.
-- **Algorithmic Invariant Library**:
-  - *Kadane's Algorithm Invariant*
-  - *Floyd's Cycle Finding (Tortoise & Hare) Proof*
-  - *Monotonic Stack Decreasing Invariant*
-  - *Dijkstra Greedy Choice & Negative Edge Proof*
-  - *Binary Search on Monotonic Answer Space*
-- **Keyboard Grading Shortcuts**: Grade recall instantly with <kbd>1</kbd> (*Forgot*), <kbd>2</kbd> (*Hard*), <kbd>3</kbd> (*Good*), <kbd>4</kbd> (*Easy*).
+### 5. 🎴 FlashRecall SM-2 Swipe Gestures & Cheat Codes (`/flashcards`)
+- **Touch & Mouse Drag-Swipe Ratings**:
+  - **Swipe Right** ($\Delta X > 85\text{px}$): Rate "Easy / Mastered" with emerald glow badge.
+  - **Swipe Left** ($\Delta X < -85\text{px}$): Rate "Hard / Review Again" with rose glow badge.
+- **Algorithm Pattern Cheat Codes**:
+  - Card backside reveals key invariant mathematical formulas, time/space complexity breakdown boxes, and copyable core template code blocks.
 
 ---
 
-### 6. 🧠 SuperMemo-2 Spaced Repetition Queue (`/review`)
-- **Leitner 5-Stage Memory Hub**: Visual overview showing problem distribution across memory consolidation stages (Learning $1\text{-}2\text{d}$, Reinforcing $3\text{-}6\text{d}$, Consolidating $7\text{-}14\text{d}$, Long Term $15\text{-}30\text{d}$, Permanent $30\text{d}+$ ).
-- **Rapid Quality Grading**: Grade the top due problem using keys <kbd>1</kbd>-<kbd>4</kbd> to automatically calculate new review dates based on the SM-2 algorithm.
+### 6. 📱 PWA Service Worker & Offline Mutation Buffer
+- **Progressive Web App**: Certified Web App Manifest (`manifest.json`) and Service Worker (`sw.js`) allowing one-click installation as a standalone desktop/mobile app.
+- **Offline Mutation Queue (`offlineQueue.ts`)**:
+  - Solves and bookmarks are saved into an encrypted local storage buffer when offline.
+  - When connection is restored (`window.addEventListener("online")`), all updates auto-replay to the server seamlessly.
+- **Floating Offline Status Banner (`OfflineBanner.tsx`)**: Alerts the user of local cache mode with pending sync counters.
 
 ---
 
-### 7. 🏛️ Tier-1 Company Hiring Tracks & Monte Carlo Predictor (`/company-tracks`)
-- **Company Blueprints**: Google Flagship (50), Meta Speed 50 (50), Amazon Gauntlet (45), Uber Routing (35), Citadel & Quant HFT (40).
-- **Monte Carlo 1,000-Run Offer Simulator**: Simulates 1,000 virtual 45-minute technical interviews using your historical accuracy and solve velocity to calculate statistically modeled offer probabilities.
+### 7. ⚡ High-Performance 0ms SWR Cache & Table Virtualization
+- **Synchronous SWR Cache (`queryCache.ts`)**: Reads from in-memory and `sessionStorage` on mount for instant **0ms** page rendering without skeleton flashes.
+- **Optimistic UI Updates**: Instant checkmark and bookmark toggling with automatic cache invalidation and rollback toasts on failure.
+- **Table Virtualization**: `react-window` `FixedSizeList` virtualization for rendering thousands of problems at 60fps.
+- **Hover Pre-Fetching**: Pre-fetches problem details on hover (`onMouseEnter`) for 0ms transitions.
 
 ---
 
-### 8. 🤖 Neural AI Recommendations & Study Blueprint (`/recommendations`)
-- **4 Strategic Pillars**: Weakness Remediation, Next Frontier, Speed Optimization, and FAANG High-Frequency.
-- **7-Day Study Blueprint**: Daily personalized problem schedule with estimated completion times.
+### 8. 🌆 3D DSA City Metaverse (`/city`)
+- **Interactive Three.js WebGL City**: Cyberpunk skyscrapers representing your mastery in each algorithmic domain.
+- **4 Camera View Modes**: Isometric Overview, Cinematic 360° Orbit, Top-Down Grid Map, and Focus Skyscraper.
 
 ---
 
-### 9. 📊 Time & Velocity Analytics (`/analytics`)
-- **Solve Pace Velocity Curves**: Weekly cohort graphs comparing average minutes per solve across Easy, Medium, and Hard difficulties.
-- **Onsite Timing Clearance**: Statistical FAANG clearance percentage based on speed and consistency.
-- **Topic Hour Allocation**: Visual breakdown of total hours invested per algorithmic domain.
+### 9. 🗺️ Interactive Curriculum Roadmap 2.0 (`/roadmap`)
+- **2D Multi-Tier Metro-Map DAG**: Four curriculum phases with glowing dashed bezier flow edges (`.edge-flow-anim`).
+- **Mastery Rings**: SVG progress rings on topic nodes displaying completion percentages.
+- **CRT Terminal Builder**: Retro scanline terminal mode in Custom Roadmap Builder.
 
 ---
 
-### 10. 📑 Weekly AI Executive Report Card (`/weekly-report`)
-- **AI Executive Summary**: Natural language recap of your weekly consistency and pattern retention.
-- **Branded Social Share Card**: Formatted ASCII / Markdown card ready to copy and share on LinkedIn, X/Twitter, or GitHub README.
-
----
-
-### 11. 🗄️ The Vault & Algorithmic Code Templates (`/vault`)
-- **Algorithmic Patterns Wiki**: Kadane, Binary Search, Disjoint Set Union, Dijkstra, KMP, and Segment Trees with Big-O specs, when-to-use tips, and gotchas.
-- **Personal Notes & Solution Archive**: Historical archive of all your code submissions with syntax highlighting.
-
----
-
-### 12. 🔍 Problems Explorer & Search (`/search` & `/problems`)
-- **Advanced Multi-Dimensional Filters**: Filter by difficulty, review status, topic, bookmarking, and custom tags.
-- **CSV / JSON Export**: Export your entire problem progress and solve history in one click.
-- **Dedicated Index Route**: `/problems` automatically redirects to search so navigation never 404s.
-
----
-
-### 13. 🎓 Theory-First Bootcamp Learn Tracks (`/learn`)
-- **20 Structured Modules**: Comprehensive C++ DSA Bootcamp covering Arrays, Strings, Two Pointers, Linked Lists, Trees, Graphs, Dynamic Programming, and more.
-- **40 Interactive Lessons**: Rich ASCII diagrams, step-by-step dry runs, and complexity matrices.
-
----
-
-### 14. 🏆 Gladiator Achievements & EXP Leveling Engine (`/achievements`)
-- **Gamified EXP Engine**: Earn EXP for solving problems, maintaining streaks, and unlocking achievement badges.
-- **Rarity Badges**: Bronze, Silver, Gold, Platinum, and Mythic Gladiator ranks.
-
----
-
-### 15. 🎨 Dynamic 6-Theme Engine & Web Audio Synthesizer
-- **6 Hand-Crafted Themes**:
-  - 🌑 **OLED Midnight** (Pitch black `#000000` with neon cyan `#00f0ff` & purple accents)
-  - 🟡 **Cyberpunk 2077** (Electric yellow `#facc15` & hot pink on deep navy)
-  - 🟢 **Matrix Emerald** (Terminal green `#10b981` with mint highlights)
-  - 🟣 **Tokyo Night** (Twilight indigo `#a855f7` & rose glow)
-  - 🔵 **Nordic Slate** (Arctic teal `#0284c7` & icy blue)
-  - ⚪ **Enterprise Light** (Clean crisp enterprise slate & royal indigo)
-- **Zero-Dependency Web Audio Synthesizer**: Custom mechanical clicks, toggles, success chimes, and victory fanfares in `soundEffects.ts` with persistent navbar mute/unmute.
-- **Theme-Adaptive Scrollbars**: Custom scrollbars that automatically adopt the active theme's borders and glow on hover.
-
----
-
-### 16. 🛡️ Admin Control Center (`/admin`)
-- **User Management**: Inspect registered users and update user roles (`USER` ➔ `ADMIN`).
-- **Topic & Problem CRUD**: Add, edit, reorder, or delete topics and problems.
-- **One-Click Database Seeding**: Initialize and populate comprehensive curriculum data.
+### 10. 🎨 Dynamic 6-Theme Engine & Web Audio Synthesizer
+- **6 Hand-Crafted Themes**: OLED Midnight, Cyberpunk 2077, Matrix Emerald, Tokyo Night, Nordic Slate, and Enterprise Light.
+- **Zero-Latency Web Audio Synthesizer (`soundEffects.ts`)**: Tactile mechanical clicks, navigation chords (`playChord`), error buzzes (`playError`), and harmonic success fanfares (`playSuccess`).
+- **Accessibility & Motion Hardening**: `@media (prefers-reduced-motion: reduce)` rules and accessible `:focus-visible` outline rings.
 
 ---
 
@@ -291,12 +231,21 @@ DSA Tracker is built from the ground up to supercharge your daily LeetCode workf
 
 Press <kbd>?</kbd> anywhere across the application to open the interactive keyboard shortcuts modal.
 
-| Shortcut | Action | Scope |
+| Shortcut / Chord | Action | Scope |
 | :--- | :--- | :--- |
-| <kbd>⌘ K</kbd> / <kbd>Ctrl K</kbd> | Open Command Palette & Quick Search | Global |
-| <kbd>?</kbd> | Open / Close Keyboard Shortcuts Cheat Sheet | Global |
+| <kbd>g</kbd> <kbd>d</kbd> | Jump to Dashboard Overview | Global (Vim Chord) |
+| <kbd>g</kbd> <kbd>r</kbd> | Jump to Visual Roadmap Graph | Global (Vim Chord) |
+| <kbd>g</kbd> <kbd>t</kbd> | Jump to Topics & Curriculum | Global (Vim Chord) |
+| <kbd>g</kbd> <kbd>s</kbd> | Jump to Problem Search Bank | Global (Vim Chord) |
+| <kbd>g</kbd> <kbd>p</kbd> | Jump to 1v1 PvP Colosseum | Global (Vim Chord) |
+| <kbd>g</kbd> <kbd>a</kbd> | Jump to AlgoTracer Visualizer | Global (Vim Chord) |
+| <kbd>g</kbd> <kbd>f</kbd> | Jump to Spaced Repetition Flashcards | Global (Vim Chord) |
+| <kbd>g</kbd> <kbd>c</kbd> | Open Global Command Palette | Global (Vim Chord) |
+| <kbd>⌘ K</kbd> / <kbd>Ctrl K</kbd> | Open Command Palette & Quick Actions | Global |
+| <kbd>?</kbd> | Open / Close Keyboard Shortcuts Sheet | Global |
 | <kbd>Esc</kbd> | Close modals, drawers, or exit Focus Mode | Global |
 | <kbd>Space</kbd> | Flip 3D Flashcard front / back | Flashcards (`/flashcards`) |
+| <kbd>Swipe Right / Left</kbd> | Rate Flashcard (Easy / Hard) | Flashcards (`/flashcards`) |
 | <kbd>1</kbd> | Grade: Forgot (Reset interval to 1 day) | Flashcards & Review Queue |
 | <kbd>2</kbd> | Grade: Hard (Short interval step) | Flashcards & Review Queue |
 | <kbd>3</kbd> | Grade: Good (Standard 2.5x expansion) | Flashcards & Review Queue |
@@ -311,14 +260,15 @@ Press <kbd>?</kbd> anywhere across the application to open the interactive keybo
 
 ```
 DSA-Tracker/
-├── frontend/                    # Next.js 16 (Turbopack, React 19, Tailwind CSS)
+├── frontend/                    # Next.js 16 (Turbopack, React 19, Tailwind CSS v4)
+│   ├── public/                  # PWA Manifest (manifest.json), Service Worker (sw.js), Logo
 │   ├── src/app/                 # 29 Static & Dynamic Application Routes
 │   │   ├── (dashboard)/         # Protected Dashboard Hub
 │   │   │   ├── pvp/             # 1v1 PvP Matchmaker & Live Battlefield
 │   │   │   ├── tracer/          # AlgoTracer 2.0 Execution Stepper
 │   │   │   ├── flashcards/      # FlashRecall SM-2 3D Flashcard Deck
 │   │   │   ├── company-tracks/  # Company Roadmaps & Monte Carlo Simulator
-│   │   │   ├── extension/       # Browser Extension Hub & API Keys
+│   │   │   ├── extension/       # Browser Extension Hub & Setup Guide
 │   │   │   ├── roadmap/         # 2D Multi-Tier Curriculum DAG
 │   │   │   ├── review/          # SM-2 Spaced Repetition Queue
 │   │   │   ├── recommendations/ # AI Neural Coach & 7-Day Blueprint
@@ -330,12 +280,12 @@ DSA-Tracker/
 │   │   │   ├── city/            # 3D WebGL Metaverse & Level Path
 │   │   │   ├── vault/           # Solution Code Vault & Pattern Wiki
 │   │   │   ├── learn/           # Bootcamp Theory Tracks
-│   │   │   ├── search/          # Advanced Problem Search
+│   │   │   ├── search/          # Advanced Problem Search (Virtualized)
 │   │   │   ├── problems/        # Problems Index & Workspace Route
 │   │   │   ├── settings/        # Preferences & Theme Customization
 │   │   │   └── admin/           # Admin Management Suite
 │   ├── src/components/          # 3D CityScene, Monaco Editors, Layout & Graphs
-│   └── src/lib/                 # Sound Synthesizer, API Client, Design Tokens
+│   └── src/lib/                 # SWR QueryCache, OfflineQueue, Web Audio Synth, API Client
 ├── backend/                     # Express 5 + TypeScript + Prisma ORM
 │   ├── index.ts                 # REST API Endpoints & Auth Middleware
 │   ├── aiService.ts             # AI Guidance & Algorithmic Tracing Engine
@@ -495,7 +445,14 @@ npm run dev
 2. Navigate to `chrome://extensions` (or `edge://extensions`).
 3. Toggle on **Developer Mode** in the top right.
 4. Click **Load unpacked** and select the `/extension` directory in this repo.
-5. Navigate to **DSA Tracker Extension Hub (`/extension`)**, copy your API Key, and paste it into the extension popup.
+5. Navigate to **DSA Tracker Setup Hub (`/extension`)**, copy your API Key, and paste it into the extension popup.
+
+---
+
+## 📱 PWA & Offline Resilience
+
+- **Desktop Installation**: Click the install icon in your browser address bar to install DSA Tracker Pro as a native desktop application.
+- **Offline Mode**: Progress updates made while offline are automatically buffered in local storage and replayed upon network reconnection.
 
 ---
 
