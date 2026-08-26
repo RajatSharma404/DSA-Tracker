@@ -12,6 +12,7 @@ import {
   LayoutGrid,
   Network,
   Target,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -22,6 +23,7 @@ import {
 import { DESIGN_TOKENS } from "@/lib/design-tokens";
 import { useToastNotification } from "@/components/providers/ToastProvider";
 import { trackEvent } from "@/lib/analytics";
+import { StreakFlame } from "@/components/ui/StreakFlame";
 
 const ActivityHeatmap = dynamic(
   () => import("@/components/dashboard/ActivityHeatmap"),
@@ -65,16 +67,22 @@ const StatCard = dynamic(
   },
 );
 
+import { queryCache } from "@/lib/queryCache";
+
 export default function Dashboard() {
   const { data: session, status } = useSession();
   const { error: errorToast } = useToastNotification();
-  const [stats, setStats] = useState<DashboardStats | null>(null);
+  
+  // Instant synchronous cache read for 0ms page transitions
+  const cachedStats = queryCache.get<DashboardStats>("dashboard_stats");
+  const cachedActivity = queryCache.get<Array<{ date: string; count: number }>>("activity_data");
+  const cachedTopics = queryCache.get<Topic[]>("topics");
+
+  const [stats, setStats] = useState<DashboardStats | null>(cachedStats || null);
   const [dashboardError, setDashboardError] = useState<string | null>(null);
-  const [activityData, setActivityData] = useState<
-    Array<{ date: string; count: number }>
-  >([]);
-  const [topicsSnapshot, setTopicsSnapshot] = useState<Topic[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [activityData, setActivityData] = useState<Array<{ date: string; count: number }>>(cachedActivity || []);
+  const [topicsSnapshot, setTopicsSnapshot] = useState<Topic[]>(cachedTopics || []);
+  const [loading, setLoading] = useState(!cachedStats);
 
   const recentSolvedCount = (days: number) => {
     if (activityData.length === 0) return 0;
@@ -107,10 +115,10 @@ export default function Dashboard() {
   const problemsToNextMilestone =
     stats && nextMilestonePct !== null
       ? Math.max(
-          0,
-          Math.ceil((stats.totalProblems * nextMilestonePct) / 100) -
-            stats.solvedProblems,
-        )
+        0,
+        Math.ceil((stats.totalProblems * nextMilestonePct) / 100) -
+        stats.solvedProblems,
+      )
       : 0;
   const projectedDaysToNextMilestone =
     weeklyPace > 0 && nextMilestonePct !== null
@@ -232,20 +240,20 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="space-y-6 animate-pulse">
-        <div className="h-10 w-72 rounded-xl bg-[var(--bg-card)]" />
-        <div className="h-28 rounded-[2.5rem] bg-[var(--bg-card)]" />
+      <div className="space-y-6 animate-in fade-in duration-300">
+        <div className="h-10 w-72 rounded-xl border border-[var(--border-subtle)] shimmer" />
+        <div className="h-32 rounded-[2.5rem] border border-[var(--border-subtle)] shimmer" />
         <div className="grid gap-6 md:grid-cols-12">
-          <div className="md:col-span-8 h-72 rounded-[2.5rem] bg-[var(--bg-card)]" />
+          <div className="md:col-span-8 h-80 rounded-[2.5rem] border border-[var(--border-subtle)] shimmer" />
           <div className="md:col-span-4 space-y-4">
-            <div className="h-28 rounded-3xl bg-[var(--bg-card)]" />
-            <div className="h-28 rounded-3xl bg-[var(--bg-card)]" />
-            <div className="h-28 rounded-3xl bg-[var(--bg-card)]" />
+            <div className="h-28 rounded-3xl border border-[var(--border-subtle)] shimmer" />
+            <div className="h-28 rounded-3xl border border-[var(--border-subtle)] shimmer" />
+            <div className="h-28 rounded-3xl border border-[var(--border-subtle)] shimmer" />
           </div>
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, index) => (
-            <div key={index} className="h-28 rounded-2xl bg-[var(--bg-card)]" />
+            <div key={index} className="h-28 rounded-2xl border border-[var(--border-subtle)] shimmer" />
           ))}
         </div>
       </div>
@@ -321,24 +329,26 @@ export default function Dashboard() {
           <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.12),transparent_40%)]" />
           <div className="relative flex items-start justify-between gap-4">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-cyan-400">
-                <Target size={12} />
-                Today&apos;s Action
+              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-cyan-400 font-mono">
+                <Sparkles size={12} className="text-cyan-400 animate-pulse" />
+                <span>Next Best Problem &bull; AI Recommendation</span>
               </div>
               <h2 className="mt-4 text-2xl font-black tracking-tight text-[var(--text-primary)] font-display">
-                {stats.nextAction?.title || "Keep moving forward"}
+                {stats.nextAction?.title || "Target Weakest Area: " + (stats.weakTopics[0]?.name || "Arrays & Pointers")}
               </h2>
-              <p className="mt-2 max-w-2xl text-sm text-[var(--text-muted)]">
+              <p className="mt-2 max-w-2xl text-sm text-[var(--text-muted)] leading-relaxed">
                 {stats.nextAction?.reason ||
-                  "The tracker will surface a review, weakness, or momentum task here as your data grows."}
+                  (stats.weakTopics[0] 
+                    ? `Your average solve time for ${stats.weakTopics[0].name} is ${stats.weakTopics[0].avgTimeSpent} mins. Practicing this problem will reinforce core loop invariants.`
+                    : "The tracker recommends reinforcing key patterns based on your recent activity.")}
               </p>
             </div>
-            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] px-3 py-2 text-right">
-              <p className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)]">
-                Mode
+            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] px-3 py-2 text-right shrink-0">
+              <p className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] font-mono">
+                Focus Mode
               </p>
-              <p className="mt-1 text-xs font-black uppercase tracking-widest text-[var(--accent-primary)]">
-                {stats.nextAction?.mode?.replaceAll("_", " ") || "Balanced"}
+              <p className="mt-1 text-xs font-black uppercase tracking-widest text-[var(--accent-primary)] font-mono">
+                {stats.nextAction?.mode?.replaceAll("_", " ") || "WEAKNESS TARGET"}
               </p>
             </div>
           </div>
@@ -393,22 +403,24 @@ export default function Dashboard() {
               href={
                 stats.nextAction?.mode === "REVISION"
                   ? "/review"
-                  : "/recommendations"
+                  : stats.revisions[0]
+                    ? `/problems/${stats.revisions[0].id}`
+                    : "/search"
               }
               onClick={() =>
                 trackEvent("dashboard_primary_cta_clicked", {
                   mode: stats.nextAction?.mode || "BALANCED",
-                  cta: stats.nextAction?.cta || "Open next step",
+                  cta: "Solve Problem Now",
                 })
               }
-              className="inline-flex items-center gap-2 rounded-xl bg-[var(--accent-primary)] px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-black transition-transform hover:scale-[1.02] active:scale-[0.98] shadow-md"
+              className="inline-flex items-center gap-2 rounded-xl bg-[var(--accent-primary)] px-5 py-2.5 text-xs font-black uppercase tracking-widest text-black transition-all hover:scale-[1.03] active:scale-[0.98] shadow-lg shadow-[var(--accent-glow)]/40 cursor-pointer font-mono"
             >
-              {stats.nextAction?.cta || "Open next step"}
-              <ArrowRight size={12} />
+              <span>Solve Problem Now</span>
+              <ArrowRight size={14} />
             </Link>
             <Link
               href="/recommendations"
-              className="inline-flex items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)]"
+              className="inline-flex items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] font-mono"
             >
               Why this pick
             </Link>
@@ -589,27 +601,28 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-4">
+                  <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-4 shadow-inner">
                     <div className="grid grid-cols-10 gap-2">
-                      {topicsSnapshot.slice(0, 30).map((topic) => {
+                      {topicsSnapshot.slice(0, 30).map((topic, idx) => {
                         const progress = topic.progressPercentage;
                         const tone =
                           progress >= 100
-                            ? "bg-emerald-400/80 border-emerald-300/80"
+                            ? "bg-emerald-400/90 border-emerald-300/90 shadow-[0_0_6px_rgba(52,211,153,0.4)]"
                             : progress > 0
-                              ? "bg-blue-400/70 border-blue-300/70"
-                              : "bg-[var(--bg-tertiary)] border-[var(--border-subtle)]";
+                              ? "bg-blue-400/80 border-blue-300/80 shadow-[0_0_6px_rgba(96,165,250,0.4)]"
+                              : "bg-[var(--bg-tertiary)] border-[var(--border-subtle)] opacity-70";
 
                         return (
                           <div
                             key={topic.id}
-                            title={`${topic.name}: ${progress}%`}
-                            className={`h-5 rounded-sm border ${tone} transition-transform hover:scale-110`}
+                            style={{ animationDelay: `${idx * 16}ms` }}
+                            data-tooltip={`${topic.name}: ${progress}%`}
+                            className={`h-5 rounded-md border ${tone} cell-pop transition-all hover:scale-115 hover:z-20 cursor-default`}
                           />
                         );
                       })}
                     </div>
-                    <div className="mt-3 flex items-center justify-between text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)]">
+                    <div className="mt-3 flex items-center justify-between text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] font-mono">
                       <span>Locked</span>
                       <span>In Progress</span>
                       <span>Completed</span>
@@ -750,7 +763,7 @@ export default function Dashboard() {
           title="Current Streak"
           value={`${stats.currentStreak} Days`}
           description={`Longest: ${stats.longestStreak} Days`}
-          icon={Flame}
+          icon={() => <StreakFlame streakDays={stats.currentStreak} size={26} />}
         />
         <StatCard
           title="Problems Solved"
@@ -761,17 +774,20 @@ export default function Dashboard() {
       </div>
 
       {/* Progress Bar overall */}
-      <div className="p-6 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] shadow-xl">
+      <div className="p-6 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-subtle)] shadow-xl relative overflow-hidden">
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-bold text-lg text-[var(--text-primary)] font-display">Roadmap Completion</h3>
-          <span className="text-sm font-semibold text-[var(--accent-primary)]">
+          <span className="text-sm font-black font-mono text-[var(--accent-primary)] drop-shadow-[0_0_6px_var(--accent-glow)]">
             {stats.progressPercentage}%
           </span>
         </div>
-        <div className="w-full h-3 bg-[var(--bg-tertiary)] rounded-full overflow-hidden">
+        <div className="w-full h-3.5 bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] rounded-full overflow-hidden p-0.5 shadow-inner">
           <div
-            className="h-full bg-[var(--accent-primary)] transition-all duration-1000 ease-out"
-            style={{ width: `${stats.progressPercentage}%` }}
+            className="h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_12px_var(--accent-glow)] relative"
+            style={{
+              width: `${stats.progressPercentage}%`,
+              background: "var(--accent-gradient)",
+            }}
           />
         </div>
       </div>
