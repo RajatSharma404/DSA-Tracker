@@ -10,6 +10,8 @@ import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { MobileDrawer } from "@/components/layout/MobileDrawer";
 import { KeyboardShortcutsModal } from "@/components/layout/KeyboardShortcutsModal";
 import { SyncInstructionModal } from "@/components/layout/SyncInstructionModal";
+import { GlobalKeyBindings } from "@/components/layout/GlobalKeyBindings";
+import { OfflineBanner } from "@/components/ui/OfflineBanner";
 
 const Sidebar = dynamic(
   () => import("@/components/layout/Sidebar").then((mod) => mod.Sidebar),
@@ -86,6 +88,8 @@ export default function DashboardLayout({
             {children}
           </PageTransition>
           <CommandPalette />
+          <GlobalKeyBindings />
+          <OfflineBanner />
           <KeyboardShortcutsModal
             isOpen={isShortcutsModalOpen}
             onClose={() => setIsShortcutsModalOpen(false)}
