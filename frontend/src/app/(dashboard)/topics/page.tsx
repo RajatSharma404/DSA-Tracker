@@ -60,13 +60,18 @@ const TopicStudyGuide = dynamic(
   },
 );
 
+import { queryCache } from "@/lib/queryCache";
+import { soundEffects } from "@/lib/soundEffects";
+import { toast } from "sonner";
+
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
 export default function TopicsPage() {
-  const [topics, setTopics] = useState<Topic[]>([]);
-  const [loading, setLoading] = useState(true);
+  const cachedTopics = queryCache.get<Topic[]>("topics");
+  const [topics, setTopics] = useState<Topic[]>(cachedTopics || []);
+  const [loading, setLoading] = useState(!cachedTopics);
   const [expandedTopic, setExpandedTopic] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const topicFromQuery = searchParams.get("topic");
@@ -76,6 +81,7 @@ export default function TopicsPage() {
       try {
         const data = await dsaApi.getTopics();
         setTopics(data);
+        queryCache.set("topics", data);
       } catch (err) {
         console.error("Failed to load topics", err);
       } finally {
@@ -86,61 +92,80 @@ export default function TopicsPage() {
   }, []);
 
   useEffect(() => {
-    if (!topicFromQuery || topics.length === 0) {
-      return;
-    }
-
-    if (topics.some((topic) => topic.id === topicFromQuery)) {
+    if (topicFromQuery && topics.some((t) => t.id === topicFromQuery)) {
       setExpandedTopic(topicFromQuery);
     }
   }, [topicFromQuery, topics]);
 
-  if (loading) {
-    return (
-      <div className="w-full min-w-0 space-y-8 animate-pulse">
-        <div className="space-y-3">
-          <div className="h-8 w-56 rounded-full bg-white/5" />
-          <div className="h-4 w-96 max-w-full rounded-full bg-white/5" />
+  const toggleTopic = (id: string) => {
+    soundEffects.playClick();
+    setExpandedTopic((prev) => (prev === id ? null : id));
+  };
+
+  const totalProblems = topics.reduce((acc, t) => acc + t.totalProblems, 0);
+  const totalSolved = topics.reduce((acc, t) => acc + t.solvedProblems, 0);
+  const overallPercentage =
+    totalProblems > 0 ? Math.round((totalSolved / totalProblems) * 100) : 0;
+
+  return (
+    <div className="space-y-8 animate-in fade-in duration-500 w-full min-w-0">
+      {/* Header */}
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 className="text-3xl font-black tracking-tight text-[var(--text-primary)] font-display">
+            Topic <span className="text-[var(--accent-primary)]">Curriculum</span>
+          </h1>
+          <p className="text-sm text-[var(--text-muted)] mt-1">
+            Master Data Structures and Algorithms systematically by topic
+          </p>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, index) => (
+
+        {/* Global Progress Bar */}
+        <div className="flex items-center gap-4 bg-[var(--bg-card)] border border-[var(--border-subtle)] px-4 py-2.5 rounded-2xl shadow-sm">
+          <div className="text-right font-mono">
+            <div className="text-xs font-bold text-[var(--text-primary)]">
+              {totalSolved} / {totalProblems} Solved
+            </div>
+            <div className="text-[10px] text-[var(--text-muted)]">
+              {overallPercentage}% Complete
+            </div>
+          </div>
+          <div className="w-24 h-2 bg-[var(--bg-secondary)] rounded-full overflow-hidden">
             <div
-              key={index}
-              className="h-40 rounded-2xl border border-white/5 bg-white/5"
+              className="h-full bg-[var(--accent-primary)] rounded-full transition-all duration-500 shadow-[0_0_8px_var(--accent-glow)]"
+              style={{ width: `${overallPercentage}%` }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {[...Array(6)].map((_, i) => (
+            <div
+              key={i}
+              className="h-44 rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-card)] animate-pulse"
             />
           ))}
         </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="w-full min-w-0 space-y-8 animate-in fade-in duration-500">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight mb-2">DSA Topics</h1>
-        <p className="text-gray-400">
-          Master these topics sequentially to build a strong foundation.
-        </p>
-      </div>
-
-      <div className="space-y-4">
-        {topics.map((topic, index) => (
-          <TopicAccordion
-            key={topic.id}
-            topic={topic}
-            index={index}
-            isExpanded={expandedTopic === topic.id}
-            onToggle={() =>
-              setExpandedTopic(expandedTopic === topic.id ? null : topic.id)
-            }
-          />
-        ))}
-      </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {topics.map((topic, index) => (
+            <TopicCard
+              key={topic.id}
+              topic={topic}
+              index={index}
+              isExpanded={expandedTopic === topic.id}
+              onToggle={() => toggleTopic(topic.id)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
-function TopicAccordion({
+function TopicCard({
   topic,
   index,
   isExpanded,
@@ -151,7 +176,8 @@ function TopicAccordion({
   isExpanded: boolean;
   onToggle: () => void;
 }) {
-  const [problems, setProblems] = useState<Problem[]>([]);
+  const cachedProblems = queryCache.get<Problem[]>(`topic_problems_${topic.id}`);
+  const [problems, setProblems] = useState<Problem[]>(cachedProblems || []);
   const [loading, setLoading] = useState(false);
   const [cardTransform, setCardTransform] = useState(
     "perspective(2200px) rotateX(0deg) rotateY(0deg) translateZ(0px)",
@@ -159,15 +185,24 @@ function TopicAccordion({
   const [cardGlow, setCardGlow] = useState({ x: 50, y: 50 });
 
   useEffect(() => {
-    if (isExpanded && problems.length === 0) {
-      setLoading(true);
-      dsaApi
-        .getTopicProblems(topic.id)
-        .then(setProblems)
-        .catch(console.error)
-        .finally(() => setLoading(false));
+    if (isExpanded) {
+      const cached = queryCache.get<Problem[]>(`topic_problems_${topic.id}`);
+      if (cached) {
+        setProblems(cached);
+      }
+      if (!cached || queryCache.isStale(`topic_problems_${topic.id}`)) {
+        if (!cached) setLoading(true);
+        dsaApi
+          .getTopicProblems(topic.id)
+          .then((data) => {
+            setProblems(data);
+            queryCache.set(`topic_problems_${topic.id}`, data);
+          })
+          .catch(console.error)
+          .finally(() => setLoading(false));
+      }
     }
-  }, [isExpanded, topic.id, problems.length]);
+  }, [isExpanded, topic.id]);
 
   const handleProgressUpdate = async (
     problemId: string,
