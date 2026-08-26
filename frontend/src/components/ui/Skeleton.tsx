@@ -19,17 +19,17 @@ export function Skeleton({
   ...props
 }: SkeletonProps) {
   const variants = {
-    card: "h-48 w-full rounded-2xl border border-white/5 bg-white/3",
-    text: "h-4 w-full rounded-md bg-white/3",
-    circle: "h-10 w-10 rounded-full bg-white/3",
-    button: "h-10 w-32 rounded-lg bg-white/3",
-    chart: "h-64 w-full rounded-2xl border border-white/5 bg-white/3",
+    card: "h-48 w-full rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)]",
+    text: "h-4 w-full rounded-md bg-[var(--bg-card)]",
+    circle: "h-10 w-10 rounded-full bg-[var(--bg-card)]",
+    button: "h-10 w-32 rounded-lg bg-[var(--bg-card)]",
+    chart: "h-64 w-full rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)]",
     list: "space-y-2",
   };
 
   return (
     <div
-      className={cn("animate-pulse", variants[variant], className)}
+      className={cn("shimmer", variants[variant], className)}
       {...props}
     />
   );
