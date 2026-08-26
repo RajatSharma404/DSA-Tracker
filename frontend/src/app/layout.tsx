@@ -5,6 +5,7 @@ import NextAuthProvider from "@/components/providers/NextAuthProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { PwaProvider } from "@/components/providers/PwaProvider";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -27,6 +28,7 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   title: "DSA Tracker Pro - Precision Technical Interview System",
   description: "Comprehensive Data Structures & Algorithms mastery platform featuring 3D visual campus, SM-2 spaced repetition, and AI guidance.",
+  manifest: "/manifest.json",
   icons: {
     icon: "/logo.svg",
     shortcut: "/logo.svg",
@@ -49,10 +51,12 @@ export default function RootLayout({
       <body className="antialiased font-sans h-screen w-full overflow-hidden m-0 p-0">
         <ErrorBoundary>
           <ThemeProvider>
-            <NextAuthProvider>
-              <ToastProvider />
-              {children}
-            </NextAuthProvider>
+            <PwaProvider>
+              <NextAuthProvider>
+                <ToastProvider />
+                {children}
+              </NextAuthProvider>
+            </PwaProvider>
           </ThemeProvider>
         </ErrorBoundary>
       </body>
