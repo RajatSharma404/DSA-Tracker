@@ -6,11 +6,11 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **21** | **12** | **9** | **0** |
+| **22** | **12** | **10** | **0** |
 
 ### 📂 Topic Directories
 
-- [**Arrays And Hashing**](./01-arrays-and-hashing/) (5 problems)
+- [**Arrays And Hashing**](./01-arrays-and-hashing/) (6 problems)
 - [**Two Pointers**](./02-two-pointers/) (3 problems)
 - [**Sliding Window**](./03-sliding-window/) (2 problems)
 - [**Stack**](./04-stack/) (2 problems)
@@ -36,6 +36,7 @@
 | 104 | Maximum Depth Of Binary Tree | Trees & Tries | 🟢 Easy | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0104-maximum-depth-of-binary-tree.cpp) |
 | 121 | Best Time To Buy And Sell Stock | Sliding Window | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./03-sliding-window/0121-best-time-to-buy-and-sell-stock.cpp) |
 | 125 | Valid Palindrome | Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0125-valid-palindrome.cpp) |
+| 128 | Longest Consecutive Sequence | Arrays & Hashing | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./01-arrays-and-hashing/0128-longest-consecutive-sequence.cpp) |
 | 141 | Linked List Cycle | Linked List | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0141-linked-list-cycle.cpp) |
 | 155 | Min Stack | Stack | 🟡 Medium | `C++` | `O(1) for push, pop, top, getMin` | `O(n)` | [Code](./04-stack/0155-min-stack.cpp) |
 | 206 | Reverse Linked List | Linked List | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0206-reverse-linked-list.cpp) |
