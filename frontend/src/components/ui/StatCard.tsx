@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 
 interface StatCardProps {
   title: string;
@@ -9,6 +9,56 @@ interface StatCardProps {
   description?: string;
   trend?: string;
   trendUp?: boolean;
+}
+
+function useCountUp(target: number, duration = 1000) {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (isNaN(target) || target <= 0) {
+      setCount(target);
+      return;
+    }
+
+    let start: number | null = null;
+    let animationFrameId: number;
+
+    const tick = (ts: number) => {
+      if (!start) start = ts;
+      const progress = Math.min((ts - start) / duration, 1);
+      // Ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.round(eased * target));
+      if (progress < 1) {
+        animationFrameId = requestAnimationFrame(tick);
+      }
+    };
+
+    animationFrameId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [target, duration]);
+
+  return count;
+}
+
+function AnimatedValue({ rawValue }: { rawValue: string | number }) {
+  const str = String(rawValue).trim();
+  const match = str.match(/^([0-9]+)(\D.*)?$/);
+
+  const numPart = match ? parseInt(match[1], 10) : NaN;
+  const suffix = match ? match[2] || "" : "";
+  const animatedNumber = useCountUp(isNaN(numPart) ? 0 : numPart, 1100);
+
+  if (isNaN(numPart)) {
+    return <>{rawValue}</>;
+  }
+
+  return (
+    <>
+      {animatedNumber}
+      {suffix}
+    </>
+  );
 }
 
 export function StatCard({
@@ -45,7 +95,7 @@ export function StatCard({
       ref={cardRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="p-6 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] hover:border-[var(--border-medium)] flex flex-col justify-between cursor-default relative overflow-hidden shadow-lg transition-colors"
+      className="p-6 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] hover:border-[var(--border-medium)] flex flex-col justify-between cursor-default relative overflow-hidden shadow-lg transition-colors group"
       style={{
         transition: "transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease",
         willChange: "transform",
@@ -66,7 +116,7 @@ export function StatCard({
 
       <div className="mt-4">
         <h3 className="text-3xl font-black tracking-tight text-[var(--text-primary)] font-display">
-          {value}
+          <AnimatedValue rawValue={value} />
         </h3>
       </div>
 
