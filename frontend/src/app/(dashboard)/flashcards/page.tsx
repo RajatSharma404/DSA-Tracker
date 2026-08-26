@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import {
   Brain,
   RotateCw,
@@ -148,6 +148,12 @@ export default function FlashcardsPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [masteredIds, setMasteredIds] = useState<Set<string>>(new Set());
+  
+  // Drag & Swipe Gesture State
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const touchStartX = useRef<number | null>(null);
+  const mouseStartX = useRef<number | null>(null);
 
   const filteredCards = useMemo(() => {
     if (selectedCategory === "All") return FLASHCARDS;
@@ -159,12 +165,14 @@ export default function FlashcardsPage() {
   const handleNext = () => {
     soundEffects.playClick();
     setIsFlipped(false);
+    setDragOffset(0);
     setCurrentIndex((prev) => (prev + 1) % filteredCards.length);
   };
 
   const handlePrev = () => {
     soundEffects.playClick();
     setIsFlipped(false);
+    setDragOffset(0);
     setCurrentIndex(
       (prev) => (prev - 1 + filteredCards.length) % filteredCards.length,
     );
@@ -183,6 +191,52 @@ export default function FlashcardsPage() {
       );
     }
     handleNext();
+  };
+
+  // Touch Swipe Handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    setIsDragging(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const diff = e.touches[0].clientX - touchStartX.current;
+    setDragOffset(diff);
+  };
+
+  const handleTouchEnd = () => {
+    if (dragOffset > 85) {
+      handleGrade("Easy");
+    } else if (dragOffset < -85) {
+      handleGrade("Hard");
+    }
+    touchStartX.current = null;
+    setIsDragging(false);
+    setDragOffset(0);
+  };
+
+  // Mouse Drag Handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    mouseStartX.current = e.clientX;
+    setIsDragging(true);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (mouseStartX.current === null || !isDragging) return;
+    const diff = e.clientX - mouseStartX.current;
+    setDragOffset(diff);
+  };
+
+  const handleMouseUp = () => {
+    if (dragOffset > 90) {
+      handleGrade("Easy");
+    } else if (dragOffset < -90) {
+      handleGrade("Hard");
+    }
+    mouseStartX.current = null;
+    setIsDragging(false);
+    setDragOffset(0);
   };
 
   // Keyboard navigation & rating keys
@@ -217,6 +271,8 @@ export default function FlashcardsPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [currentIndex, filteredCards]);
 
+  const swipeRotation = (dragOffset / 200) * 8;
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500 w-full min-w-0">
       {/* Header */}
@@ -230,7 +286,7 @@ export default function FlashcardsPage() {
             Algorithmic Invariant Flashcards
           </h1>
           <p className="text-sm text-[var(--text-muted)] mt-1">
-            Drill high-yield algorithmic invariants, mathematical proofs, and core code templates with 3D spaced repetition.
+            Drill high-yield algorithmic invariants, mathematical proofs, and core code templates with swipe gesture spaced repetition.
           </p>
         </div>
 
@@ -259,109 +315,136 @@ export default function FlashcardsPage() {
 
       {/* Main Flashcard Stage */}
       <div className="max-w-2xl mx-auto space-y-6">
-        {/* Card Progress */}
+        {/* Card Progress & Swipe Hints */}
         <div className="flex justify-between items-center text-xs font-bold text-[var(--text-muted)] px-2 font-mono">
-          <span>
-            Card {currentIndex + 1} of {filteredCards.length}
+          <span className="flex items-center gap-2">
+            <span>Card {currentIndex + 1} of {filteredCards.length}</span>
+            <span className="hidden sm:inline text-[10px] text-purple-400 font-normal">
+              (Swipe Left: Hard &bull; Swipe Right: Easy)
+            </span>
           </span>
           <span className="text-purple-400 font-bold">
             {masteredIds.size} Mastered Invariants
           </span>
         </div>
 
-        {/* 3D Flashcard Container */}
-        <div
-          onClick={() => {
-            soundEffects.playToggle();
-            setIsFlipped(!isFlipped);
-          }}
-          className="relative min-h-[380px] rounded-[2.5rem] border border-[var(--border-subtle)] bg-[var(--bg-card)] p-8 sm:p-10 shadow-2xl cursor-pointer hover:border-purple-500/40 transition-all duration-300 flex flex-col justify-between select-none group"
-          style={{ perspective: 1000 }}
-        >
-          {/* Card Front */}
-          {!isFlipped ? (
-            <div className="space-y-6 animate-in fade-in duration-300">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20 font-mono">
-                  {currentCard.topic}
-                </span>
-                <span className="text-xs text-[var(--text-muted)] flex items-center gap-1 font-mono">
-                  <RotateCw size={13} /> Click or Space to Flip
-                </span>
-              </div>
-
-              <div className="space-y-3 pt-4">
-                <h2 className="text-2xl sm:text-3xl font-black text-[var(--text-primary)] group-hover:text-purple-400 transition-colors font-display">
-                  {currentCard.front.title}
-                </h2>
-                <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed font-medium">
-                  {currentCard.front.question}
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-2 pt-6">
-                {currentCard.front.tags.map((tag, i) => (
-                  <span
-                    key={i}
-                    className="px-2.5 py-1 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-subtle)] text-[10px] text-[var(--text-muted)] font-mono"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
+        {/* Swipe Visual Feedback Indicators */}
+        <div className="relative">
+          {dragOffset > 25 && (
+            <div className="absolute top-1/2 right-6 -translate-y-1/2 z-30 px-3 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-mono text-xs font-black uppercase tracking-widest shadow-lg animate-pulse pointer-events-none">
+              EASY &bull; MASTERED &rarr;
             </div>
-          ) : (
-            /* Card Back */
-            <div className="space-y-5 animate-in fade-in duration-300">
-              <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
-                <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400 flex items-center gap-1.5 font-mono">
-                  <CheckCircle2 size={13} /> Invariant Proof & Solution
-                </span>
-                <span className="text-xs text-[var(--text-muted)] flex items-center gap-1 font-mono">
-                  <RotateCw size={13} /> Click to Flip Front
-                </span>
-              </div>
-
-              <div className="space-y-2">
-                <span className="text-[10px] font-black uppercase tracking-wider text-[var(--text-muted)] font-mono">
-                  Core Invariant
-                </span>
-                <p className="text-xs sm:text-sm text-[var(--text-primary)] leading-relaxed font-medium">
-                  {currentCard.back.coreInvariant}
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 font-mono text-xs">
-                <div className="p-3 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)]">
-                  <span className="text-[10px] text-[var(--text-muted)] font-sans uppercase">
-                    Time
-                  </span>
-                  <div className="text-emerald-400 font-bold mt-0.5">
-                    {currentCard.back.timeComplexity}
-                  </div>
-                </div>
-                <div className="p-3 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)]">
-                  <span className="text-[10px] text-[var(--text-muted)] font-sans uppercase">
-                    Space
-                  </span>
-                  <div className="text-cyan-400 font-bold mt-0.5">
-                    {currentCard.back.spaceComplexity}
-                  </div>
-                </div>
-              </div>
-
-              {currentCard.back.codeTemplate && (
-                <div className="p-3.5 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] font-mono text-xs text-purple-300 overflow-x-auto">
-                  <pre>{currentCard.back.codeTemplate}</pre>
-                </div>
-              )}
+          )}
+          {dragOffset < -25 && (
+            <div className="absolute top-1/2 left-6 -translate-y-1/2 z-30 px-3 py-1.5 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-300 font-mono text-xs font-black uppercase tracking-widest shadow-lg animate-pulse pointer-events-none">
+              &larr; HARD &bull; REVIEW AGAIN
             </div>
           )}
 
-          <div className="pt-4 border-t border-[var(--border-subtle)] text-center text-[11px] text-[var(--text-muted)] font-mono">
-            {isFlipped
-              ? "Grade recall [1-4] to update SM-2 schedule"
-              : "Press Space or tap anywhere on card to reveal invariant answer"}
+          {/* 3D Flashcard Container with Swipe Gesture */}
+          <div
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onClick={() => {
+              if (Math.abs(dragOffset) < 10) {
+                soundEffects.playToggle();
+                setIsFlipped(!isFlipped);
+              }
+            }}
+            className={`relative min-h-[400px] rounded-[2.5rem] border bg-[var(--bg-card)] p-8 sm:p-10 shadow-2xl cursor-grab active:cursor-grabbing transition-all duration-150 flex flex-col justify-between select-none group ${
+              dragOffset > 30
+                ? "border-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.35)]"
+                : dragOffset < -30
+                  ? "border-rose-500 shadow-[0_0_30px_rgba(244,63,94,0.35)]"
+                  : "border-[var(--border-subtle)] hover:border-purple-500/40"
+            }`}
+            style={{
+              transform: `translateX(${dragOffset}px) rotate(${swipeRotation}deg)`,
+              touchAction: "pan-y",
+            }}
+          >
+            {/* Card Front */}
+            {!isFlipped ? (
+              <div className="space-y-6 animate-in fade-in duration-300 pointer-events-none">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20 font-mono">
+                    {currentCard.topic}
+                  </span>
+                  <span className="text-xs text-[var(--text-muted)] flex items-center gap-1 font-mono">
+                    <RotateCw size={13} /> Tap or Space to Reveal Invariant
+                  </span>
+                </div>
+
+                <div className="space-y-3 pt-4">
+                  <h2 className="text-2xl sm:text-3xl font-black text-[var(--text-primary)] group-hover:text-purple-400 transition-colors font-display">
+                    {currentCard.front.title}
+                  </h2>
+                  <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed font-medium">
+                    {currentCard.front.question}
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-2 pt-6">
+                  {currentCard.front.tags.map((tag, i) => (
+                    <span
+                      key={i}
+                      className="px-2.5 py-1 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-subtle)] text-[10px] text-[var(--text-muted)] font-mono"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              /* Card Back — Cheat Codes & Invariant Proof */
+              <div className="space-y-4 animate-in fade-in duration-300">
+                <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2.5">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400 flex items-center gap-1.5 font-mono">
+                    <CheckCircle2 size={13} /> Algorithm Pattern Cheat Code
+                  </span>
+                  <span className="text-xs text-[var(--text-muted)] flex items-center gap-1 font-mono">
+                    <RotateCw size={13} /> Click to Flip Front
+                  </span>
+                </div>
+
+                <div className="space-y-1.5">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-[var(--accent-primary)] font-mono">
+                    Key Invariant Formula
+                  </span>
+                  <p className="text-xs sm:text-sm text-[var(--text-primary)] leading-relaxed font-medium bg-[var(--bg-secondary)] p-3 rounded-2xl border border-[var(--border-subtle)]">
+                    {currentCard.back.coreInvariant}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2.5 font-mono text-xs">
+                  <div className="p-2.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)]">
+                    <span className="text-[9px] text-[var(--text-muted)] uppercase">Time</span>
+                    <div className="text-emerald-400 font-bold mt-0.5">{currentCard.back.timeComplexity}</div>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)]">
+                    <span className="text-[9px] text-[var(--text-muted)] uppercase">Space</span>
+                    <div className="text-cyan-400 font-bold mt-0.5">{currentCard.back.spaceComplexity}</div>
+                  </div>
+                </div>
+
+                {currentCard.back.codeTemplate && (
+                  <div className="p-3 rounded-2xl bg-black/80 border border-purple-500/20 font-mono text-[11px] text-purple-300 overflow-x-auto shadow-inner">
+                    <pre>{currentCard.back.codeTemplate}</pre>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="pt-3 border-t border-[var(--border-subtle)] text-center text-[10px] text-[var(--text-muted)] font-mono flex items-center justify-between">
+              <span>Swipe left for Hard</span>
+              <span>Tap to flip</span>
+              <span>Swipe right for Easy</span>
+            </div>
           </div>
         </div>
 
