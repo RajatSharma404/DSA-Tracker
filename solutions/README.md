@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **24** | **12** | **12** | **0** |
+| **25** | **12** | **13** | **0** |
 
 ### 📂 Topic Directories
 
@@ -14,7 +14,7 @@
 - [**Two Pointers**](./02-two-pointers/) (3 problems)
 - [**Sliding Window**](./03-sliding-window/) (3 problems)
 - [**Stack**](./04-stack/) (3 problems)
-- [**Binary Search**](./05-binary-search/) (2 problems)
+- [**Binary Search**](./05-binary-search/) (3 problems)
 - [**Linked List**](./06-linked-list/) (2 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (2 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (1 problems)
@@ -48,6 +48,7 @@
 | 424 | Longest Repeating Character Replacement | Sliding Window | 🟡 Medium | `C++` | `O(n)` | `O(1) (26 uppercase letters)` | [Code](./03-sliding-window/0424-longest-repeating-character-replacement.cpp) |
 | 704 | Binary Search | Binary Search | 🟢 Easy | `C++` | `O(log n)` | `O(1)` | [Code](./05-binary-search/0704-binary-search.cpp) |
 | 739 | Daily Temperatures | Stack (Monotonic Stack) | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0739-daily-temperatures.cpp) |
+| 875 | Koko Eating Bananas | Binary Search | 🟡 Medium | `C++` | `O(n log(max(piles)))` | `O(1)` | [Code](./05-binary-search/0875-koko-eating-bananas.cpp) |
 
 ---
 *Updated automatically via `scripts/sync-solutions.js`*
