@@ -108,7 +108,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setMounted(true);
   }, []);
 
-  const setTheme = (newTheme: ThemeMode) => {
+  const applyTheme = (newTheme: ThemeMode) => {
     setThemeState(newTheme);
     try {
       localStorage.setItem(THEME_STORAGE_KEY, newTheme);
@@ -117,6 +117,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
     document.documentElement.setAttribute("data-theme", newTheme);
     document.body.setAttribute("data-theme", newTheme);
+  };
+
+  const setTheme = (newTheme: ThemeMode) => {
+    if (typeof document !== "undefined" && "startViewTransition" in document) {
+      (document as unknown as { startViewTransition: (cb: () => void) => void }).startViewTransition(() => {
+        applyTheme(newTheme);
+      });
+    } else {
+      applyTheme(newTheme);
+    }
   };
 
   const currentThemeOption =
