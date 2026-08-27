@@ -6,14 +6,14 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **33** | **14** | **19** | **0** |
+| **34** | **14** | **20** | **0** |
 
 ### 📂 Topic Directories
 
 - [**Arrays And Hashing**](./01-arrays-and-hashing/) (7 problems)
 - [**Two Pointers**](./02-two-pointers/) (4 problems)
 - [**Sliding Window**](./03-sliding-window/) (4 problems)
-- [**Stack**](./04-stack/) (3 problems)
+- [**Stack**](./04-stack/) (4 problems)
 - [**Binary Search**](./05-binary-search/) (3 problems)
 - [**Linked List**](./06-linked-list/) (4 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (4 problems)
@@ -44,6 +44,7 @@
 | 128 | Longest Consecutive Sequence | Arrays & Hashing | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./01-arrays-and-hashing/0128-longest-consecutive-sequence.cpp) |
 | 141 | Linked List Cycle | Linked List | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0141-linked-list-cycle.cpp) |
 | 143 | Reorder List | Linked List | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0143-reorder-list.cpp) |
+| 150 | Evaluate Reverse Polish Notation | Stack | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0150-evaluate-reverse-polish-notation.cpp) |
 | 155 | Min Stack | Stack | 🟡 Medium | `C++` | `O(1) for push, pop, top, getMin` | `O(n)` | [Code](./04-stack/0155-min-stack.cpp) |
 | 167 | Two Sum Ii Input Array Is Sorted | Two Pointers | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0167-two-sum-ii-input-array-is-sorted.cpp) |
 | 200 | Number Of Islands | Graphs | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N) recursion stack` | [Code](./10-graphs/0200-number-of-islands.cpp) |
