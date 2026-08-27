@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **34** | **14** | **20** | **0** |
+| **35** | **14** | **21** | **0** |
 
 ### 📂 Topic Directories
 
@@ -14,7 +14,7 @@
 - [**Two Pointers**](./02-two-pointers/) (4 problems)
 - [**Sliding Window**](./03-sliding-window/) (4 problems)
 - [**Stack**](./04-stack/) (4 problems)
-- [**Binary Search**](./05-binary-search/) (3 problems)
+- [**Binary Search**](./05-binary-search/) (4 problems)
 - [**Linked List**](./06-linked-list/) (4 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (4 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (1 problems)
@@ -36,6 +36,7 @@
 | 49 | Group Anagrams | Arrays & Hashing | 🟡 Medium | `C++` | `O(N * K log K) where N is the number of strings and K is the maximum length of a string` | `O(N * K)` | [Code](./01-arrays-and-hashing/0049-group-anagrams.cpp) |
 | 53 | Maximum Subarray | Dynamic Programming | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0053-maximum-subarray.cpp) |
 | 70 | Climbing Stairs | Dynamic Programming | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0070-climbing-stairs.cpp) |
+| 74 | Search A 2d Matrix | Binary Search | 🟡 Medium | `C++` | `O(log(m * n))` | `O(1)` | [Code](./05-binary-search/0074-search-a-2d-matrix.cpp) |
 | 100 | Same Tree | Trees & Tries | 🟢 Easy | `C++` | `O(N) where N is the number of nodes` | `O(h) where h is the tree height` | [Code](./07-trees-and-tries/0100-same-tree.cpp) |
 | 102 | Binary Tree Level Order Traversal | Trees & Tries | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./07-trees-and-tries/0102-binary-tree-level-order-traversal.cpp) |
 | 104 | Maximum Depth Of Binary Tree | Trees & Tries | 🟢 Easy | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0104-maximum-depth-of-binary-tree.cpp) |
