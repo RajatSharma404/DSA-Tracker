@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **36** | **14** | **22** | **0** |
+| **37** | **15** | **22** | **0** |
 
 ### 📂 Topic Directories
 
@@ -16,7 +16,7 @@
 - [**Stack**](./04-stack/) (4 problems)
 - [**Binary Search**](./05-binary-search/) (4 problems)
 - [**Linked List**](./06-linked-list/) (5 problems)
-- [**Trees And Tries**](./07-trees-and-tries/) (4 problems)
+- [**Trees And Tries**](./07-trees-and-tries/) (5 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (1 problems)
 - [**Graphs**](./10-graphs/) (1 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (2 problems)
@@ -58,6 +58,7 @@
 | 347 | Top K Frequent Elements | Heap / Priority Queue | 🟡 Medium | `C++` | `O(N log k)` | `O(N)` | [Code](./08-heap-priority-queue/0347-top-k-frequent-elements.cpp) |
 | 424 | Longest Repeating Character Replacement | Sliding Window | 🟡 Medium | `C++` | `O(n)` | `O(1) (26 uppercase letters)` | [Code](./03-sliding-window/0424-longest-repeating-character-replacement.cpp) |
 | 567 | Permutation In String | Sliding Window | 🟡 Medium | `C++` | `O(l1 + l2)` | `O(1) (26 characters)` | [Code](./03-sliding-window/0567-permutation-in-string.cpp) |
+| 572 | Subtree Of Another Tree | Trees & Tries | 🟢 Easy | `C++` | `O(s * t)` | `O(h)` | [Code](./07-trees-and-tries/0572-subtree-of-another-tree.cpp) |
 | 704 | Binary Search | Binary Search | 🟢 Easy | `C++` | `O(log n)` | `O(1)` | [Code](./05-binary-search/0704-binary-search.cpp) |
 | 739 | Daily Temperatures | Stack (Monotonic Stack) | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0739-daily-temperatures.cpp) |
 | 875 | Koko Eating Bananas | Binary Search | 🟡 Medium | `C++` | `O(n log(max(piles)))` | `O(1)` | [Code](./05-binary-search/0875-koko-eating-bananas.cpp) |
