@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **49** | **15** | **34** | **0** |
+| **50** | **15** | **35** | **0** |
 
 ### 📂 Topic Directories
 
@@ -20,7 +20,7 @@
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (1 problems)
 - [**Backtracking**](./09-backtracking/) (2 problems)
 - [**Graphs**](./10-graphs/) (3 problems)
-- [**Dynamic Programming**](./11-dynamic-programming/) (4 problems)
+- [**Dynamic Programming**](./11-dynamic-programming/) (5 problems)
 
 ### 📝 Problem Index
 
@@ -28,6 +28,7 @@
 | :--- | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
 | 1 | Two Sum | Arrays & Hashing | 🟢 Easy | `C++` | `O(n)` | `O(n)` | [Code](./01-arrays-and-hashing/0001-two-sum.cpp) |
 | 3 | Longest Substring Without Repeating Characters | Sliding Window | 🟡 Medium | `C++` | `O(n)` | `O(min(n, m))` | [Code](./03-sliding-window/0003-longest-substring-without-repeating-characters.cpp) |
+| 5 | Longest Palindromic Substring | Dynamic Programming / Expand Around Center | 🟡 Medium | `C++` | `O(n^2)` | `O(1)` | [Code](./11-dynamic-programming/0005-longest-palindromic-substring.cpp) |
 | 11 | Container With Most Water | Two Pointers | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0011-container-with-most-water.cpp) |
 | 15 | 3sum | Two Pointers | 🟡 Medium | `C++` | `O(n^2)` | `O(1) extra space excluding result` | [Code](./02-two-pointers/0015-3sum.cpp) |
 | 19 | Remove Nth Node From End Of List | Linked List | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0019-remove-nth-node-from-end-of-list.cpp) |
