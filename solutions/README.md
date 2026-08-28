@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **45** | **15** | **30** | **0** |
+| **46** | **15** | **31** | **0** |
 
 ### 📂 Topic Directories
 
@@ -19,7 +19,7 @@
 - [**Trees And Tries**](./07-trees-and-tries/) (9 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (1 problems)
 - [**Backtracking**](./09-backtracking/) (2 problems)
-- [**Graphs**](./10-graphs/) (1 problems)
+- [**Graphs**](./10-graphs/) (2 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (2 problems)
 
 ### 📝 Problem Index
@@ -49,6 +49,7 @@
 | 121 | Best Time To Buy And Sell Stock | Sliding Window | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./03-sliding-window/0121-best-time-to-buy-and-sell-stock.cpp) |
 | 125 | Valid Palindrome | Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0125-valid-palindrome.cpp) |
 | 128 | Longest Consecutive Sequence | Arrays & Hashing | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./01-arrays-and-hashing/0128-longest-consecutive-sequence.cpp) |
+| 133 | Clone Graph | Graphs | 🟡 Medium | `C++` | `O(V + E)` | `O(V)` | [Code](./10-graphs/0133-clone-graph.cpp) |
 | 141 | Linked List Cycle | Linked List | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0141-linked-list-cycle.cpp) |
 | 143 | Reorder List | Linked List | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0143-reorder-list.cpp) |
 | 150 | Evaluate Reverse Polish Notation | Stack | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0150-evaluate-reverse-polish-notation.cpp) |
