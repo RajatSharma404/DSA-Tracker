@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **42** | **15** | **27** | **0** |
+| **43** | **15** | **28** | **0** |
 
 ### 📂 Topic Directories
 
@@ -16,7 +16,7 @@
 - [**Stack**](./04-stack/) (4 problems)
 - [**Binary Search**](./05-binary-search/) (5 problems)
 - [**Linked List**](./06-linked-list/) (5 problems)
-- [**Trees And Tries**](./07-trees-and-tries/) (6 problems)
+- [**Trees And Tries**](./07-trees-and-tries/) (7 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (1 problems)
 - [**Backtracking**](./09-backtracking/) (2 problems)
 - [**Graphs**](./10-graphs/) (1 problems)
@@ -41,6 +41,7 @@
 | 70 | Climbing Stairs | Dynamic Programming | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0070-climbing-stairs.cpp) |
 | 74 | Search A 2d Matrix | Binary Search | 🟡 Medium | `C++` | `O(log(m * n))` | `O(1)` | [Code](./05-binary-search/0074-search-a-2d-matrix.cpp) |
 | 78 | Subsets | Recursion & Backtracking | 🟡 Medium | `C++` | `O(n * 2^n)` | `O(n)` | [Code](./09-backtracking/0078-subsets.cpp) |
+| 98 | Validate Binary Search Tree | Trees & Tries | 🟡 Medium | `C++` | `O(n)` | `O(h) recursion stack` | [Code](./07-trees-and-tries/0098-validate-binary-search-tree.cpp) |
 | 100 | Same Tree | Trees & Tries | 🟢 Easy | `C++` | `O(N) where N is the number of nodes` | `O(h) where h is the tree height` | [Code](./07-trees-and-tries/0100-same-tree.cpp) |
 | 102 | Binary Tree Level Order Traversal | Trees & Tries | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./07-trees-and-tries/0102-binary-tree-level-order-traversal.cpp) |
 | 104 | Maximum Depth Of Binary Tree | Trees & Tries | 🟢 Easy | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0104-maximum-depth-of-binary-tree.cpp) |
