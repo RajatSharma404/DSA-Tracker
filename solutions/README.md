@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **44** | **15** | **29** | **0** |
+| **45** | **15** | **30** | **0** |
 
 ### 📂 Topic Directories
 
@@ -16,7 +16,7 @@
 - [**Stack**](./04-stack/) (4 problems)
 - [**Binary Search**](./05-binary-search/) (5 problems)
 - [**Linked List**](./06-linked-list/) (5 problems)
-- [**Trees And Tries**](./07-trees-and-tries/) (8 problems)
+- [**Trees And Tries**](./07-trees-and-tries/) (9 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (1 problems)
 - [**Backtracking**](./09-backtracking/) (2 problems)
 - [**Graphs**](./10-graphs/) (1 problems)
@@ -45,6 +45,7 @@
 | 100 | Same Tree | Trees & Tries | 🟢 Easy | `C++` | `O(N) where N is the number of nodes` | `O(h) where h is the tree height` | [Code](./07-trees-and-tries/0100-same-tree.cpp) |
 | 102 | Binary Tree Level Order Traversal | Trees & Tries | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./07-trees-and-tries/0102-binary-tree-level-order-traversal.cpp) |
 | 104 | Maximum Depth Of Binary Tree | Trees & Tries | 🟢 Easy | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0104-maximum-depth-of-binary-tree.cpp) |
+| 105 | Construct Binary Tree From Preorder And Inorder Traversal | Trees & Tries | 🟡 Medium | `C++` | `O(n)` | `O(n) hash map + recursion stack` | [Code](./07-trees-and-tries/0105-construct-binary-tree-from-preorder-and-inorder-traversal.cpp) |
 | 121 | Best Time To Buy And Sell Stock | Sliding Window | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./03-sliding-window/0121-best-time-to-buy-and-sell-stock.cpp) |
 | 125 | Valid Palindrome | Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0125-valid-palindrome.cpp) |
 | 128 | Longest Consecutive Sequence | Arrays & Hashing | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./01-arrays-and-hashing/0128-longest-consecutive-sequence.cpp) |
