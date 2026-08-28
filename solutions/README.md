@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **43** | **15** | **28** | **0** |
+| **44** | **15** | **29** | **0** |
 
 ### 📂 Topic Directories
 
@@ -16,7 +16,7 @@
 - [**Stack**](./04-stack/) (4 problems)
 - [**Binary Search**](./05-binary-search/) (5 problems)
 - [**Linked List**](./06-linked-list/) (5 problems)
-- [**Trees And Tries**](./07-trees-and-tries/) (7 problems)
+- [**Trees And Tries**](./07-trees-and-tries/) (8 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (1 problems)
 - [**Backtracking**](./09-backtracking/) (2 problems)
 - [**Graphs**](./10-graphs/) (1 problems)
@@ -58,6 +58,7 @@
 | 206 | Reverse Linked List | Linked List | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0206-reverse-linked-list.cpp) |
 | 217 | Contains Duplicate | Arrays & Hashing | 🟢 Easy | `C++` | `O(n)` | `O(n)` | [Code](./01-arrays-and-hashing/0217-contains-duplicate.cpp) |
 | 226 | Invert Binary Tree | Trees & Tries | 🟢 Easy | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0226-invert-binary-tree.cpp) |
+| 230 | Kth Smallest Element In A Bst | Trees & Tries | 🟡 Medium | `C++` | `O(H + k)` | `O(H) stack frames` | [Code](./07-trees-and-tries/0230-kth-smallest-element-in-a-bst.cpp) |
 | 235 | Lowest Common Ancestor Of A Binary Search Tree | Trees & Tries | 🟡 Medium | `C++` | `O(h) where h is height of BST` | `O(1)` | [Code](./07-trees-and-tries/0235-lowest-common-ancestor-of-a-binary-search-tree.cpp) |
 | 238 | Product Of Array Except Self | Arrays & Hashing | 🟡 Medium | `C++` | `O(n)` | `O(1) auxiliary space (excluding return vector)` | [Code](./01-arrays-and-hashing/0238-product-of-array-except-self.cpp) |
 | 242 | Valid Anagram | Arrays & Hashing | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0242-valid-anagram.cpp) |
