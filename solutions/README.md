@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **56** | **15** | **41** | **0** |
+| **57** | **15** | **42** | **0** |
 
 ### 📂 Topic Directories
 
@@ -17,7 +17,7 @@
 - [**Binary Search**](./05-binary-search/) (5 problems)
 - [**Linked List**](./06-linked-list/) (5 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (11 problems)
-- [**Heap Priority Queue**](./08-heap-priority-queue/) (1 problems)
+- [**Heap Priority Queue**](./08-heap-priority-queue/) (2 problems)
 - [**Backtracking**](./09-backtracking/) (2 problems)
 - [**Graphs**](./10-graphs/) (3 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (9 problems)
@@ -63,6 +63,7 @@
 | 208 | Implement Trie Prefix Tree | Trees & Tries | 🟡 Medium | `C++` | `O(m) where m is word length` | `O(total characters inserted * 26)` | [Code](./07-trees-and-tries/0208-implement-trie-prefix-tree.cpp) |
 | 211 | Design Add And Search Words Data Structure | Trees & Tries (Trie + DFS) | 🟡 Medium | `C++` | `O(m) addWord, O(N * 26^m) worst search with '.'` | `O(total letters * 26)` | [Code](./07-trees-and-tries/0211-design-add-and-search-words-data-structure.cpp) |
 | 213 | House Robber Ii | Dynamic Programming | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0213-house-robber-ii.cpp) |
+| 215 | Kth Largest Element In An Array | Heap / Priority Queue (Min-Heap) | 🟡 Medium | `C++` | `O(n log k)` | `O(k)` | [Code](./08-heap-priority-queue/0215-kth-largest-element-in-an-array.cpp) |
 | 217 | Contains Duplicate | Arrays & Hashing | 🟢 Easy | `C++` | `O(n)` | `O(n)` | [Code](./01-arrays-and-hashing/0217-contains-duplicate.cpp) |
 | 226 | Invert Binary Tree | Trees & Tries | 🟢 Easy | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0226-invert-binary-tree.cpp) |
 | 230 | Kth Smallest Element In A Bst | Trees & Tries | 🟡 Medium | `C++` | `O(H + k)` | `O(H) stack frames` | [Code](./07-trees-and-tries/0230-kth-smallest-element-in-a-bst.cpp) |
