@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **53** | **15** | **38** | **0** |
+| **54** | **15** | **39** | **0** |
 
 ### 📂 Topic Directories
 
@@ -20,7 +20,7 @@
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (1 problems)
 - [**Backtracking**](./09-backtracking/) (2 problems)
 - [**Graphs**](./10-graphs/) (3 problems)
-- [**Dynamic Programming**](./11-dynamic-programming/) (8 problems)
+- [**Dynamic Programming**](./11-dynamic-programming/) (9 problems)
 
 ### 📝 Problem Index
 
@@ -79,6 +79,7 @@
 | 704 | Binary Search | Binary Search | 🟢 Easy | `C++` | `O(log n)` | `O(1)` | [Code](./05-binary-search/0704-binary-search.cpp) |
 | 739 | Daily Temperatures | Stack (Monotonic Stack) | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0739-daily-temperatures.cpp) |
 | 875 | Koko Eating Bananas | Binary Search | 🟡 Medium | `C++` | `O(n log(max(piles)))` | `O(1)` | [Code](./05-binary-search/0875-koko-eating-bananas.cpp) |
+| 1143 | Longest Common Subsequence | Dynamic Programming (2D Grid) | 🟡 Medium | `C++` | `O(m * n)` | `O(m * n)` | [Code](./11-dynamic-programming/1143-longest-common-subsequence.cpp) |
 
 ---
 *Updated automatically via `scripts/sync-solutions.js`*
