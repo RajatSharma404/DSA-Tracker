@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **54** | **15** | **39** | **0** |
+| **55** | **15** | **40** | **0** |
 
 ### 📂 Topic Directories
 
@@ -16,7 +16,7 @@
 - [**Stack**](./04-stack/) (4 problems)
 - [**Binary Search**](./05-binary-search/) (5 problems)
 - [**Linked List**](./06-linked-list/) (5 problems)
-- [**Trees And Tries**](./07-trees-and-tries/) (9 problems)
+- [**Trees And Tries**](./07-trees-and-tries/) (10 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (1 problems)
 - [**Backtracking**](./09-backtracking/) (2 problems)
 - [**Graphs**](./10-graphs/) (3 problems)
@@ -60,6 +60,7 @@
 | 198 | House Robber | Dynamic Programming | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0198-house-robber.cpp) |
 | 200 | Number Of Islands | Graphs | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N) recursion stack` | [Code](./10-graphs/0200-number-of-islands.cpp) |
 | 206 | Reverse Linked List | Linked List | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0206-reverse-linked-list.cpp) |
+| 208 | Implement Trie Prefix Tree | Trees & Tries | 🟡 Medium | `C++` | `O(m) where m is word length` | `O(total characters inserted * 26)` | [Code](./07-trees-and-tries/0208-implement-trie-prefix-tree.cpp) |
 | 213 | House Robber Ii | Dynamic Programming | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0213-house-robber-ii.cpp) |
 | 217 | Contains Duplicate | Arrays & Hashing | 🟢 Easy | `C++` | `O(n)` | `O(n)` | [Code](./01-arrays-and-hashing/0217-contains-duplicate.cpp) |
 | 226 | Invert Binary Tree | Trees & Tries | 🟢 Easy | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0226-invert-binary-tree.cpp) |
