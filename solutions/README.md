@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **58** | **15** | **43** | **0** |
+| **59** | **15** | **44** | **0** |
 
 ### 📂 Topic Directories
 
@@ -18,7 +18,7 @@
 - [**Linked List**](./06-linked-list/) (5 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (11 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (3 problems)
-- [**Backtracking**](./09-backtracking/) (2 problems)
+- [**Backtracking**](./09-backtracking/) (3 problems)
 - [**Graphs**](./10-graphs/) (3 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (9 problems)
 
@@ -37,6 +37,7 @@
 | 33 | Search In Rotated Sorted Array | Binary Search | 🟡 Medium | `C++` | `O(log n)` | `O(1)` | [Code](./05-binary-search/0033-search-in-rotated-sorted-array.cpp) |
 | 36 | Valid Sudoku | Arrays & Hashing | 🟡 Medium | `C++` | `O(1) (fixed 9x9 board)` | `O(1)` | [Code](./01-arrays-and-hashing/0036-valid-sudoku.cpp) |
 | 39 | Combination Sum | Recursion & Backtracking | 🟡 Medium | `C++` | `O(2^t) where t is target value` | `O(t)` | [Code](./09-backtracking/0039-combination-sum.cpp) |
+| 46 | Permutations | Recursion & Backtracking | 🟡 Medium | `C++` | `O(n! * n)` | `O(n) recursion stack` | [Code](./09-backtracking/0046-permutations.cpp) |
 | 49 | Group Anagrams | Arrays & Hashing | 🟡 Medium | `C++` | `O(N * K log K) where N is the number of strings and K is the maximum length of a string` | `O(N * K)` | [Code](./01-arrays-and-hashing/0049-group-anagrams.cpp) |
 | 53 | Maximum Subarray | Dynamic Programming | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0053-maximum-subarray.cpp) |
 | 70 | Climbing Stairs | Dynamic Programming | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0070-climbing-stairs.cpp) |
