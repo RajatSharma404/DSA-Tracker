@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **66** | **15** | **51** | **0** |
+| **67** | **15** | **52** | **0** |
 
 ### 📂 Topic Directories
 
@@ -19,7 +19,7 @@
 - [**Trees And Tries**](./07-trees-and-tries/) (11 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (3 problems)
 - [**Backtracking**](./09-backtracking/) (6 problems)
-- [**Graphs**](./10-graphs/) (7 problems)
+- [**Graphs**](./10-graphs/) (8 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (9 problems)
 
 ### 📝 Problem Index
@@ -66,6 +66,7 @@
 | 206 | Reverse Linked List | Linked List | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0206-reverse-linked-list.cpp) |
 | 207 | Course Schedule | Graphs (Topological Sort / Cycle Detection) | 🟡 Medium | `C++` | `O(V + E)` | `O(V + E)` | [Code](./10-graphs/0207-course-schedule.cpp) |
 | 208 | Implement Trie Prefix Tree | Trees & Tries | 🟡 Medium | `C++` | `O(m) where m is word length` | `O(total characters inserted * 26)` | [Code](./07-trees-and-tries/0208-implement-trie-prefix-tree.cpp) |
+| 210 | Course Schedule Ii | Graphs (Kahn's Algorithm / BFS Topological Sort) | 🟡 Medium | `C++` | `O(V + E)` | `O(V + E)` | [Code](./10-graphs/0210-course-schedule-ii.cpp) |
 | 211 | Design Add And Search Words Data Structure | Trees & Tries (Trie + DFS) | 🟡 Medium | `C++` | `O(m) addWord, O(N * 26^m) worst search with '.'` | `O(total letters * 26)` | [Code](./07-trees-and-tries/0211-design-add-and-search-words-data-structure.cpp) |
 | 213 | House Robber Ii | Dynamic Programming | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0213-house-robber-ii.cpp) |
 | 215 | Kth Largest Element In An Array | Heap / Priority Queue (Min-Heap) | 🟡 Medium | `C++` | `O(n log k)` | `O(k)` | [Code](./08-heap-priority-queue/0215-kth-largest-element-in-an-array.cpp) |
