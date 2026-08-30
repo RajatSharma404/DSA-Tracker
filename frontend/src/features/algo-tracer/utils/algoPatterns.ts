@@ -58,7 +58,7 @@ const DETECTION_RULES: DetectionRule[] = [
       const lower = code.toLowerCase();
       if (lower.includes("mergesort") || lower.includes("merge_sort")) return true;
       const hasMergeFn = /(function\s+merge|def\s+merge|void\s+merge|let\s+merged|const\s+merged)/i.test(code);
-      const hasMidSplit = /(Math\.floor|\/\/|\/)\s*\(?.*length\s*\/\s*2|\/ 2\)?/i.test(code) || /slice\(0,\s*mid\)/i.test(code);
+      const hasMidSplit = /(?:length|arr\.length)\s*\/\s*2/i.test(code) || /slice\(0,\s*mid\)/i.test(code);
       return hasMergeFn || hasMidSplit;
     },
   },
