@@ -181,3 +181,4 @@ Automated audit trail of system performance benchmarks, test assertions, and tel
 | RUN-0175 | 2026-08-30 19:25:05 | ui | in-memory ttl cache hit ratio > 92% | PASS | Mudit Atrey |
 | RUN-0176 | 2026-08-30 10:32:16 | vault | review queue fsrs interval calculation | PASS | Mudit Atrey |
 | RUN-0177 | 2026-08-30 13:39:27 | api | leetcode sync contract payload validation | PASS | Mudit Atrey |
+| RUN-0178 | 2026-08-30 16:46:38 | auth | sliding window rate limiter enforcement | PASS | Mudit Atrey |
