@@ -135,12 +135,14 @@ export async function seedLearnCppCurriculum(): Promise<LearnCppSeedResult> {
   };
 }
 
-if (require.main === module) {
-  seedLearnCppCurriculum()
-    .then(() => prisma.$disconnect())
-    .catch((err) => {
-      console.error("Seeding failed:", err);
-      prisma.$disconnect();
-      process.exit(1);
-    });
+export async function runLearnCppSeed() {
+  try {
+    const result = await seedLearnCppCurriculum();
+    await prisma.$disconnect();
+    process.exit(0);
+  } catch (err) {
+    console.error("Seeding failed:", err);
+    await prisma.$disconnect();
+    process.exit(1);
+  }
 }
