@@ -122,6 +122,17 @@ class QueryCacheManager {
     this.persist();
   }
 
+  clear(): void {
+    this.memoryCache.clear();
+    if (typeof window !== "undefined") {
+      try {
+        sessionStorage.removeItem("dsa_query_cache");
+      } catch {
+        // Ignore
+      }
+    }
+  }
+
   subscribe(key: string, callback: (data: any) => void): () => void {
     if (!this.subscribers.has(key)) {
       this.subscribers.set(key, new Set());
