@@ -7,6 +7,10 @@
     "dev:frontend": "cd frontend && npm run dev",
     "build": "cd backend && npm run build && cd ../frontend && npm run build",
     "start": "concurrently \"cd backend && npm start\" \"cd frontend && npm start\"",
+    "test": "concurrently \"npm run test:backend\" \"npm run test:frontend\"",
+    "test:backend": "cd backend && npm run test",
+    "test:frontend": "cd frontend && npm run test",
+    "test:coverage": "concurrently \"cd backend && npm run test:coverage\" \"cd frontend && npm run test:coverage\"",
     "add:sol": "node scripts/add-solution.js",
     "sync:sol": "node scripts/sync-solutions.js"
   },
