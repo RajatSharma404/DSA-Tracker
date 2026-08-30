@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **61** | **15** | **46** | **0** |
+| **62** | **15** | **47** | **0** |
 
 ### 📂 Topic Directories
 
@@ -18,7 +18,7 @@
 - [**Linked List**](./06-linked-list/) (5 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (11 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (3 problems)
-- [**Backtracking**](./09-backtracking/) (5 problems)
+- [**Backtracking**](./09-backtracking/) (6 problems)
 - [**Graphs**](./10-graphs/) (3 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (9 problems)
 
@@ -53,6 +53,7 @@
 | 121 | Best Time To Buy And Sell Stock | Sliding Window | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./03-sliding-window/0121-best-time-to-buy-and-sell-stock.cpp) |
 | 125 | Valid Palindrome | Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0125-valid-palindrome.cpp) |
 | 128 | Longest Consecutive Sequence | Arrays & Hashing | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./01-arrays-and-hashing/0128-longest-consecutive-sequence.cpp) |
+| 131 | Palindrome Partitioning | Recursion & Backtracking | 🟡 Medium | `C++` | `O(n * 2^n)` | `O(n) recursion stack` | [Code](./09-backtracking/0131-palindrome-partitioning.cpp) |
 | 133 | Clone Graph | Graphs | 🟡 Medium | `C++` | `O(V + E)` | `O(V)` | [Code](./10-graphs/0133-clone-graph.cpp) |
 | 141 | Linked List Cycle | Linked List | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0141-linked-list-cycle.cpp) |
 | 143 | Reorder List | Linked List | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0143-reorder-list.cpp) |
