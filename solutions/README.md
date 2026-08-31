@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **75** | **15** | **60** | **0** |
+| **76** | **16** | **60** | **0** |
 
 ### 📂 Topic Directories
 
@@ -22,6 +22,7 @@
 - [**Graphs**](./10-graphs/) (9 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (9 problems)
 - [**Greedy**](./12-greedy/) (7 problems)
+- [**Bit Manipulation**](./13-bit-manipulation/) (1 problems)
 
 ### 📝 Problem Index
 
@@ -59,6 +60,7 @@
 | 131 | Palindrome Partitioning | Recursion & Backtracking | 🟡 Medium | `C++` | `O(n * 2^n)` | `O(n) recursion stack` | [Code](./09-backtracking/0131-palindrome-partitioning.cpp) |
 | 133 | Clone Graph | Graphs | 🟡 Medium | `C++` | `O(V + E)` | `O(V)` | [Code](./10-graphs/0133-clone-graph.cpp) |
 | 134 | Gas Station | Greedy | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./12-greedy/0134-gas-station.cpp) |
+| 136 | Single Number | Bit Manipulation (XOR) | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./13-bit-manipulation/0136-single-number.cpp) |
 | 141 | Linked List Cycle | Linked List | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0141-linked-list-cycle.cpp) |
 | 143 | Reorder List | Linked List | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0143-reorder-list.cpp) |
 | 150 | Evaluate Reverse Polish Notation | Stack | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0150-evaluate-reverse-polish-notation.cpp) |
