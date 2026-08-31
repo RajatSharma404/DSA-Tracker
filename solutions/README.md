@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **78** | **18** | **60** | **0** |
+| **79** | **19** | **60** | **0** |
 
 ### 📂 Topic Directories
 
@@ -22,7 +22,7 @@
 - [**Graphs**](./10-graphs/) (9 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (9 problems)
 - [**Greedy**](./12-greedy/) (7 problems)
-- [**Bit Manipulation**](./13-bit-manipulation/) (3 problems)
+- [**Bit Manipulation**](./13-bit-manipulation/) (4 problems)
 
 ### 📝 Problem Index
 
@@ -67,6 +67,7 @@
 | 153 | Find Minimum In Rotated Sorted Array | Binary Search | 🟡 Medium | `C++` | `O(log n)` | `O(1)` | [Code](./05-binary-search/0153-find-minimum-in-rotated-sorted-array.cpp) |
 | 155 | Min Stack | Stack | 🟡 Medium | `C++` | `O(1) for push, pop, top, getMin` | `O(n)` | [Code](./04-stack/0155-min-stack.cpp) |
 | 167 | Two Sum Ii Input Array Is Sorted | Two Pointers | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0167-two-sum-ii-input-array-is-sorted.cpp) |
+| 190 | Reverse Bits | Bit Manipulation | 🟢 Easy | `C++` | `O(1) (32 bits)` | `O(1)` | [Code](./13-bit-manipulation/0190-reverse-bits.cpp) |
 | 191 | Number Of 1 Bits | Bit Manipulation (Brian Kernighan's Algorithm) | 🟢 Easy | `C++` | `O(1) (at most 32 iterations)` | `O(1)` | [Code](./13-bit-manipulation/0191-number-of-1-bits.cpp) |
 | 198 | House Robber | Dynamic Programming | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0198-house-robber.cpp) |
 | 200 | Number Of Islands | Graphs | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N) recursion stack` | [Code](./10-graphs/0200-number-of-islands.cpp) |
