@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **79** | **19** | **60** | **0** |
+| **80** | **20** | **60** | **0** |
 
 ### 📂 Topic Directories
 
@@ -22,7 +22,7 @@
 - [**Graphs**](./10-graphs/) (9 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (9 problems)
 - [**Greedy**](./12-greedy/) (7 problems)
-- [**Bit Manipulation**](./13-bit-manipulation/) (4 problems)
+- [**Bit Manipulation**](./13-bit-manipulation/) (5 problems)
 
 ### 📝 Problem Index
 
@@ -84,6 +84,7 @@
 | 235 | Lowest Common Ancestor Of A Binary Search Tree | Trees & Tries | 🟡 Medium | `C++` | `O(h) where h is height of BST` | `O(1)` | [Code](./07-trees-and-tries/0235-lowest-common-ancestor-of-a-binary-search-tree.cpp) |
 | 238 | Product Of Array Except Self | Arrays & Hashing | 🟡 Medium | `C++` | `O(n)` | `O(1) auxiliary space (excluding return vector)` | [Code](./01-arrays-and-hashing/0238-product-of-array-except-self.cpp) |
 | 242 | Valid Anagram | Arrays & Hashing | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0242-valid-anagram.cpp) |
+| 268 | Missing Number | Bit Manipulation (XOR) | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./13-bit-manipulation/0268-missing-number.cpp) |
 | 271 | Encode And Decode Strings | Arrays & Hashing | 🟡 Medium | `C++` | `O(n) for both encode and decode` | `O(1) auxiliary space` | [Code](./01-arrays-and-hashing/0271-encode-and-decode-strings.cpp) |
 | 286 | Walls And Gates | Graphs (Multi-Source BFS) | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N)` | [Code](./10-graphs/0286-walls-and-gates.cpp) |
 | 300 | Longest Increasing Subsequence | Dynamic Programming / Patience Sorting (Binary Search) | 🟡 Medium | `C++` | `O(n log n)` | `O(n)` | [Code](./11-dynamic-programming/0300-longest-increasing-subsequence.cpp) |
