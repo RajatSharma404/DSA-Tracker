@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **71** | **15** | **56** | **0** |
+| **72** | **15** | **57** | **0** |
 
 ### 📂 Topic Directories
 
@@ -21,7 +21,7 @@
 - [**Backtracking**](./09-backtracking/) (6 problems)
 - [**Graphs**](./10-graphs/) (9 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (9 problems)
-- [**Greedy**](./12-greedy/) (3 problems)
+- [**Greedy**](./12-greedy/) (4 problems)
 
 ### 📝 Problem Index
 
@@ -95,6 +95,7 @@
 | 695 | Max Area Of Island | Graphs (DFS) | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N) recursion stack` | [Code](./10-graphs/0695-max-area-of-island.cpp) |
 | 704 | Binary Search | Binary Search | 🟢 Easy | `C++` | `O(log n)` | `O(1)` | [Code](./05-binary-search/0704-binary-search.cpp) |
 | 739 | Daily Temperatures | Stack (Monotonic Stack) | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0739-daily-temperatures.cpp) |
+| 846 | Hand Of Straights | Greedy / Ordered Map | 🟡 Medium | `C++` | `O(n log n)` | `O(n)` | [Code](./12-greedy/0846-hand-of-straights.cpp) |
 | 875 | Koko Eating Bananas | Binary Search | 🟡 Medium | `C++` | `O(n log(max(piles)))` | `O(1)` | [Code](./05-binary-search/0875-koko-eating-bananas.cpp) |
 | 994 | Rotting Oranges | Graphs (Multi-Source BFS) | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N) queue space` | [Code](./10-graphs/0994-rotting-oranges.cpp) |
 | 1143 | Longest Common Subsequence | Dynamic Programming (2D Grid) | 🟡 Medium | `C++` | `O(m * n)` | `O(m * n)` | [Code](./11-dynamic-programming/1143-longest-common-subsequence.cpp) |
