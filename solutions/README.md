@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **74** | **15** | **59** | **0** |
+| **75** | **15** | **60** | **0** |
 
 ### 📂 Topic Directories
 
@@ -21,7 +21,7 @@
 - [**Backtracking**](./09-backtracking/) (6 problems)
 - [**Graphs**](./10-graphs/) (9 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (9 problems)
-- [**Greedy**](./12-greedy/) (6 problems)
+- [**Greedy**](./12-greedy/) (7 problems)
 
 ### 📝 Problem Index
 
@@ -91,6 +91,7 @@
 | 572 | Subtree Of Another Tree | Trees & Tries | 🟢 Easy | `C++` | `O(s * t)` | `O(h)` | [Code](./07-trees-and-tries/0572-subtree-of-another-tree.cpp) |
 | 621 | Task Scheduler | Greedy / Max-Heap | 🟡 Medium | `C++` | `O(N) where N is number of tasks` | `O(1) (26 distinct tasks)` | [Code](./08-heap-priority-queue/0621-task-scheduler.cpp) |
 | 647 | Palindromic Substrings | Dynamic Programming / Expand Around Center | 🟡 Medium | `C++` | `O(n^2)` | `O(1)` | [Code](./11-dynamic-programming/0647-palindromic-substrings.cpp) |
+| 678 | Valid Parenthesis String | Greedy | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./12-greedy/0678-valid-parenthesis-string.cpp) |
 | 684 | Redundant Connection | Graphs (Union-Find / Disjoint Set) | 🟡 Medium | `C++` | `O(N * alpha(N))` | `O(N)` | [Code](./10-graphs/0684-redundant-connection.cpp) |
 | 695 | Max Area Of Island | Graphs (DFS) | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N) recursion stack` | [Code](./10-graphs/0695-max-area-of-island.cpp) |
 | 704 | Binary Search | Binary Search | 🟢 Easy | `C++` | `O(log n)` | `O(1)` | [Code](./05-binary-search/0704-binary-search.cpp) |
