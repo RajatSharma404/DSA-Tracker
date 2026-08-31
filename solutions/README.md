@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **70** | **15** | **55** | **0** |
+| **71** | **15** | **56** | **0** |
 
 ### 📂 Topic Directories
 
@@ -21,7 +21,7 @@
 - [**Backtracking**](./09-backtracking/) (6 problems)
 - [**Graphs**](./10-graphs/) (9 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (9 problems)
-- [**Greedy**](./12-greedy/) (2 problems)
+- [**Greedy**](./12-greedy/) (3 problems)
 
 ### 📝 Problem Index
 
@@ -58,6 +58,7 @@
 | 128 | Longest Consecutive Sequence | Arrays & Hashing | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./01-arrays-and-hashing/0128-longest-consecutive-sequence.cpp) |
 | 131 | Palindrome Partitioning | Recursion & Backtracking | 🟡 Medium | `C++` | `O(n * 2^n)` | `O(n) recursion stack` | [Code](./09-backtracking/0131-palindrome-partitioning.cpp) |
 | 133 | Clone Graph | Graphs | 🟡 Medium | `C++` | `O(V + E)` | `O(V)` | [Code](./10-graphs/0133-clone-graph.cpp) |
+| 134 | Gas Station | Greedy | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./12-greedy/0134-gas-station.cpp) |
 | 141 | Linked List Cycle | Linked List | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0141-linked-list-cycle.cpp) |
 | 143 | Reorder List | Linked List | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0143-reorder-list.cpp) |
 | 150 | Evaluate Reverse Polish Notation | Stack | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0150-evaluate-reverse-polish-notation.cpp) |
