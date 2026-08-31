@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **77** | **17** | **60** | **0** |
+| **78** | **18** | **60** | **0** |
 
 ### 📂 Topic Directories
 
@@ -22,7 +22,7 @@
 - [**Graphs**](./10-graphs/) (9 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (9 problems)
 - [**Greedy**](./12-greedy/) (7 problems)
-- [**Bit Manipulation**](./13-bit-manipulation/) (2 problems)
+- [**Bit Manipulation**](./13-bit-manipulation/) (3 problems)
 
 ### 📝 Problem Index
 
@@ -87,6 +87,7 @@
 | 286 | Walls And Gates | Graphs (Multi-Source BFS) | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N)` | [Code](./10-graphs/0286-walls-and-gates.cpp) |
 | 300 | Longest Increasing Subsequence | Dynamic Programming / Patience Sorting (Binary Search) | 🟡 Medium | `C++` | `O(n log n)` | `O(n)` | [Code](./11-dynamic-programming/0300-longest-increasing-subsequence.cpp) |
 | 322 | Coin Change | Dynamic Programming (Bottom-Up) | 🟡 Medium | `C++` | `O(amount * coins.size())` | `O(amount)` | [Code](./11-dynamic-programming/0322-coin-change.cpp) |
+| 338 | Counting Bits | Bit Manipulation / DP | 🟢 Easy | `C++` | `O(n)` | `O(1) auxiliary` | [Code](./13-bit-manipulation/0338-counting-bits.cpp) |
 | 347 | Top K Frequent Elements | Heap / Priority Queue | 🟡 Medium | `C++` | `O(N log k)` | `O(N)` | [Code](./08-heap-priority-queue/0347-top-k-frequent-elements.cpp) |
 | 417 | Pacific Atlantic Water Flow | Graphs | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N)` | [Code](./10-graphs/0417-pacific-atlantic-water-flow.cpp) |
 | 424 | Longest Repeating Character Replacement | Sliding Window | 🟡 Medium | `C++` | `O(n)` | `O(1) (26 uppercase letters)` | [Code](./03-sliding-window/0424-longest-repeating-character-replacement.cpp) |
