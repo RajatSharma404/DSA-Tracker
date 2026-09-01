@@ -206,7 +206,7 @@ class Solution {
 
   if (autoCommit) {
     try {
-      execSync('git add .', { cwd: path.join(__dirname, '..') });
+      execSync('git add solutions/', { cwd: path.join(__dirname, '..') });
       const commitMsg = `feat(solutions): add ${problemId}. ${problemTitle} (${difficulty})`;
       execSync(`git commit -m "${commitMsg}"`, { cwd: path.join(__dirname, '..') });
       console.log(`\n🎉 Committed: "${commitMsg}"`);
