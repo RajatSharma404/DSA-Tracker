@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **93** | **22** | **71** | **0** |
+| **94** | **22** | **72** | **0** |
 
 ### 📂 Topic Directories
 
@@ -15,7 +15,7 @@
 - [**Sliding Window**](./03-sliding-window/) (4 problems)
 - [**Stack**](./04-stack/) (4 problems)
 - [**Binary Search**](./05-binary-search/) (5 problems)
-- [**Linked List**](./06-linked-list/) (9 problems)
+- [**Linked List**](./06-linked-list/) (10 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (11 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (3 problems)
 - [**Backtracking**](./09-backtracking/) (6 problems)
@@ -74,6 +74,7 @@
 | 141 | Linked List Cycle | Linked List | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0141-linked-list-cycle.cpp) |
 | 143 | Reorder List | Linked List | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0143-reorder-list.cpp) |
 | 146 | Lru Cache | Linked List & Hash Map (Design) | 🟡 Medium | `C++` | `O(1) for both get and put` | `O(capacity)` | [Code](./06-linked-list/0146-lru-cache.cpp) |
+| 148 | Sort List | Linked List (Merge Sort) | 🟡 Medium | `C++` | `O(n log n)` | `O(log n) recursion stack` | [Code](./06-linked-list/0148-sort-list.cpp) |
 | 150 | Evaluate Reverse Polish Notation | Stack | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0150-evaluate-reverse-polish-notation.cpp) |
 | 153 | Find Minimum In Rotated Sorted Array | Binary Search | 🟡 Medium | `C++` | `O(log n)` | `O(1)` | [Code](./05-binary-search/0153-find-minimum-in-rotated-sorted-array.cpp) |
 | 155 | Min Stack | Stack | 🟡 Medium | `C++` | `O(1) for push, pop, top, getMin` | `O(n)` | [Code](./04-stack/0155-min-stack.cpp) |
