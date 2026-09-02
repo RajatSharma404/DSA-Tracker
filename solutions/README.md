@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **90** | **22** | **68** | **0** |
+| **91** | **22** | **69** | **0** |
 
 ### 📂 Topic Directories
 
@@ -15,7 +15,7 @@
 - [**Sliding Window**](./03-sliding-window/) (4 problems)
 - [**Stack**](./04-stack/) (4 problems)
 - [**Binary Search**](./05-binary-search/) (5 problems)
-- [**Linked List**](./06-linked-list/) (6 problems)
+- [**Linked List**](./06-linked-list/) (7 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (11 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (3 problems)
 - [**Backtracking**](./09-backtracking/) (6 problems)
@@ -97,6 +97,7 @@
 | 268 | Missing Number | Bit Manipulation (XOR) | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./13-bit-manipulation/0268-missing-number.cpp) |
 | 271 | Encode And Decode Strings | Arrays & Hashing | 🟡 Medium | `C++` | `O(n) for both encode and decode` | `O(1) auxiliary space` | [Code](./01-arrays-and-hashing/0271-encode-and-decode-strings.cpp) |
 | 286 | Walls And Gates | Graphs (Multi-Source BFS) | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N)` | [Code](./10-graphs/0286-walls-and-gates.cpp) |
+| 287 | Find The Duplicate Number | Linked List (Floyd's Tortoise and Hare) | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0287-find-the-duplicate-number.cpp) |
 | 300 | Longest Increasing Subsequence | Dynamic Programming / Patience Sorting (Binary Search) | 🟡 Medium | `C++` | `O(n log n)` | `O(n)` | [Code](./11-dynamic-programming/0300-longest-increasing-subsequence.cpp) |
 | 322 | Coin Change | Dynamic Programming (Bottom-Up) | 🟡 Medium | `C++` | `O(amount * coins.size())` | `O(amount)` | [Code](./11-dynamic-programming/0322-coin-change.cpp) |
 | 338 | Counting Bits | Bit Manipulation / DP | 🟢 Easy | `C++` | `O(n)` | `O(1) auxiliary` | [Code](./13-bit-manipulation/0338-counting-bits.cpp) |
