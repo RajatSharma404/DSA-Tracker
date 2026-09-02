@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **92** | **22** | **70** | **0** |
+| **93** | **22** | **71** | **0** |
 
 ### 📂 Topic Directories
 
@@ -15,7 +15,7 @@
 - [**Sliding Window**](./03-sliding-window/) (4 problems)
 - [**Stack**](./04-stack/) (4 problems)
 - [**Binary Search**](./05-binary-search/) (5 problems)
-- [**Linked List**](./06-linked-list/) (8 problems)
+- [**Linked List**](./06-linked-list/) (9 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (11 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (3 problems)
 - [**Backtracking**](./09-backtracking/) (6 problems)
@@ -70,6 +70,7 @@
 | 133 | Clone Graph | Graphs | 🟡 Medium | `C++` | `O(V + E)` | `O(V)` | [Code](./10-graphs/0133-clone-graph.cpp) |
 | 134 | Gas Station | Greedy | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./12-greedy/0134-gas-station.cpp) |
 | 136 | Single Number | Bit Manipulation (XOR) | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./13-bit-manipulation/0136-single-number.cpp) |
+| 138 | Copy List With Random Pointer | Linked List (Interweaving Nodes) | 🟡 Medium | `C++` | `O(n)` | `O(1) auxiliary space` | [Code](./06-linked-list/0138-copy-list-with-random-pointer.cpp) |
 | 141 | Linked List Cycle | Linked List | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0141-linked-list-cycle.cpp) |
 | 143 | Reorder List | Linked List | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0143-reorder-list.cpp) |
 | 146 | Lru Cache | Linked List & Hash Map (Design) | 🟡 Medium | `C++` | `O(1) for both get and put` | `O(capacity)` | [Code](./06-linked-list/0146-lru-cache.cpp) |
