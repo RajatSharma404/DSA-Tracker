@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **96** | **24** | **72** | **0** |
+| **97** | **24** | **73** | **0** |
 
 ### 📂 Topic Directories
 
@@ -16,7 +16,7 @@
 - [**Stack**](./04-stack/) (4 problems)
 - [**Binary Search**](./05-binary-search/) (5 problems)
 - [**Linked List**](./06-linked-list/) (10 problems)
-- [**Trees And Tries**](./07-trees-and-tries/) (13 problems)
+- [**Trees And Tries**](./07-trees-and-tries/) (14 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (3 problems)
 - [**Backtracking**](./09-backtracking/) (6 problems)
 - [**Graphs**](./10-graphs/) (9 problems)
@@ -83,6 +83,7 @@
 | 190 | Reverse Bits | Bit Manipulation | 🟢 Easy | `C++` | `O(1) (32 bits)` | `O(1)` | [Code](./13-bit-manipulation/0190-reverse-bits.cpp) |
 | 191 | Number Of 1 Bits | Bit Manipulation (Brian Kernighan's Algorithm) | 🟢 Easy | `C++` | `O(1) (at most 32 iterations)` | `O(1)` | [Code](./13-bit-manipulation/0191-number-of-1-bits.cpp) |
 | 198 | House Robber | Dynamic Programming | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0198-house-robber.cpp) |
+| 199 | Binary Tree Right Side View | Trees & Tries (BFS / Level Order) | 🟡 Medium | `C++` | `O(n)` | `O(n) queue space` | [Code](./07-trees-and-tries/0199-binary-tree-right-side-view.cpp) |
 | 200 | Number Of Islands | Graphs | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N) recursion stack` | [Code](./10-graphs/0200-number-of-islands.cpp) |
 | 202 | Happy Number | Math & Number Theory / Floyd's Cycle Detection | 🟢 Easy | `C++` | `O(log n)` | `O(1)` | [Code](./14-math-and-geometry/0202-happy-number.cpp) |
 | 206 | Reverse Linked List | Linked List | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0206-reverse-linked-list.cpp) |
