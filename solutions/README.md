@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **99** | **24** | **75** | **0** |
+| **100** | **25** | **75** | **0** |
 
 ### 📂 Topic Directories
 
@@ -17,7 +17,7 @@
 - [**Binary Search**](./05-binary-search/) (5 problems)
 - [**Linked List**](./06-linked-list/) (10 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (15 problems)
-- [**Heap Priority Queue**](./08-heap-priority-queue/) (4 problems)
+- [**Heap Priority Queue**](./08-heap-priority-queue/) (5 problems)
 - [**Backtracking**](./09-backtracking/) (6 problems)
 - [**Graphs**](./10-graphs/) (9 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (9 problems)
@@ -118,6 +118,7 @@
 | 678 | Valid Parenthesis String | Greedy | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./12-greedy/0678-valid-parenthesis-string.cpp) |
 | 684 | Redundant Connection | Graphs (Union-Find / Disjoint Set) | 🟡 Medium | `C++` | `O(N * alpha(N))` | `O(N)` | [Code](./10-graphs/0684-redundant-connection.cpp) |
 | 695 | Max Area Of Island | Graphs (DFS) | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N) recursion stack` | [Code](./10-graphs/0695-max-area-of-island.cpp) |
+| 703 | Kth Largest Element In A Stream | Heap / Priority Queue (Min-Heap of size k) | 🟢 Easy | `C++` | `O(log k) per add` | `O(k)` | [Code](./08-heap-priority-queue/0703-kth-largest-element-in-a-stream.cpp) |
 | 704 | Binary Search | Binary Search | 🟢 Easy | `C++` | `O(log n)` | `O(1)` | [Code](./05-binary-search/0704-binary-search.cpp) |
 | 739 | Daily Temperatures | Stack (Monotonic Stack) | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0739-daily-temperatures.cpp) |
 | 763 | Partition Labels | Greedy / Two Pointers | 🟡 Medium | `C++` | `O(n)` | `O(1) (26 characters)` | [Code](./12-greedy/0763-partition-labels.cpp) |
