@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **91** | **22** | **69** | **0** |
+| **92** | **22** | **70** | **0** |
 
 ### 📂 Topic Directories
 
@@ -15,7 +15,7 @@
 - [**Sliding Window**](./03-sliding-window/) (4 problems)
 - [**Stack**](./04-stack/) (4 problems)
 - [**Binary Search**](./05-binary-search/) (5 problems)
-- [**Linked List**](./06-linked-list/) (7 problems)
+- [**Linked List**](./06-linked-list/) (8 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (11 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (3 problems)
 - [**Backtracking**](./09-backtracking/) (6 problems)
@@ -30,6 +30,7 @@
 | # | Title | Topic | Difficulty | Language | Time | Space | Solution |
 | :--- | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
 | 1 | Two Sum | Arrays & Hashing | 🟢 Easy | `C++` | `O(n)` | `O(n)` | [Code](./01-arrays-and-hashing/0001-two-sum.cpp) |
+| 2 | Add Two Numbers | Linked List | 🟡 Medium | `C++` | `O(max(N, M))` | `O(max(N, M))` | [Code](./06-linked-list/0002-add-two-numbers.cpp) |
 | 3 | Longest Substring Without Repeating Characters | Sliding Window | 🟡 Medium | `C++` | `O(n)` | `O(min(n, m))` | [Code](./03-sliding-window/0003-longest-substring-without-repeating-characters.cpp) |
 | 5 | Longest Palindromic Substring | Dynamic Programming / Expand Around Center | 🟡 Medium | `C++` | `O(n^2)` | `O(1)` | [Code](./11-dynamic-programming/0005-longest-palindromic-substring.cpp) |
 | 7 | Reverse Integer | Math & Number Theory | 🟡 Medium | `C++` | `O(log10(x))` | `O(1)` | [Code](./14-math-and-geometry/0007-reverse-integer.cpp) |
