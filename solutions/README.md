@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **103** | **25** | **78** | **0** |
+| **104** | **25** | **79** | **0** |
 
 ### 📂 Topic Directories
 
@@ -20,7 +20,7 @@
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (5 problems)
 - [**Backtracking**](./09-backtracking/) (6 problems)
 - [**Graphs**](./10-graphs/) (9 problems)
-- [**Dynamic Programming**](./11-dynamic-programming/) (12 problems)
+- [**Dynamic Programming**](./11-dynamic-programming/) (13 problems)
 - [**Greedy**](./12-greedy/) (7 problems)
 - [**Bit Manipulation**](./13-bit-manipulation/) (6 problems)
 - [**Math And Geometry**](./14-math-and-geometry/) (8 problems)
@@ -61,6 +61,7 @@
 | 78 | Subsets | Recursion & Backtracking | 🟡 Medium | `C++` | `O(n * 2^n)` | `O(n)` | [Code](./09-backtracking/0078-subsets.cpp) |
 | 79 | Word Search | Recursion & Backtracking | 🟡 Medium | `C++` | `O(M * N * 4^L) where L is length of word` | `O(L) recursion stack` | [Code](./09-backtracking/0079-word-search.cpp) |
 | 90 | Subsets Ii | Recursion & Backtracking (Handling Duplicates) | 🟡 Medium | `C++` | `O(n * 2^n)` | `O(n) recursion stack` | [Code](./09-backtracking/0090-subsets-ii.cpp) |
+| 91 | Decode Ways | Dynamic Programming (Fibonacci-Style Linear DP) | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0091-decode-ways.cpp) |
 | 98 | Validate Binary Search Tree | Trees & Tries | 🟡 Medium | `C++` | `O(n)` | `O(h) recursion stack` | [Code](./07-trees-and-tries/0098-validate-binary-search-tree.cpp) |
 | 100 | Same Tree | Trees & Tries | 🟢 Easy | `C++` | `O(N) where N is the number of nodes` | `O(h) where h is the tree height` | [Code](./07-trees-and-tries/0100-same-tree.cpp) |
 | 102 | Binary Tree Level Order Traversal | Trees & Tries | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./07-trees-and-tries/0102-binary-tree-level-order-traversal.cpp) |
