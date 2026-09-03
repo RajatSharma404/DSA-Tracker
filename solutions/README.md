@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **105** | **25** | **80** | **0** |
+| **106** | **25** | **81** | **0** |
 
 ### 📂 Topic Directories
 
@@ -20,7 +20,7 @@
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (5 problems)
 - [**Backtracking**](./09-backtracking/) (6 problems)
 - [**Graphs**](./10-graphs/) (9 problems)
-- [**Dynamic Programming**](./11-dynamic-programming/) (14 problems)
+- [**Dynamic Programming**](./11-dynamic-programming/) (15 problems)
 - [**Greedy**](./12-greedy/) (7 problems)
 - [**Bit Manipulation**](./13-bit-manipulation/) (6 problems)
 - [**Math And Geometry**](./14-math-and-geometry/) (8 problems)
@@ -82,6 +82,7 @@
 | 146 | Lru Cache | Linked List & Hash Map (Design) | 🟡 Medium | `C++` | `O(1) for both get and put` | `O(capacity)` | [Code](./06-linked-list/0146-lru-cache.cpp) |
 | 148 | Sort List | Linked List (Merge Sort) | 🟡 Medium | `C++` | `O(n log n)` | `O(log n) recursion stack` | [Code](./06-linked-list/0148-sort-list.cpp) |
 | 150 | Evaluate Reverse Polish Notation | Stack | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0150-evaluate-reverse-polish-notation.cpp) |
+| 152 | Maximum Product Subarray | Dynamic Programming (Min/Max Tracking) | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0152-maximum-product-subarray.cpp) |
 | 153 | Find Minimum In Rotated Sorted Array | Binary Search | 🟡 Medium | `C++` | `O(log n)` | `O(1)` | [Code](./05-binary-search/0153-find-minimum-in-rotated-sorted-array.cpp) |
 | 155 | Min Stack | Stack | 🟡 Medium | `C++` | `O(1) for push, pop, top, getMin` | `O(n)` | [Code](./04-stack/0155-min-stack.cpp) |
 | 167 | Two Sum Ii Input Array Is Sorted | Two Pointers | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0167-two-sum-ii-input-array-is-sorted.cpp) |
