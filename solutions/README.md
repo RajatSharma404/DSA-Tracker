@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **101** | **25** | **76** | **0** |
+| **102** | **25** | **77** | **0** |
 
 ### 📂 Topic Directories
 
@@ -20,7 +20,7 @@
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (5 problems)
 - [**Backtracking**](./09-backtracking/) (6 problems)
 - [**Graphs**](./10-graphs/) (9 problems)
-- [**Dynamic Programming**](./11-dynamic-programming/) (10 problems)
+- [**Dynamic Programming**](./11-dynamic-programming/) (11 problems)
 - [**Greedy**](./12-greedy/) (7 problems)
 - [**Bit Manipulation**](./13-bit-manipulation/) (6 problems)
 - [**Math And Geometry**](./14-math-and-geometry/) (8 problems)
@@ -52,6 +52,7 @@
 | 54 | Spiral Matrix | Math & Geometry (Matrix Traversal) | 🟡 Medium | `C++` | `O(M * N)` | `O(1) auxiliary space` | [Code](./14-math-and-geometry/0054-spiral-matrix.cpp) |
 | 55 | Jump Game | Greedy | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./12-greedy/0055-jump-game.cpp) |
 | 62 | Unique Paths | Dynamic Programming (Grid Paths) | 🟡 Medium | `C++` | `O(M * N)` | `O(N) optimized 1D row DP` | [Code](./11-dynamic-programming/0062-unique-paths.cpp) |
+| 63 | Unique Paths Ii | Dynamic Programming (Grid with Obstacles) | 🟡 Medium | `C++` | `O(M * N)` | `O(N) space optimized` | [Code](./11-dynamic-programming/0063-unique-paths-ii.cpp) |
 | 66 | Plus One | Math & Number Theory | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./14-math-and-geometry/0066-plus-one.cpp) |
 | 70 | Climbing Stairs | Dynamic Programming | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0070-climbing-stairs.cpp) |
 | 73 | Set Matrix Zeroes | Math & Geometry (In-Place Array Markers) | 🟡 Medium | `C++` | `O(M * N)` | `O(1) in-place` | [Code](./14-math-and-geometry/0073-set-matrix-zeroes.cpp) |
