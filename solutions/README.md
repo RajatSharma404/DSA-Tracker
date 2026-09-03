@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **104** | **25** | **79** | **0** |
+| **105** | **25** | **80** | **0** |
 
 ### 📂 Topic Directories
 
@@ -20,7 +20,7 @@
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (5 problems)
 - [**Backtracking**](./09-backtracking/) (6 problems)
 - [**Graphs**](./10-graphs/) (9 problems)
-- [**Dynamic Programming**](./11-dynamic-programming/) (13 problems)
+- [**Dynamic Programming**](./11-dynamic-programming/) (14 problems)
 - [**Greedy**](./12-greedy/) (7 problems)
 - [**Bit Manipulation**](./13-bit-manipulation/) (6 problems)
 - [**Math And Geometry**](./14-math-and-geometry/) (8 problems)
@@ -76,6 +76,7 @@
 | 134 | Gas Station | Greedy | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./12-greedy/0134-gas-station.cpp) |
 | 136 | Single Number | Bit Manipulation (XOR) | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./13-bit-manipulation/0136-single-number.cpp) |
 | 138 | Copy List With Random Pointer | Linked List (Interweaving Nodes) | 🟡 Medium | `C++` | `O(n)` | `O(1) auxiliary space` | [Code](./06-linked-list/0138-copy-list-with-random-pointer.cpp) |
+| 139 | Word Break | Dynamic Programming (Bottom-Up) | 🟡 Medium | `C++` | `O(n * m * k) where n is s.length(), m is wordDict.size(), k is word length` | `O(n)` | [Code](./11-dynamic-programming/0139-word-break.cpp) |
 | 141 | Linked List Cycle | Linked List | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0141-linked-list-cycle.cpp) |
 | 143 | Reorder List | Linked List | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0143-reorder-list.cpp) |
 | 146 | Lru Cache | Linked List & Hash Map (Design) | 🟡 Medium | `C++` | `O(1) for both get and put` | `O(capacity)` | [Code](./06-linked-list/0146-lru-cache.cpp) |
