@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **115** | **25** | **89** | **1** |
+| **116** | **25** | **89** | **2** |
 
 ### 📂 Topic Directories
 
@@ -20,7 +20,7 @@
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (5 problems)
 - [**Backtracking**](./09-backtracking/) (6 problems)
 - [**Graphs**](./10-graphs/) (9 problems)
-- [**Dynamic Programming**](./11-dynamic-programming/) (24 problems)
+- [**Dynamic Programming**](./11-dynamic-programming/) (25 problems)
 - [**Greedy**](./12-greedy/) (7 problems)
 - [**Bit Manipulation**](./13-bit-manipulation/) (6 problems)
 - [**Math And Geometry**](./14-math-and-geometry/) (8 problems)
@@ -34,6 +34,7 @@
 | 3 | Longest Substring Without Repeating Characters | Sliding Window | 🟡 Medium | `C++` | `O(n)` | `O(min(n, m))` | [Code](./03-sliding-window/0003-longest-substring-without-repeating-characters.cpp) |
 | 5 | Longest Palindromic Substring | Dynamic Programming / Expand Around Center | 🟡 Medium | `C++` | `O(n^2)` | `O(1)` | [Code](./11-dynamic-programming/0005-longest-palindromic-substring.cpp) |
 | 7 | Reverse Integer | Math & Number Theory | 🟡 Medium | `C++` | `O(log10(x))` | `O(1)` | [Code](./14-math-and-geometry/0007-reverse-integer.cpp) |
+| 10 | Regular Expression Matching | Dynamic Programming (2D Grid) | 🔴 Hard | `C++` | `O(M * N)` | `O(M * N)` | [Code](./11-dynamic-programming/0010-regular-expression-matching.cpp) |
 | 11 | Container With Most Water | Two Pointers | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0011-container-with-most-water.cpp) |
 | 15 | 3sum | Two Pointers | 🟡 Medium | `C++` | `O(n^2)` | `O(1) extra space excluding result` | [Code](./02-two-pointers/0015-3sum.cpp) |
 | 19 | Remove Nth Node From End Of List | Linked List | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0019-remove-nth-node-from-end-of-list.cpp) |
