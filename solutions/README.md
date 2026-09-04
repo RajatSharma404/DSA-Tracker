@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **112** | **25** | **87** | **0** |
+| **113** | **25** | **88** | **0** |
 
 ### 📂 Topic Directories
 
@@ -20,7 +20,7 @@
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (5 problems)
 - [**Backtracking**](./09-backtracking/) (6 problems)
 - [**Graphs**](./10-graphs/) (9 problems)
-- [**Dynamic Programming**](./11-dynamic-programming/) (21 problems)
+- [**Dynamic Programming**](./11-dynamic-programming/) (22 problems)
 - [**Greedy**](./12-greedy/) (7 problems)
 - [**Bit Manipulation**](./13-bit-manipulation/) (6 problems)
 - [**Math And Geometry**](./14-math-and-geometry/) (8 problems)
@@ -124,6 +124,7 @@
 | 543 | Diameter Of Binary Tree | Trees & Tries (DFS) | 🟢 Easy | `C++` | `O(n)` | `O(h) recursion stack` | [Code](./07-trees-and-tries/0543-diameter-of-binary-tree.cpp) |
 | 567 | Permutation In String | Sliding Window | 🟡 Medium | `C++` | `O(l1 + l2)` | `O(1) (26 characters)` | [Code](./03-sliding-window/0567-permutation-in-string.cpp) |
 | 572 | Subtree Of Another Tree | Trees & Tries | 🟢 Easy | `C++` | `O(s * t)` | `O(h)` | [Code](./07-trees-and-tries/0572-subtree-of-another-tree.cpp) |
+| 583 | Delete Operation For Two Strings | Dynamic Programming (LCS Reduction) | 🟡 Medium | `C++` | `O(m * n)` | `O(n) space optimized` | [Code](./11-dynamic-programming/0583-delete-operation-for-two-strings.cpp) |
 | 621 | Task Scheduler | Greedy / Max-Heap | 🟡 Medium | `C++` | `O(N) where N is number of tasks` | `O(1) (26 distinct tasks)` | [Code](./08-heap-priority-queue/0621-task-scheduler.cpp) |
 | 647 | Palindromic Substrings | Dynamic Programming / Expand Around Center | 🟡 Medium | `C++` | `O(n^2)` | `O(1)` | [Code](./11-dynamic-programming/0647-palindromic-substrings.cpp) |
 | 678 | Valid Parenthesis String | Greedy | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./12-greedy/0678-valid-parenthesis-string.cpp) |
