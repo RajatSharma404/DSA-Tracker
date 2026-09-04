@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **116** | **25** | **89** | **2** |
+| **117** | **25** | **90** | **2** |
 
 ### 📂 Topic Directories
 
@@ -18,7 +18,7 @@
 - [**Linked List**](./06-linked-list/) (10 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (15 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (5 problems)
-- [**Backtracking**](./09-backtracking/) (6 problems)
+- [**Backtracking**](./09-backtracking/) (7 problems)
 - [**Graphs**](./10-graphs/) (9 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (25 problems)
 - [**Greedy**](./12-greedy/) (7 problems)
@@ -37,6 +37,7 @@
 | 10 | Regular Expression Matching | Dynamic Programming (2D Grid) | 🔴 Hard | `C++` | `O(M * N)` | `O(M * N)` | [Code](./11-dynamic-programming/0010-regular-expression-matching.cpp) |
 | 11 | Container With Most Water | Two Pointers | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0011-container-with-most-water.cpp) |
 | 15 | 3sum | Two Pointers | 🟡 Medium | `C++` | `O(n^2)` | `O(1) extra space excluding result` | [Code](./02-two-pointers/0015-3sum.cpp) |
+| 17 | Letter Combinations Of A Phone Number | Recursion & Backtracking | 🟡 Medium | `C++` | `O(4^N * N)` | `O(N) recursion stack` | [Code](./09-backtracking/0017-letter-combinations-of-a-phone-number.cpp) |
 | 19 | Remove Nth Node From End Of List | Linked List | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0019-remove-nth-node-from-end-of-list.cpp) |
 | 20 | Valid Parentheses | Stack | 🟢 Easy | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0020-valid-parentheses.cpp) |
 | 21 | Merge Two Sorted Lists | Linked List | 🟢 Easy | `C++` | `O(n + m)` | `O(1)` | [Code](./06-linked-list/0021-merge-two-sorted-lists.cpp) |
