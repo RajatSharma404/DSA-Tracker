@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **114** | **25** | **89** | **0** |
+| **115** | **25** | **89** | **1** |
 
 ### 📂 Topic Directories
 
@@ -20,7 +20,7 @@
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (5 problems)
 - [**Backtracking**](./09-backtracking/) (6 problems)
 - [**Graphs**](./10-graphs/) (9 problems)
-- [**Dynamic Programming**](./11-dynamic-programming/) (23 problems)
+- [**Dynamic Programming**](./11-dynamic-programming/) (24 problems)
 - [**Greedy**](./12-greedy/) (7 problems)
 - [**Bit Manipulation**](./13-bit-manipulation/) (6 problems)
 - [**Math And Geometry**](./14-math-and-geometry/) (8 problems)
@@ -113,6 +113,7 @@
 | 287 | Find The Duplicate Number | Linked List (Floyd's Tortoise and Hare) | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0287-find-the-duplicate-number.cpp) |
 | 300 | Longest Increasing Subsequence | Dynamic Programming / Patience Sorting (Binary Search) | 🟡 Medium | `C++` | `O(n log n)` | `O(n)` | [Code](./11-dynamic-programming/0300-longest-increasing-subsequence.cpp) |
 | 309 | Best Time To Buy And Sell Stock With Cooldown | Dynamic Programming (State Machine DP) | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0309-best-time-to-buy-and-sell-stock-with-cooldown.cpp) |
+| 312 | Burst Balloons | Dynamic Programming (Interval / Matrix Chain Multiplication) | 🔴 Hard | `C++` | `O(n^3)` | `O(n^2)` | [Code](./11-dynamic-programming/0312-burst-balloons.cpp) |
 | 322 | Coin Change | Dynamic Programming (Bottom-Up) | 🟡 Medium | `C++` | `O(amount * coins.size())` | `O(amount)` | [Code](./11-dynamic-programming/0322-coin-change.cpp) |
 | 338 | Counting Bits | Bit Manipulation / DP | 🟢 Easy | `C++` | `O(n)` | `O(1) auxiliary` | [Code](./13-bit-manipulation/0338-counting-bits.cpp) |
 | 347 | Top K Frequent Elements | Heap / Priority Queue | 🟡 Medium | `C++` | `O(N log k)` | `O(N)` | [Code](./08-heap-priority-queue/0347-top-k-frequent-elements.cpp) |
