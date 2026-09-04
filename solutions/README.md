@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **118** | **25** | **91** | **2** |
+| **119** | **25** | **91** | **3** |
 
 ### 📂 Topic Directories
 
@@ -18,7 +18,7 @@
 - [**Linked List**](./06-linked-list/) (10 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (15 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (5 problems)
-- [**Backtracking**](./09-backtracking/) (8 problems)
+- [**Backtracking**](./09-backtracking/) (9 problems)
 - [**Graphs**](./10-graphs/) (9 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (25 problems)
 - [**Greedy**](./12-greedy/) (7 problems)
@@ -50,6 +50,7 @@
 | 48 | Rotate Image | Math & Geometry (Matrix Rotation) | 🟡 Medium | `C++` | `O(N^2)` | `O(1) in-place` | [Code](./14-math-and-geometry/0048-rotate-image.cpp) |
 | 49 | Group Anagrams | Arrays & Hashing | 🟡 Medium | `C++` | `O(N * K log K) where N is the number of strings and K is the maximum length of a string` | `O(N * K)` | [Code](./01-arrays-and-hashing/0049-group-anagrams.cpp) |
 | 50 | Powx N | Math & Number Theory (Binary Exponentiation) | 🟡 Medium | `C++` | `O(log n)` | `O(1)` | [Code](./14-math-and-geometry/0050-powx-n.cpp) |
+| 51 | N Queens | Recursion & Backtracking | 🔴 Hard | `C++` | `O(N!)` | `O(N) hash sets + board` | [Code](./09-backtracking/0051-n-queens.cpp) |
 | 53 | Maximum Subarray | Dynamic Programming | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0053-maximum-subarray.cpp) |
 | 54 | Spiral Matrix | Math & Geometry (Matrix Traversal) | 🟡 Medium | `C++` | `O(M * N)` | `O(1) auxiliary space` | [Code](./14-math-and-geometry/0054-spiral-matrix.cpp) |
 | 55 | Jump Game | Greedy | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./12-greedy/0055-jump-game.cpp) |
