@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **111** | **25** | **86** | **0** |
+| **112** | **25** | **87** | **0** |
 
 ### 📂 Topic Directories
 
@@ -20,7 +20,7 @@
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (5 problems)
 - [**Backtracking**](./09-backtracking/) (6 problems)
 - [**Graphs**](./10-graphs/) (9 problems)
-- [**Dynamic Programming**](./11-dynamic-programming/) (20 problems)
+- [**Dynamic Programming**](./11-dynamic-programming/) (21 problems)
 - [**Greedy**](./12-greedy/) (7 problems)
 - [**Bit Manipulation**](./13-bit-manipulation/) (6 problems)
 - [**Math And Geometry**](./14-math-and-geometry/) (8 problems)
@@ -131,6 +131,7 @@
 | 695 | Max Area Of Island | Graphs (DFS) | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N) recursion stack` | [Code](./10-graphs/0695-max-area-of-island.cpp) |
 | 703 | Kth Largest Element In A Stream | Heap / Priority Queue (Min-Heap of size k) | 🟢 Easy | `C++` | `O(log k) per add` | `O(k)` | [Code](./08-heap-priority-queue/0703-kth-largest-element-in-a-stream.cpp) |
 | 704 | Binary Search | Binary Search | 🟢 Easy | `C++` | `O(log n)` | `O(1)` | [Code](./05-binary-search/0704-binary-search.cpp) |
+| 714 | Best Time To Buy And Sell Stock With Transaction Fee | Dynamic Programming | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0714-best-time-to-buy-and-sell-stock-with-transaction-fee.cpp) |
 | 739 | Daily Temperatures | Stack (Monotonic Stack) | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0739-daily-temperatures.cpp) |
 | 763 | Partition Labels | Greedy / Two Pointers | 🟡 Medium | `C++` | `O(n)` | `O(1) (26 characters)` | [Code](./12-greedy/0763-partition-labels.cpp) |
 | 846 | Hand Of Straights | Greedy / Ordered Map | 🟡 Medium | `C++` | `O(n log n)` | `O(n)` | [Code](./12-greedy/0846-hand-of-straights.cpp) |
