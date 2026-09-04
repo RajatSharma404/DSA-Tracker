@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **117** | **25** | **90** | **2** |
+| **118** | **25** | **91** | **2** |
 
 ### 📂 Topic Directories
 
@@ -18,7 +18,7 @@
 - [**Linked List**](./06-linked-list/) (10 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (15 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (5 problems)
-- [**Backtracking**](./09-backtracking/) (7 problems)
+- [**Backtracking**](./09-backtracking/) (8 problems)
 - [**Graphs**](./10-graphs/) (9 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (25 problems)
 - [**Greedy**](./12-greedy/) (7 problems)
@@ -61,6 +61,7 @@
 | 72 | Edit Distance | Dynamic Programming (Levenshtein Distance) | 🟡 Medium | `C++` | `O(M * N)` | `O(N) space optimized` | [Code](./11-dynamic-programming/0072-edit-distance.cpp) |
 | 73 | Set Matrix Zeroes | Math & Geometry (In-Place Array Markers) | 🟡 Medium | `C++` | `O(M * N)` | `O(1) in-place` | [Code](./14-math-and-geometry/0073-set-matrix-zeroes.cpp) |
 | 74 | Search A 2d Matrix | Binary Search | 🟡 Medium | `C++` | `O(log(m * n))` | `O(1)` | [Code](./05-binary-search/0074-search-a-2d-matrix.cpp) |
+| 77 | Combinations | Recursion & Backtracking | 🟡 Medium | `C++` | `O(k * C(n, k))` | `O(k)` | [Code](./09-backtracking/0077-combinations.cpp) |
 | 78 | Subsets | Recursion & Backtracking | 🟡 Medium | `C++` | `O(n * 2^n)` | `O(n)` | [Code](./09-backtracking/0078-subsets.cpp) |
 | 79 | Word Search | Recursion & Backtracking | 🟡 Medium | `C++` | `O(M * N * 4^L) where L is length of word` | `O(L) recursion stack` | [Code](./09-backtracking/0079-word-search.cpp) |
 | 90 | Subsets Ii | Recursion & Backtracking (Handling Duplicates) | 🟡 Medium | `C++` | `O(n * 2^n)` | `O(n) recursion stack` | [Code](./09-backtracking/0090-subsets-ii.cpp) |
