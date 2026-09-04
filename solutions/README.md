@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **119** | **25** | **91** | **3** |
+| **120** | **25** | **91** | **4** |
 
 ### 📂 Topic Directories
 
@@ -18,7 +18,7 @@
 - [**Linked List**](./06-linked-list/) (10 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (15 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (5 problems)
-- [**Backtracking**](./09-backtracking/) (9 problems)
+- [**Backtracking**](./09-backtracking/) (10 problems)
 - [**Graphs**](./10-graphs/) (9 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (25 problems)
 - [**Greedy**](./12-greedy/) (7 problems)
@@ -43,6 +43,7 @@
 | 21 | Merge Two Sorted Lists | Linked List | 🟢 Easy | `C++` | `O(n + m)` | `O(1)` | [Code](./06-linked-list/0021-merge-two-sorted-lists.cpp) |
 | 33 | Search In Rotated Sorted Array | Binary Search | 🟡 Medium | `C++` | `O(log n)` | `O(1)` | [Code](./05-binary-search/0033-search-in-rotated-sorted-array.cpp) |
 | 36 | Valid Sudoku | Arrays & Hashing | 🟡 Medium | `C++` | `O(1) (fixed 9x9 board)` | `O(1)` | [Code](./01-arrays-and-hashing/0036-valid-sudoku.cpp) |
+| 37 | Sudoku Solver | Recursion & Backtracking | 🔴 Hard | `C++` | `O(9^E) where E is number of empty cells` | `O(1) in-place board state` | [Code](./09-backtracking/0037-sudoku-solver.cpp) |
 | 39 | Combination Sum | Recursion & Backtracking | 🟡 Medium | `C++` | `O(2^t) where t is target value` | `O(t)` | [Code](./09-backtracking/0039-combination-sum.cpp) |
 | 43 | Multiply Strings | Math & Number Theory (Big Integer Multiplication) | 🟡 Medium | `C++` | `O(M * N)` | `O(M + N)` | [Code](./14-math-and-geometry/0043-multiply-strings.cpp) |
 | 45 | Jump Game Ii | Greedy (BFS Window) | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./12-greedy/0045-jump-game-ii.cpp) |
