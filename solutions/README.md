@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **185** | **61** | **110** | **14** |
+| **186** | **62** | **110** | **14** |
 
 ### 📂 Topic Directories
 
@@ -16,7 +16,7 @@
 - [**Stack**](./04-stack/) (10 problems)
 - [**Binary Search**](./05-binary-search/) (12 problems)
 - [**Linked List**](./06-linked-list/) (18 problems)
-- [**Trees And Tries**](./07-trees-and-tries/) (23 problems)
+- [**Trees And Tries**](./07-trees-and-tries/) (24 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (6 problems)
 - [**Backtracking**](./09-backtracking/) (10 problems)
 - [**Graphs**](./10-graphs/) (11 problems)
@@ -140,6 +140,7 @@
 | 215 | Kth Largest Element In An Array | Heap / Priority Queue (Min-Heap) | 🟡 Medium | `C++` | `O(n log k)` | `O(k)` | [Code](./08-heap-priority-queue/0215-kth-largest-element-in-an-array.cpp) |
 | 217 | Contains Duplicate | Arrays & Hashing | 🟢 Easy | `C++` | `O(n)` | `O(n)` | [Code](./01-arrays-and-hashing/0217-contains-duplicate.cpp) |
 | 219 | Contains Duplicate Ii | Arrays & Hashing / Hash Map | 🟢 Easy | `C++` | `O(n)` | `O(min(n, k))` | [Code](./01-arrays-and-hashing/0219-contains-duplicate-ii.cpp) |
+| 222 | Count Complete Tree Nodes | Trees & Tries / Binary Search on Tree | 🟢 Easy | `C++` | `O((log n)^2)` | `O(log n)` | [Code](./07-trees-and-tries/0222-count-complete-tree-nodes.cpp) |
 | 226 | Invert Binary Tree | Trees & Tries | 🟢 Easy | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0226-invert-binary-tree.cpp) |
 | 230 | Kth Smallest Element In A Bst | Trees & Tries | 🟡 Medium | `C++` | `O(H + k)` | `O(H) stack frames` | [Code](./07-trees-and-tries/0230-kth-smallest-element-in-a-bst.cpp) |
 | 234 | Palindrome Linked List | Linked List / Fast and Slow Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0234-palindrome-linked-list.cpp) |
