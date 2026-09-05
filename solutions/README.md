@@ -6,13 +6,13 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **156** | **47** | **95** | **14** |
+| **157** | **48** | **95** | **14** |
 
 ### 📂 Topic Directories
 
 - [**Arrays And Hashing**](./01-arrays-and-hashing/) (26 problems)
 - [**Two Pointers**](./02-two-pointers/) (12 problems)
-- [**Sliding Window**](./03-sliding-window/) (7 problems)
+- [**Sliding Window**](./03-sliding-window/) (8 problems)
 - [**Stack**](./04-stack/) (5 problems)
 - [**Binary Search**](./05-binary-search/) (5 problems)
 - [**Linked List**](./06-linked-list/) (11 problems)
@@ -164,6 +164,7 @@
 | 572 | Subtree Of Another Tree | Trees & Tries | 🟢 Easy | `C++` | `O(s * t)` | `O(h)` | [Code](./07-trees-and-tries/0572-subtree-of-another-tree.cpp) |
 | 583 | Delete Operation For Two Strings | Dynamic Programming (LCS Reduction) | 🟡 Medium | `C++` | `O(m * n)` | `O(n) space optimized` | [Code](./11-dynamic-programming/0583-delete-operation-for-two-strings.cpp) |
 | 621 | Task Scheduler | Greedy / Max-Heap | 🟡 Medium | `C++` | `O(N) where N is number of tasks` | `O(1) (26 distinct tasks)` | [Code](./08-heap-priority-queue/0621-task-scheduler.cpp) |
+| 643 | Maximum Average Subarray I | Sliding Window | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./03-sliding-window/0643-maximum-average-subarray-i.cpp) |
 | 647 | Palindromic Substrings | Dynamic Programming / Expand Around Center | 🟡 Medium | `C++` | `O(n^2)` | `O(1)` | [Code](./11-dynamic-programming/0647-palindromic-substrings.cpp) |
 | 678 | Valid Parenthesis String | Greedy | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./12-greedy/0678-valid-parenthesis-string.cpp) |
 | 680 | Valid Palindrome Ii | Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0680-valid-palindrome-ii.cpp) |
