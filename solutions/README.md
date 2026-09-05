@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **171** | **53** | **104** | **14** |
+| **172** | **53** | **105** | **14** |
 
 ### 📂 Topic Directories
 
@@ -14,7 +14,7 @@
 - [**Two Pointers**](./02-two-pointers/) (12 problems)
 - [**Sliding Window**](./03-sliding-window/) (11 problems)
 - [**Stack**](./04-stack/) (10 problems)
-- [**Binary Search**](./05-binary-search/) (11 problems)
+- [**Binary Search**](./05-binary-search/) (12 problems)
 - [**Linked List**](./06-linked-list/) (11 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (17 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (6 problems)
@@ -167,6 +167,7 @@
 | 494 | Target Sum | Dynamic Programming (Subset Sum Reduction) | 🟡 Medium | `C++` | `O(N * S) where S is (sum + target) / 2` | `O(S)` | [Code](./11-dynamic-programming/0494-target-sum.cpp) |
 | 518 | Coin Change Ii | Dynamic Programming (Unbounded Knapsack) | 🟡 Medium | `C++` | `O(N * amount)` | `O(amount)` | [Code](./11-dynamic-programming/0518-coin-change-ii.cpp) |
 | 525 | Contiguous Array | Arrays & Hashing / Prefix Sum | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./01-arrays-and-hashing/0525-contiguous-array.cpp) |
+| 540 | Single Element In A Sorted Array | Binary Search (Even-Odd Index Invariant) | 🟡 Medium | `C++` | `O(log n)` | `O(1)` | [Code](./05-binary-search/0540-single-element-in-a-sorted-array.cpp) |
 | 543 | Diameter Of Binary Tree | Trees & Tries (DFS) | 🟢 Easy | `C++` | `O(n)` | `O(h) recursion stack` | [Code](./07-trees-and-tries/0543-diameter-of-binary-tree.cpp) |
 | 560 | Subarray Sum Equals K | Arrays & Hashing / Prefix Sum Hash Map | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./01-arrays-and-hashing/0560-subarray-sum-equals-k.cpp) |
 | 567 | Permutation In String | Sliding Window | 🟡 Medium | `C++` | `O(l1 + l2)` | `O(1) (26 characters)` | [Code](./03-sliding-window/0567-permutation-in-string.cpp) |
