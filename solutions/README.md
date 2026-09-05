@@ -6,14 +6,14 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **163** | **49** | **100** | **14** |
+| **164** | **49** | **101** | **14** |
 
 ### 📂 Topic Directories
 
 - [**Arrays And Hashing**](./01-arrays-and-hashing/) (26 problems)
 - [**Two Pointers**](./02-two-pointers/) (12 problems)
 - [**Sliding Window**](./03-sliding-window/) (11 problems)
-- [**Stack**](./04-stack/) (8 problems)
+- [**Stack**](./04-stack/) (9 problems)
 - [**Binary Search**](./05-binary-search/) (5 problems)
 - [**Linked List**](./06-linked-list/) (11 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (17 problems)
@@ -183,6 +183,7 @@
 | 846 | Hand Of Straights | Greedy / Ordered Map | 🟡 Medium | `C++` | `O(n log n)` | `O(n)` | [Code](./12-greedy/0846-hand-of-straights.cpp) |
 | 875 | Koko Eating Bananas | Binary Search | 🟡 Medium | `C++` | `O(n log(max(piles)))` | `O(1)` | [Code](./05-binary-search/0875-koko-eating-bananas.cpp) |
 | 905 | Sort Array By Parity | Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0905-sort-array-by-parity.cpp) |
+| 946 | Validate Stack Sequences | Stack Simulation | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0946-validate-stack-sequences.cpp) |
 | 973 | K Closest Points To Origin | Heap / Priority Queue (Max-Heap) | 🟡 Medium | `C++` | `O(n log k)` | `O(k)` | [Code](./08-heap-priority-queue/0973-k-closest-points-to-origin.cpp) |
 | 977 | Squares Of A Sorted Array | Arrays & Hashing / Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1) extra space excluding output` | [Code](./01-arrays-and-hashing/0977-squares-of-a-sorted-array.cpp) |
 | 994 | Rotting Oranges | Graphs (Multi-Source BFS) | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N) queue space` | [Code](./10-graphs/0994-rotting-oranges.cpp) |
