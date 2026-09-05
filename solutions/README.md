@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **126** | **25** | **91** | **10** |
+| **127** | **25** | **91** | **11** |
 
 ### 📂 Topic Directories
 
@@ -16,7 +16,7 @@
 - [**Stack**](./04-stack/) (5 problems)
 - [**Binary Search**](./05-binary-search/) (5 problems)
 - [**Linked List**](./06-linked-list/) (11 problems)
-- [**Trees And Tries**](./07-trees-and-tries/) (15 problems)
+- [**Trees And Tries**](./07-trees-and-tries/) (16 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (6 problems)
 - [**Backtracking**](./09-backtracking/) (10 problems)
 - [**Graphs**](./10-graphs/) (9 problems)
@@ -80,6 +80,7 @@
 | 105 | Construct Binary Tree From Preorder And Inorder Traversal | Trees & Tries | 🟡 Medium | `C++` | `O(n)` | `O(n) hash map + recursion stack` | [Code](./07-trees-and-tries/0105-construct-binary-tree-from-preorder-and-inorder-traversal.cpp) |
 | 110 | Balanced Binary Tree | Trees & Tries (Bottom-Up DFS) | 🟢 Easy | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0110-balanced-binary-tree.cpp) |
 | 121 | Best Time To Buy And Sell Stock | Sliding Window | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./03-sliding-window/0121-best-time-to-buy-and-sell-stock.cpp) |
+| 124 | Binary Tree Maximum Path Sum | Trees & Tries (Postorder DFS) | 🔴 Hard | `C++` | `O(n)` | `O(h) recursion stack` | [Code](./07-trees-and-tries/0124-binary-tree-maximum-path-sum.cpp) |
 | 125 | Valid Palindrome | Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0125-valid-palindrome.cpp) |
 | 128 | Longest Consecutive Sequence | Arrays & Hashing | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./01-arrays-and-hashing/0128-longest-consecutive-sequence.cpp) |
 | 131 | Palindrome Partitioning | Recursion & Backtracking | 🟡 Medium | `C++` | `O(n * 2^n)` | `O(n) recursion stack` | [Code](./09-backtracking/0131-palindrome-partitioning.cpp) |
