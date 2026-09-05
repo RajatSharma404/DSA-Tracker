@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **195** | **67** | **114** | **14** |
+| **196** | **67** | **115** | **14** |
 
 ### 📂 Topic Directories
 
@@ -19,7 +19,7 @@
 - [**Trees And Tries**](./07-trees-and-tries/) (30 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (6 problems)
 - [**Backtracking**](./09-backtracking/) (10 problems)
-- [**Graphs**](./10-graphs/) (14 problems)
+- [**Graphs**](./10-graphs/) (15 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (25 problems)
 - [**Greedy**](./12-greedy/) (7 problems)
 - [**Bit Manipulation**](./13-bit-manipulation/) (6 problems)
@@ -209,6 +209,7 @@
 | 739 | Daily Temperatures | Stack (Monotonic Stack) | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0739-daily-temperatures.cpp) |
 | 763 | Partition Labels | Greedy / Two Pointers | 🟡 Medium | `C++` | `O(n)` | `O(1) (26 characters)` | [Code](./12-greedy/0763-partition-labels.cpp) |
 | 797 | All Paths From Source To Target | Graphs / Backtracking | 🟡 Medium | `C++` | `O(2^n * n)` | `O(n)` | [Code](./10-graphs/0797-all-paths-from-source-to-target.cpp) |
+| 841 | Keys And Rooms | Graphs / BFS | 🟡 Medium | `C++` | `O(n + e) where e is total keys` | `O(n)` | [Code](./10-graphs/0841-keys-and-rooms.cpp) |
 | 844 | Backspace String Compare | Two Pointers (Reverse Traversal) | 🟢 Easy | `C++` | `O(n + m)` | `O(1)` | [Code](./02-two-pointers/0844-backspace-string-compare.cpp) |
 | 846 | Hand Of Straights | Greedy / Ordered Map | 🟡 Medium | `C++` | `O(n log n)` | `O(n)` | [Code](./12-greedy/0846-hand-of-straights.cpp) |
 | 853 | Car Fleet | Stack / Monotonic Stack | 🟡 Medium | `C++` | `O(n log n)` | `O(n)` | [Code](./04-stack/0853-car-fleet.cpp) |
