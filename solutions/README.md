@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **202** | **72** | **116** | **14** |
+| **203** | **73** | **116** | **14** |
 
 ### 📂 Topic Directories
 
@@ -21,7 +21,7 @@
 - [**Backtracking**](./09-backtracking/) (10 problems)
 - [**Graphs**](./10-graphs/) (17 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (28 problems)
-- [**Greedy**](./12-greedy/) (8 problems)
+- [**Greedy**](./12-greedy/) (9 problems)
 - [**Bit Manipulation**](./13-bit-manipulation/) (6 problems)
 - [**Math And Geometry**](./14-math-and-geometry/) (8 problems)
 
@@ -182,6 +182,7 @@
 | 424 | Longest Repeating Character Replacement | Sliding Window | 🟡 Medium | `C++` | `O(n)` | `O(1) (26 uppercase letters)` | [Code](./03-sliding-window/0424-longest-repeating-character-replacement.cpp) |
 | 438 | Find All Anagrams In A String | Sliding Window / Frequency Array | 🟡 Medium | `C++` | `O(n)` | `O(1) fixed 26 alphabet size` | [Code](./03-sliding-window/0438-find-all-anagrams-in-a-string.cpp) |
 | 448 | Find All Numbers Disappeared In An Array | Arrays & Hashing (In-place Sign Inversion) | 🟢 Easy | `C++` | `O(n)` | `O(1) extra space` | [Code](./01-arrays-and-hashing/0448-find-all-numbers-disappeared-in-an-array.cpp) |
+| 455 | Assign Cookies | Greedy | 🟢 Easy | `C++` | `O(n log n + m log m)` | `O(1)` | [Code](./12-greedy/0455-assign-cookies.cpp) |
 | 494 | Target Sum | Dynamic Programming (Subset Sum Reduction) | 🟡 Medium | `C++` | `O(N * S) where S is (sum + target) / 2` | `O(S)` | [Code](./11-dynamic-programming/0494-target-sum.cpp) |
 | 509 | Fibonacci Number | Dynamic Programming | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0509-fibonacci-number.cpp) |
 | 518 | Coin Change Ii | Dynamic Programming (Unbounded Knapsack) | 🟡 Medium | `C++` | `O(N * amount)` | `O(amount)` | [Code](./11-dynamic-programming/0518-coin-change-ii.cpp) |
