@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **196** | **67** | **115** | **14** |
+| **197** | **68** | **115** | **14** |
 
 ### 📂 Topic Directories
 
@@ -19,7 +19,7 @@
 - [**Trees And Tries**](./07-trees-and-tries/) (30 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (6 problems)
 - [**Backtracking**](./09-backtracking/) (10 problems)
-- [**Graphs**](./10-graphs/) (15 problems)
+- [**Graphs**](./10-graphs/) (16 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (25 problems)
 - [**Greedy**](./12-greedy/) (7 problems)
 - [**Bit Manipulation**](./13-bit-manipulation/) (6 problems)
@@ -219,6 +219,7 @@
 | 973 | K Closest Points To Origin | Heap / Priority Queue (Max-Heap) | 🟡 Medium | `C++` | `O(n log k)` | `O(k)` | [Code](./08-heap-priority-queue/0973-k-closest-points-to-origin.cpp) |
 | 977 | Squares Of A Sorted Array | Arrays & Hashing / Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1) extra space excluding output` | [Code](./01-arrays-and-hashing/0977-squares-of-a-sorted-array.cpp) |
 | 994 | Rotting Oranges | Graphs (Multi-Source BFS) | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N) queue space` | [Code](./10-graphs/0994-rotting-oranges.cpp) |
+| 997 | Find The Town Judge | Graphs / Degree Counting | 🟢 Easy | `C++` | `O(n + t) where t is trust array size` | `O(n)` | [Code](./10-graphs/0997-find-the-town-judge.cpp) |
 | 1004 | Max Consecutive Ones Iii | Sliding Window | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./03-sliding-window/1004-max-consecutive-ones-iii.cpp) |
 | 1047 | Remove All Adjacent Duplicates In String | Stack | 🟢 Easy | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/1047-remove-all-adjacent-duplicates-in-string.cpp) |
 | 1143 | Longest Common Subsequence | Dynamic Programming (2D Grid) | 🟡 Medium | `C++` | `O(m * n)` | `O(m * n)` | [Code](./11-dynamic-programming/1143-longest-common-subsequence.cpp) |
