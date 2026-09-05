@@ -30,6 +30,20 @@ const nextConfig: NextConfig = {
   turbopack: {
     // Specify the workspace root to avoid lockfile warnings with monorepo layout
     root: path.resolve(__dirname),
+    resolveAlias: {
+      "monaco-editor/esm/vs/editor/editor.api":
+        "./node_modules/monaco-editor/esm/vs/editor/editor.api.js",
+    },
+  },
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "monaco-editor/esm/vs/editor/editor.api": path.resolve(
+        __dirname,
+        "node_modules/monaco-editor/esm/vs/editor/editor.api.js",
+      ),
+    };
+    return config;
   },
   async rewrites() {
     return {
