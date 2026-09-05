@@ -6,11 +6,11 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **144** | **38** | **92** | **14** |
+| **145** | **39** | **92** | **14** |
 
 ### 📂 Topic Directories
 
-- [**Arrays And Hashing**](./01-arrays-and-hashing/) (22 problems)
+- [**Arrays And Hashing**](./01-arrays-and-hashing/) (23 problems)
 - [**Two Pointers**](./02-two-pointers/) (5 problems)
 - [**Sliding Window**](./03-sliding-window/) (6 problems)
 - [**Stack**](./04-stack/) (5 problems)
@@ -169,6 +169,7 @@
 | 846 | Hand Of Straights | Greedy / Ordered Map | 🟡 Medium | `C++` | `O(n log n)` | `O(n)` | [Code](./12-greedy/0846-hand-of-straights.cpp) |
 | 875 | Koko Eating Bananas | Binary Search | 🟡 Medium | `C++` | `O(n log(max(piles)))` | `O(1)` | [Code](./05-binary-search/0875-koko-eating-bananas.cpp) |
 | 973 | K Closest Points To Origin | Heap / Priority Queue (Max-Heap) | 🟡 Medium | `C++` | `O(n log k)` | `O(k)` | [Code](./08-heap-priority-queue/0973-k-closest-points-to-origin.cpp) |
+| 977 | Squares Of A Sorted Array | Arrays & Hashing / Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1) extra space excluding output` | [Code](./01-arrays-and-hashing/0977-squares-of-a-sorted-array.cpp) |
 | 994 | Rotting Oranges | Graphs (Multi-Source BFS) | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N) queue space` | [Code](./10-graphs/0994-rotting-oranges.cpp) |
 | 1143 | Longest Common Subsequence | Dynamic Programming (2D Grid) | 🟡 Medium | `C++` | `O(m * n)` | `O(m * n)` | [Code](./11-dynamic-programming/1143-longest-common-subsequence.cpp) |
 | 1448 | Count Good Nodes In Binary Tree | Trees & Tries (DFS Preorder) | 🟡 Medium | `C++` | `O(n)` | `O(h) recursion stack` | [Code](./07-trees-and-tries/1448-count-good-nodes-in-binary-tree.cpp) |
