@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **180** | **57** | **109** | **14** |
+| **181** | **58** | **109** | **14** |
 
 ### 📂 Topic Directories
 
@@ -16,7 +16,7 @@
 - [**Stack**](./04-stack/) (10 problems)
 - [**Binary Search**](./05-binary-search/) (12 problems)
 - [**Linked List**](./06-linked-list/) (18 problems)
-- [**Trees And Tries**](./07-trees-and-tries/) (18 problems)
+- [**Trees And Tries**](./07-trees-and-tries/) (19 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (6 problems)
 - [**Backtracking**](./09-backtracking/) (10 problems)
 - [**Graphs**](./10-graphs/) (11 problems)
@@ -90,6 +90,7 @@
 | 97 | Interleaving String | Dynamic Programming (2D Grid / Space Optimized) | 🟡 Medium | `C++` | `O(m * n)` | `O(n)` | [Code](./11-dynamic-programming/0097-interleaving-string.cpp) |
 | 98 | Validate Binary Search Tree | Trees & Tries | 🟡 Medium | `C++` | `O(n)` | `O(h) recursion stack` | [Code](./07-trees-and-tries/0098-validate-binary-search-tree.cpp) |
 | 100 | Same Tree | Trees & Tries | 🟢 Easy | `C++` | `O(N) where N is the number of nodes` | `O(h) where h is the tree height` | [Code](./07-trees-and-tries/0100-same-tree.cpp) |
+| 101 | Symmetric Tree | Trees & Tries | 🟢 Easy | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0101-symmetric-tree.cpp) |
 | 102 | Binary Tree Level Order Traversal | Trees & Tries | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./07-trees-and-tries/0102-binary-tree-level-order-traversal.cpp) |
 | 104 | Maximum Depth Of Binary Tree | Trees & Tries | 🟢 Easy | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0104-maximum-depth-of-binary-tree.cpp) |
 | 105 | Construct Binary Tree From Preorder And Inorder Traversal | Trees & Tries | 🟡 Medium | `C++` | `O(n)` | `O(n) hash map + recursion stack` | [Code](./07-trees-and-tries/0105-construct-binary-tree-from-preorder-and-inorder-traversal.cpp) |
