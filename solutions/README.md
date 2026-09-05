@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **169** | **51** | **104** | **14** |
+| **170** | **52** | **104** | **14** |
 
 ### 📂 Topic Directories
 
@@ -14,7 +14,7 @@
 - [**Two Pointers**](./02-two-pointers/) (12 problems)
 - [**Sliding Window**](./03-sliding-window/) (11 problems)
 - [**Stack**](./04-stack/) (10 problems)
-- [**Binary Search**](./05-binary-search/) (9 problems)
+- [**Binary Search**](./05-binary-search/) (10 problems)
 - [**Linked List**](./06-linked-list/) (11 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (17 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (6 problems)
@@ -138,6 +138,7 @@
 | 268 | Missing Number | Bit Manipulation (XOR) | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./13-bit-manipulation/0268-missing-number.cpp) |
 | 269 | Alien Dictionary | Graphs (Topological Sort / Kahn's Algorithm) | 🔴 Hard | `C++` | `O(C) where C is total length of all words` | `O(1) (at most 26 unique characters)` | [Code](./10-graphs/0269-alien-dictionary.cpp) |
 | 271 | Encode And Decode Strings | Arrays & Hashing | 🟡 Medium | `C++` | `O(n) for both encode and decode` | `O(1) auxiliary space` | [Code](./01-arrays-and-hashing/0271-encode-and-decode-strings.cpp) |
+| 278 | First Bad Version | Binary Search | 🟢 Easy | `C++` | `O(log n)` | `O(1)` | [Code](./05-binary-search/0278-first-bad-version.cpp) |
 | 283 | Move Zeroes | Arrays & Hashing / Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0283-move-zeroes.cpp) |
 | 286 | Walls And Gates | Graphs (Multi-Source BFS) | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N)` | [Code](./10-graphs/0286-walls-and-gates.cpp) |
 | 287 | Find The Duplicate Number | Linked List (Floyd's Tortoise and Hare) | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0287-find-the-duplicate-number.cpp) |
