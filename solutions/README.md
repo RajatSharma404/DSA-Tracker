@@ -6,11 +6,11 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **132** | **27** | **91** | **14** |
+| **133** | **28** | **91** | **14** |
 
 ### 📂 Topic Directories
 
-- [**Arrays And Hashing**](./01-arrays-and-hashing/) (10 problems)
+- [**Arrays And Hashing**](./01-arrays-and-hashing/) (11 problems)
 - [**Two Pointers**](./02-two-pointers/) (5 problems)
 - [**Sliding Window**](./03-sliding-window/) (6 problems)
 - [**Stack**](./04-stack/) (5 problems)
@@ -72,6 +72,7 @@
 | 78 | Subsets | Recursion & Backtracking | 🟡 Medium | `C++` | `O(n * 2^n)` | `O(n)` | [Code](./09-backtracking/0078-subsets.cpp) |
 | 79 | Word Search | Recursion & Backtracking | 🟡 Medium | `C++` | `O(M * N * 4^L) where L is length of word` | `O(L) recursion stack` | [Code](./09-backtracking/0079-word-search.cpp) |
 | 84 | Largest Rectangle In Histogram | Stack (Monotonic Stack) | 🔴 Hard | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0084-largest-rectangle-in-histogram.cpp) |
+| 88 | Merge Sorted Array | Arrays & Hashing / Two Pointers | 🟢 Easy | `C++` | `O(m + n)` | `O(1)` | [Code](./01-arrays-and-hashing/0088-merge-sorted-array.cpp) |
 | 90 | Subsets Ii | Recursion & Backtracking (Handling Duplicates) | 🟡 Medium | `C++` | `O(n * 2^n)` | `O(n) recursion stack` | [Code](./09-backtracking/0090-subsets-ii.cpp) |
 | 91 | Decode Ways | Dynamic Programming (Fibonacci-Style Linear DP) | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0091-decode-ways.cpp) |
 | 97 | Interleaving String | Dynamic Programming (2D Grid / Space Optimized) | 🟡 Medium | `C++` | `O(m * n)` | `O(n)` | [Code](./11-dynamic-programming/0097-interleaving-string.cpp) |
