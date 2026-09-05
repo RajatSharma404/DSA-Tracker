@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **188** | **63** | **111** | **14** |
+| **189** | **64** | **111** | **14** |
 
 ### 📂 Topic Directories
 
@@ -16,7 +16,7 @@
 - [**Stack**](./04-stack/) (10 problems)
 - [**Binary Search**](./05-binary-search/) (12 problems)
 - [**Linked List**](./06-linked-list/) (18 problems)
-- [**Trees And Tries**](./07-trees-and-tries/) (26 problems)
+- [**Trees And Tries**](./07-trees-and-tries/) (27 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (6 problems)
 - [**Backtracking**](./09-backtracking/) (10 problems)
 - [**Graphs**](./10-graphs/) (11 problems)
@@ -175,6 +175,7 @@
 | 387 | First Unique Character In A String | Arrays & Hashing | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0387-first-unique-character-in-a-string.cpp) |
 | 392 | Is Subsequence | Two Pointers | 🟢 Easy | `C++` | `O(t) where t is length of target string` | `O(1)` | [Code](./02-two-pointers/0392-is-subsequence.cpp) |
 | 394 | Decode String | Stack | 🟡 Medium | `C++` | `O(maxK * n)` | `O(n)` | [Code](./04-stack/0394-decode-string.cpp) |
+| 404 | Sum Of Left Leaves | Trees & Tries | 🟢 Easy | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0404-sum-of-left-leaves.cpp) |
 | 416 | Partition Equal Subset Sum | Dynamic Programming (0/1 Knapsack) | 🟡 Medium | `C++` | `O(n * target)` | `O(target)` | [Code](./11-dynamic-programming/0416-partition-equal-subset-sum.cpp) |
 | 417 | Pacific Atlantic Water Flow | Graphs | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N)` | [Code](./10-graphs/0417-pacific-atlantic-water-flow.cpp) |
 | 424 | Longest Repeating Character Replacement | Sliding Window | 🟡 Medium | `C++` | `O(n)` | `O(1) (26 uppercase letters)` | [Code](./03-sliding-window/0424-longest-repeating-character-replacement.cpp) |
