@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **186** | **62** | **110** | **14** |
+| **187** | **62** | **111** | **14** |
 
 ### 📂 Topic Directories
 
@@ -16,7 +16,7 @@
 - [**Stack**](./04-stack/) (10 problems)
 - [**Binary Search**](./05-binary-search/) (12 problems)
 - [**Linked List**](./06-linked-list/) (18 problems)
-- [**Trees And Tries**](./07-trees-and-tries/) (24 problems)
+- [**Trees And Tries**](./07-trees-and-tries/) (25 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (6 problems)
 - [**Backtracking**](./09-backtracking/) (10 problems)
 - [**Graphs**](./10-graphs/) (11 problems)
@@ -145,6 +145,7 @@
 | 230 | Kth Smallest Element In A Bst | Trees & Tries | 🟡 Medium | `C++` | `O(H + k)` | `O(H) stack frames` | [Code](./07-trees-and-tries/0230-kth-smallest-element-in-a-bst.cpp) |
 | 234 | Palindrome Linked List | Linked List / Fast and Slow Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0234-palindrome-linked-list.cpp) |
 | 235 | Lowest Common Ancestor Of A Binary Search Tree | Trees & Tries | 🟡 Medium | `C++` | `O(h) where h is height of BST` | `O(1)` | [Code](./07-trees-and-tries/0235-lowest-common-ancestor-of-a-binary-search-tree.cpp) |
+| 236 | Lowest Common Ancestor Of A Binary Tree | Trees & Tries / DFS | 🟡 Medium | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0236-lowest-common-ancestor-of-a-binary-tree.cpp) |
 | 238 | Product Of Array Except Self | Arrays & Hashing | 🟡 Medium | `C++` | `O(n)` | `O(1) auxiliary space (excluding return vector)` | [Code](./01-arrays-and-hashing/0238-product-of-array-except-self.cpp) |
 | 239 | Sliding Window Maximum | Sliding Window (Monotonic Deque) | 🔴 Hard | `C++` | `O(n)` | `O(k) deque space` | [Code](./03-sliding-window/0239-sliding-window-maximum.cpp) |
 | 242 | Valid Anagram | Arrays & Hashing | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0242-valid-anagram.cpp) |
