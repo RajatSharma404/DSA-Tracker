@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **175** | **54** | **107** | **14** |
+| **176** | **54** | **108** | **14** |
 
 ### 📂 Topic Directories
 
@@ -15,7 +15,7 @@
 - [**Sliding Window**](./03-sliding-window/) (11 problems)
 - [**Stack**](./04-stack/) (10 problems)
 - [**Binary Search**](./05-binary-search/) (12 problems)
-- [**Linked List**](./06-linked-list/) (14 problems)
+- [**Linked List**](./06-linked-list/) (15 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (17 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (6 problems)
 - [**Backtracking**](./09-backtracking/) (10 problems)
@@ -81,6 +81,7 @@
 | 79 | Word Search | Recursion & Backtracking | 🟡 Medium | `C++` | `O(M * N * 4^L) where L is length of word` | `O(L) recursion stack` | [Code](./09-backtracking/0079-word-search.cpp) |
 | 83 | Remove Duplicates From Sorted List | Linked List | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0083-remove-duplicates-from-sorted-list.cpp) |
 | 84 | Largest Rectangle In Histogram | Stack (Monotonic Stack) | 🔴 Hard | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0084-largest-rectangle-in-histogram.cpp) |
+| 86 | Partition List | Linked List | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0086-partition-list.cpp) |
 | 88 | Merge Sorted Array | Arrays & Hashing / Two Pointers | 🟢 Easy | `C++` | `O(m + n)` | `O(1)` | [Code](./01-arrays-and-hashing/0088-merge-sorted-array.cpp) |
 | 90 | Subsets Ii | Recursion & Backtracking (Handling Duplicates) | 🟡 Medium | `C++` | `O(n * 2^n)` | `O(n) recursion stack` | [Code](./09-backtracking/0090-subsets-ii.cpp) |
 | 91 | Decode Ways | Dynamic Programming (Fibonacci-Style Linear DP) | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0091-decode-ways.cpp) |
