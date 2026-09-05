@@ -6,14 +6,14 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **160** | **48** | **98** | **14** |
+| **161** | **48** | **99** | **14** |
 
 ### 📂 Topic Directories
 
 - [**Arrays And Hashing**](./01-arrays-and-hashing/) (26 problems)
 - [**Two Pointers**](./02-two-pointers/) (12 problems)
 - [**Sliding Window**](./03-sliding-window/) (11 problems)
-- [**Stack**](./04-stack/) (5 problems)
+- [**Stack**](./04-stack/) (6 problems)
 - [**Binary Search**](./05-binary-search/) (5 problems)
 - [**Linked List**](./06-linked-list/) (11 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (17 problems)
@@ -67,6 +67,7 @@
 | 64 | Minimum Path Sum | Dynamic Programming (In-Place Grid DP) | 🟡 Medium | `C++` | `O(M * N)` | `O(1) in-place modification` | [Code](./11-dynamic-programming/0064-minimum-path-sum.cpp) |
 | 66 | Plus One | Math & Number Theory | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./14-math-and-geometry/0066-plus-one.cpp) |
 | 70 | Climbing Stairs | Dynamic Programming | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0070-climbing-stairs.cpp) |
+| 71 | Simplify Path | Stack | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0071-simplify-path.cpp) |
 | 72 | Edit Distance | Dynamic Programming (Levenshtein Distance) | 🟡 Medium | `C++` | `O(M * N)` | `O(N) space optimized` | [Code](./11-dynamic-programming/0072-edit-distance.cpp) |
 | 73 | Set Matrix Zeroes | Math & Geometry (In-Place Array Markers) | 🟡 Medium | `C++` | `O(M * N)` | `O(1) in-place` | [Code](./14-math-and-geometry/0073-set-matrix-zeroes.cpp) |
 | 74 | Search A 2d Matrix | Binary Search | 🟡 Medium | `C++` | `O(log(m * n))` | `O(1)` | [Code](./05-binary-search/0074-search-a-2d-matrix.cpp) |
