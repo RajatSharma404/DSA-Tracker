@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **182** | **59** | **109** | **14** |
+| **183** | **60** | **109** | **14** |
 
 ### 📂 Topic Directories
 
@@ -16,7 +16,7 @@
 - [**Stack**](./04-stack/) (10 problems)
 - [**Binary Search**](./05-binary-search/) (12 problems)
 - [**Linked List**](./06-linked-list/) (18 problems)
-- [**Trees And Tries**](./07-trees-and-tries/) (20 problems)
+- [**Trees And Tries**](./07-trees-and-tries/) (21 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (6 problems)
 - [**Backtracking**](./09-backtracking/) (10 problems)
 - [**Graphs**](./10-graphs/) (11 problems)
@@ -96,6 +96,7 @@
 | 105 | Construct Binary Tree From Preorder And Inorder Traversal | Trees & Tries | 🟡 Medium | `C++` | `O(n)` | `O(n) hash map + recursion stack` | [Code](./07-trees-and-tries/0105-construct-binary-tree-from-preorder-and-inorder-traversal.cpp) |
 | 108 | Convert Sorted Array To Binary Search Tree | Trees & Tries / Divide and Conquer | 🟢 Easy | `C++` | `O(n)` | `O(log n) call stack` | [Code](./07-trees-and-tries/0108-convert-sorted-array-to-binary-search-tree.cpp) |
 | 110 | Balanced Binary Tree | Trees & Tries (Bottom-Up DFS) | 🟢 Easy | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0110-balanced-binary-tree.cpp) |
+| 111 | Minimum Depth Of Binary Tree | Trees & Tries | 🟢 Easy | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0111-minimum-depth-of-binary-tree.cpp) |
 | 121 | Best Time To Buy And Sell Stock | Sliding Window | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./03-sliding-window/0121-best-time-to-buy-and-sell-stock.cpp) |
 | 124 | Binary Tree Maximum Path Sum | Trees & Tries (Postorder DFS) | 🔴 Hard | `C++` | `O(n)` | `O(h) recursion stack` | [Code](./07-trees-and-tries/0124-binary-tree-maximum-path-sum.cpp) |
 | 125 | Valid Palindrome | Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0125-valid-palindrome.cpp) |
