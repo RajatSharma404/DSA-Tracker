@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **166** | **50** | **102** | **14** |
+| **167** | **50** | **103** | **14** |
 
 ### 📂 Topic Directories
 
@@ -14,7 +14,7 @@
 - [**Two Pointers**](./02-two-pointers/) (12 problems)
 - [**Sliding Window**](./03-sliding-window/) (11 problems)
 - [**Stack**](./04-stack/) (10 problems)
-- [**Binary Search**](./05-binary-search/) (6 problems)
+- [**Binary Search**](./05-binary-search/) (7 problems)
 - [**Linked List**](./06-linked-list/) (11 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (17 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (6 problems)
@@ -47,6 +47,7 @@
 | 27 | Remove Element | Arrays & Hashing / Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0027-remove-element.cpp) |
 | 28 | Find The Index Of The First Occurrence In A String | Two Pointers / String Matching | 🟢 Easy | `C++` | `O((N - M + 1) * M)` | `O(1)` | [Code](./02-two-pointers/0028-find-the-index-of-the-first-occurrence-in-a-string.cpp) |
 | 33 | Search In Rotated Sorted Array | Binary Search | 🟡 Medium | `C++` | `O(log n)` | `O(1)` | [Code](./05-binary-search/0033-search-in-rotated-sorted-array.cpp) |
+| 34 | Find First And Last Position Of Element In Sorted Array | Binary Search | 🟡 Medium | `C++` | `O(log n)` | `O(1)` | [Code](./05-binary-search/0034-find-first-and-last-position-of-element-in-sorted-array.cpp) |
 | 35 | Search Insert Position | Binary Search | 🟢 Easy | `C++` | `O(log n)` | `O(1)` | [Code](./05-binary-search/0035-search-insert-position.cpp) |
 | 36 | Valid Sudoku | Arrays & Hashing | 🟡 Medium | `C++` | `O(1) (fixed 9x9 board)` | `O(1)` | [Code](./01-arrays-and-hashing/0036-valid-sudoku.cpp) |
 | 37 | Sudoku Solver | Recursion & Backtracking | 🔴 Hard | `C++` | `O(9^E) where E is number of empty cells` | `O(1) in-place board state` | [Code](./09-backtracking/0037-sudoku-solver.cpp) |
