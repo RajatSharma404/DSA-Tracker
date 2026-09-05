@@ -6,11 +6,11 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **145** | **39** | **92** | **14** |
+| **146** | **40** | **92** | **14** |
 
 ### 📂 Topic Directories
 
-- [**Arrays And Hashing**](./01-arrays-and-hashing/) (23 problems)
+- [**Arrays And Hashing**](./01-arrays-and-hashing/) (24 problems)
 - [**Two Pointers**](./02-two-pointers/) (5 problems)
 - [**Sliding Window**](./03-sliding-window/) (6 problems)
 - [**Stack**](./04-stack/) (5 problems)
@@ -164,6 +164,7 @@
 | 703 | Kth Largest Element In A Stream | Heap / Priority Queue (Min-Heap of size k) | 🟢 Easy | `C++` | `O(log k) per add` | `O(k)` | [Code](./08-heap-priority-queue/0703-kth-largest-element-in-a-stream.cpp) |
 | 704 | Binary Search | Binary Search | 🟢 Easy | `C++` | `O(log n)` | `O(1)` | [Code](./05-binary-search/0704-binary-search.cpp) |
 | 714 | Best Time To Buy And Sell Stock With Transaction Fee | Dynamic Programming | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0714-best-time-to-buy-and-sell-stock-with-transaction-fee.cpp) |
+| 724 | Find Pivot Index | Arrays & Hashing / Prefix Sum | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0724-find-pivot-index.cpp) |
 | 739 | Daily Temperatures | Stack (Monotonic Stack) | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0739-daily-temperatures.cpp) |
 | 763 | Partition Labels | Greedy / Two Pointers | 🟡 Medium | `C++` | `O(n)` | `O(1) (26 characters)` | [Code](./12-greedy/0763-partition-labels.cpp) |
 | 846 | Hand Of Straights | Greedy / Ordered Map | 🟡 Medium | `C++` | `O(n log n)` | `O(n)` | [Code](./12-greedy/0846-hand-of-straights.cpp) |
