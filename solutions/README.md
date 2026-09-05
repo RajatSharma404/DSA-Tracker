@@ -6,12 +6,12 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **149** | **41** | **94** | **14** |
+| **150** | **42** | **94** | **14** |
 
 ### 📂 Topic Directories
 
 - [**Arrays And Hashing**](./01-arrays-and-hashing/) (26 problems)
-- [**Two Pointers**](./02-two-pointers/) (6 problems)
+- [**Two Pointers**](./02-two-pointers/) (7 problems)
 - [**Sliding Window**](./03-sliding-window/) (6 problems)
 - [**Stack**](./04-stack/) (5 problems)
 - [**Binary Search**](./05-binary-search/) (5 problems)
@@ -143,6 +143,7 @@
 | 312 | Burst Balloons | Dynamic Programming (Interval / Matrix Chain Multiplication) | 🔴 Hard | `C++` | `O(n^3)` | `O(n^2)` | [Code](./11-dynamic-programming/0312-burst-balloons.cpp) |
 | 322 | Coin Change | Dynamic Programming (Bottom-Up) | 🟡 Medium | `C++` | `O(amount * coins.size())` | `O(amount)` | [Code](./11-dynamic-programming/0322-coin-change.cpp) |
 | 338 | Counting Bits | Bit Manipulation / DP | 🟢 Easy | `C++` | `O(n)` | `O(1) auxiliary` | [Code](./13-bit-manipulation/0338-counting-bits.cpp) |
+| 344 | Reverse String | Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0344-reverse-string.cpp) |
 | 347 | Top K Frequent Elements | Heap / Priority Queue | 🟡 Medium | `C++` | `O(N log k)` | `O(N)` | [Code](./08-heap-priority-queue/0347-top-k-frequent-elements.cpp) |
 | 371 | Sum Of Two Integers | Bit Manipulation (Half Adder Logic) | 🟡 Medium | `C++` | `O(1) (at most 32 bits)` | `O(1)` | [Code](./13-bit-manipulation/0371-sum-of-two-integers.cpp) |
 | 383 | Ransom Note | Arrays & Hashing / Hash Table | 🟢 Easy | `C++` | `O(m + n)` | `O(1) constant alphabet space` | [Code](./01-arrays-and-hashing/0383-ransom-note.cpp) |
