@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **170** | **52** | **104** | **14** |
+| **171** | **53** | **104** | **14** |
 
 ### 📂 Topic Directories
 
@@ -14,7 +14,7 @@
 - [**Two Pointers**](./02-two-pointers/) (12 problems)
 - [**Sliding Window**](./03-sliding-window/) (11 problems)
 - [**Stack**](./04-stack/) (10 problems)
-- [**Binary Search**](./05-binary-search/) (10 problems)
+- [**Binary Search**](./05-binary-search/) (11 problems)
 - [**Linked List**](./06-linked-list/) (11 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (17 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (6 problems)
@@ -153,6 +153,7 @@
 | 344 | Reverse String | Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0344-reverse-string.cpp) |
 | 345 | Reverse Vowels Of A String | Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0345-reverse-vowels-of-a-string.cpp) |
 | 347 | Top K Frequent Elements | Heap / Priority Queue | 🟡 Medium | `C++` | `O(N log k)` | `O(N)` | [Code](./08-heap-priority-queue/0347-top-k-frequent-elements.cpp) |
+| 367 | Valid Perfect Square | Binary Search | 🟢 Easy | `C++` | `O(log num)` | `O(1)` | [Code](./05-binary-search/0367-valid-perfect-square.cpp) |
 | 371 | Sum Of Two Integers | Bit Manipulation (Half Adder Logic) | 🟡 Medium | `C++` | `O(1) (at most 32 bits)` | `O(1)` | [Code](./13-bit-manipulation/0371-sum-of-two-integers.cpp) |
 | 383 | Ransom Note | Arrays & Hashing / Hash Table | 🟢 Easy | `C++` | `O(m + n)` | `O(1) constant alphabet space` | [Code](./01-arrays-and-hashing/0383-ransom-note.cpp) |
 | 387 | First Unique Character In A String | Arrays & Hashing | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0387-first-unique-character-in-a-string.cpp) |
