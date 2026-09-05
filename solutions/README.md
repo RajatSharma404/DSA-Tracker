@@ -6,14 +6,14 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **164** | **49** | **101** | **14** |
+| **165** | **49** | **102** | **14** |
 
 ### 📂 Topic Directories
 
 - [**Arrays And Hashing**](./01-arrays-and-hashing/) (26 problems)
 - [**Two Pointers**](./02-two-pointers/) (12 problems)
 - [**Sliding Window**](./03-sliding-window/) (11 problems)
-- [**Stack**](./04-stack/) (9 problems)
+- [**Stack**](./04-stack/) (10 problems)
 - [**Binary Search**](./05-binary-search/) (5 problems)
 - [**Linked List**](./06-linked-list/) (11 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (17 problems)
@@ -181,6 +181,7 @@
 | 763 | Partition Labels | Greedy / Two Pointers | 🟡 Medium | `C++` | `O(n)` | `O(1) (26 characters)` | [Code](./12-greedy/0763-partition-labels.cpp) |
 | 844 | Backspace String Compare | Two Pointers (Reverse Traversal) | 🟢 Easy | `C++` | `O(n + m)` | `O(1)` | [Code](./02-two-pointers/0844-backspace-string-compare.cpp) |
 | 846 | Hand Of Straights | Greedy / Ordered Map | 🟡 Medium | `C++` | `O(n log n)` | `O(n)` | [Code](./12-greedy/0846-hand-of-straights.cpp) |
+| 853 | Car Fleet | Stack / Monotonic Stack | 🟡 Medium | `C++` | `O(n log n)` | `O(n)` | [Code](./04-stack/0853-car-fleet.cpp) |
 | 875 | Koko Eating Bananas | Binary Search | 🟡 Medium | `C++` | `O(n log(max(piles)))` | `O(1)` | [Code](./05-binary-search/0875-koko-eating-bananas.cpp) |
 | 905 | Sort Array By Parity | Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0905-sort-array-by-parity.cpp) |
 | 946 | Validate Stack Sequences | Stack Simulation | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0946-validate-stack-sequences.cpp) |
