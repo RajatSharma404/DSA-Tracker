@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **191** | **66** | **111** | **14** |
+| **192** | **66** | **112** | **14** |
 
 ### 📂 Topic Directories
 
@@ -16,7 +16,7 @@
 - [**Stack**](./04-stack/) (10 problems)
 - [**Binary Search**](./05-binary-search/) (12 problems)
 - [**Linked List**](./06-linked-list/) (18 problems)
-- [**Trees And Tries**](./07-trees-and-tries/) (29 problems)
+- [**Trees And Tries**](./07-trees-and-tries/) (30 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (6 problems)
 - [**Backtracking**](./09-backtracking/) (10 problems)
 - [**Graphs**](./10-graphs/) (11 problems)
@@ -199,6 +199,7 @@
 | 684 | Redundant Connection | Graphs (Union-Find / Disjoint Set) | 🟡 Medium | `C++` | `O(N * alpha(N))` | `O(N)` | [Code](./10-graphs/0684-redundant-connection.cpp) |
 | 695 | Max Area Of Island | Graphs (DFS) | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N) recursion stack` | [Code](./10-graphs/0695-max-area-of-island.cpp) |
 | 700 | Search In A Binary Search Tree | Trees & Tries / BST | 🟢 Easy | `C++` | `O(h) where h is height of BST` | `O(1)` | [Code](./07-trees-and-tries/0700-search-in-a-binary-search-tree.cpp) |
+| 701 | Insert Into A Binary Search Tree | Trees & Tries / BST | 🟡 Medium | `C++` | `O(h)` | `O(1)` | [Code](./07-trees-and-tries/0701-insert-into-a-binary-search-tree.cpp) |
 | 703 | Kth Largest Element In A Stream | Heap / Priority Queue (Min-Heap of size k) | 🟢 Easy | `C++` | `O(log k) per add` | `O(k)` | [Code](./08-heap-priority-queue/0703-kth-largest-element-in-a-stream.cpp) |
 | 704 | Binary Search | Binary Search | 🟢 Easy | `C++` | `O(log n)` | `O(1)` | [Code](./05-binary-search/0704-binary-search.cpp) |
 | 714 | Best Time To Buy And Sell Stock With Transaction Fee | Dynamic Programming | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0714-best-time-to-buy-and-sell-stock-with-transaction-fee.cpp) |
