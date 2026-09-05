@@ -6,11 +6,11 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **136** | **30** | **92** | **14** |
+| **137** | **31** | **92** | **14** |
 
 ### 📂 Topic Directories
 
-- [**Arrays And Hashing**](./01-arrays-and-hashing/) (14 problems)
+- [**Arrays And Hashing**](./01-arrays-and-hashing/) (15 problems)
 - [**Two Pointers**](./02-two-pointers/) (5 problems)
 - [**Sliding Window**](./03-sliding-window/) (6 problems)
 - [**Stack**](./04-stack/) (5 problems)
@@ -60,6 +60,7 @@
 | 53 | Maximum Subarray | Dynamic Programming | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0053-maximum-subarray.cpp) |
 | 54 | Spiral Matrix | Math & Geometry (Matrix Traversal) | 🟡 Medium | `C++` | `O(M * N)` | `O(1) auxiliary space` | [Code](./14-math-and-geometry/0054-spiral-matrix.cpp) |
 | 55 | Jump Game | Greedy | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./12-greedy/0055-jump-game.cpp) |
+| 58 | Length Of Last Word | Arrays & Hashing / String | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0058-length-of-last-word.cpp) |
 | 62 | Unique Paths | Dynamic Programming (Grid Paths) | 🟡 Medium | `C++` | `O(M * N)` | `O(N) optimized 1D row DP` | [Code](./11-dynamic-programming/0062-unique-paths.cpp) |
 | 63 | Unique Paths Ii | Dynamic Programming (Grid with Obstacles) | 🟡 Medium | `C++` | `O(M * N)` | `O(N) space optimized` | [Code](./11-dynamic-programming/0063-unique-paths-ii.cpp) |
 | 64 | Minimum Path Sum | Dynamic Programming (In-Place Grid DP) | 🟡 Medium | `C++` | `O(M * N)` | `O(1) in-place modification` | [Code](./11-dynamic-programming/0064-minimum-path-sum.cpp) |
