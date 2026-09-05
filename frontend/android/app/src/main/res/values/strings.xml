@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">DSA Tracker</string>
+    <string name="title_activity_main">DSA Tracker</string>
+    <string name="package_name">com.dsatracker.app</string>
+    <string name="custom_url_scheme">com.dsatracker.app</string>
+</resources>
