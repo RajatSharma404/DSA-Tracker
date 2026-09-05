@@ -6,13 +6,13 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **124** | **25** | **91** | **8** |
+| **125** | **25** | **91** | **9** |
 
 ### 📂 Topic Directories
 
 - [**Arrays And Hashing**](./01-arrays-and-hashing/) (8 problems)
 - [**Two Pointers**](./02-two-pointers/) (5 problems)
-- [**Sliding Window**](./03-sliding-window/) (4 problems)
+- [**Sliding Window**](./03-sliding-window/) (5 problems)
 - [**Stack**](./04-stack/) (5 problems)
 - [**Binary Search**](./05-binary-search/) (5 problems)
 - [**Linked List**](./06-linked-list/) (11 problems)
@@ -65,6 +65,7 @@
 | 72 | Edit Distance | Dynamic Programming (Levenshtein Distance) | 🟡 Medium | `C++` | `O(M * N)` | `O(N) space optimized` | [Code](./11-dynamic-programming/0072-edit-distance.cpp) |
 | 73 | Set Matrix Zeroes | Math & Geometry (In-Place Array Markers) | 🟡 Medium | `C++` | `O(M * N)` | `O(1) in-place` | [Code](./14-math-and-geometry/0073-set-matrix-zeroes.cpp) |
 | 74 | Search A 2d Matrix | Binary Search | 🟡 Medium | `C++` | `O(log(m * n))` | `O(1)` | [Code](./05-binary-search/0074-search-a-2d-matrix.cpp) |
+| 76 | Minimum Window Substring | Sliding Window | 🔴 Hard | `C++` | `O(m + n)` | `O(k) where k is size of alphabet` | [Code](./03-sliding-window/0076-minimum-window-substring.cpp) |
 | 77 | Combinations | Recursion & Backtracking | 🟡 Medium | `C++` | `O(k * C(n, k))` | `O(k)` | [Code](./09-backtracking/0077-combinations.cpp) |
 | 78 | Subsets | Recursion & Backtracking | 🟡 Medium | `C++` | `O(n * 2^n)` | `O(n)` | [Code](./09-backtracking/0078-subsets.cpp) |
 | 79 | Word Search | Recursion & Backtracking | 🟡 Medium | `C++` | `O(M * N * 4^L) where L is length of word` | `O(L) recursion stack` | [Code](./09-backtracking/0079-word-search.cpp) |
