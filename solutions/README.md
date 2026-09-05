@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **127** | **25** | **91** | **11** |
+| **128** | **25** | **91** | **12** |
 
 ### 📂 Topic Directories
 
@@ -16,7 +16,7 @@
 - [**Stack**](./04-stack/) (5 problems)
 - [**Binary Search**](./05-binary-search/) (5 problems)
 - [**Linked List**](./06-linked-list/) (11 problems)
-- [**Trees And Tries**](./07-trees-and-tries/) (16 problems)
+- [**Trees And Tries**](./07-trees-and-tries/) (17 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (6 problems)
 - [**Backtracking**](./09-backtracking/) (10 problems)
 - [**Graphs**](./10-graphs/) (9 problems)
@@ -123,6 +123,7 @@
 | 286 | Walls And Gates | Graphs (Multi-Source BFS) | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N)` | [Code](./10-graphs/0286-walls-and-gates.cpp) |
 | 287 | Find The Duplicate Number | Linked List (Floyd's Tortoise and Hare) | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0287-find-the-duplicate-number.cpp) |
 | 295 | Find Median From Data Stream | Heap / Priority Queue (Two Heaps) | 🔴 Hard | `C++` | `O(log n) for addNum, O(1) for findMedian` | `O(n)` | [Code](./08-heap-priority-queue/0295-find-median-from-data-stream.cpp) |
+| 297 | Serialize And Deserialize Binary Tree | Trees & Tries (Preorder Traversal) | 🔴 Hard | `C++` | `O(n) for both serialize and deserialize` | `O(n)` | [Code](./07-trees-and-tries/0297-serialize-and-deserialize-binary-tree.cpp) |
 | 300 | Longest Increasing Subsequence | Dynamic Programming / Patience Sorting (Binary Search) | 🟡 Medium | `C++` | `O(n log n)` | `O(n)` | [Code](./11-dynamic-programming/0300-longest-increasing-subsequence.cpp) |
 | 309 | Best Time To Buy And Sell Stock With Cooldown | Dynamic Programming (State Machine DP) | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0309-best-time-to-buy-and-sell-stock-with-cooldown.cpp) |
 | 312 | Burst Balloons | Dynamic Programming (Interval / Matrix Chain Multiplication) | 🔴 Hard | `C++` | `O(n^3)` | `O(n^2)` | [Code](./11-dynamic-programming/0312-burst-balloons.cpp) |
