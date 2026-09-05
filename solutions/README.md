@@ -6,11 +6,11 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **140** | **34** | **92** | **14** |
+| **141** | **35** | **92** | **14** |
 
 ### 📂 Topic Directories
 
-- [**Arrays And Hashing**](./01-arrays-and-hashing/) (18 problems)
+- [**Arrays And Hashing**](./01-arrays-and-hashing/) (19 problems)
 - [**Two Pointers**](./02-two-pointers/) (5 problems)
 - [**Sliding Window**](./03-sliding-window/) (6 problems)
 - [**Stack**](./04-stack/) (5 problems)
@@ -121,6 +121,7 @@
 | 213 | House Robber Ii | Dynamic Programming | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0213-house-robber-ii.cpp) |
 | 215 | Kth Largest Element In An Array | Heap / Priority Queue (Min-Heap) | 🟡 Medium | `C++` | `O(n log k)` | `O(k)` | [Code](./08-heap-priority-queue/0215-kth-largest-element-in-an-array.cpp) |
 | 217 | Contains Duplicate | Arrays & Hashing | 🟢 Easy | `C++` | `O(n)` | `O(n)` | [Code](./01-arrays-and-hashing/0217-contains-duplicate.cpp) |
+| 219 | Contains Duplicate Ii | Arrays & Hashing / Hash Map | 🟢 Easy | `C++` | `O(n)` | `O(min(n, k))` | [Code](./01-arrays-and-hashing/0219-contains-duplicate-ii.cpp) |
 | 226 | Invert Binary Tree | Trees & Tries | 🟢 Easy | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0226-invert-binary-tree.cpp) |
 | 230 | Kth Smallest Element In A Bst | Trees & Tries | 🟡 Medium | `C++` | `O(H + k)` | `O(H) stack frames` | [Code](./07-trees-and-tries/0230-kth-smallest-element-in-a-bst.cpp) |
 | 235 | Lowest Common Ancestor Of A Binary Search Tree | Trees & Tries | 🟡 Medium | `C++` | `O(h) where h is height of BST` | `O(1)` | [Code](./07-trees-and-tries/0235-lowest-common-ancestor-of-a-binary-search-tree.cpp) |
