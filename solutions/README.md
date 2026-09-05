@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **189** | **64** | **111** | **14** |
+| **190** | **65** | **111** | **14** |
 
 ### 📂 Topic Directories
 
@@ -16,7 +16,7 @@
 - [**Stack**](./04-stack/) (10 problems)
 - [**Binary Search**](./05-binary-search/) (12 problems)
 - [**Linked List**](./06-linked-list/) (18 problems)
-- [**Trees And Tries**](./07-trees-and-tries/) (27 problems)
+- [**Trees And Tries**](./07-trees-and-tries/) (28 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (6 problems)
 - [**Backtracking**](./09-backtracking/) (10 problems)
 - [**Graphs**](./10-graphs/) (11 problems)
@@ -190,6 +190,7 @@
 | 567 | Permutation In String | Sliding Window | 🟡 Medium | `C++` | `O(l1 + l2)` | `O(1) (26 characters)` | [Code](./03-sliding-window/0567-permutation-in-string.cpp) |
 | 572 | Subtree Of Another Tree | Trees & Tries | 🟢 Easy | `C++` | `O(s * t)` | `O(h)` | [Code](./07-trees-and-tries/0572-subtree-of-another-tree.cpp) |
 | 583 | Delete Operation For Two Strings | Dynamic Programming (LCS Reduction) | 🟡 Medium | `C++` | `O(m * n)` | `O(n) space optimized` | [Code](./11-dynamic-programming/0583-delete-operation-for-two-strings.cpp) |
+| 617 | Merge Two Binary Trees | Trees & Tries | 🟢 Easy | `C++` | `O(m) where m is minimum number of nodes in two trees` | `O(h)` | [Code](./07-trees-and-tries/0617-merge-two-binary-trees.cpp) |
 | 621 | Task Scheduler | Greedy / Max-Heap | 🟡 Medium | `C++` | `O(N) where N is number of tasks` | `O(1) (26 distinct tasks)` | [Code](./08-heap-priority-queue/0621-task-scheduler.cpp) |
 | 643 | Maximum Average Subarray I | Sliding Window | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./03-sliding-window/0643-maximum-average-subarray-i.cpp) |
 | 647 | Palindromic Substrings | Dynamic Programming / Expand Around Center | 🟡 Medium | `C++` | `O(n^2)` | `O(1)` | [Code](./11-dynamic-programming/0647-palindromic-substrings.cpp) |
