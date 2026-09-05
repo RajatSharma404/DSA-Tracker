@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **168** | **51** | **103** | **14** |
+| **169** | **51** | **104** | **14** |
 
 ### 📂 Topic Directories
 
@@ -14,7 +14,7 @@
 - [**Two Pointers**](./02-two-pointers/) (12 problems)
 - [**Sliding Window**](./03-sliding-window/) (11 problems)
 - [**Stack**](./04-stack/) (10 problems)
-- [**Binary Search**](./05-binary-search/) (8 problems)
+- [**Binary Search**](./05-binary-search/) (9 problems)
 - [**Linked List**](./06-linked-list/) (11 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (17 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (6 problems)
@@ -108,6 +108,7 @@
 | 152 | Maximum Product Subarray | Dynamic Programming (Min/Max Tracking) | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0152-maximum-product-subarray.cpp) |
 | 153 | Find Minimum In Rotated Sorted Array | Binary Search | 🟡 Medium | `C++` | `O(log n)` | `O(1)` | [Code](./05-binary-search/0153-find-minimum-in-rotated-sorted-array.cpp) |
 | 155 | Min Stack | Stack | 🟡 Medium | `C++` | `O(1) for push, pop, top, getMin` | `O(n)` | [Code](./04-stack/0155-min-stack.cpp) |
+| 162 | Find Peak Element | Binary Search | 🟡 Medium | `C++` | `O(log n)` | `O(1)` | [Code](./05-binary-search/0162-find-peak-element.cpp) |
 | 167 | Two Sum Ii Input Array Is Sorted | Two Pointers | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0167-two-sum-ii-input-array-is-sorted.cpp) |
 | 169 | Majority Element | Arrays & Hashing (Boyer-Moore Voting Algorithm) | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0169-majority-element.cpp) |
 | 189 | Rotate Array | Arrays & Hashing / In-Place Reversal | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0189-rotate-array.cpp) |
