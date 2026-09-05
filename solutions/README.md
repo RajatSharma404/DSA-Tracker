@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **201** | **72** | **115** | **14** |
+| **202** | **72** | **116** | **14** |
 
 ### 📂 Topic Directories
 
@@ -21,7 +21,7 @@
 - [**Backtracking**](./09-backtracking/) (10 problems)
 - [**Graphs**](./10-graphs/) (17 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (28 problems)
-- [**Greedy**](./12-greedy/) (7 problems)
+- [**Greedy**](./12-greedy/) (8 problems)
 - [**Bit Manipulation**](./13-bit-manipulation/) (6 problems)
 - [**Math And Geometry**](./14-math-and-geometry/) (8 problems)
 
@@ -99,6 +99,7 @@
 | 111 | Minimum Depth Of Binary Tree | Trees & Tries | 🟢 Easy | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0111-minimum-depth-of-binary-tree.cpp) |
 | 112 | Path Sum | Trees & Tries | 🟢 Easy | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0112-path-sum.cpp) |
 | 121 | Best Time To Buy And Sell Stock | Sliding Window | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./03-sliding-window/0121-best-time-to-buy-and-sell-stock.cpp) |
+| 122 | Best Time To Buy And Sell Stock Ii | Greedy | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./12-greedy/0122-best-time-to-buy-and-sell-stock-ii.cpp) |
 | 124 | Binary Tree Maximum Path Sum | Trees & Tries (Postorder DFS) | 🔴 Hard | `C++` | `O(n)` | `O(h) recursion stack` | [Code](./07-trees-and-tries/0124-binary-tree-maximum-path-sum.cpp) |
 | 125 | Valid Palindrome | Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0125-valid-palindrome.cpp) |
 | 127 | Word Ladder | Graphs (BFS Shortest Path) | 🔴 Hard | `C++` | `O(M^2 * N) where M is length of each word and N is number of words` | `O(M * N)` | [Code](./10-graphs/0127-word-ladder.cpp) |
