@@ -18,7 +18,7 @@ export function MobileHeader({
   streakCount = 1,
 }: MobileHeaderProps) {
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 h-14 bg-[var(--bg-secondary)]/90 backdrop-blur-md border-b border-[var(--border-subtle)] px-4 flex items-center justify-between md:hidden">
+    <header className="fixed top-0 left-0 right-0 z-40 h-[calc(3.5rem+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] bg-[var(--bg-secondary)]/90 backdrop-blur-md border-b border-[var(--border-subtle)] px-4 flex items-center justify-between md:hidden">
       {/* Brand logo & name */}
       <Link href="/" className="flex items-center gap-2 cursor-pointer">
         <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent-primary)] shadow-[0_0_8px_var(--accent-glow)] animate-pulse" />

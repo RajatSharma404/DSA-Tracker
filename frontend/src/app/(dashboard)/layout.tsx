@@ -81,7 +81,7 @@ export default function DashboardLayout({
 
         {/* Scrollable Page Viewport */}
         <main
-          className="flex-1 overflow-y-auto overflow-x-hidden w-full min-w-0 pt-16 pb-20 px-4 md:pt-6 md:pb-8 md:px-6 lg:p-8"
+          className="flex-1 overflow-y-auto overflow-x-hidden w-full min-w-0 pt-[calc(3.5rem+env(safe-area-inset-top)+0.75rem)] pb-[calc(4rem+env(safe-area-inset-bottom)+1rem)] px-4 md:pt-6 md:pb-8 md:px-6 lg:p-8"
           data-scroll-root="true"
         >
           <PageTransition>
