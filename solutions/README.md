@@ -6,12 +6,12 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **122** | **25** | **91** | **6** |
+| **123** | **25** | **91** | **7** |
 
 ### 📂 Topic Directories
 
 - [**Arrays And Hashing**](./01-arrays-and-hashing/) (8 problems)
-- [**Two Pointers**](./02-two-pointers/) (4 problems)
+- [**Two Pointers**](./02-two-pointers/) (5 problems)
 - [**Sliding Window**](./03-sliding-window/) (4 problems)
 - [**Stack**](./04-stack/) (4 problems)
 - [**Binary Search**](./05-binary-search/) (5 problems)
@@ -46,6 +46,7 @@
 | 36 | Valid Sudoku | Arrays & Hashing | 🟡 Medium | `C++` | `O(1) (fixed 9x9 board)` | `O(1)` | [Code](./01-arrays-and-hashing/0036-valid-sudoku.cpp) |
 | 37 | Sudoku Solver | Recursion & Backtracking | 🔴 Hard | `C++` | `O(9^E) where E is number of empty cells` | `O(1) in-place board state` | [Code](./09-backtracking/0037-sudoku-solver.cpp) |
 | 39 | Combination Sum | Recursion & Backtracking | 🟡 Medium | `C++` | `O(2^t) where t is target value` | `O(t)` | [Code](./09-backtracking/0039-combination-sum.cpp) |
+| 42 | Trapping Rain Water | Two Pointers | 🔴 Hard | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0042-trapping-rain-water.cpp) |
 | 43 | Multiply Strings | Math & Number Theory (Big Integer Multiplication) | 🟡 Medium | `C++` | `O(M * N)` | `O(M + N)` | [Code](./14-math-and-geometry/0043-multiply-strings.cpp) |
 | 45 | Jump Game Ii | Greedy (BFS Window) | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./12-greedy/0045-jump-game-ii.cpp) |
 | 46 | Permutations | Recursion & Backtracking | 🟡 Medium | `C++` | `O(n! * n)` | `O(n) recursion stack` | [Code](./09-backtracking/0046-permutations.cpp) |
