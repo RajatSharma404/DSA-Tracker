@@ -6,12 +6,12 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **151** | **43** | **94** | **14** |
+| **152** | **44** | **94** | **14** |
 
 ### 📂 Topic Directories
 
 - [**Arrays And Hashing**](./01-arrays-and-hashing/) (26 problems)
-- [**Two Pointers**](./02-two-pointers/) (8 problems)
+- [**Two Pointers**](./02-two-pointers/) (9 problems)
 - [**Sliding Window**](./03-sliding-window/) (6 problems)
 - [**Stack**](./04-stack/) (5 problems)
 - [**Binary Search**](./05-binary-search/) (5 problems)
@@ -164,6 +164,7 @@
 | 621 | Task Scheduler | Greedy / Max-Heap | 🟡 Medium | `C++` | `O(N) where N is number of tasks` | `O(1) (26 distinct tasks)` | [Code](./08-heap-priority-queue/0621-task-scheduler.cpp) |
 | 647 | Palindromic Substrings | Dynamic Programming / Expand Around Center | 🟡 Medium | `C++` | `O(n^2)` | `O(1)` | [Code](./11-dynamic-programming/0647-palindromic-substrings.cpp) |
 | 678 | Valid Parenthesis String | Greedy | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./12-greedy/0678-valid-parenthesis-string.cpp) |
+| 680 | Valid Palindrome Ii | Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0680-valid-palindrome-ii.cpp) |
 | 684 | Redundant Connection | Graphs (Union-Find / Disjoint Set) | 🟡 Medium | `C++` | `O(N * alpha(N))` | `O(N)` | [Code](./10-graphs/0684-redundant-connection.cpp) |
 | 695 | Max Area Of Island | Graphs (DFS) | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N) recursion stack` | [Code](./10-graphs/0695-max-area-of-island.cpp) |
 | 703 | Kth Largest Element In A Stream | Heap / Priority Queue (Min-Heap of size k) | 🟢 Easy | `C++` | `O(log k) per add` | `O(k)` | [Code](./08-heap-priority-queue/0703-kth-largest-element-in-a-stream.cpp) |
