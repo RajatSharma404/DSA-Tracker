@@ -6,14 +6,14 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **161** | **48** | **99** | **14** |
+| **162** | **49** | **99** | **14** |
 
 ### 📂 Topic Directories
 
 - [**Arrays And Hashing**](./01-arrays-and-hashing/) (26 problems)
 - [**Two Pointers**](./02-two-pointers/) (12 problems)
 - [**Sliding Window**](./03-sliding-window/) (11 problems)
-- [**Stack**](./04-stack/) (6 problems)
+- [**Stack**](./04-stack/) (7 problems)
 - [**Binary Search**](./05-binary-search/) (5 problems)
 - [**Linked List**](./06-linked-list/) (11 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (17 problems)
@@ -186,6 +186,7 @@
 | 977 | Squares Of A Sorted Array | Arrays & Hashing / Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1) extra space excluding output` | [Code](./01-arrays-and-hashing/0977-squares-of-a-sorted-array.cpp) |
 | 994 | Rotting Oranges | Graphs (Multi-Source BFS) | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N) queue space` | [Code](./10-graphs/0994-rotting-oranges.cpp) |
 | 1004 | Max Consecutive Ones Iii | Sliding Window | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./03-sliding-window/1004-max-consecutive-ones-iii.cpp) |
+| 1047 | Remove All Adjacent Duplicates In String | Stack | 🟢 Easy | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/1047-remove-all-adjacent-duplicates-in-string.cpp) |
 | 1143 | Longest Common Subsequence | Dynamic Programming (2D Grid) | 🟡 Medium | `C++` | `O(m * n)` | `O(m * n)` | [Code](./11-dynamic-programming/1143-longest-common-subsequence.cpp) |
 | 1448 | Count Good Nodes In Binary Tree | Trees & Tries (DFS Preorder) | 🟡 Medium | `C++` | `O(n)` | `O(h) recursion stack` | [Code](./07-trees-and-tries/1448-count-good-nodes-in-binary-tree.cpp) |
 | 1456 | Maximum Number Of Vowels In A Substring Of Given Length | Sliding Window | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./03-sliding-window/1456-maximum-number-of-vowels-in-a-substring-of-given-length.cpp) |
