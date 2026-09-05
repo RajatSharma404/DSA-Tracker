@@ -6,13 +6,13 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **125** | **25** | **91** | **9** |
+| **126** | **25** | **91** | **10** |
 
 ### 📂 Topic Directories
 
 - [**Arrays And Hashing**](./01-arrays-and-hashing/) (8 problems)
 - [**Two Pointers**](./02-two-pointers/) (5 problems)
-- [**Sliding Window**](./03-sliding-window/) (5 problems)
+- [**Sliding Window**](./03-sliding-window/) (6 problems)
 - [**Stack**](./04-stack/) (5 problems)
 - [**Binary Search**](./05-binary-search/) (5 problems)
 - [**Linked List**](./06-linked-list/) (11 problems)
@@ -115,6 +115,7 @@
 | 230 | Kth Smallest Element In A Bst | Trees & Tries | 🟡 Medium | `C++` | `O(H + k)` | `O(H) stack frames` | [Code](./07-trees-and-tries/0230-kth-smallest-element-in-a-bst.cpp) |
 | 235 | Lowest Common Ancestor Of A Binary Search Tree | Trees & Tries | 🟡 Medium | `C++` | `O(h) where h is height of BST` | `O(1)` | [Code](./07-trees-and-tries/0235-lowest-common-ancestor-of-a-binary-search-tree.cpp) |
 | 238 | Product Of Array Except Self | Arrays & Hashing | 🟡 Medium | `C++` | `O(n)` | `O(1) auxiliary space (excluding return vector)` | [Code](./01-arrays-and-hashing/0238-product-of-array-except-self.cpp) |
+| 239 | Sliding Window Maximum | Sliding Window (Monotonic Deque) | 🔴 Hard | `C++` | `O(n)` | `O(k) deque space` | [Code](./03-sliding-window/0239-sliding-window-maximum.cpp) |
 | 242 | Valid Anagram | Arrays & Hashing | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0242-valid-anagram.cpp) |
 | 268 | Missing Number | Bit Manipulation (XOR) | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./13-bit-manipulation/0268-missing-number.cpp) |
 | 271 | Encode And Decode Strings | Arrays & Hashing | 🟡 Medium | `C++` | `O(n) for both encode and decode` | `O(1) auxiliary space` | [Code](./01-arrays-and-hashing/0271-encode-and-decode-strings.cpp) |
