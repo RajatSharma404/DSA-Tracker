@@ -6,11 +6,11 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **134** | **29** | **91** | **14** |
+| **135** | **29** | **92** | **14** |
 
 ### 📂 Topic Directories
 
-- [**Arrays And Hashing**](./01-arrays-and-hashing/) (12 problems)
+- [**Arrays And Hashing**](./01-arrays-and-hashing/) (13 problems)
 - [**Two Pointers**](./02-two-pointers/) (5 problems)
 - [**Sliding Window**](./03-sliding-window/) (6 problems)
 - [**Stack**](./04-stack/) (5 problems)
@@ -103,6 +103,7 @@
 | 155 | Min Stack | Stack | 🟡 Medium | `C++` | `O(1) for push, pop, top, getMin` | `O(n)` | [Code](./04-stack/0155-min-stack.cpp) |
 | 167 | Two Sum Ii Input Array Is Sorted | Two Pointers | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0167-two-sum-ii-input-array-is-sorted.cpp) |
 | 169 | Majority Element | Arrays & Hashing (Boyer-Moore Voting Algorithm) | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0169-majority-element.cpp) |
+| 189 | Rotate Array | Arrays & Hashing / In-Place Reversal | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0189-rotate-array.cpp) |
 | 190 | Reverse Bits | Bit Manipulation | 🟢 Easy | `C++` | `O(1) (32 bits)` | `O(1)` | [Code](./13-bit-manipulation/0190-reverse-bits.cpp) |
 | 191 | Number Of 1 Bits | Bit Manipulation (Brian Kernighan's Algorithm) | 🟢 Easy | `C++` | `O(1) (at most 32 iterations)` | `O(1)` | [Code](./13-bit-manipulation/0191-number-of-1-bits.cpp) |
 | 198 | House Robber | Dynamic Programming | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0198-house-robber.cpp) |
