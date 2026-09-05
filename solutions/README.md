@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **197** | **68** | **115** | **14** |
+| **198** | **69** | **115** | **14** |
 
 ### 📂 Topic Directories
 
@@ -19,7 +19,7 @@
 - [**Trees And Tries**](./07-trees-and-tries/) (30 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (6 problems)
 - [**Backtracking**](./09-backtracking/) (10 problems)
-- [**Graphs**](./10-graphs/) (16 problems)
+- [**Graphs**](./10-graphs/) (17 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (25 problems)
 - [**Greedy**](./12-greedy/) (7 problems)
 - [**Bit Manipulation**](./13-bit-manipulation/) (6 problems)
@@ -226,6 +226,7 @@
 | 1448 | Count Good Nodes In Binary Tree | Trees & Tries (DFS Preorder) | 🟡 Medium | `C++` | `O(n)` | `O(h) recursion stack` | [Code](./07-trees-and-tries/1448-count-good-nodes-in-binary-tree.cpp) |
 | 1456 | Maximum Number Of Vowels In A Substring Of Given Length | Sliding Window | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./03-sliding-window/1456-maximum-number-of-vowels-in-a-substring-of-given-length.cpp) |
 | 1899 | Merge Triplets To Form Target Triplet | Greedy | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./12-greedy/1899-merge-triplets-to-form-target-triplet.cpp) |
+| 1971 | Find If Path Exists In Graph | Graphs / BFS | 🟢 Easy | `C++` | `O(v + e)` | `O(v + e)` | [Code](./10-graphs/1971-find-if-path-exists-in-graph.cpp) |
 
 ---
 *Updated automatically via `scripts/sync-solutions.js`*
