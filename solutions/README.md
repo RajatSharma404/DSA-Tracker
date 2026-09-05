@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **129** | **25** | **91** | **13** |
+| **130** | **25** | **91** | **14** |
 
 ### 📂 Topic Directories
 
@@ -19,7 +19,7 @@
 - [**Trees And Tries**](./07-trees-and-tries/) (17 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (6 problems)
 - [**Backtracking**](./09-backtracking/) (10 problems)
-- [**Graphs**](./10-graphs/) (10 problems)
+- [**Graphs**](./10-graphs/) (11 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (25 problems)
 - [**Greedy**](./12-greedy/) (7 problems)
 - [**Bit Manipulation**](./13-bit-manipulation/) (6 problems)
@@ -120,6 +120,7 @@
 | 239 | Sliding Window Maximum | Sliding Window (Monotonic Deque) | 🔴 Hard | `C++` | `O(n)` | `O(k) deque space` | [Code](./03-sliding-window/0239-sliding-window-maximum.cpp) |
 | 242 | Valid Anagram | Arrays & Hashing | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0242-valid-anagram.cpp) |
 | 268 | Missing Number | Bit Manipulation (XOR) | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./13-bit-manipulation/0268-missing-number.cpp) |
+| 269 | Alien Dictionary | Graphs (Topological Sort / Kahn's Algorithm) | 🔴 Hard | `C++` | `O(C) where C is total length of all words` | `O(1) (at most 26 unique characters)` | [Code](./10-graphs/0269-alien-dictionary.cpp) |
 | 271 | Encode And Decode Strings | Arrays & Hashing | 🟡 Medium | `C++` | `O(n) for both encode and decode` | `O(1) auxiliary space` | [Code](./01-arrays-and-hashing/0271-encode-and-decode-strings.cpp) |
 | 286 | Walls And Gates | Graphs (Multi-Source BFS) | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N)` | [Code](./10-graphs/0286-walls-and-gates.cpp) |
 | 287 | Find The Duplicate Number | Linked List (Floyd's Tortoise and Hare) | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0287-find-the-duplicate-number.cpp) |
