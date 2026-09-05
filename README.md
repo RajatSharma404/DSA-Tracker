@@ -22,7 +22,9 @@
     ·
     <a href="#-step-by-step-local-setup-guide">🛠️ Setup Guide</a>
     ·
-    <a href="#-pwa--offline-resilience">📱 PWA & Offline</a>
+    <a href="#-pwa--offline-resilience">🌐 PWA & Offline</a>
+    ·
+    <a href="#-native-android-mobile-app-capacitor">📱 Mobile App</a>
   </p>
 </div>
 
@@ -64,6 +66,14 @@
     <li><a href="#-environment-variables-reference">Environment Variables Reference</a></li>
     <li><a href="#-npm-scripts-reference">NPM Scripts Reference</a></li>
     <li><a href="#-pwa--offline-resilience">PWA & Offline Resilience</a></li>
+    <li><a href="#-native-android-mobile-app-capacitor">📱 Native Android Mobile App (Capacitor)</a>
+      <ul>
+        <li><a href="#1--mobile-architecture--native-bridge">Mobile Architecture & Native Bridge</a></li>
+        <li><a href="#2--live-reload-development-workflow">Live Reload Development Workflow</a></li>
+        <li><a href="#3--building-standalone-production-apk">Building Standalone Production APK</a></li>
+        <li><a href="#4--mobile-debugging--device-testing">Mobile Debugging & Device Testing</a></li>
+      </ul>
+    </li>
     <li><a href="#-production-deployment">Production Deployment</a></li>
     <li><a href="#-license">License</a></li>
   </ol>
@@ -260,10 +270,12 @@ Press <kbd>?</kbd> anywhere across the application to open the interactive keybo
 
 ```
 DSA-Tracker/
-├── frontend/                    # Next.js 16 (Turbopack, React 19, Tailwind CSS v4)
+├── frontend/                    # Next.js 16 (Turbopack, React 19, Tailwind CSS v4) + Capacitor 8
+│   ├── android/                 # Native Android Gradle Project & APK Build Pipeline
+│   ├── capacitor.config.ts      # Native Capacitor Mobile Configuration & Bridge
 │   ├── public/                  # PWA Manifest (manifest.json), Service Worker (sw.js), Logo
 │   ├── src/app/                 # 29 Static & Dynamic Application Routes
-│   │   ├── (dashboard)/         # Protected Dashboard Hub
+│   │   ├── (dashboard)/         # Protected Dashboard Hub (Edge-to-Edge & Notch Aware)
 │   │   │   ├── pvp/             # 1v1 PvP Matchmaker & Live Battlefield
 │   │   │   ├── tracer/          # AlgoTracer 2.0 Execution Stepper
 │   │   │   ├── flashcards/      # FlashRecall SM-2 3D Flashcard Deck
@@ -284,8 +296,11 @@ DSA-Tracker/
 │   │   │   ├── problems/        # Problems Index & Workspace Route
 │   │   │   ├── settings/        # Preferences & Theme Customization
 │   │   │   └── admin/           # Admin Management Suite
+│   │   └── layout.tsx           # Root Layout with MobileProvider & Native Theme Bridge
+│   ├── src/components/providers/# MobileProvider (Native Status Bar, Hardware Back Navigation)
+│   ├── src/components/layout/   # MobileHeader & MobileBottomNav with Notch Safe Areas
 │   ├── src/components/          # 3D CityScene, Monaco Editors, Layout & Graphs
-│   └── src/lib/                 # SWR QueryCache, OfflineQueue, Web Audio Synth, API Client
+│   └── src/lib/                 # mobile.ts (Haptics, Platform Detect), SWR Cache, Audio Synth
 ├── backend/                     # Express 5 + TypeScript + Prisma ORM
 │   ├── index.ts                 # REST API Endpoints & Auth Middleware
 │   ├── aiService.ts             # AI Guidance & Algorithmic Tracing Engine
@@ -433,9 +448,14 @@ npm run dev
 - `npm run start`: Starts production Node server (`node dist/index.js`).
 
 ### Frontend (`cd frontend`)
-- `npm run dev`: Starts Next.js development server with Turbopack.
+- `npm run dev`: Starts Next.js development server on `0.0.0.0:3005` (LAN accessible for mobile testing).
 - `npm run build`: Compiles production Next.js build (`next build`).
-- `npm run start`: Starts Next.js production server.
+- `npm run start`: Starts Next.js production server on port 3005.
+- `npm run lint`: Runs ESLint flat config validation.
+- `npm test`: Runs Vitest test suite across 38 suites.
+- `npm run cap:sync`: Synchronizes web assets, config, and native plugins to `frontend/android/`.
+- `npm run cap:open`: Opens the native Android project in Android Studio.
+- `npm run cap:run`: Deploys and launches directly on a connected device or emulator.
 
 ---
 
@@ -449,10 +469,91 @@ npm run dev
 
 ---
 
-## 📱 PWA & Offline Resilience
+## 🌐 PWA & Offline Resilience
 
 - **Desktop Installation**: Click the install icon in your browser address bar to install DSA Tracker Pro as a native desktop application.
 - **Offline Mode**: Progress updates made while offline are automatically buffered in local storage and replayed upon network reconnection.
+
+---
+
+## 📱 Native Android Mobile App (Capacitor)
+
+DSA Tracker Pro includes a first-class native Android mobile wrapper powered by **Capacitor 8**, offering a seamless hybrid experience with hardware-level integrations.
+
+### 1. ⚡ Mobile Architecture & Native Bridge
+- **Next.js 16 + Capacitor 8 Shell**: The web application runs inside an optimized Android WebView with hardware acceleration and mixed-content support.
+- **Native Status Bar**: Configured dynamically via `MobileProvider.tsx` to match the cyberpunk dark theme (`#090d16`) with contrasting light icons.
+- **Hardware Back Button Handling**: Captures the physical or gesture Android back button via `@capacitor/app` (`App.addListener('backButton')`), maintaining browser history navigation and safely exiting the app only when at the root.
+- **Notch & Safe-Area Insets**: Full edge-to-edge support using CSS `env(safe-area-inset-top)` and `env(safe-area-inset-bottom)` applied to `MobileHeader`, `MobileBottomNav`, and the dashboard container.
+- **Tactile Haptic Feedback**: Integrated via `@capacitor/haptics` (`triggerHaptic()` in `mobile.ts`) for card flips, PvP actions, and problem solve feedback.
+
+---
+
+### 2. 🔄 Live Reload Development Workflow
+To develop with live hot-reloading on an Android device or emulator:
+
+1. **Find your development machine's local IP**:
+   ```powershell
+   # Windows PowerShell
+   ipconfig
+   # Look for your IPv4 Address (e.g., 192.168.1.100)
+   ```
+
+2. **Start the frontend server (accessible on LAN)**:
+   ```powershell
+   cd frontend
+   npm run dev
+   # Server binds to 0.0.0.0:3005
+   ```
+
+3. **Set the server URL for Capacitor**:
+   ```powershell
+   # For a physical phone on the same Wi-Fi network:
+   $env:CAPACITOR_SERVER_URL="http://192.168.1.100:3005"
+
+   # Or for the standard Android Studio Emulator:
+   # $env:CAPACITOR_SERVER_URL="http://10.0.2.2:3005"
+   ```
+
+4. **Sync and open Android Studio**:
+   ```powershell
+   npm run cap:sync
+   npm run cap:open
+   ```
+   *Any code edits in your IDE will instantly hot-reload inside the running mobile application!*
+
+---
+
+### 3. 📦 Building Standalone Production APK
+To compile a standalone APK without needing Android Studio open:
+
+1. **Ensure Android SDK and Java JDK (version 17+) are configured**:
+   ```powershell
+   java -version
+   ```
+
+2. **Assemble the Debug APK with Gradle**:
+   ```powershell
+   cd frontend/android
+   .\gradlew.bat assembleDebug
+   ```
+
+3. **Locate the Generated APK**:
+   ```
+   frontend/android/app/build/outputs/apk/debug/app-debug.apk
+   ```
+
+---
+
+### 4. 📲 Mobile Debugging & Device Testing
+- **Install directly via ADB**:
+  ```powershell
+  adb install -r frontend/android/app/build/outputs/apk/debug/app-debug.apk
+  ```
+- **Inspect WebView with Chrome DevTools**:
+  1. Connect your Android device via USB with USB Debugging enabled.
+  2. Open Google Chrome on your computer and navigate to `chrome://inspect`.
+  3. Locate your device and the DSA Tracker WebView, then click **Inspect** to debug DOM, console logs, and network calls.
 
 ---
 
