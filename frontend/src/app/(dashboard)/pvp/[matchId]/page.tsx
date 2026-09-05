@@ -97,8 +97,12 @@ export default function PvPMatchBattlePage({ params }: PvPBattleProps) {
 
   // Live Typing Speedometer & Syntax Checker State
   const [wpm, setWpm] = useState(48);
-  const [keystrokes, setKeystrokes] = useState(120);
-  const startTimeRef = React.useRef(Date.now());
+  const [_keystrokes, setKeystrokes] = useState(120);
+  const startTimeRef = React.useRef<number>(0);
+
+  useEffect(() => {
+    startTimeRef.current = Date.now();
+  }, []);
 
   // Simple syntax bracket balance checker
   const syntaxCheck = React.useMemo(() => {

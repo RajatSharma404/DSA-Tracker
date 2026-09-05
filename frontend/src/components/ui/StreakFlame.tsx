@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useId } from "react";
 import { soundEffects } from "@/lib/soundEffects";
 
 interface StreakFlameProps {
@@ -58,10 +58,8 @@ export function StreakFlame({
     };
   }, [streakDays]);
 
-  const uniqueId = useMemo(
-    () => `streak-flame-${Math.random().toString(36).slice(2, 7)}`,
-    [],
-  );
+  const reactId = useId();
+  const uniqueId = `streak-flame-${reactId.replace(/:/g, "")}`;
 
   return (
     <div

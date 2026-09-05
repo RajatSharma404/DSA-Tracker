@@ -56,13 +56,17 @@ const FloatingParticles = ({ theme }: { theme: CityTheme }) => {
   const dummy = useMemo(() => new THREE.Object3D(), []);
   const particles = useMemo(() => {
     const temp = [];
+    const pseudo = (seed: number) => {
+      const x = Math.sin(seed * 12.9898 + 78.233) * 43758.5453;
+      return x - Math.floor(x);
+    };
     for (let i = 0; i < count; i++) {
       temp.push({
-        x: (Math.random() - 0.5) * 35,
-        y: Math.random() * 18 + 2,
-        z: (Math.random() - 0.5) * 35,
-        speed: Math.random() * 0.02 + 0.005,
-        rotSpeed: Math.random() * 0.02,
+        x: (pseudo(i * 5 + 1) - 0.5) * 35,
+        y: pseudo(i * 5 + 2) * 18 + 2,
+        z: (pseudo(i * 5 + 3) - 0.5) * 35,
+        speed: pseudo(i * 5 + 4) * 0.02 + 0.005,
+        rotSpeed: pseudo(i * 5 + 5) * 0.02,
       });
     }
     return temp;
