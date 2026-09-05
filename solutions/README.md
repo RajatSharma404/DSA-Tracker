@@ -6,11 +6,11 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **137** | **31** | **92** | **14** |
+| **138** | **32** | **92** | **14** |
 
 ### 📂 Topic Directories
 
-- [**Arrays And Hashing**](./01-arrays-and-hashing/) (15 problems)
+- [**Arrays And Hashing**](./01-arrays-and-hashing/) (16 problems)
 - [**Two Pointers**](./02-two-pointers/) (5 problems)
 - [**Sliding Window**](./03-sliding-window/) (6 problems)
 - [**Stack**](./04-stack/) (5 problems)
@@ -140,6 +140,7 @@
 | 338 | Counting Bits | Bit Manipulation / DP | 🟢 Easy | `C++` | `O(n)` | `O(1) auxiliary` | [Code](./13-bit-manipulation/0338-counting-bits.cpp) |
 | 347 | Top K Frequent Elements | Heap / Priority Queue | 🟡 Medium | `C++` | `O(N log k)` | `O(N)` | [Code](./08-heap-priority-queue/0347-top-k-frequent-elements.cpp) |
 | 371 | Sum Of Two Integers | Bit Manipulation (Half Adder Logic) | 🟡 Medium | `C++` | `O(1) (at most 32 bits)` | `O(1)` | [Code](./13-bit-manipulation/0371-sum-of-two-integers.cpp) |
+| 383 | Ransom Note | Arrays & Hashing / Hash Table | 🟢 Easy | `C++` | `O(m + n)` | `O(1) constant alphabet space` | [Code](./01-arrays-and-hashing/0383-ransom-note.cpp) |
 | 416 | Partition Equal Subset Sum | Dynamic Programming (0/1 Knapsack) | 🟡 Medium | `C++` | `O(n * target)` | `O(target)` | [Code](./11-dynamic-programming/0416-partition-equal-subset-sum.cpp) |
 | 417 | Pacific Atlantic Water Flow | Graphs | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N)` | [Code](./10-graphs/0417-pacific-atlantic-water-flow.cpp) |
 | 424 | Longest Repeating Character Replacement | Sliding Window | 🟡 Medium | `C++` | `O(n)` | `O(1) (26 uppercase letters)` | [Code](./03-sliding-window/0424-longest-repeating-character-replacement.cpp) |
