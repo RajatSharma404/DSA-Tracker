@@ -6,13 +6,13 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **158** | **48** | **96** | **14** |
+| **159** | **48** | **97** | **14** |
 
 ### 📂 Topic Directories
 
 - [**Arrays And Hashing**](./01-arrays-and-hashing/) (26 problems)
 - [**Two Pointers**](./02-two-pointers/) (12 problems)
-- [**Sliding Window**](./03-sliding-window/) (9 problems)
+- [**Sliding Window**](./03-sliding-window/) (10 problems)
 - [**Stack**](./04-stack/) (5 problems)
 - [**Binary Search**](./05-binary-search/) (5 problems)
 - [**Linked List**](./06-linked-list/) (11 problems)
@@ -186,6 +186,7 @@
 | 1004 | Max Consecutive Ones Iii | Sliding Window | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./03-sliding-window/1004-max-consecutive-ones-iii.cpp) |
 | 1143 | Longest Common Subsequence | Dynamic Programming (2D Grid) | 🟡 Medium | `C++` | `O(m * n)` | `O(m * n)` | [Code](./11-dynamic-programming/1143-longest-common-subsequence.cpp) |
 | 1448 | Count Good Nodes In Binary Tree | Trees & Tries (DFS Preorder) | 🟡 Medium | `C++` | `O(n)` | `O(h) recursion stack` | [Code](./07-trees-and-tries/1448-count-good-nodes-in-binary-tree.cpp) |
+| 1456 | Maximum Number Of Vowels In A Substring Of Given Length | Sliding Window | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./03-sliding-window/1456-maximum-number-of-vowels-in-a-substring-of-given-length.cpp) |
 | 1899 | Merge Triplets To Form Target Triplet | Greedy | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./12-greedy/1899-merge-triplets-to-form-target-triplet.cpp) |
 
 ---
