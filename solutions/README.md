@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **179** | **56** | **109** | **14** |
+| **180** | **57** | **109** | **14** |
 
 ### 📂 Topic Directories
 
@@ -16,7 +16,7 @@
 - [**Stack**](./04-stack/) (10 problems)
 - [**Binary Search**](./05-binary-search/) (12 problems)
 - [**Linked List**](./06-linked-list/) (18 problems)
-- [**Trees And Tries**](./07-trees-and-tries/) (17 problems)
+- [**Trees And Tries**](./07-trees-and-tries/) (18 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (6 problems)
 - [**Backtracking**](./09-backtracking/) (10 problems)
 - [**Graphs**](./10-graphs/) (11 problems)
@@ -86,6 +86,7 @@
 | 90 | Subsets Ii | Recursion & Backtracking (Handling Duplicates) | 🟡 Medium | `C++` | `O(n * 2^n)` | `O(n) recursion stack` | [Code](./09-backtracking/0090-subsets-ii.cpp) |
 | 91 | Decode Ways | Dynamic Programming (Fibonacci-Style Linear DP) | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0091-decode-ways.cpp) |
 | 92 | Reverse Linked List Ii | Linked List | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0092-reverse-linked-list-ii.cpp) |
+| 94 | Binary Tree Inorder Traversal | Trees & Tries | 🟢 Easy | `C++` | `O(n)` | `O(h) where h is height of tree` | [Code](./07-trees-and-tries/0094-binary-tree-inorder-traversal.cpp) |
 | 97 | Interleaving String | Dynamic Programming (2D Grid / Space Optimized) | 🟡 Medium | `C++` | `O(m * n)` | `O(n)` | [Code](./11-dynamic-programming/0097-interleaving-string.cpp) |
 | 98 | Validate Binary Search Tree | Trees & Tries | 🟡 Medium | `C++` | `O(n)` | `O(h) recursion stack` | [Code](./07-trees-and-tries/0098-validate-binary-search-tree.cpp) |
 | 100 | Same Tree | Trees & Tries | 🟢 Easy | `C++` | `O(N) where N is the number of nodes` | `O(h) where h is the tree height` | [Code](./07-trees-and-tries/0100-same-tree.cpp) |
