@@ -6,11 +6,11 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **142** | **36** | **92** | **14** |
+| **143** | **37** | **92** | **14** |
 
 ### 📂 Topic Directories
 
-- [**Arrays And Hashing**](./01-arrays-and-hashing/) (20 problems)
+- [**Arrays And Hashing**](./01-arrays-and-hashing/) (21 problems)
 - [**Two Pointers**](./02-two-pointers/) (5 problems)
 - [**Sliding Window**](./03-sliding-window/) (6 problems)
 - [**Stack**](./04-stack/) (5 problems)
@@ -148,6 +148,7 @@
 | 416 | Partition Equal Subset Sum | Dynamic Programming (0/1 Knapsack) | 🟡 Medium | `C++` | `O(n * target)` | `O(target)` | [Code](./11-dynamic-programming/0416-partition-equal-subset-sum.cpp) |
 | 417 | Pacific Atlantic Water Flow | Graphs | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N)` | [Code](./10-graphs/0417-pacific-atlantic-water-flow.cpp) |
 | 424 | Longest Repeating Character Replacement | Sliding Window | 🟡 Medium | `C++` | `O(n)` | `O(1) (26 uppercase letters)` | [Code](./03-sliding-window/0424-longest-repeating-character-replacement.cpp) |
+| 448 | Find All Numbers Disappeared In An Array | Arrays & Hashing (In-place Sign Inversion) | 🟢 Easy | `C++` | `O(n)` | `O(1) extra space` | [Code](./01-arrays-and-hashing/0448-find-all-numbers-disappeared-in-an-array.cpp) |
 | 494 | Target Sum | Dynamic Programming (Subset Sum Reduction) | 🟡 Medium | `C++` | `O(N * S) where S is (sum + target) / 2` | `O(S)` | [Code](./11-dynamic-programming/0494-target-sum.cpp) |
 | 518 | Coin Change Ii | Dynamic Programming (Unbounded Knapsack) | 🟡 Medium | `C++` | `O(N * amount)` | `O(amount)` | [Code](./11-dynamic-programming/0518-coin-change-ii.cpp) |
 | 543 | Diameter Of Binary Tree | Trees & Tries (DFS) | 🟢 Easy | `C++` | `O(n)` | `O(h) recursion stack` | [Code](./07-trees-and-tries/0543-diameter-of-binary-tree.cpp) |
