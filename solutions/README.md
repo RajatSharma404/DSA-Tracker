@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **178** | **56** | **108** | **14** |
+| **179** | **56** | **109** | **14** |
 
 ### 📂 Topic Directories
 
@@ -15,7 +15,7 @@
 - [**Sliding Window**](./03-sliding-window/) (11 problems)
 - [**Stack**](./04-stack/) (10 problems)
 - [**Binary Search**](./05-binary-search/) (12 problems)
-- [**Linked List**](./06-linked-list/) (17 problems)
+- [**Linked List**](./06-linked-list/) (18 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (17 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (6 problems)
 - [**Backtracking**](./09-backtracking/) (10 problems)
@@ -155,6 +155,7 @@
 | 309 | Best Time To Buy And Sell Stock With Cooldown | Dynamic Programming (State Machine DP) | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0309-best-time-to-buy-and-sell-stock-with-cooldown.cpp) |
 | 312 | Burst Balloons | Dynamic Programming (Interval / Matrix Chain Multiplication) | 🔴 Hard | `C++` | `O(n^3)` | `O(n^2)` | [Code](./11-dynamic-programming/0312-burst-balloons.cpp) |
 | 322 | Coin Change | Dynamic Programming (Bottom-Up) | 🟡 Medium | `C++` | `O(amount * coins.size())` | `O(amount)` | [Code](./11-dynamic-programming/0322-coin-change.cpp) |
+| 328 | Odd Even Linked List | Linked List | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0328-odd-even-linked-list.cpp) |
 | 338 | Counting Bits | Bit Manipulation / DP | 🟢 Easy | `C++` | `O(n)` | `O(1) auxiliary` | [Code](./13-bit-manipulation/0338-counting-bits.cpp) |
 | 344 | Reverse String | Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0344-reverse-string.cpp) |
 | 345 | Reverse Vowels Of A String | Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0345-reverse-vowels-of-a-string.cpp) |
