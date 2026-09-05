@@ -6,6 +6,7 @@ import { ToastProvider } from "@/components/providers/ToastProvider";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { PwaProvider } from "@/components/providers/PwaProvider";
+import { MobileProvider } from "@/components/providers/MobileProvider";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -52,10 +53,12 @@ export default function RootLayout({
         <ErrorBoundary>
           <ThemeProvider>
             <PwaProvider>
-              <NextAuthProvider>
-                <ToastProvider />
-                {children}
-              </NextAuthProvider>
+              <MobileProvider>
+                <NextAuthProvider>
+                  <ToastProvider />
+                  {children}
+                </NextAuthProvider>
+              </MobileProvider>
             </PwaProvider>
           </ThemeProvider>
         </ErrorBoundary>
