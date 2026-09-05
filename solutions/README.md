@@ -6,11 +6,11 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **138** | **32** | **92** | **14** |
+| **139** | **33** | **92** | **14** |
 
 ### 📂 Topic Directories
 
-- [**Arrays And Hashing**](./01-arrays-and-hashing/) (16 problems)
+- [**Arrays And Hashing**](./01-arrays-and-hashing/) (17 problems)
 - [**Two Pointers**](./02-two-pointers/) (5 problems)
 - [**Sliding Window**](./03-sliding-window/) (6 problems)
 - [**Stack**](./04-stack/) (5 problems)
@@ -112,6 +112,7 @@
 | 199 | Binary Tree Right Side View | Trees & Tries (BFS / Level Order) | 🟡 Medium | `C++` | `O(n)` | `O(n) queue space` | [Code](./07-trees-and-tries/0199-binary-tree-right-side-view.cpp) |
 | 200 | Number Of Islands | Graphs | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N) recursion stack` | [Code](./10-graphs/0200-number-of-islands.cpp) |
 | 202 | Happy Number | Math & Number Theory / Floyd's Cycle Detection | 🟢 Easy | `C++` | `O(log n)` | `O(1)` | [Code](./14-math-and-geometry/0202-happy-number.cpp) |
+| 205 | Isomorphic Strings | Arrays & Hashing / Hash Map | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0205-isomorphic-strings.cpp) |
 | 206 | Reverse Linked List | Linked List | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0206-reverse-linked-list.cpp) |
 | 207 | Course Schedule | Graphs (Topological Sort / Cycle Detection) | 🟡 Medium | `C++` | `O(V + E)` | `O(V + E)` | [Code](./10-graphs/0207-course-schedule.cpp) |
 | 208 | Implement Trie Prefix Tree | Trees & Tries | 🟡 Medium | `C++` | `O(m) where m is word length` | `O(total characters inserted * 26)` | [Code](./07-trees-and-tries/0208-implement-trie-prefix-tree.cpp) |
