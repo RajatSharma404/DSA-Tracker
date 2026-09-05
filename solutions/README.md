@@ -6,11 +6,11 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **143** | **37** | **92** | **14** |
+| **144** | **38** | **92** | **14** |
 
 ### 📂 Topic Directories
 
-- [**Arrays And Hashing**](./01-arrays-and-hashing/) (21 problems)
+- [**Arrays And Hashing**](./01-arrays-and-hashing/) (22 problems)
 - [**Two Pointers**](./02-two-pointers/) (5 problems)
 - [**Sliding Window**](./03-sliding-window/) (6 problems)
 - [**Stack**](./04-stack/) (5 problems)
@@ -131,6 +131,7 @@
 | 268 | Missing Number | Bit Manipulation (XOR) | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./13-bit-manipulation/0268-missing-number.cpp) |
 | 269 | Alien Dictionary | Graphs (Topological Sort / Kahn's Algorithm) | 🔴 Hard | `C++` | `O(C) where C is total length of all words` | `O(1) (at most 26 unique characters)` | [Code](./10-graphs/0269-alien-dictionary.cpp) |
 | 271 | Encode And Decode Strings | Arrays & Hashing | 🟡 Medium | `C++` | `O(n) for both encode and decode` | `O(1) auxiliary space` | [Code](./01-arrays-and-hashing/0271-encode-and-decode-strings.cpp) |
+| 283 | Move Zeroes | Arrays & Hashing / Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0283-move-zeroes.cpp) |
 | 286 | Walls And Gates | Graphs (Multi-Source BFS) | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N)` | [Code](./10-graphs/0286-walls-and-gates.cpp) |
 | 287 | Find The Duplicate Number | Linked List (Floyd's Tortoise and Hare) | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0287-find-the-duplicate-number.cpp) |
 | 290 | Word Pattern | Arrays & Hashing / Hash Map | 🟢 Easy | `C++` | `O(n + m)` | `O(w) where w is number of unique words` | [Code](./01-arrays-and-hashing/0290-word-pattern.cpp) |
