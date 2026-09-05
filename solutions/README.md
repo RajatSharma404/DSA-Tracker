@@ -6,12 +6,12 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **148** | **40** | **94** | **14** |
+| **149** | **41** | **94** | **14** |
 
 ### 📂 Topic Directories
 
 - [**Arrays And Hashing**](./01-arrays-and-hashing/) (26 problems)
-- [**Two Pointers**](./02-two-pointers/) (5 problems)
+- [**Two Pointers**](./02-two-pointers/) (6 problems)
 - [**Sliding Window**](./03-sliding-window/) (6 problems)
 - [**Stack**](./04-stack/) (5 problems)
 - [**Binary Search**](./05-binary-search/) (5 problems)
@@ -45,6 +45,7 @@
 | 23 | Merge K Sorted Lists | Linked List (Min-Heap / Priority Queue) | 🔴 Hard | `C++` | `O(N log k) where N is total nodes and k is number of linked lists` | `O(k) min-heap space` | [Code](./06-linked-list/0023-merge-k-sorted-lists.cpp) |
 | 26 | Remove Duplicates From Sorted Array | Arrays & Hashing / Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0026-remove-duplicates-from-sorted-array.cpp) |
 | 27 | Remove Element | Arrays & Hashing / Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0027-remove-element.cpp) |
+| 28 | Find The Index Of The First Occurrence In A String | Two Pointers / String Matching | 🟢 Easy | `C++` | `O((N - M + 1) * M)` | `O(1)` | [Code](./02-two-pointers/0028-find-the-index-of-the-first-occurrence-in-a-string.cpp) |
 | 33 | Search In Rotated Sorted Array | Binary Search | 🟡 Medium | `C++` | `O(log n)` | `O(1)` | [Code](./05-binary-search/0033-search-in-rotated-sorted-array.cpp) |
 | 36 | Valid Sudoku | Arrays & Hashing | 🟡 Medium | `C++` | `O(1) (fixed 9x9 board)` | `O(1)` | [Code](./01-arrays-and-hashing/0036-valid-sudoku.cpp) |
 | 37 | Sudoku Solver | Recursion & Backtracking | 🔴 Hard | `C++` | `O(9^E) where E is number of empty cells` | `O(1) in-place board state` | [Code](./09-backtracking/0037-sudoku-solver.cpp) |
