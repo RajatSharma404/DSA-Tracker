@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **200** | **71** | **115** | **14** |
+| **201** | **72** | **115** | **14** |
 
 ### 📂 Topic Directories
 
@@ -20,7 +20,7 @@
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (6 problems)
 - [**Backtracking**](./09-backtracking/) (10 problems)
 - [**Graphs**](./10-graphs/) (17 problems)
-- [**Dynamic Programming**](./11-dynamic-programming/) (27 problems)
+- [**Dynamic Programming**](./11-dynamic-programming/) (28 problems)
 - [**Greedy**](./12-greedy/) (7 problems)
 - [**Bit Manipulation**](./13-bit-manipulation/) (6 problems)
 - [**Math And Geometry**](./14-math-and-geometry/) (8 problems)
@@ -224,6 +224,7 @@
 | 997 | Find The Town Judge | Graphs / Degree Counting | 🟢 Easy | `C++` | `O(n + t) where t is trust array size` | `O(n)` | [Code](./10-graphs/0997-find-the-town-judge.cpp) |
 | 1004 | Max Consecutive Ones Iii | Sliding Window | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./03-sliding-window/1004-max-consecutive-ones-iii.cpp) |
 | 1047 | Remove All Adjacent Duplicates In String | Stack | 🟢 Easy | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/1047-remove-all-adjacent-duplicates-in-string.cpp) |
+| 1137 | N Th Tribonacci Number | Dynamic Programming | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/1137-n-th-tribonacci-number.cpp) |
 | 1143 | Longest Common Subsequence | Dynamic Programming (2D Grid) | 🟡 Medium | `C++` | `O(m * n)` | `O(m * n)` | [Code](./11-dynamic-programming/1143-longest-common-subsequence.cpp) |
 | 1448 | Count Good Nodes In Binary Tree | Trees & Tries (DFS Preorder) | 🟡 Medium | `C++` | `O(n)` | `O(h) recursion stack` | [Code](./07-trees-and-tries/1448-count-good-nodes-in-binary-tree.cpp) |
 | 1456 | Maximum Number Of Vowels In A Substring Of Given Length | Sliding Window | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./03-sliding-window/1456-maximum-number-of-vowels-in-a-substring-of-given-length.cpp) |
