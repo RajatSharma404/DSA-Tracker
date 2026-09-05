@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **121** | **25** | **91** | **5** |
+| **122** | **25** | **91** | **6** |
 
 ### 📂 Topic Directories
 
@@ -15,7 +15,7 @@
 - [**Sliding Window**](./03-sliding-window/) (4 problems)
 - [**Stack**](./04-stack/) (4 problems)
 - [**Binary Search**](./05-binary-search/) (5 problems)
-- [**Linked List**](./06-linked-list/) (10 problems)
+- [**Linked List**](./06-linked-list/) (11 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (15 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (6 problems)
 - [**Backtracking**](./09-backtracking/) (10 problems)
@@ -41,6 +41,7 @@
 | 19 | Remove Nth Node From End Of List | Linked List | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0019-remove-nth-node-from-end-of-list.cpp) |
 | 20 | Valid Parentheses | Stack | 🟢 Easy | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0020-valid-parentheses.cpp) |
 | 21 | Merge Two Sorted Lists | Linked List | 🟢 Easy | `C++` | `O(n + m)` | `O(1)` | [Code](./06-linked-list/0021-merge-two-sorted-lists.cpp) |
+| 23 | Merge K Sorted Lists | Linked List (Min-Heap / Priority Queue) | 🔴 Hard | `C++` | `O(N log k) where N is total nodes and k is number of linked lists` | `O(k) min-heap space` | [Code](./06-linked-list/0023-merge-k-sorted-lists.cpp) |
 | 33 | Search In Rotated Sorted Array | Binary Search | 🟡 Medium | `C++` | `O(log n)` | `O(1)` | [Code](./05-binary-search/0033-search-in-rotated-sorted-array.cpp) |
 | 36 | Valid Sudoku | Arrays & Hashing | 🟡 Medium | `C++` | `O(1) (fixed 9x9 board)` | `O(1)` | [Code](./01-arrays-and-hashing/0036-valid-sudoku.cpp) |
 | 37 | Sudoku Solver | Recursion & Backtracking | 🔴 Hard | `C++` | `O(9^E) where E is number of empty cells` | `O(1) in-place board state` | [Code](./09-backtracking/0037-sudoku-solver.cpp) |
