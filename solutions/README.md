@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **192** | **66** | **112** | **14** |
+| **193** | **66** | **113** | **14** |
 
 ### 📂 Topic Directories
 
@@ -19,7 +19,7 @@
 - [**Trees And Tries**](./07-trees-and-tries/) (30 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (6 problems)
 - [**Backtracking**](./09-backtracking/) (10 problems)
-- [**Graphs**](./10-graphs/) (11 problems)
+- [**Graphs**](./10-graphs/) (12 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (25 problems)
 - [**Greedy**](./12-greedy/) (7 problems)
 - [**Bit Manipulation**](./13-bit-manipulation/) (6 problems)
@@ -186,6 +186,7 @@
 | 525 | Contiguous Array | Arrays & Hashing / Prefix Sum | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./01-arrays-and-hashing/0525-contiguous-array.cpp) |
 | 540 | Single Element In A Sorted Array | Binary Search (Even-Odd Index Invariant) | 🟡 Medium | `C++` | `O(log n)` | `O(1)` | [Code](./05-binary-search/0540-single-element-in-a-sorted-array.cpp) |
 | 543 | Diameter Of Binary Tree | Trees & Tries (DFS) | 🟢 Easy | `C++` | `O(n)` | `O(h) recursion stack` | [Code](./07-trees-and-tries/0543-diameter-of-binary-tree.cpp) |
+| 547 | Number Of Provinces | Graphs / Disjoint Set Union (DSU) / DFS | 🟡 Medium | `C++` | `O(n^2)` | `O(n)` | [Code](./10-graphs/0547-number-of-provinces.cpp) |
 | 560 | Subarray Sum Equals K | Arrays & Hashing / Prefix Sum Hash Map | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./01-arrays-and-hashing/0560-subarray-sum-equals-k.cpp) |
 | 567 | Permutation In String | Sliding Window | 🟡 Medium | `C++` | `O(l1 + l2)` | `O(1) (26 characters)` | [Code](./03-sliding-window/0567-permutation-in-string.cpp) |
 | 572 | Subtree Of Another Tree | Trees & Tries | 🟢 Easy | `C++` | `O(s * t)` | `O(h)` | [Code](./07-trees-and-tries/0572-subtree-of-another-tree.cpp) |
