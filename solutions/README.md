@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **167** | **50** | **103** | **14** |
+| **168** | **51** | **103** | **14** |
 
 ### 📂 Topic Directories
 
@@ -14,7 +14,7 @@
 - [**Two Pointers**](./02-two-pointers/) (12 problems)
 - [**Sliding Window**](./03-sliding-window/) (11 problems)
 - [**Stack**](./04-stack/) (10 problems)
-- [**Binary Search**](./05-binary-search/) (7 problems)
+- [**Binary Search**](./05-binary-search/) (8 problems)
 - [**Linked List**](./06-linked-list/) (11 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (17 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (6 problems)
@@ -68,6 +68,7 @@
 | 63 | Unique Paths Ii | Dynamic Programming (Grid with Obstacles) | 🟡 Medium | `C++` | `O(M * N)` | `O(N) space optimized` | [Code](./11-dynamic-programming/0063-unique-paths-ii.cpp) |
 | 64 | Minimum Path Sum | Dynamic Programming (In-Place Grid DP) | 🟡 Medium | `C++` | `O(M * N)` | `O(1) in-place modification` | [Code](./11-dynamic-programming/0064-minimum-path-sum.cpp) |
 | 66 | Plus One | Math & Number Theory | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./14-math-and-geometry/0066-plus-one.cpp) |
+| 69 | Sqrtx | Binary Search | 🟢 Easy | `C++` | `O(log x)` | `O(1)` | [Code](./05-binary-search/0069-sqrtx.cpp) |
 | 70 | Climbing Stairs | Dynamic Programming | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0070-climbing-stairs.cpp) |
 | 71 | Simplify Path | Stack | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0071-simplify-path.cpp) |
 | 72 | Edit Distance | Dynamic Programming (Levenshtein Distance) | 🟡 Medium | `C++` | `O(M * N)` | `O(N) space optimized` | [Code](./11-dynamic-programming/0072-edit-distance.cpp) |
