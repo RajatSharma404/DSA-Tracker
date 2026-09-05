@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **173** | **54** | **105** | **14** |
+| **174** | **54** | **106** | **14** |
 
 ### 📂 Topic Directories
 
@@ -15,7 +15,7 @@
 - [**Sliding Window**](./03-sliding-window/) (11 problems)
 - [**Stack**](./04-stack/) (10 problems)
 - [**Binary Search**](./05-binary-search/) (12 problems)
-- [**Linked List**](./06-linked-list/) (12 problems)
+- [**Linked List**](./06-linked-list/) (13 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (17 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (6 problems)
 - [**Backtracking**](./09-backtracking/) (10 problems)
@@ -83,6 +83,7 @@
 | 88 | Merge Sorted Array | Arrays & Hashing / Two Pointers | 🟢 Easy | `C++` | `O(m + n)` | `O(1)` | [Code](./01-arrays-and-hashing/0088-merge-sorted-array.cpp) |
 | 90 | Subsets Ii | Recursion & Backtracking (Handling Duplicates) | 🟡 Medium | `C++` | `O(n * 2^n)` | `O(n) recursion stack` | [Code](./09-backtracking/0090-subsets-ii.cpp) |
 | 91 | Decode Ways | Dynamic Programming (Fibonacci-Style Linear DP) | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0091-decode-ways.cpp) |
+| 92 | Reverse Linked List Ii | Linked List | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0092-reverse-linked-list-ii.cpp) |
 | 97 | Interleaving String | Dynamic Programming (2D Grid / Space Optimized) | 🟡 Medium | `C++` | `O(m * n)` | `O(n)` | [Code](./11-dynamic-programming/0097-interleaving-string.cpp) |
 | 98 | Validate Binary Search Tree | Trees & Tries | 🟡 Medium | `C++` | `O(n)` | `O(h) recursion stack` | [Code](./07-trees-and-tries/0098-validate-binary-search-tree.cpp) |
 | 100 | Same Tree | Trees & Tries | 🟢 Easy | `C++` | `O(N) where N is the number of nodes` | `O(h) where h is the tree height` | [Code](./07-trees-and-tries/0100-same-tree.cpp) |
