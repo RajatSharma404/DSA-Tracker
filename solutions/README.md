@@ -6,11 +6,11 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **135** | **29** | **92** | **14** |
+| **136** | **30** | **92** | **14** |
 
 ### 📂 Topic Directories
 
-- [**Arrays And Hashing**](./01-arrays-and-hashing/) (13 problems)
+- [**Arrays And Hashing**](./01-arrays-and-hashing/) (14 problems)
 - [**Two Pointers**](./02-two-pointers/) (5 problems)
 - [**Sliding Window**](./03-sliding-window/) (6 problems)
 - [**Stack**](./04-stack/) (5 problems)
@@ -36,6 +36,7 @@
 | 7 | Reverse Integer | Math & Number Theory | 🟡 Medium | `C++` | `O(log10(x))` | `O(1)` | [Code](./14-math-and-geometry/0007-reverse-integer.cpp) |
 | 10 | Regular Expression Matching | Dynamic Programming (2D Grid) | 🔴 Hard | `C++` | `O(M * N)` | `O(M * N)` | [Code](./11-dynamic-programming/0010-regular-expression-matching.cpp) |
 | 11 | Container With Most Water | Two Pointers | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0011-container-with-most-water.cpp) |
+| 14 | Longest Common Prefix | Arrays & Hashing / String | 🟢 Easy | `C++` | `O(S) where S is the sum of all characters in all strings` | `O(1)` | [Code](./01-arrays-and-hashing/0014-longest-common-prefix.cpp) |
 | 15 | 3sum | Two Pointers | 🟡 Medium | `C++` | `O(n^2)` | `O(1) extra space excluding result` | [Code](./02-two-pointers/0015-3sum.cpp) |
 | 17 | Letter Combinations Of A Phone Number | Recursion & Backtracking | 🟡 Medium | `C++` | `O(4^N * N)` | `O(N) recursion stack` | [Code](./09-backtracking/0017-letter-combinations-of-a-phone-number.cpp) |
 | 19 | Remove Nth Node From End Of List | Linked List | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0019-remove-nth-node-from-end-of-list.cpp) |
