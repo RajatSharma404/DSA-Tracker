@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **213** | **75** | **123** | **15** |
+| **214** | **75** | **123** | **16** |
 
 ### 📂 Topic Directories
 
@@ -19,7 +19,7 @@
 - [**Trees And Tries**](./07-trees-and-tries/) (30 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (7 problems)
 - [**Backtracking**](./09-backtracking/) (10 problems)
-- [**Graphs**](./10-graphs/) (21 problems)
+- [**Graphs**](./10-graphs/) (22 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (28 problems)
 - [**Greedy**](./12-greedy/) (11 problems)
 - [**Bit Manipulation**](./13-bit-manipulation/) (6 problems)
@@ -219,6 +219,7 @@
 | 743 | Network Delay Time | Graphs / Dijkstra's Algorithm | 🟡 Medium | `C++` | `O(E log V)` | `O(V + E) for adjacency list and distance array` | [Code](./10-graphs/0743-network-delay-time.cpp) |
 | 746 | Min Cost Climbing Stairs | Dynamic Programming | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0746-min-cost-climbing-stairs.cpp) |
 | 763 | Partition Labels | Greedy / Two Pointers | 🟡 Medium | `C++` | `O(n)` | `O(1) (26 characters)` | [Code](./12-greedy/0763-partition-labels.cpp) |
+| 778 | Swim In Rising Water | Graphs / Dijkstra's Algorithm / Priority Queue | 🔴 Hard | `C++` | `O(N^2 log N) where N x N is the grid dimension` | `O(N^2) for distance matrix and priority queue` | [Code](./10-graphs/0778-swim-in-rising-water.cpp) |
 | 787 | Cheapest Flights Within K Stops | Graphs / Bellman-Ford (BFS with Step Bound) | 🟡 Medium | `C++` | `O(K * E)` | `O(V)` | [Code](./10-graphs/0787-cheapest-flights-within-k-stops.cpp) |
 | 797 | All Paths From Source To Target | Graphs / Backtracking | 🟡 Medium | `C++` | `O(2^n * n)` | `O(n)` | [Code](./10-graphs/0797-all-paths-from-source-to-target.cpp) |
 | 841 | Keys And Rooms | Graphs / BFS | 🟡 Medium | `C++` | `O(n + e) where e is total keys` | `O(n)` | [Code](./10-graphs/0841-keys-and-rooms.cpp) |
