@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **212** | **75** | **123** | **14** |
+| **213** | **75** | **123** | **15** |
 
 ### 📂 Topic Directories
 
@@ -19,7 +19,7 @@
 - [**Trees And Tries**](./07-trees-and-tries/) (30 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (7 problems)
 - [**Backtracking**](./09-backtracking/) (10 problems)
-- [**Graphs**](./10-graphs/) (20 problems)
+- [**Graphs**](./10-graphs/) (21 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (28 problems)
 - [**Greedy**](./12-greedy/) (11 problems)
 - [**Bit Manipulation**](./13-bit-manipulation/) (6 problems)
@@ -170,6 +170,7 @@
 | 312 | Burst Balloons | Dynamic Programming (Interval / Matrix Chain Multiplication) | 🔴 Hard | `C++` | `O(n^3)` | `O(n^2)` | [Code](./11-dynamic-programming/0312-burst-balloons.cpp) |
 | 322 | Coin Change | Dynamic Programming (Bottom-Up) | 🟡 Medium | `C++` | `O(amount * coins.size())` | `O(amount)` | [Code](./11-dynamic-programming/0322-coin-change.cpp) |
 | 328 | Odd Even Linked List | Linked List | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0328-odd-even-linked-list.cpp) |
+| 332 | Reconstruct Itinerary | Graphs / Hierholzer's Algorithm (Eulerian Path) | 🔴 Hard | `C++` | `O(E log E) due to priority queue ordering of destinations` | `O(V + E) for adjacency list and recursion stack` | [Code](./10-graphs/0332-reconstruct-itinerary.cpp) |
 | 338 | Counting Bits | Bit Manipulation / DP | 🟢 Easy | `C++` | `O(n)` | `O(1) auxiliary` | [Code](./13-bit-manipulation/0338-counting-bits.cpp) |
 | 344 | Reverse String | Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0344-reverse-string.cpp) |
 | 345 | Reverse Vowels Of A String | Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0345-reverse-vowels-of-a-string.cpp) |
