@@ -6,11 +6,11 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **205** | **74** | **117** | **14** |
+| **206** | **74** | **118** | **14** |
 
 ### 📂 Topic Directories
 
-- [**Arrays And Hashing**](./01-arrays-and-hashing/) (27 problems)
+- [**Arrays And Hashing**](./01-arrays-and-hashing/) (28 problems)
 - [**Two Pointers**](./02-two-pointers/) (12 problems)
 - [**Sliding Window**](./03-sliding-window/) (11 problems)
 - [**Stack**](./04-stack/) (10 problems)
@@ -64,6 +64,7 @@
 | 54 | Spiral Matrix | Math & Geometry (Matrix Traversal) | 🟡 Medium | `C++` | `O(M * N)` | `O(1) auxiliary space` | [Code](./14-math-and-geometry/0054-spiral-matrix.cpp) |
 | 55 | Jump Game | Greedy | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./12-greedy/0055-jump-game.cpp) |
 | 56 | Merge Intervals | Arrays & Intervals / Sorting | 🟡 Medium | `C++` | `O(n log n) due to sorting` | `O(n) for the output list` | [Code](./01-arrays-and-hashing/0056-merge-intervals.cpp) |
+| 57 | Insert Interval | Arrays & Intervals | 🟡 Medium | `C++` | `O(n) linear scan` | `O(n) for result array` | [Code](./01-arrays-and-hashing/0057-insert-interval.cpp) |
 | 58 | Length Of Last Word | Arrays & Hashing / String | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0058-length-of-last-word.cpp) |
 | 61 | Rotate List | Linked List | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0061-rotate-list.cpp) |
 | 62 | Unique Paths | Dynamic Programming (Grid Paths) | 🟡 Medium | `C++` | `O(M * N)` | `O(N) optimized 1D row DP` | [Code](./11-dynamic-programming/0062-unique-paths.cpp) |
