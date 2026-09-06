@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **208** | **75** | **119** | **14** |
+| **209** | **75** | **120** | **14** |
 
 ### 📂 Topic Directories
 
@@ -21,7 +21,7 @@
 - [**Backtracking**](./09-backtracking/) (10 problems)
 - [**Graphs**](./10-graphs/) (17 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (28 problems)
-- [**Greedy**](./12-greedy/) (10 problems)
+- [**Greedy**](./12-greedy/) (11 problems)
 - [**Bit Manipulation**](./13-bit-manipulation/) (6 problems)
 - [**Math And Geometry**](./14-math-and-geometry/) (8 problems)
 
@@ -184,6 +184,7 @@
 | 416 | Partition Equal Subset Sum | Dynamic Programming (0/1 Knapsack) | 🟡 Medium | `C++` | `O(n * target)` | `O(target)` | [Code](./11-dynamic-programming/0416-partition-equal-subset-sum.cpp) |
 | 417 | Pacific Atlantic Water Flow | Graphs | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N)` | [Code](./10-graphs/0417-pacific-atlantic-water-flow.cpp) |
 | 424 | Longest Repeating Character Replacement | Sliding Window | 🟡 Medium | `C++` | `O(n)` | `O(1) (26 uppercase letters)` | [Code](./03-sliding-window/0424-longest-repeating-character-replacement.cpp) |
+| 435 | Non Overlapping Intervals | Greedy / Intervals | 🟡 Medium | `C++` | `O(n log n) sorting by end time` | `O(1) auxiliary` | [Code](./12-greedy/0435-non-overlapping-intervals.cpp) |
 | 438 | Find All Anagrams In A String | Sliding Window / Frequency Array | 🟡 Medium | `C++` | `O(n)` | `O(1) fixed 26 alphabet size` | [Code](./03-sliding-window/0438-find-all-anagrams-in-a-string.cpp) |
 | 448 | Find All Numbers Disappeared In An Array | Arrays & Hashing (In-place Sign Inversion) | 🟢 Easy | `C++` | `O(n)` | `O(1) extra space` | [Code](./01-arrays-and-hashing/0448-find-all-numbers-disappeared-in-an-array.cpp) |
 | 455 | Assign Cookies | Greedy | 🟢 Easy | `C++` | `O(n log n + m log m)` | `O(1)` | [Code](./12-greedy/0455-assign-cookies.cpp) |
