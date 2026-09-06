@@ -45,6 +45,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${outfit.variable} ${jetbrainsMono.variable} ${spaceGrotesk.variable}`}
       data-scroll-behavior="smooth"
       data-theme="oled"
