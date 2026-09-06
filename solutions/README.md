@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **209** | **75** | **120** | **14** |
+| **210** | **75** | **121** | **14** |
 
 ### 📂 Topic Directories
 
@@ -19,7 +19,7 @@
 - [**Trees And Tries**](./07-trees-and-tries/) (30 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (7 problems)
 - [**Backtracking**](./09-backtracking/) (10 problems)
-- [**Graphs**](./10-graphs/) (17 problems)
+- [**Graphs**](./10-graphs/) (18 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (28 problems)
 - [**Greedy**](./12-greedy/) (11 problems)
 - [**Bit Manipulation**](./13-bit-manipulation/) (6 problems)
@@ -215,6 +215,7 @@
 | 724 | Find Pivot Index | Arrays & Hashing / Prefix Sum | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0724-find-pivot-index.cpp) |
 | 733 | Flood Fill | Graphs / DFS | 🟢 Easy | `C++` | `O(m * n)` | `O(m * n) recursion stack` | [Code](./10-graphs/0733-flood-fill.cpp) |
 | 739 | Daily Temperatures | Stack (Monotonic Stack) | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0739-daily-temperatures.cpp) |
+| 743 | Network Delay Time | Graphs / Dijkstra's Algorithm | 🟡 Medium | `C++` | `O(E log V)` | `O(V + E) for adjacency list and distance array` | [Code](./10-graphs/0743-network-delay-time.cpp) |
 | 746 | Min Cost Climbing Stairs | Dynamic Programming | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0746-min-cost-climbing-stairs.cpp) |
 | 763 | Partition Labels | Greedy / Two Pointers | 🟡 Medium | `C++` | `O(n)` | `O(1) (26 characters)` | [Code](./12-greedy/0763-partition-labels.cpp) |
 | 797 | All Paths From Source To Target | Graphs / Backtracking | 🟡 Medium | `C++` | `O(2^n * n)` | `O(n)` | [Code](./10-graphs/0797-all-paths-from-source-to-target.cpp) |
