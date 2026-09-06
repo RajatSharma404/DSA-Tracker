@@ -6,11 +6,11 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **206** | **74** | **118** | **14** |
+| **207** | **75** | **118** | **14** |
 
 ### 📂 Topic Directories
 
-- [**Arrays And Hashing**](./01-arrays-and-hashing/) (28 problems)
+- [**Arrays And Hashing**](./01-arrays-and-hashing/) (29 problems)
 - [**Two Pointers**](./02-two-pointers/) (12 problems)
 - [**Sliding Window**](./03-sliding-window/) (11 problems)
 - [**Stack**](./04-stack/) (10 problems)
@@ -152,6 +152,7 @@
 | 238 | Product Of Array Except Self | Arrays & Hashing | 🟡 Medium | `C++` | `O(n)` | `O(1) auxiliary space (excluding return vector)` | [Code](./01-arrays-and-hashing/0238-product-of-array-except-self.cpp) |
 | 239 | Sliding Window Maximum | Sliding Window (Monotonic Deque) | 🔴 Hard | `C++` | `O(n)` | `O(k) deque space` | [Code](./03-sliding-window/0239-sliding-window-maximum.cpp) |
 | 242 | Valid Anagram | Arrays & Hashing | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0242-valid-anagram.cpp) |
+| 252 | Meeting Rooms | Arrays & Intervals / Sorting | 🟢 Easy | `C++` | `O(n log n) for sorting` | `O(1) auxiliary` | [Code](./01-arrays-and-hashing/0252-meeting-rooms.cpp) |
 | 257 | Binary Tree Paths | Trees & Tries / DFS | 🟢 Easy | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0257-binary-tree-paths.cpp) |
 | 268 | Missing Number | Bit Manipulation (XOR) | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./13-bit-manipulation/0268-missing-number.cpp) |
 | 269 | Alien Dictionary | Graphs (Topological Sort / Kahn's Algorithm) | 🔴 Hard | `C++` | `O(C) where C is total length of all words` | `O(1) (at most 26 unique characters)` | [Code](./10-graphs/0269-alien-dictionary.cpp) |
