@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **210** | **75** | **121** | **14** |
+| **211** | **75** | **122** | **14** |
 
 ### 📂 Topic Directories
 
@@ -19,7 +19,7 @@
 - [**Trees And Tries**](./07-trees-and-tries/) (30 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (7 problems)
 - [**Backtracking**](./09-backtracking/) (10 problems)
-- [**Graphs**](./10-graphs/) (18 problems)
+- [**Graphs**](./10-graphs/) (19 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (28 problems)
 - [**Greedy**](./12-greedy/) (11 problems)
 - [**Bit Manipulation**](./13-bit-manipulation/) (6 problems)
@@ -237,6 +237,7 @@
 | 1143 | Longest Common Subsequence | Dynamic Programming (2D Grid) | 🟡 Medium | `C++` | `O(m * n)` | `O(m * n)` | [Code](./11-dynamic-programming/1143-longest-common-subsequence.cpp) |
 | 1448 | Count Good Nodes In Binary Tree | Trees & Tries (DFS Preorder) | 🟡 Medium | `C++` | `O(n)` | `O(h) recursion stack` | [Code](./07-trees-and-tries/1448-count-good-nodes-in-binary-tree.cpp) |
 | 1456 | Maximum Number Of Vowels In A Substring Of Given Length | Sliding Window | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./03-sliding-window/1456-maximum-number-of-vowels-in-a-substring-of-given-length.cpp) |
+| 1584 | Min Cost To Connect All Points | Graphs / Prim's Algorithm (Minimum Spanning Tree) | 🟡 Medium | `C++` | `O(V^2) where V is the number of points (optimal for dense complete graph)` | `O(V) for tracking minimum distances` | [Code](./10-graphs/1584-min-cost-to-connect-all-points.cpp) |
 | 1899 | Merge Triplets To Form Target Triplet | Greedy | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./12-greedy/1899-merge-triplets-to-form-target-triplet.cpp) |
 | 1971 | Find If Path Exists In Graph | Graphs / BFS | 🟢 Easy | `C++` | `O(v + e)` | `O(v + e)` | [Code](./10-graphs/1971-find-if-path-exists-in-graph.cpp) |
 
