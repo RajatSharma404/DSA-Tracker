@@ -6,12 +6,12 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **217** | **75** | **125** | **17** |
+| **218** | **75** | **126** | **17** |
 
 ### 📂 Topic Directories
 
 - [**Arrays And Hashing**](./01-arrays-and-hashing/) (30 problems)
-- [**Two Pointers**](./02-two-pointers/) (14 problems)
+- [**Two Pointers**](./02-two-pointers/) (15 problems)
 - [**Sliding Window**](./03-sliding-window/) (11 problems)
 - [**Stack**](./04-stack/) (10 problems)
 - [**Binary Search**](./05-binary-search/) (12 problems)
@@ -84,6 +84,7 @@
 | 77 | Combinations | Recursion & Backtracking | 🟡 Medium | `C++` | `O(k * C(n, k))` | `O(k)` | [Code](./09-backtracking/0077-combinations.cpp) |
 | 78 | Subsets | Recursion & Backtracking | 🟡 Medium | `C++` | `O(n * 2^n)` | `O(n)` | [Code](./09-backtracking/0078-subsets.cpp) |
 | 79 | Word Search | Recursion & Backtracking | 🟡 Medium | `C++` | `O(M * N * 4^L) where L is length of word` | `O(L) recursion stack` | [Code](./09-backtracking/0079-word-search.cpp) |
+| 80 | Remove Duplicates From Sorted Array Ii | Two Pointers | 🟡 Medium | `C++` | `O(n)` | `O(1) in-place` | [Code](./02-two-pointers/0080-remove-duplicates-from-sorted-array-ii.cpp) |
 | 83 | Remove Duplicates From Sorted List | Linked List | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0083-remove-duplicates-from-sorted-list.cpp) |
 | 84 | Largest Rectangle In Histogram | Stack (Monotonic Stack) | 🔴 Hard | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0084-largest-rectangle-in-histogram.cpp) |
 | 86 | Partition List | Linked List | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0086-partition-list.cpp) |
