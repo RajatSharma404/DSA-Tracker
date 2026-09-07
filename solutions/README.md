@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **218** | **75** | **126** | **17** |
+| **219** | **75** | **127** | **17** |
 
 ### 📂 Topic Directories
 
@@ -19,7 +19,7 @@
 - [**Trees And Tries**](./07-trees-and-tries/) (30 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (7 problems)
 - [**Backtracking**](./09-backtracking/) (10 problems)
-- [**Graphs**](./10-graphs/) (22 problems)
+- [**Graphs**](./10-graphs/) (23 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (28 problems)
 - [**Greedy**](./12-greedy/) (11 problems)
 - [**Bit Manipulation**](./13-bit-manipulation/) (6 problems)
@@ -111,6 +111,7 @@
 | 127 | Word Ladder | Graphs (BFS Shortest Path) | 🔴 Hard | `C++` | `O(M^2 * N) where M is length of each word and N is number of words` | `O(M * N)` | [Code](./10-graphs/0127-word-ladder.cpp) |
 | 128 | Longest Consecutive Sequence | Arrays & Hashing | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./01-arrays-and-hashing/0128-longest-consecutive-sequence.cpp) |
 | 129 | Sum Root To Leaf Numbers | Trees & Tries / DFS | 🟡 Medium | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0129-sum-root-to-leaf-numbers.cpp) |
+| 130 | Surrounded Regions | Graphs / DFS (Matrix Traversal) | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N) recursion stack` | [Code](./10-graphs/0130-surrounded-regions.cpp) |
 | 131 | Palindrome Partitioning | Recursion & Backtracking | 🟡 Medium | `C++` | `O(n * 2^n)` | `O(n) recursion stack` | [Code](./09-backtracking/0131-palindrome-partitioning.cpp) |
 | 133 | Clone Graph | Graphs | 🟡 Medium | `C++` | `O(V + E)` | `O(V)` | [Code](./10-graphs/0133-clone-graph.cpp) |
 | 134 | Gas Station | Greedy | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./12-greedy/0134-gas-station.cpp) |
