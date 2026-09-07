@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **220** | **75** | **128** | **17** |
+| **221** | **75** | **129** | **17** |
 
 ### 📂 Topic Directories
 
@@ -23,7 +23,7 @@
 - [**Dynamic Programming**](./11-dynamic-programming/) (28 problems)
 - [**Greedy**](./12-greedy/) (11 problems)
 - [**Bit Manipulation**](./13-bit-manipulation/) (6 problems)
-- [**Math And Geometry**](./14-math-and-geometry/) (8 problems)
+- [**Math And Geometry**](./14-math-and-geometry/) (9 problems)
 
 ### 📝 Problem Index
 
@@ -168,6 +168,7 @@
 | 283 | Move Zeroes | Arrays & Hashing / Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0283-move-zeroes.cpp) |
 | 286 | Walls And Gates | Graphs (Multi-Source BFS) | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N)` | [Code](./10-graphs/0286-walls-and-gates.cpp) |
 | 287 | Find The Duplicate Number | Linked List (Floyd's Tortoise and Hare) | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0287-find-the-duplicate-number.cpp) |
+| 289 | Game Of Life | Math & Geometry / In-Place State Transitions | 🟡 Medium | `C++` | `O(M * N)` | `O(1) auxiliary space (using bit/state encoding)` | [Code](./14-math-and-geometry/0289-game-of-life.cpp) |
 | 290 | Word Pattern | Arrays & Hashing / Hash Map | 🟢 Easy | `C++` | `O(n + m)` | `O(w) where w is number of unique words` | [Code](./01-arrays-and-hashing/0290-word-pattern.cpp) |
 | 295 | Find Median From Data Stream | Heap / Priority Queue (Two Heaps) | 🔴 Hard | `C++` | `O(log n) for addNum, O(1) for findMedian` | `O(n)` | [Code](./08-heap-priority-queue/0295-find-median-from-data-stream.cpp) |
 | 297 | Serialize And Deserialize Binary Tree | Trees & Tries (Preorder Traversal) | 🔴 Hard | `C++` | `O(n) for both serialize and deserialize` | `O(n)` | [Code](./07-trees-and-tries/0297-serialize-and-deserialize-binary-tree.cpp) |
