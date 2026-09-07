@@ -6,11 +6,11 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **222** | **75** | **129** | **18** |
+| **223** | **75** | **130** | **18** |
 
 ### 📂 Topic Directories
 
-- [**Arrays And Hashing**](./01-arrays-and-hashing/) (30 problems)
+- [**Arrays And Hashing**](./01-arrays-and-hashing/) (31 problems)
 - [**Two Pointers**](./02-two-pointers/) (15 problems)
 - [**Sliding Window**](./03-sliding-window/) (11 problems)
 - [**Stack**](./04-stack/) (10 problems)
@@ -185,6 +185,7 @@
 | 347 | Top K Frequent Elements | Heap / Priority Queue | 🟡 Medium | `C++` | `O(N log k)` | `O(N)` | [Code](./08-heap-priority-queue/0347-top-k-frequent-elements.cpp) |
 | 367 | Valid Perfect Square | Binary Search | 🟢 Easy | `C++` | `O(log num)` | `O(1)` | [Code](./05-binary-search/0367-valid-perfect-square.cpp) |
 | 371 | Sum Of Two Integers | Bit Manipulation (Half Adder Logic) | 🟡 Medium | `C++` | `O(1) (at most 32 bits)` | `O(1)` | [Code](./13-bit-manipulation/0371-sum-of-two-integers.cpp) |
+| 380 | Insert Delete Getrandom O1 | Arrays & Hashing / Design (Hash Map + Dynamic Array) | 🟡 Medium | `C++` | `O(1) average for insert, remove, and getRandom` | `O(n)` | [Code](./01-arrays-and-hashing/0380-insert-delete-getrandom-o1.cpp) |
 | 383 | Ransom Note | Arrays & Hashing / Hash Table | 🟢 Easy | `C++` | `O(m + n)` | `O(1) constant alphabet space` | [Code](./01-arrays-and-hashing/0383-ransom-note.cpp) |
 | 387 | First Unique Character In A String | Arrays & Hashing | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0387-first-unique-character-in-a-string.cpp) |
 | 392 | Is Subsequence | Two Pointers | 🟢 Easy | `C++` | `O(t) where t is length of target string` | `O(1)` | [Code](./02-two-pointers/0392-is-subsequence.cpp) |
