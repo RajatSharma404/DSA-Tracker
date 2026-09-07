@@ -6,12 +6,12 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **214** | **75** | **123** | **16** |
+| **215** | **75** | **124** | **16** |
 
 ### 📂 Topic Directories
 
 - [**Arrays And Hashing**](./01-arrays-and-hashing/) (29 problems)
-- [**Two Pointers**](./02-two-pointers/) (12 problems)
+- [**Two Pointers**](./02-two-pointers/) (13 problems)
 - [**Sliding Window**](./03-sliding-window/) (11 problems)
 - [**Stack**](./04-stack/) (10 problems)
 - [**Binary Search**](./05-binary-search/) (12 problems)
@@ -39,6 +39,7 @@
 | 14 | Longest Common Prefix | Arrays & Hashing / String | 🟢 Easy | `C++` | `O(S) where S is the sum of all characters in all strings` | `O(1)` | [Code](./01-arrays-and-hashing/0014-longest-common-prefix.cpp) |
 | 15 | 3sum | Two Pointers | 🟡 Medium | `C++` | `O(n^2)` | `O(1) extra space excluding result` | [Code](./02-two-pointers/0015-3sum.cpp) |
 | 17 | Letter Combinations Of A Phone Number | Recursion & Backtracking | 🟡 Medium | `C++` | `O(4^N * N)` | `O(N) recursion stack` | [Code](./09-backtracking/0017-letter-combinations-of-a-phone-number.cpp) |
+| 18 | 4sum | Two Pointers / Arrays | 🟡 Medium | `C++` | `O(n^3)` | `O(1) excluding output space` | [Code](./02-two-pointers/0018-4sum.cpp) |
 | 19 | Remove Nth Node From End Of List | Linked List | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0019-remove-nth-node-from-end-of-list.cpp) |
 | 20 | Valid Parentheses | Stack | 🟢 Easy | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0020-valid-parentheses.cpp) |
 | 21 | Merge Two Sorted Lists | Linked List | 🟢 Easy | `C++` | `O(n + m)` | `O(1)` | [Code](./06-linked-list/0021-merge-two-sorted-lists.cpp) |
