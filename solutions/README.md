@@ -6,11 +6,11 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **215** | **75** | **124** | **16** |
+| **216** | **75** | **124** | **17** |
 
 ### 📂 Topic Directories
 
-- [**Arrays And Hashing**](./01-arrays-and-hashing/) (29 problems)
+- [**Arrays And Hashing**](./01-arrays-and-hashing/) (30 problems)
 - [**Two Pointers**](./02-two-pointers/) (13 problems)
 - [**Sliding Window**](./03-sliding-window/) (11 problems)
 - [**Stack**](./04-stack/) (10 problems)
@@ -53,6 +53,7 @@
 | 36 | Valid Sudoku | Arrays & Hashing | 🟡 Medium | `C++` | `O(1) (fixed 9x9 board)` | `O(1)` | [Code](./01-arrays-and-hashing/0036-valid-sudoku.cpp) |
 | 37 | Sudoku Solver | Recursion & Backtracking | 🔴 Hard | `C++` | `O(9^E) where E is number of empty cells` | `O(1) in-place board state` | [Code](./09-backtracking/0037-sudoku-solver.cpp) |
 | 39 | Combination Sum | Recursion & Backtracking | 🟡 Medium | `C++` | `O(2^t) where t is target value` | `O(t)` | [Code](./09-backtracking/0039-combination-sum.cpp) |
+| 41 | First Missing Positive | Arrays & Hashing / Cyclic Sort | 🔴 Hard | `C++` | `O(n)` | `O(1) auxiliary space` | [Code](./01-arrays-and-hashing/0041-first-missing-positive.cpp) |
 | 42 | Trapping Rain Water | Two Pointers | 🔴 Hard | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0042-trapping-rain-water.cpp) |
 | 43 | Multiply Strings | Math & Number Theory (Big Integer Multiplication) | 🟡 Medium | `C++` | `O(M * N)` | `O(M + N)` | [Code](./14-math-and-geometry/0043-multiply-strings.cpp) |
 | 45 | Jump Game Ii | Greedy (BFS Window) | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./12-greedy/0045-jump-game-ii.cpp) |
