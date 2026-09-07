@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **219** | **75** | **127** | **17** |
+| **220** | **75** | **128** | **17** |
 
 ### 📂 Topic Directories
 
@@ -15,7 +15,7 @@
 - [**Sliding Window**](./03-sliding-window/) (11 problems)
 - [**Stack**](./04-stack/) (10 problems)
 - [**Binary Search**](./05-binary-search/) (12 problems)
-- [**Linked List**](./06-linked-list/) (18 problems)
+- [**Linked List**](./06-linked-list/) (19 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (30 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (7 problems)
 - [**Backtracking**](./09-backtracking/) (10 problems)
@@ -119,6 +119,7 @@
 | 138 | Copy List With Random Pointer | Linked List (Interweaving Nodes) | 🟡 Medium | `C++` | `O(n)` | `O(1) auxiliary space` | [Code](./06-linked-list/0138-copy-list-with-random-pointer.cpp) |
 | 139 | Word Break | Dynamic Programming (Bottom-Up) | 🟡 Medium | `C++` | `O(n * m * k) where n is s.length(), m is wordDict.size(), k is word length` | `O(n)` | [Code](./11-dynamic-programming/0139-word-break.cpp) |
 | 141 | Linked List Cycle | Linked List | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0141-linked-list-cycle.cpp) |
+| 142 | Linked List Cycle Ii | Linked List / Floyd's Cycle Detection (Fast & Slow Pointers) | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0142-linked-list-cycle-ii.cpp) |
 | 143 | Reorder List | Linked List | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0143-reorder-list.cpp) |
 | 146 | Lru Cache | Linked List & Hash Map (Design) | 🟡 Medium | `C++` | `O(1) for both get and put` | `O(capacity)` | [Code](./06-linked-list/0146-lru-cache.cpp) |
 | 148 | Sort List | Linked List (Merge Sort) | 🟡 Medium | `C++` | `O(n log n)` | `O(log n) recursion stack` | [Code](./06-linked-list/0148-sort-list.cpp) |
