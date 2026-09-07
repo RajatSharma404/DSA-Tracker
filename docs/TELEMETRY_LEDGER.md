@@ -249,3 +249,4 @@ Automated audit trail of system performance benchmarks, test assertions, and tel
 | RUN-0243 | 2026-09-07 19:21:33 | pwa | argon2 key derivation memory cost check | PASS | Mudit Atrey |
 | RUN-0244 | 2026-09-07 10:28:44 | qa | websocket keepalive ping response latency < 25ms | PASS | Mudit Atrey |
 | RUN-0245 | 2026-09-07 13:35:55 | queue | capacitor offline sync queue dispatch | PASS | Mudit Atrey |
+| RUN-0246 | 2026-09-07 16:42:06 | rate-limit | service worker cache asset integrity check | PASS | Mudit Atrey |
