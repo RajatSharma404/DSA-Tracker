@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **223** | **75** | **130** | **18** |
+| **224** | **75** | **131** | **18** |
 
 ### 📂 Topic Directories
 
@@ -19,7 +19,7 @@
 - [**Trees And Tries**](./07-trees-and-tries/) (30 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (7 problems)
 - [**Backtracking**](./09-backtracking/) (10 problems)
-- [**Graphs**](./10-graphs/) (23 problems)
+- [**Graphs**](./10-graphs/) (24 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (29 problems)
 - [**Greedy**](./12-greedy/) (11 problems)
 - [**Bit Manipulation**](./13-bit-manipulation/) (6 problems)
@@ -190,6 +190,7 @@
 | 387 | First Unique Character In A String | Arrays & Hashing | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0387-first-unique-character-in-a-string.cpp) |
 | 392 | Is Subsequence | Two Pointers | 🟢 Easy | `C++` | `O(t) where t is length of target string` | `O(1)` | [Code](./02-two-pointers/0392-is-subsequence.cpp) |
 | 394 | Decode String | Stack | 🟡 Medium | `C++` | `O(maxK * n)` | `O(n)` | [Code](./04-stack/0394-decode-string.cpp) |
+| 399 | Evaluate Division | Graphs / DFS on Weighted Directed Graph | 🟡 Medium | `C++` | `O((V + E) * Q) where Q is the number of queries` | `O(V + E) for graph adjacency list` | [Code](./10-graphs/0399-evaluate-division.cpp) |
 | 404 | Sum Of Left Leaves | Trees & Tries | 🟢 Easy | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0404-sum-of-left-leaves.cpp) |
 | 416 | Partition Equal Subset Sum | Dynamic Programming (0/1 Knapsack) | 🟡 Medium | `C++` | `O(n * target)` | `O(target)` | [Code](./11-dynamic-programming/0416-partition-equal-subset-sum.cpp) |
 | 417 | Pacific Atlantic Water Flow | Graphs | 🟡 Medium | `C++` | `O(M * N)` | `O(M * N)` | [Code](./10-graphs/0417-pacific-atlantic-water-flow.cpp) |
