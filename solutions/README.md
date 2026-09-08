@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **233** | **79** | **136** | **18** |
+| **234** | **79** | **137** | **18** |
 
 ### 📂 Topic Directories
 
@@ -20,7 +20,7 @@
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (7 problems)
 - [**Backtracking**](./09-backtracking/) (12 problems)
 - [**Graphs**](./10-graphs/) (24 problems)
-- [**Dynamic Programming**](./11-dynamic-programming/) (29 problems)
+- [**Dynamic Programming**](./11-dynamic-programming/) (30 problems)
 - [**Greedy**](./12-greedy/) (11 problems)
 - [**Bit Manipulation**](./13-bit-manipulation/) (7 problems)
 - [**Math And Geometry**](./14-math-and-geometry/) (12 problems)
@@ -113,6 +113,7 @@
 | 112 | Path Sum | Trees & Tries | 🟢 Easy | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0112-path-sum.cpp) |
 | 118 | Pascals Triangle | Arrays & Dynamic Programming / Pascal's Triangle | 🟢 Easy | `C++` | `O(numRows^2)` | `O(numRows^2) for output grid` | [Code](./01-arrays-and-hashing/0118-pascals-triangle.cpp) |
 | 119 | Pascals Triangle Ii | Arrays & Dynamic Programming / Pascal's Triangle | 🟢 Easy | `C++` | `O(rowIndex^2)` | `O(rowIndex) auxiliary space` | [Code](./01-arrays-and-hashing/0119-pascals-triangle-ii.cpp) |
+| 120 | Triangle | Dynamic Programming / Bottom-Up Grid DP | 🟡 Medium | `C++` | `O(n^2) where n is number of rows` | `O(n) auxiliary 1D DP array` | [Code](./11-dynamic-programming/0120-triangle.cpp) |
 | 121 | Best Time To Buy And Sell Stock | Sliding Window | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./03-sliding-window/0121-best-time-to-buy-and-sell-stock.cpp) |
 | 122 | Best Time To Buy And Sell Stock Ii | Greedy | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./12-greedy/0122-best-time-to-buy-and-sell-stock-ii.cpp) |
 | 124 | Binary Tree Maximum Path Sum | Trees & Tries (Postorder DFS) | 🔴 Hard | `C++` | `O(n)` | `O(h) recursion stack` | [Code](./07-trees-and-tries/0124-binary-tree-maximum-path-sum.cpp) |
