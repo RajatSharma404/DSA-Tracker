@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **228** | **76** | **134** | **18** |
+| **229** | **76** | **135** | **18** |
 
 ### 📂 Topic Directories
 
@@ -18,7 +18,7 @@
 - [**Linked List**](./06-linked-list/) (19 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (30 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (7 problems)
-- [**Backtracking**](./09-backtracking/) (11 problems)
+- [**Backtracking**](./09-backtracking/) (12 problems)
 - [**Graphs**](./10-graphs/) (24 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (29 problems)
 - [**Greedy**](./12-greedy/) (11 problems)
@@ -57,6 +57,7 @@
 | 36 | Valid Sudoku | Arrays & Hashing | 🟡 Medium | `C++` | `O(1) (fixed 9x9 board)` | `O(1)` | [Code](./01-arrays-and-hashing/0036-valid-sudoku.cpp) |
 | 37 | Sudoku Solver | Recursion & Backtracking | 🔴 Hard | `C++` | `O(9^E) where E is number of empty cells` | `O(1) in-place board state` | [Code](./09-backtracking/0037-sudoku-solver.cpp) |
 | 39 | Combination Sum | Recursion & Backtracking | 🟡 Medium | `C++` | `O(2^t) where t is target value` | `O(t)` | [Code](./09-backtracking/0039-combination-sum.cpp) |
+| 40 | Combination Sum Ii | Recursion & Backtracking (Duplicates Handling) | 🟡 Medium | `C++` | `O(2^n)` | `O(n) recursion stack` | [Code](./09-backtracking/0040-combination-sum-ii.cpp) |
 | 41 | First Missing Positive | Arrays & Hashing / Cyclic Sort | 🔴 Hard | `C++` | `O(n)` | `O(1) auxiliary space` | [Code](./01-arrays-and-hashing/0041-first-missing-positive.cpp) |
 | 42 | Trapping Rain Water | Two Pointers | 🔴 Hard | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0042-trapping-rain-water.cpp) |
 | 43 | Multiply Strings | Math & Number Theory (Big Integer Multiplication) | 🟡 Medium | `C++` | `O(M * N)` | `O(M + N)` | [Code](./14-math-and-geometry/0043-multiply-strings.cpp) |
