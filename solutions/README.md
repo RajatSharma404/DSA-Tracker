@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **224** | **75** | **131** | **18** |
+| **225** | **75** | **132** | **18** |
 
 ### 📂 Topic Directories
 
@@ -23,7 +23,7 @@
 - [**Dynamic Programming**](./11-dynamic-programming/) (29 problems)
 - [**Greedy**](./12-greedy/) (11 problems)
 - [**Bit Manipulation**](./13-bit-manipulation/) (6 problems)
-- [**Math And Geometry**](./14-math-and-geometry/) (9 problems)
+- [**Math And Geometry**](./14-math-and-geometry/) (10 problems)
 
 ### 📝 Problem Index
 
@@ -34,6 +34,7 @@
 | 3 | Longest Substring Without Repeating Characters | Sliding Window | 🟡 Medium | `C++` | `O(n)` | `O(min(n, m))` | [Code](./03-sliding-window/0003-longest-substring-without-repeating-characters.cpp) |
 | 5 | Longest Palindromic Substring | Dynamic Programming / Expand Around Center | 🟡 Medium | `C++` | `O(n^2)` | `O(1)` | [Code](./11-dynamic-programming/0005-longest-palindromic-substring.cpp) |
 | 7 | Reverse Integer | Math & Number Theory | 🟡 Medium | `C++` | `O(log10(x))` | `O(1)` | [Code](./14-math-and-geometry/0007-reverse-integer.cpp) |
+| 8 | String To Integer Atoi | Math & Geometry / String Parsing | 🟡 Medium | `C++` | `O(n) single pass` | `O(1)` | [Code](./14-math-and-geometry/0008-string-to-integer-atoi.cpp) |
 | 10 | Regular Expression Matching | Dynamic Programming (2D Grid) | 🔴 Hard | `C++` | `O(M * N)` | `O(M * N)` | [Code](./11-dynamic-programming/0010-regular-expression-matching.cpp) |
 | 11 | Container With Most Water | Two Pointers | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0011-container-with-most-water.cpp) |
 | 14 | Longest Common Prefix | Arrays & Hashing / String | 🟢 Easy | `C++` | `O(S) where S is the sum of all characters in all strings` | `O(1)` | [Code](./01-arrays-and-hashing/0014-longest-common-prefix.cpp) |
