@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **227** | **76** | **133** | **18** |
+| **228** | **76** | **134** | **18** |
 
 ### 📂 Topic Directories
 
@@ -18,7 +18,7 @@
 - [**Linked List**](./06-linked-list/) (19 problems)
 - [**Trees And Tries**](./07-trees-and-tries/) (30 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (7 problems)
-- [**Backtracking**](./09-backtracking/) (10 problems)
+- [**Backtracking**](./09-backtracking/) (11 problems)
 - [**Graphs**](./10-graphs/) (24 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (29 problems)
 - [**Greedy**](./12-greedy/) (11 problems)
@@ -46,6 +46,7 @@
 | 19 | Remove Nth Node From End Of List | Linked List | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./06-linked-list/0019-remove-nth-node-from-end-of-list.cpp) |
 | 20 | Valid Parentheses | Stack | 🟢 Easy | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0020-valid-parentheses.cpp) |
 | 21 | Merge Two Sorted Lists | Linked List | 🟢 Easy | `C++` | `O(n + m)` | `O(1)` | [Code](./06-linked-list/0021-merge-two-sorted-lists.cpp) |
+| 22 | Generate Parentheses | Recursion & Backtracking | 🟡 Medium | `C++` | `O(4^n / sqrt(n)) bounded by n-th Catalan number` | `O(n) recursion stack` | [Code](./09-backtracking/0022-generate-parentheses.cpp) |
 | 23 | Merge K Sorted Lists | Linked List (Min-Heap / Priority Queue) | 🔴 Hard | `C++` | `O(N log k) where N is total nodes and k is number of linked lists` | `O(k) min-heap space` | [Code](./06-linked-list/0023-merge-k-sorted-lists.cpp) |
 | 26 | Remove Duplicates From Sorted Array | Arrays & Hashing / Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0026-remove-duplicates-from-sorted-array.cpp) |
 | 27 | Remove Element | Arrays & Hashing / Two Pointers | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./01-arrays-and-hashing/0027-remove-element.cpp) |
