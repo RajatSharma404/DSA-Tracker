@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **229** | **76** | **135** | **18** |
+| **230** | **77** | **135** | **18** |
 
 ### 📂 Topic Directories
 
@@ -22,7 +22,7 @@
 - [**Graphs**](./10-graphs/) (24 problems)
 - [**Dynamic Programming**](./11-dynamic-programming/) (29 problems)
 - [**Greedy**](./12-greedy/) (11 problems)
-- [**Bit Manipulation**](./13-bit-manipulation/) (6 problems)
+- [**Bit Manipulation**](./13-bit-manipulation/) (7 problems)
 - [**Math And Geometry**](./14-math-and-geometry/) (12 problems)
 
 ### 📝 Problem Index
@@ -78,6 +78,7 @@
 | 63 | Unique Paths Ii | Dynamic Programming (Grid with Obstacles) | 🟡 Medium | `C++` | `O(M * N)` | `O(N) space optimized` | [Code](./11-dynamic-programming/0063-unique-paths-ii.cpp) |
 | 64 | Minimum Path Sum | Dynamic Programming (In-Place Grid DP) | 🟡 Medium | `C++` | `O(M * N)` | `O(1) in-place modification` | [Code](./11-dynamic-programming/0064-minimum-path-sum.cpp) |
 | 66 | Plus One | Math & Number Theory | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./14-math-and-geometry/0066-plus-one.cpp) |
+| 67 | Add Binary | Bit Manipulation / String Simulation | 🟢 Easy | `C++` | `O(max(N, M))` | `O(max(N, M)) for result string` | [Code](./13-bit-manipulation/0067-add-binary.cpp) |
 | 69 | Sqrtx | Binary Search | 🟢 Easy | `C++` | `O(log x)` | `O(1)` | [Code](./05-binary-search/0069-sqrtx.cpp) |
 | 70 | Climbing Stairs | Dynamic Programming | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./11-dynamic-programming/0070-climbing-stairs.cpp) |
 | 71 | Simplify Path | Stack | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./04-stack/0071-simplify-path.cpp) |
