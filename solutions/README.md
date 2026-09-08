@@ -6,11 +6,11 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **231** | **77** | **136** | **18** |
+| **232** | **78** | **136** | **18** |
 
 ### 📂 Topic Directories
 
-- [**Arrays And Hashing**](./01-arrays-and-hashing/) (31 problems)
+- [**Arrays And Hashing**](./01-arrays-and-hashing/) (32 problems)
 - [**Two Pointers**](./02-two-pointers/) (15 problems)
 - [**Sliding Window**](./03-sliding-window/) (11 problems)
 - [**Stack**](./04-stack/) (10 problems)
@@ -111,6 +111,7 @@
 | 110 | Balanced Binary Tree | Trees & Tries (Bottom-Up DFS) | 🟢 Easy | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0110-balanced-binary-tree.cpp) |
 | 111 | Minimum Depth Of Binary Tree | Trees & Tries | 🟢 Easy | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0111-minimum-depth-of-binary-tree.cpp) |
 | 112 | Path Sum | Trees & Tries | 🟢 Easy | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0112-path-sum.cpp) |
+| 118 | Pascals Triangle | Arrays & Dynamic Programming / Pascal's Triangle | 🟢 Easy | `C++` | `O(numRows^2)` | `O(numRows^2) for output grid` | [Code](./01-arrays-and-hashing/0118-pascals-triangle.cpp) |
 | 121 | Best Time To Buy And Sell Stock | Sliding Window | 🟢 Easy | `C++` | `O(n)` | `O(1)` | [Code](./03-sliding-window/0121-best-time-to-buy-and-sell-stock.cpp) |
 | 122 | Best Time To Buy And Sell Stock Ii | Greedy | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./12-greedy/0122-best-time-to-buy-and-sell-stock-ii.cpp) |
 | 124 | Binary Tree Maximum Path Sum | Trees & Tries (Postorder DFS) | 🔴 Hard | `C++` | `O(n)` | `O(h) recursion stack` | [Code](./07-trees-and-tries/0124-binary-tree-maximum-path-sum.cpp) |
