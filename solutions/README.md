@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **225** | **75** | **132** | **18** |
+| **226** | **75** | **133** | **18** |
 
 ### 📂 Topic Directories
 
@@ -23,7 +23,7 @@
 - [**Dynamic Programming**](./11-dynamic-programming/) (29 problems)
 - [**Greedy**](./12-greedy/) (11 problems)
 - [**Bit Manipulation**](./13-bit-manipulation/) (6 problems)
-- [**Math And Geometry**](./14-math-and-geometry/) (10 problems)
+- [**Math And Geometry**](./14-math-and-geometry/) (11 problems)
 
 ### 📝 Problem Index
 
@@ -37,6 +37,7 @@
 | 8 | String To Integer Atoi | Math & Geometry / String Parsing | 🟡 Medium | `C++` | `O(n) single pass` | `O(1)` | [Code](./14-math-and-geometry/0008-string-to-integer-atoi.cpp) |
 | 10 | Regular Expression Matching | Dynamic Programming (2D Grid) | 🔴 Hard | `C++` | `O(M * N)` | `O(M * N)` | [Code](./11-dynamic-programming/0010-regular-expression-matching.cpp) |
 | 11 | Container With Most Water | Two Pointers | 🟡 Medium | `C++` | `O(n)` | `O(1)` | [Code](./02-two-pointers/0011-container-with-most-water.cpp) |
+| 12 | Integer To Roman | Math & Geometry / Greedy Mapping | 🟡 Medium | `C++` | `O(1) bounded by fixed number of Roman numerals` | `O(1)` | [Code](./14-math-and-geometry/0012-integer-to-roman.cpp) |
 | 14 | Longest Common Prefix | Arrays & Hashing / String | 🟢 Easy | `C++` | `O(S) where S is the sum of all characters in all strings` | `O(1)` | [Code](./01-arrays-and-hashing/0014-longest-common-prefix.cpp) |
 | 15 | 3sum | Two Pointers | 🟡 Medium | `C++` | `O(n^2)` | `O(1) extra space excluding result` | [Code](./02-two-pointers/0015-3sum.cpp) |
 | 17 | Letter Combinations Of A Phone Number | Recursion & Backtracking | 🟡 Medium | `C++` | `O(4^N * N)` | `O(N) recursion stack` | [Code](./09-backtracking/0017-letter-combinations-of-a-phone-number.cpp) |
