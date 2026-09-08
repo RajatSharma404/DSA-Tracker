@@ -6,7 +6,7 @@
 
 | Total Solved | 🟢 Easy | 🟡 Medium | 🔴 Hard |
 | :---: | :---: | :---: | :---: |
-| **230** | **77** | **135** | **18** |
+| **231** | **77** | **136** | **18** |
 
 ### 📂 Topic Directories
 
@@ -16,7 +16,7 @@
 - [**Stack**](./04-stack/) (10 problems)
 - [**Binary Search**](./05-binary-search/) (12 problems)
 - [**Linked List**](./06-linked-list/) (19 problems)
-- [**Trees And Tries**](./07-trees-and-tries/) (30 problems)
+- [**Trees And Tries**](./07-trees-and-tries/) (31 problems)
 - [**Heap Priority Queue**](./08-heap-priority-queue/) (7 problems)
 - [**Backtracking**](./09-backtracking/) (12 problems)
 - [**Graphs**](./10-graphs/) (24 problems)
@@ -104,6 +104,7 @@
 | 100 | Same Tree | Trees & Tries | 🟢 Easy | `C++` | `O(N) where N is the number of nodes` | `O(h) where h is the tree height` | [Code](./07-trees-and-tries/0100-same-tree.cpp) |
 | 101 | Symmetric Tree | Trees & Tries | 🟢 Easy | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0101-symmetric-tree.cpp) |
 | 102 | Binary Tree Level Order Traversal | Trees & Tries | 🟡 Medium | `C++` | `O(n)` | `O(n)` | [Code](./07-trees-and-tries/0102-binary-tree-level-order-traversal.cpp) |
+| 103 | Binary Tree Zigzag Level Order Traversal | Trees & Tries / BFS | 🟡 Medium | `C++` | `O(n)` | `O(n) for queue` | [Code](./07-trees-and-tries/0103-binary-tree-zigzag-level-order-traversal.cpp) |
 | 104 | Maximum Depth Of Binary Tree | Trees & Tries | 🟢 Easy | `C++` | `O(n)` | `O(h)` | [Code](./07-trees-and-tries/0104-maximum-depth-of-binary-tree.cpp) |
 | 105 | Construct Binary Tree From Preorder And Inorder Traversal | Trees & Tries | 🟡 Medium | `C++` | `O(n)` | `O(n) hash map + recursion stack` | [Code](./07-trees-and-tries/0105-construct-binary-tree-from-preorder-and-inorder-traversal.cpp) |
 | 108 | Convert Sorted Array To Binary Search Tree | Trees & Tries / Divide and Conquer | 🟢 Easy | `C++` | `O(n)` | `O(log n) call stack` | [Code](./07-trees-and-tries/0108-convert-sorted-array-to-binary-search-tree.cpp) |
