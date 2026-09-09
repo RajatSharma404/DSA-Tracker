@@ -9,7 +9,7 @@
   <p align="center">
     <strong>The Premier Algorithmic Mastery Platform, LeetCode Intelligence Hub & FAANG Technical Interview Accelerator</strong>
     <br />
-    <em>Two-Stroke Vim Navigation • 1v1 PvP Battlefield • 4-Tier Procedural Streak Flame • AlgoTracer 2.0 Call Stack Runtime • PWA & Offline Mutation Queue • FlashRecall SM-2 Deck • 3D DSA City Metaverse</em>
+    <em>Two-Stroke Vim Navigation • 1v1 PvP Battlefield • Recharts Telemetry Suite • CodeVis Control Flow AST • Activity Heatmap • AlgoTracer 2.0 • PWA & Offline Queue • 3D DSA City Metaverse</em>
     <br />
     <br />
     <a href="#-quick-start-guide-5-minutes">⚡ Quick Start</a>
@@ -54,9 +54,12 @@
         <li><a href="#7-interactive-curriculum-roadmap-20">Interactive Curriculum Roadmap 2.0 (`/roadmap`)</a></li>
         <li><a href="#8-pwa-service-worker--offline-mutation-buffer">PWA Service Worker & Offline Mutation Buffer</a></li>
         <li><a href="#9-high-performance-0ms-swr-cache--virtualization">High-Performance 0ms SWR Cache & Table Virtualization</a></li>
-        <li><a href="#10-supermemo-2-spaced-repetition-queue">SuperMemo-2 Spaced Repetition Queue (`/review`)</a></li>
-        <li><a href="#11-company-hiring-tracks--monte-carlo-predictor">Company Hiring Tracks & Monte Carlo Predictor (`/company-tracks`)</a></li>
-        <li><a href="#12-dynamic-6-theme-engine--web-audio-synthesizer">Dynamic 6-Theme Engine & Web Audio Synthesizer</a></li>
+        <li><a href="#10-dynamic-6-theme-engine--web-audio-synthesizer">Dynamic 6-Theme Engine & Web Audio Synthesizer</a></li>
+        <li><a href="#11-interactive-analysis-telemetry--recharts-mastery-suite-analytics">Interactive Analysis Telemetry & Recharts Mastery Suite (`/analytics`)</a></li>
+        <li><a href="#12-codevis-control-flow-ast-engine--standalone-sandbox">CodeVis Control Flow AST Engine & Standalone Sandbox</a></li>
+        <li><a href="#13-streak-counter-activity-calendar-heatmap--weak-topic-targeting">Streak Counter, Activity Calendar Heatmap & Weak-Topic Targeting</a></li>
+        <li><a href="#14-supermemo-2-spaced-repetition-queue-review">SuperMemo-2 Spaced Repetition Queue (`/review`)</a></li>
+        <li><a href="#15-company-hiring-tracks--monte-carlo-predictor-company-tracks">Company Hiring Tracks & Monte Carlo Predictor (`/company-tracks`)</a></li>
       </ul>
     </li>
     <li><a href="#-keyboard-shortcuts-cheat-sheet">Keyboard Shortcuts & Vim Chords Cheat Sheet</a></li>
@@ -237,6 +240,40 @@ Engineered with cutting-edge web technologies (Next.js 16 App Router, React 19, 
 
 ---
 
+### 11. 📊 Interactive Analysis Telemetry & Recharts Mastery Suite (`/analytics`)
+- **Multi-Axis Topic Mastery Radar**: Recharts `<RadarChart>` with polar coordinates tracking percentage mastery across all algorithm domains (Arrays, Trees, Graphs, Dynamic Programming, etc.).
+- **Weekly Solve Velocity with Benchmark**: Dynamic `<LineChart>` tracking 8-week cohorts with a horizontal `<ReferenceLine>` anchored to the user's average solve pace.
+- **Monthly Difficulty Ramp**: Stacked `<BarChart>` tracking Easy, Medium, and Hard problem distributions over 6 months with custom cyberpunk hover tooltips.
+- **Design Token Synchronization (`chartTokens.ts`)**: Directly binds Recharts canvas rendering to global CSS variables and palette accents (`--accent`, `#00f0ff`, emerald `#10b981`, amber `#f59e0b`, rose `#f43f5e`).
+
+---
+
+### 12. 🔀 CodeVis Control Flow AST Engine & Standalone Sandbox
+- **1-Click IDE AST Control Flow**: "Visualize Flow" button embedded in the Monaco problem editor toolbar with live loading states and syntax validation.
+- **Multilingual Support**: Real-time parsing and diagram generation for **Python**, **C**, and **C++** codebases via the CodeVis AST engine with built-in client-side AST fallback (`astFlowchartEngine.ts`) for zero-latency, 100% offline control flow diagrams.
+- **Standalone Flowchart Sandbox (`/analytics`)**: Dedicated playground with embedded Monaco editor, language toggles, and `<FlowchartPanel />` supporting infinite canvas panning, zoom controls, and step-through flow inspections.
+
+---
+
+### 13. 🔥 Streak Counter, Activity Calendar Heatmap & Weak-Topic Targeting
+- **Consecutive & Longest Streak Engine (`/api/stats/streak`)**: Computes exact consecutive active solve days and historical milestones from database solve logs.
+- **GitHub-Style 365-Day Activity Heatmap (`ActivityCalendarHeatmap.tsx`)**: Responsive, color-intensity gradient grid reflecting daily problem count velocities with localized date tooltips.
+- **Weak-Topic Targeting Banner (`WeakTopicBanner.tsx`)**: Detects algorithm categories where solve rates fall below 50% (`/api/stats/weak-topic`), offering 1-click teleportation to targeted problem banks with daily dismissal state cached in `localStorage`.
+
+---
+
+### 14. 🧠 SuperMemo-2 Spaced Repetition Queue (`/review`)
+- **Cognitive Retention Scheduling**: SM-2 interval algorithms calculating ease factors, repetition counts, and review dates based on recall grades (Forgot, Hard, Good, Easy).
+- **Invariant Memory Bank**: Reinforces algorithmic pattern invariants before interviews so solutions remain instinctive.
+
+---
+
+### 15. 🏢 Company Hiring Tracks & Monte Carlo Predictor (`/company-tracks`)
+- **Tier-1 Interview Curriculums**: Company-specific problem collections for Google, Meta, Amazon, Apple, Uber, and Quantitative Trading desks.
+- **Monte Carlo Hiring Bar Simulator**: Probabilistic readiness projection based on solve speed percentiles and category coverage.
+
+---
+
 ## ⌨️ Keyboard Shortcuts Cheat Sheet
 
 Press <kbd>?</kbd> anywhere across the application to open the interactive keyboard shortcuts modal.
@@ -270,7 +307,7 @@ Press <kbd>?</kbd> anywhere across the application to open the interactive keybo
 
 ```
 DSA-Tracker/
-├── frontend/                    # Next.js 16 (Turbopack, React 19, Tailwind CSS v4) + Capacitor 8
+├── frontend/                    # Next.js 16 (Turbopack, React 19, Tailwind CSS v4, Recharts, Monaco) + Capacitor 8
 │   ├── android/                 # Native Android Gradle Project & APK Build Pipeline
 │   ├── capacitor.config.ts      # Native Capacitor Mobile Configuration & Bridge
 │   ├── public/                  # PWA Manifest (manifest.json), Service Worker (sw.js), Logo
@@ -284,7 +321,7 @@ DSA-Tracker/
 │   │   │   ├── roadmap/         # 2D Multi-Tier Curriculum DAG
 │   │   │   ├── review/          # SM-2 Spaced Repetition Queue
 │   │   │   ├── recommendations/ # AI Neural Coach & 7-Day Blueprint
-│   │   │   ├── analytics/       # FAANG Speed Benchmarks & Time Matrix
+│   │   │   ├── analytics/       # Recharts Mastery Telemetry & CodeVis Sandbox
 │   │   │   ├── achievements/    # Gladiator EXP Leveling System
 │   │   │   ├── weekly-report/   # AI Executive Briefing & Social Share Card
 │   │   │   ├── challenge/       # Timed Arena & Circular Pomodoro Ring
@@ -299,12 +336,12 @@ DSA-Tracker/
 │   │   └── layout.tsx           # Root Layout with MobileProvider & Native Theme Bridge
 │   ├── src/components/providers/# MobileProvider (Native Status Bar, Hardware Back Navigation)
 │   ├── src/components/layout/   # MobileHeader & MobileBottomNav with Notch Safe Areas
-│   ├── src/components/          # 3D CityScene, Monaco Editors, Layout & Graphs
-│   └── src/lib/                 # mobile.ts (Haptics, Platform Detect), SWR Cache, Audio Synth
+│   ├── src/components/          # 3D CityScene, FlowchartPanel, Monaco Editors, Recharts, StreakCard
+│   └── src/lib/                 # chartTokens.ts, api.ts, mobile.ts, SWR Cache, Audio Synth
 ├── backend/                     # Express 5 + TypeScript + Prisma ORM
-│   ├── index.ts                 # REST API Endpoints & Auth Middleware
+│   ├── index.ts                 # REST API Endpoints, Analytics Telemetry & Auth Middleware
 │   ├── aiService.ts             # AI Guidance & Algorithmic Tracing Engine
-│   ├── services.ts              # SM-2 Math, Analytics & Recommendation Engine
+│   ├── services.ts              # SM-2 Math, Streak/Heatmap Stats & Recommendation Engine
 │   └── prisma/                  # PostgreSQL Schema & Seed Scripts
 ├── extension/                   # Manifest V3 Chrome/Edge Auto-Sync Extension
 └── docker-compose.yml           # Local PostgreSQL Database Container
@@ -446,13 +483,14 @@ npm run dev
 - `npm run dev`: Starts backend using `ts-node`.
 - `npm run build`: Compiles TypeScript to `dist/` and runs `prisma generate`.
 - `npm run start`: Starts production Node server (`node dist/index.js`).
+- `npm test`: Runs Vitest test suite across 5 test suites (73 unit tests).
 
 ### Frontend (`cd frontend`)
 - `npm run dev`: Starts Next.js development server on `0.0.0.0:3005` (LAN accessible for mobile testing).
 - `npm run build`: Compiles production Next.js build (`next build`).
 - `npm run start`: Starts Next.js production server on port 3005.
 - `npm run lint`: Runs ESLint flat config validation.
-- `npm test`: Runs Vitest test suite across 38 suites.
+- `npm test`: Runs Vitest test suite across 45 test suites (191 unit & component tests).
 - `npm run cap:sync`: Synchronizes web assets, config, and native plugins to `frontend/android/`.
 - `npm run cap:open`: Opens the native Android project in Android Studio.
 - `npm run cap:run`: Deploys and launches directly on a connected device or emulator.
