@@ -341,9 +341,41 @@ export interface LearnLessonDetail {
   }>;
 }
 
+export interface StreakStats {
+  currentStreak: number;
+  longestStreak: number;
+}
+
+export interface HeatmapDay {
+  date: string;
+  count: number;
+}
+
+export interface WeakTopicStats {
+  id?: string;
+  name: string;
+  topic: string;
+  total: number;
+  solved: number;
+  solve_rate: number;
+  percentage: number;
+}
+
 import { queryCache } from "./queryCache";
 
 export const dsaApi = {
+  getStreak: async (): Promise<StreakStats> => {
+    const res = await api.get("/stats/streak");
+    return res.data;
+  },
+  getHeatmap: async (): Promise<HeatmapDay[]> => {
+    const res = await api.get("/stats/heatmap");
+    return res.data;
+  },
+  getWeakTopic: async (): Promise<WeakTopicStats | null> => {
+    const res = await api.get("/stats/weak-topic");
+    return res.data;
+  },
   getDashboardStats: async (force = false): Promise<DashboardStats> => {
     return queryCache.fetch(
       "dashboard_stats",
@@ -806,6 +838,20 @@ export const dsaApi = {
   // === Settings Methods ===
   getUserSettings: async () => {
     const res = await api.get("/user/settings");
+    return res.data;
+  },
+
+  // === Stats Endpoints ===
+  getTopicBreakdown: async () => {
+    const res = await api.get("/stats/topic-breakdown");
+    return res.data;
+  },
+  getWeeklyStats: async () => {
+    const res = await api.get("/stats/weekly");
+    return res.data;
+  },
+  getDifficultyByMonth: async () => {
+    const res = await api.get("/stats/difficulty-by-month");
     return res.data;
   },
 };
