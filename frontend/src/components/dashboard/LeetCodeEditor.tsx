@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import Editor from "@monaco-editor/react";
 import {
   Play,
@@ -14,7 +14,15 @@ import {
   Lightbulb,
   ChevronDown,
   ChevronUp,
+  Workflow,
 } from "lucide-react";
+import { toast } from "sonner";
+import {
+  FlowchartPanel,
+  FlowchartData,
+  FlowchartNode,
+} from "@/components/FlowchartPanel";
+import { generateAstFlowchart } from "@/lib/astFlowchartEngine";
 import { dsaApi } from "@/lib/api";
 import {
   submitViaExtension,
@@ -106,6 +114,121 @@ export function LeetCodeEditor({
   const [extensionHealth, setExtensionHealth] =
     useState<ExtensionHealthState>("NOT_INSTALLED");
   const [startTime] = useState<number>(Date.now());
+
+  // CodeVis Flowchart state & Monaco refs
+  const [flowchartData, setFlowchartData] = useState<FlowchartData | null>(null);
+  const [isVisualizing, setIsVisualizing] = useState(false);
+  const [mobileFlowchartOpen, setMobileFlowchartOpen] = useState(true);
+
+  const editorRef = useRef<any>(null);
+  const monacoRef = useRef<any>(null);
+  const decorationsRef = useRef<string[]>([]);
+
+  // Language mapping for CodeVis API (Python -> python, C -> c, C++ -> cpp)
+  const getCodeVisLanguage = (langKey: string): string => {
+    switch (langKey) {
+      case "python3":
+        return "python";
+      case "c":
+        return "c";
+      case "cpp":
+        return "cpp";
+      case "java":
+        return "java";
+      default:
+        return langKey;
+    }
+  };
+
+  const handleVisualizeFlow = async () => {
+    try {
+      setIsVisualizing(true);
+      const mappedLang = getCodeVisLanguage(selectedLang);
+      let resultData: FlowchartData | null = null;
+
+      try {
+        const response = await fetch(
+          "https://codevis-backend.onrender.com/analyze",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              lang: mappedLang,
+              code: code,
+            }),
+          }
+        );
+
+        if (response.ok) {
+          resultData = await response.json();
+        }
+      } catch (netErr) {
+        console.warn(
+          "Remote CodeVis API unreachable, falling back to local AST engine:",
+          netErr instanceof Error ? netErr.message : String(netErr)
+        );
+      }
+
+      if (!resultData || !resultData.nodes || resultData.nodes.length === 0) {
+        resultData = generateAstFlowchart(code, mappedLang);
+      }
+
+      if (resultData && resultData.nodes && resultData.nodes.length > 0) {
+        setFlowchartData(resultData);
+        setMobileFlowchartOpen(true);
+      } else {
+        toast.error("Flowchart generation failed. Check your code syntax.");
+      }
+    } catch (err) {
+      console.warn(
+        "Flowchart generation error:",
+        err instanceof Error ? err.message : String(err)
+      );
+      toast.error("Flowchart generation failed. Check your code syntax.");
+    } finally {
+      setIsVisualizing(false);
+    }
+  };
+
+  const handleCloseFlowchart = () => {
+    if (editorRef.current && decorationsRef.current.length > 0) {
+      decorationsRef.current = editorRef.current.deltaDecorations(
+        decorationsRef.current,
+        []
+      );
+    }
+    setFlowchartData(null);
+  };
+
+  const handleNodeClick = (node: FlowchartNode) => {
+    const startLine =
+      node.startLine ?? node.line ?? (node.lines && node.lines[0]);
+    const endLine =
+      node.endLine ?? node.line ?? (node.lines && node.lines[node.lines.length - 1]) ?? startLine;
+
+    if (startLine && editorRef.current && monacoRef.current) {
+      decorationsRef.current = editorRef.current.deltaDecorations(
+        decorationsRef.current,
+        [
+          {
+            range: new monacoRef.current.Range(
+              startLine,
+              1,
+              endLine || startLine,
+              1
+            ),
+            options: {
+              isWholeLine: true,
+              className: "codevis-highlight",
+            },
+          },
+        ]
+      );
+      editorRef.current.revealLineInCenter(startLine);
+    }
+  };
 
   // Load problem details and code snippets, then override with saved code
   const loadProblemSnippets = useCallback(async () => {
@@ -411,46 +534,132 @@ export function LeetCodeEditor({
           </div>
         </div>
 
-        <button
-          onClick={handleSubmit}
-          disabled={isSubmitting}
-          className="flex gap-2 items-center bg-linear-to-r from-violet-500 to-purple-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wider hover:from-violet-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-violet-500/20"
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 size={16} className="animate-spin" />
-              Evaluating...
-            </>
-          ) : (
-            <>
-              <Play size={16} />
-              Submit
-            </>
-          )}
-        </button>
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={handleVisualizeFlow}
+            disabled={isVisualizing}
+            className="flex gap-2 items-center px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 hover:border-cyan-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm shadow-cyan-500/10 cursor-pointer"
+            title="Generate visual control flow diagram using CodeVis"
+          >
+            {isVisualizing ? (
+              <>
+                <Loader2 size={15} className="animate-spin text-cyan-400" />
+                <span>Visualizing...</span>
+              </>
+            ) : (
+              <>
+                <Workflow size={15} />
+                <span>🔀 Visualize Flow</span>
+              </>
+            )}
+          </button>
+
+          <button
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className="flex gap-2 items-center bg-linear-to-r from-violet-500 to-purple-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wider hover:from-violet-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-violet-500/20 cursor-pointer"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 size={16} className="animate-spin" />
+                Evaluating...
+              </>
+            ) : (
+              <>
+                <Play size={16} />
+                Submit
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
-      {/* Editor */}
-      <div className="h-125 overflow-hidden">
-        <Editor
-          height="100%"
-          theme="vs-dark"
-          language={LANGUAGES[selectedLang].monacoLang}
-          value={code}
-          onChange={(value) => setCode(value || "")}
-          options={{
-            minimap: { enabled: true },
-            fontSize: 14,
-            fontFamily: '"Fira Code", "Cascadia Code", Consolas, monospace',
-            padding: { top: 16, bottom: 16 },
-            scrollBeyondLastLine: false,
-            roundedSelection: true,
-            lineNumbers: "on",
-            automaticLayout: true,
-            tabSize: selectedLang === "python3" ? 4 : 2,
-          }}
-        />
+      {/* Editor & Flowchart Arena */}
+      <div
+        className={`flex flex-col md:flex-row overflow-hidden border-b border-white/5 transition-all ${
+          flowchartData ? "md:h-140" : "h-125"
+        }`}
+      >
+        {/* Editor Container */}
+        <div
+          className={`h-full overflow-hidden transition-all ${
+            flowchartData
+              ? "w-full md:w-1/2 h-100 md:h-full border-b md:border-b-0 md:border-r border-white/10"
+              : "w-full h-full"
+          }`}
+        >
+          <Editor
+            height="100%"
+            theme="vs-dark"
+            language={LANGUAGES[selectedLang].monacoLang}
+            value={code}
+            onChange={(value) => setCode(value || "")}
+            onMount={(editor, monaco) => {
+              editorRef.current = editor;
+              monacoRef.current = monaco;
+            }}
+            options={{
+              minimap: { enabled: !flowchartData },
+              fontSize: flowchartData ? 13 : 14,
+              fontFamily: '"Fira Code", "Cascadia Code", Consolas, monospace',
+              padding: { top: 16, bottom: 16 },
+              scrollBeyondLastLine: false,
+              roundedSelection: true,
+              lineNumbers: "on",
+              automaticLayout: true,
+              tabSize: selectedLang === "python3" ? 4 : 2,
+            }}
+          />
+        </div>
+
+        {/* Desktop Flowchart Panel (>= 768px) */}
+        {flowchartData && (
+          <div className="hidden md:block md:w-1/2 h-full overflow-hidden">
+            <FlowchartPanel
+              data={flowchartData}
+              onClose={handleCloseFlowchart}
+              onNodeClick={handleNodeClick}
+            />
+          </div>
+        )}
       </div>
+
+      {/* Mobile Flowchart Accordion (< 768px) */}
+      {flowchartData && (
+        <div className="md:hidden flex flex-col border-b border-white/10 bg-[#0d0d14]">
+          <button
+            type="button"
+            onClick={() => setMobileFlowchartOpen(!mobileFlowchartOpen)}
+            className="flex items-center justify-between px-5 py-3 bg-white/5 hover:bg-white/10 text-xs font-bold text-gray-200 transition-colors cursor-pointer"
+          >
+            <div className="flex items-center gap-2 text-cyan-400">
+              <Workflow size={15} />
+              <span>🔀 Control Flow Diagram</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-gray-400 font-normal">
+                {mobileFlowchartOpen ? "Tap to collapse" : "Tap to expand"}
+              </span>
+              {mobileFlowchartOpen ? (
+                <ChevronUp size={16} />
+              ) : (
+                <ChevronDown size={16} />
+              )}
+            </div>
+          </button>
+
+          {mobileFlowchartOpen && (
+            <div className="h-105 overflow-hidden border-t border-white/10">
+              <FlowchartPanel
+                data={flowchartData}
+                onClose={handleCloseFlowchart}
+                onNodeClick={handleNodeClick}
+              />
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Evaluation Result */}
       {evaluation && (
