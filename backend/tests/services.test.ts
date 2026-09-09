@@ -33,6 +33,14 @@ import {
   getAchievements,
   getWeeklyReport,
 } from "../services";
+import {
+  calculateStreakFromSolves,
+  generateHeatmapFromSolves,
+  calculateWeakestTopic,
+  calculateTopicBreakdown,
+  calculateWeeklySolveVelocity,
+  calculateDifficultyRamp,
+} from "../index";
 
 describe("backend/services.ts", () => {
   beforeEach(() => {
@@ -457,4 +465,261 @@ describe("backend/services.ts", () => {
       expect(res.summary).toContain("No problems solved this week");
     });
   });
+
+  describe("calculateStreakFromSolves", () => {
+    it("should return 0 streak for empty solves", () => {
+      const res = calculateStreakFromSolves([]);
+      expect(res.currentStreak).toBe(0);
+      expect(res.longestStreak).toBe(0);
+    });
+
+    it("should count consecutive days including today and calculate longest", () => {
+      const ref = new Date(2026, 8, 9); // 2026-09-09
+      const solves = [
+        { completedAt: new Date(2026, 8, 9) },
+        { completedAt: new Date(2026, 8, 8) },
+        { completedAt: new Date(2026, 8, 7) },
+        // gap
+        { completedAt: new Date(2026, 8, 1) },
+        { completedAt: new Date(2026, 8, 2) },
+        { completedAt: new Date(2026, 8, 3) },
+        { completedAt: new Date(2026, 8, 4) },
+        { completedAt: new Date(2026, 8, 5) },
+      ];
+
+      const res = calculateStreakFromSolves(solves, 0, ref);
+      expect(res.currentStreak).toBe(3);
+      expect(res.longestStreak).toBe(5);
+    });
+
+    it("should maintain active streak if solved yesterday but not today", () => {
+      const ref = new Date(2026, 8, 9); // 2026-09-09
+      const solves = [
+        { completedAt: new Date(2026, 8, 8) },
+        { completedAt: new Date(2026, 8, 7) },
+      ];
+
+      const res = calculateStreakFromSolves(solves, 0, ref);
+      expect(res.currentStreak).toBe(2);
+      expect(res.longestStreak).toBe(2);
+    });
+
+    it("should return 0 current streak if last solve was 2 or more days ago", () => {
+      const ref = new Date(2026, 8, 9); // 2026-09-09
+      const solves = [
+        { completedAt: new Date(2026, 8, 6) },
+        { completedAt: new Date(2026, 8, 5) },
+      ];
+
+      const res = calculateStreakFromSolves(solves, 0, ref);
+      expect(res.currentStreak).toBe(0);
+      expect(res.longestStreak).toBe(2);
+    });
+
+    it("should handle multiple solves on the same date as 1 day in streak", () => {
+      const ref = new Date(2026, 8, 9);
+      const solves = [
+        { completedAt: new Date(2026, 8, 9, 10, 0) },
+        { completedAt: new Date(2026, 8, 9, 14, 0) },
+        { completedAt: new Date(2026, 8, 8, 9, 0) },
+      ];
+
+      const res = calculateStreakFromSolves(solves, 0, ref);
+      expect(res.currentStreak).toBe(2);
+      expect(res.longestStreak).toBe(2);
+    });
+  });
+
+  describe("generateHeatmapFromSolves", () => {
+    it("should return array of 365 days with correct count aggregation", () => {
+      const ref = new Date(2026, 8, 9);
+      const solves = [
+        { completedAt: new Date(2026, 8, 9, 10, 0) },
+        { completedAt: new Date(2026, 8, 9, 15, 0) },
+        { completedAt: new Date(2026, 8, 8, 11, 0) },
+      ];
+
+      const heatmap = generateHeatmapFromSolves(solves, 365, ref);
+      expect(heatmap).toHaveLength(365);
+      const lastDay = heatmap[heatmap.length - 1];
+      expect(lastDay.date).toBe("2026-09-09");
+      expect(lastDay.count).toBe(2);
+
+      const dayBefore = heatmap[heatmap.length - 2];
+      expect(dayBefore.date).toBe("2026-09-08");
+      expect(dayBefore.count).toBe(1);
+
+      const emptyDay = heatmap[heatmap.length - 3];
+      expect(emptyDay.date).toBe("2026-09-07");
+      expect(emptyDay.count).toBe(0);
+    });
+  });
+
+  describe("calculateWeakestTopic", () => {
+    it("should ignore topics with fewer than 5 problems", () => {
+      const topics = [
+        {
+          id: "t1",
+          name: "Small Topic",
+          problems: [
+            { id: "p1", progress: [] },
+            { id: "p2", progress: [] },
+            { id: "p3", progress: [] },
+            { id: "p4", progress: [] },
+          ],
+        },
+      ];
+
+      const res = calculateWeakestTopic(topics);
+      expect(res).toBeNull();
+    });
+
+    it("should pick the topic with lowest solve_rate among topics with >= 5 problems", () => {
+      const topics = [
+        {
+          id: "t1",
+          name: "Arrays",
+          problems: [
+            { id: "p1", progress: [{ id: "pr1" }] },
+            { id: "p2", progress: [{ id: "pr2" }] },
+            { id: "p3", progress: [{ id: "pr3" }] },
+            { id: "p4", progress: [] },
+            { id: "p5", progress: [] },
+          ], // 3/5 = 60%
+        },
+        {
+          id: "t2",
+          name: "Dynamic Programming",
+          problems: [
+            { id: "p6", progress: [{ id: "pr4" }] },
+            { id: "p7", progress: [] },
+            { id: "p8", progress: [] },
+            { id: "p9", progress: [] },
+            { id: "p10", progress: [] },
+          ], // 1/5 = 20%
+        },
+        {
+          id: "t3",
+          name: "Bit Manipulation",
+          problems: [
+            { id: "p11", progress: [] },
+            { id: "p12", progress: [] },
+          ], // 2 problems (ignored)
+        },
+      ];
+
+      const res = calculateWeakestTopic(topics);
+      expect(res).not.toBeNull();
+      expect(res?.name).toBe("Dynamic Programming");
+      expect(res?.topic).toBe("Dynamic Programming");
+      expect(res?.total).toBe(5);
+      expect(res?.solved).toBe(1);
+      expect(res?.solve_rate).toBeCloseTo(0.2);
+      expect(res?.percentage).toBe(20);
+    });
+  });
+
+  describe("calculateTopicBreakdown", () => {
+    it("should calculate mastery percentages correctly for topics with problems", () => {
+      const topics = [
+        {
+          id: "t1",
+          name: "Arrays",
+          problems: [
+            { id: "p1", progress: [{ id: "pr1" }] },
+            { id: "p2", progress: [{ id: "pr2" }] },
+            { id: "p3", progress: [] },
+            { id: "p4", progress: [] },
+          ], // 2/4 = 50%
+        },
+        {
+          id: "t2",
+          name: "Trees",
+          problems: [
+            { id: "p5", progress: [{ id: "pr3" }] },
+          ], // 1/1 = 100%
+        },
+        {
+          id: "t3",
+          name: "Empty Topic",
+          problems: [],
+        },
+      ];
+
+      const res = calculateTopicBreakdown(topics);
+      expect(res).toHaveLength(2);
+      expect(res[0]).toEqual({
+        topic: "Arrays",
+        subject: "Arrays",
+        percentage: 50,
+        value: 50,
+        solved: 2,
+        total: 4,
+        fullMark: 100,
+      });
+      expect(res[1]).toEqual({
+        topic: "Trees",
+        subject: "Trees",
+        percentage: 100,
+        value: 100,
+        solved: 1,
+        total: 1,
+        fullMark: 100,
+      });
+    });
+  });
+
+  describe("calculateWeeklySolveVelocity", () => {
+    it("should bucket solves into 8 weeks and calculate correct average", () => {
+      const ref = new Date(2026, 8, 9); // Sep 9, 2026
+      const solves = [
+        { completedAt: new Date(2026, 8, 9, 10, 0) }, // Current week
+        { completedAt: new Date(2026, 8, 8, 12, 0) }, // Current week
+        { completedAt: new Date(2026, 7, 28, 10, 0) }, // Prior week
+      ];
+
+      const res = calculateWeeklySolveVelocity(solves, 8, ref);
+      expect(res.weeks).toHaveLength(8);
+      expect(res.average).toBe(0.4); // 3 solves / 8 weeks = 0.375 -> 0.4
+      const latestWeek = res.weeks[res.weeks.length - 1];
+      expect(latestWeek.solved).toBe(2);
+    });
+  });
+
+  describe("calculateDifficultyRamp", () => {
+    it("should bucket solves by last 6 calendar months and count Easy, Medium, Hard", () => {
+      const ref = new Date(2026, 8, 9); // Sep 2026
+      const solves = [
+        {
+          completedAt: new Date(2026, 8, 2),
+          problem: { difficulty: "EASY" },
+        },
+        {
+          completedAt: new Date(2026, 8, 5),
+          problem: { difficulty: "HARD" },
+        },
+        {
+          completedAt: new Date(2026, 7, 15),
+          problem: { difficulty: "MEDIUM" },
+        },
+      ];
+
+      const res = calculateDifficultyRamp(solves, 6, ref);
+      expect(res).toHaveLength(6);
+      const sep = res[res.length - 1];
+      expect(sep.month).toBe("Sep");
+      expect(sep.easy).toBe(1);
+      expect(sep.medium).toBe(0);
+      expect(sep.hard).toBe(1);
+      expect(sep.total).toBe(2);
+
+      const aug = res[res.length - 2];
+      expect(aug.month).toBe("Aug");
+      expect(aug.easy).toBe(0);
+      expect(aug.medium).toBe(1);
+      expect(aug.hard).toBe(0);
+      expect(aug.total).toBe(1);
+    });
+  });
 });
+
