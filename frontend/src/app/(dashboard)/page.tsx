@@ -67,6 +67,27 @@ const StatCard = dynamic(
   },
 );
 
+const StreakCard = dynamic(
+  () => import("@/components/dashboard/StreakCard"),
+  {
+    ssr: false,
+    loading: () => <StatsCardSkeleton />,
+  },
+);
+
+const WeakTopicBanner = dynamic(
+  () => import("@/components/dashboard/WeakTopicBanner"),
+  { ssr: false },
+);
+
+const ActivityCalendarHeatmap = dynamic(
+  () => import("@/components/dashboard/ActivityCalendarHeatmap"),
+  {
+    ssr: false,
+    loading: () => <ActivityCardSkeleton />,
+  },
+);
+
 import { queryCache } from "@/lib/queryCache";
 
 export default function Dashboard() {
@@ -312,6 +333,9 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
+      {/* Weak Topic Alert Banner (Feature 3) */}
+      <WeakTopicBanner />
+
       <div>
         <h1 className="text-3xl font-black tracking-tight text-[var(--text-primary)] font-display">
           Dashboard
@@ -759,11 +783,9 @@ export default function Dashboard() {
           description={`${stats.solvedProblems} of ${stats.totalProblems} solved`}
           icon={Target}
         />
-        <StatCard
-          title="Current Streak"
-          value={`${stats.currentStreak} Days`}
-          description={`Longest: ${stats.longestStreak} Days`}
-          icon={() => <StreakFlame streakDays={stats.currentStreak} size={26} />}
+        <StreakCard
+          streak={stats.currentStreak}
+          longestStreak={stats.longestStreak}
         />
         <StatCard
           title="Problems Solved"
@@ -772,6 +794,9 @@ export default function Dashboard() {
         />
         <StatCard title="Active Topics" value="In Progress" icon={BookOpen} />
       </div>
+
+      {/* GitHub-style Activity Heatmap (Feature 2) */}
+      <ActivityCalendarHeatmap />
 
       {/* Progress Bar overall */}
       <div className="p-6 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-subtle)] shadow-xl relative overflow-hidden">
