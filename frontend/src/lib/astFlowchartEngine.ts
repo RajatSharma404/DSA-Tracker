@@ -93,7 +93,7 @@ export function generateAstFlowchart(
     normalizedLang === "ts";
 
   let hasStartNode = false;
-  let loopStack: { node: FlowchartNode; indent: number }[] = [];
+  const loopStack: { node: FlowchartNode; indent: number }[] = [];
   let prevNode: FlowchartNode | null = null;
   let lastDecisionNode: FlowchartNode | null = null;
 
@@ -126,7 +126,7 @@ export function generateAstFlowchart(
         )) ||
       (!hasStartNode && /^(?:function\s+[a-zA-Z0-9_]+|const\s+[a-zA-Z0-9_]+\s*=\s*(?:async\s*)?\()/.test(trimmed))
     ) {
-      let funcLabel = trimmed.replace(/:$/, "").replace(/\{$/, "").trim();
+      const funcLabel = trimmed.replace(/:$/, "").replace(/\{$/, "").trim();
       const node = createNode("start", funcLabel, lineNum);
       hasStartNode = true;
 
@@ -139,7 +139,7 @@ export function generateAstFlowchart(
 
     // 2. Return Statement / Exit Point
     if (trimmed.startsWith("return") || trimmed === "break;" || trimmed === "break") {
-      let returnLabel = trimmed.replace(/;$/, "").trim();
+      const returnLabel = trimmed.replace(/;$/, "").trim();
       const node = createNode("end", returnLabel, lineNum);
 
       if (prevNode) {
@@ -155,7 +155,7 @@ export function generateAstFlowchart(
 
     // 3. While Loop
     if (trimmed.startsWith("while ") || trimmed.startsWith("while(")) {
-      let cond = extractCondition(trimmed, "while");
+      const cond = extractCondition(trimmed, "while");
       const node = createNode("decision", `while (${cond})`, lineNum);
 
       if (prevNode) {
@@ -169,7 +169,7 @@ export function generateAstFlowchart(
 
     // 4. For Loop
     if (trimmed.startsWith("for ") || trimmed.startsWith("for(")) {
-      let cond = extractCondition(trimmed, "for");
+      const cond = extractCondition(trimmed, "for");
       const node = createNode("decision", `for (${cond})`, lineNum);
 
       if (prevNode) {
@@ -183,7 +183,7 @@ export function generateAstFlowchart(
 
     // 5. If Statement
     if (trimmed.startsWith("if ") || trimmed.startsWith("if(")) {
-      let cond = extractCondition(trimmed, "if");
+      const cond = extractCondition(trimmed, "if");
       const node = createNode("decision", `${cond} ?`, lineNum);
 
       if (prevNode) {
@@ -201,7 +201,7 @@ export function generateAstFlowchart(
       trimmed.startsWith("else if") ||
       trimmed.startsWith("else if(")
     ) {
-      let cond = extractCondition(trimmed, trimmed.startsWith("elif") ? "elif" : "else if");
+      const cond = extractCondition(trimmed, trimmed.startsWith("elif") ? "elif" : "else if");
       const node = createNode("decision", `${cond} ?`, lineNum);
 
       if (lastDecisionNode) {
@@ -228,7 +228,7 @@ export function generateAstFlowchart(
       trimmed.includes("cin >>") ||
       trimmed.startsWith("console.log(")
     ) {
-      let ioLabel = trimmed.replace(/;$/, "").trim();
+      const ioLabel = trimmed.replace(/;$/, "").trim();
       const node = createNode("io", ioLabel, lineNum);
 
       if (prevNode) {
@@ -248,7 +248,7 @@ export function generateAstFlowchart(
       continue;
     }
 
-    let stmtLabel = trimmed.replace(/;$/, "").trim();
+    const stmtLabel = trimmed.replace(/;$/, "").trim();
     const node = createNode("process", stmtLabel, lineNum);
 
     if (prevNode) {
