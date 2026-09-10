@@ -181,6 +181,53 @@ export interface DashboardStats {
   nextAction?: NextAction;
 }
 
+export interface DashboardBootstrapData {
+  user: {
+    id: string;
+    email: string;
+    name: string | null;
+    role: string;
+    leetcodeUsername: string | null;
+  } | null;
+  stats: {
+    totalProblems: number;
+    solvedProblems: number;
+    progressPercentage: number;
+    easySolved: number;
+    mediumSolved: number;
+    hardSolved: number;
+  };
+  streak: {
+    currentStreak: number;
+    longestStreak: number;
+    lastActivityDate: string | Date | null;
+  };
+  dueReviews: Array<{
+    id: string;
+    title: string;
+    topicName: string;
+    daysSince: number;
+  }>;
+  weakTopics: Array<{
+    name: string;
+    avgTimeSpent: number;
+    completionPct?: number;
+    weaknessScore?: number;
+  }>;
+  nextAction?: NextAction;
+  totalProblems: number;
+  solvedProblems: number;
+  progressPercentage: number;
+  currentStreak: number;
+  longestStreak: number;
+  revisions: Array<{
+    id: string;
+    title: string;
+    topicName: string;
+    daysSince: number;
+  }>;
+}
+
 export interface NextAction {
   mode: "REVISION" | "WEAKNESS" | "BUILD_MOMENTUM" | "BALANCED";
   title: string;
@@ -380,6 +427,13 @@ export const dsaApi = {
     return queryCache.fetch(
       "dashboard_stats",
       async () => (await api.get("/dashboard")).data,
+      { force, staleTime: 20_000 },
+    );
+  },
+  getDashboardBootstrap: async (force = false): Promise<DashboardBootstrapData> => {
+    return queryCache.fetch(
+      "dashboard_bootstrap",
+      async () => (await api.get("/dashboard/bootstrap")).data,
       { force, staleTime: 20_000 },
     );
   },
