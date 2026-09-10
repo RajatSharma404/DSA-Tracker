@@ -67,7 +67,7 @@ export function AlgoTracer({
   const handleRunTrace = useCallback(() => {
     runTrace(code, arrayInput, targetInput, graphInput, detection.type);
     toast.success(`Trace generated for ${detection.displayName}!`);
-  }, [code, arrayInput, targetInput, graphInput, detection.type, runTrace]);
+  }, [code, arrayInput, targetInput, graphInput, detection.type, detection.displayName, runTrace]);
 
   // Playback hook
   const {
