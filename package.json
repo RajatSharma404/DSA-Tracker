@@ -11,6 +11,13 @@
     "test:backend": "cd backend && npm run test",
     "test:frontend": "cd frontend && npm run test",
     "test:coverage": "concurrently \"cd backend && npm run test:coverage\" \"cd frontend && npm run test:coverage\"",
+    "lint": "cd frontend && npm run lint",
+    "typecheck": "concurrently \"npm run typecheck:backend\" \"npm run typecheck:frontend\"",
+    "typecheck:backend": "cd backend && npx tsc --noEmit",
+    "typecheck:frontend": "cd frontend && npx tsc --noEmit",
+    "check:prisma-sync": "node -e \"const fs=require('fs'); const b=fs.readFileSync('backend/prisma/schema.prisma','utf8'); const f=fs.readFileSync('frontend/prisma/schema.prisma','utf8'); if (b!==f) { console.error('Prisma schemas are out of sync!'); process.exit(1); } else { console.log('Prisma schemas are synchronized.'); }\"",
+    "sync:prisma": "node -e \"const fs=require('fs'); fs.copyFileSync('backend/prisma/schema.prisma', 'frontend/prisma/schema.prisma'); console.log('Copied backend schema to frontend.');\"",
+    "qa": "npm run check:prisma-sync && npm run typecheck && npm run lint && npm test",
     "add:sol": "node scripts/add-solution.js",
     "sync:sol": "node scripts/sync-solutions.js"
   },
