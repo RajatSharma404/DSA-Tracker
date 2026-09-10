@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useRef, memo } from "react";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import { dsaApi, Topic, Problem } from "@/lib/api";
@@ -102,10 +102,19 @@ export default function TopicsPage() {
     setExpandedTopic((prev) => (prev === id ? null : id));
   };
 
-  const totalProblems = topics.reduce((acc, t) => acc + t.totalProblems, 0);
-  const totalSolved = topics.reduce((acc, t) => acc + t.solvedProblems, 0);
-  const overallPercentage =
-    totalProblems > 0 ? Math.round((totalSolved / totalProblems) * 100) : 0;
+  const totalProblems = useMemo(
+    () => topics.reduce((acc, t) => acc + t.totalProblems, 0),
+    [topics],
+  );
+  const totalSolved = useMemo(
+    () => topics.reduce((acc, t) => acc + t.solvedProblems, 0),
+    [topics],
+  );
+  const overallPercentage = useMemo(
+    () =>
+      totalProblems > 0 ? Math.round((totalSolved / totalProblems) * 100) : 0,
+    [totalProblems, totalSolved],
+  );
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 w-full min-w-0">
@@ -165,7 +174,7 @@ export default function TopicsPage() {
   );
 }
 
-function TopicCard({
+const TopicCard = memo(function TopicCard({
   topic,
   index,
   isExpanded,
@@ -176,13 +185,10 @@ function TopicCard({
   isExpanded: boolean;
   onToggle: () => void;
 }) {
+  const cardRef = useRef<HTMLDivElement>(null);
   const cachedProblems = queryCache.get<Problem[]>(`topic_problems_${topic.id}`);
   const [problems, setProblems] = useState<Problem[]>(cachedProblems || []);
   const [loading, setLoading] = useState(false);
-  const [cardTransform, setCardTransform] = useState(
-    "perspective(2200px) rotateX(0deg) rotateY(0deg) translateZ(0px)",
-  );
-  const [cardGlow, setCardGlow] = useState({ x: 50, y: 50 });
 
   useEffect(() => {
     if (isExpanded) {
@@ -242,12 +248,12 @@ function TopicCard({
   };
 
   const handleCardMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     
     // Only apply 3D tilt if the card is NOT expanded.
-    // Expanded cards can be very tall, causing extreme rotations.
     let rotateX = 0;
     let rotateY = 0;
     
@@ -256,29 +262,33 @@ function TopicCard({
       rotateX = -((y - rect.height / 2) / rect.height) * 0.6;
     }
 
-    setCardTransform(
+    cardRef.current.style.setProperty(
+      "--card-transform",
       `perspective(2200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(0px)`,
     );
-    setCardGlow({
-      x: (x / rect.width) * 100,
-      y: (y / rect.height) * 100,
-    });
+    cardRef.current.style.setProperty("--glow-x", `${(x / rect.width) * 100}%`);
+    cardRef.current.style.setProperty("--glow-y", `${(y / rect.height) * 100}%`);
   };
 
   const resetCardTilt = () => {
-    setCardTransform(
+    if (!cardRef.current) return;
+    cardRef.current.style.setProperty(
+      "--card-transform",
       "perspective(2200px) rotateX(0deg) rotateY(0deg) translateZ(0px)",
     );
-    setCardGlow({ x: 50, y: 50 });
+    cardRef.current.style.setProperty("--glow-x", "50%");
+    cardRef.current.style.setProperty("--glow-y", "50%");
   };
 
   return (
     <div
+      ref={cardRef}
       onMouseMove={handleCardMouseMove}
       onMouseLeave={resetCardTilt}
       className="relative bg-[#111] border border-[#222] rounded-xl overflow-hidden transition-all duration-300 will-change-transform"
       style={{
-        transform: cardTransform,
+        transform:
+          "var(--card-transform, perspective(2200px) rotateX(0deg) rotateY(0deg) translateZ(0px))",
         transformStyle: "flat",
         transition: "transform 0.2s ease, border-color 0.2s ease",
       }}
@@ -286,7 +296,8 @@ function TopicCard({
       <div
         className="pointer-events-none absolute inset-0 opacity-60"
         style={{
-          background: `radial-gradient(circle at ${cardGlow.x}% ${cardGlow.y}%, rgba(96,165,250,0.04), transparent 34%)`,
+          background:
+            "radial-gradient(circle at var(--glow-x, 50%) var(--glow-y, 50%), rgba(96,165,250,0.04), transparent 34%)",
         }}
       />
       <div
@@ -476,7 +487,7 @@ function TopicCard({
       )}
     </div>
   );
-}
+});
 
 function TopicStrategy({ topicId }: { topicId: string }) {
   const [explanation, setExplanation] = useState<string | null>(null);
