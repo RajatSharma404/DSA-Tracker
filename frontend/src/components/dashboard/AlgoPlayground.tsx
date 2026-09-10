@@ -53,6 +53,7 @@ const PHASE_CONFIG: Record<string, { color: string; bg: string; border: string; 
   PROCESS: { color: 'text-cyan-400',   bg: 'bg-cyan-500/10',   border: 'border-cyan-500/30', icon: <Cpu size={12} /> },
   CHECK:   { color: 'text-yellow-400', bg: 'bg-yellow-500/10', border: 'border-yellow-500/30', icon: <Eye size={12} /> },
   FOUND:   { color: 'text-green-400',  bg: 'bg-green-500/10',  border: 'border-green-500/30', icon: <Zap size={12} /> },
+  MATCH:   { color: 'text-green-400',  bg: 'bg-green-500/10',  border: 'border-green-500/30', icon: <Zap size={12} /> },
   RETURN:  { color: 'text-emerald-400',bg: 'bg-emerald-500/10',border: 'border-emerald-500/30', icon: <ArrowRight size={12} /> },
   LOOP:    { color: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/30', icon: <RotateCcw size={12} /> },
 };
