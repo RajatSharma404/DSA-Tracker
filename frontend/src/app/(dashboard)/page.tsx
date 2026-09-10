@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { dsaApi, DashboardStats, Topic } from "@/lib/api";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
@@ -157,65 +157,62 @@ export default function Dashboard() {
     return statusCode ? `${statusCode}: ${String(message)}` : String(message);
   };
 
-  const loadDashboardData = async (shouldAutoSync: boolean) => {
+  const loadDashboardData = useCallback(async (shouldAutoSync: boolean) => {
     try {
-      const statsData = await dsaApi.getDashboardStats();
-      setStats(statsData);
-      trackEvent("dashboard_viewed", {
-        solvedProblems: statsData.solvedProblems,
-        progressPercentage: statsData.progressPercentage,
-        dueReviews: statsData.revisions?.length || 0,
-      });
+      const [statsResult, activityResult, topicsResult] =
+        await Promise.allSettled([
+          dsaApi.getDashboardStats(),
+          dsaApi.getActivityData(),
+          dsaApi.getTopics(),
+        ]);
 
-      setLoading(false);
+      if (statsResult.status === "fulfilled") {
+        const statsData = statsResult.value;
+        setStats(statsData);
+        setDashboardError(null);
+        trackEvent("dashboard_viewed", {
+          solvedProblems: statsData.solvedProblems,
+          progressPercentage: statsData.progressPercentage,
+          dueReviews: statsData.revisions?.length || 0,
+        });
+      } else {
+        throw statsResult.reason;
+      }
 
-      void Promise.allSettled([
-        dsaApi.getActivityData(),
-        dsaApi.getTopics(),
-      ]).then(([activityResult, topicsResult]) => {
-        if (activityResult.status === "fulfilled") {
-          setActivityData(activityResult.value);
-        } else {
-          console.warn("Activity data unavailable", activityResult.reason);
-          setActivityData([]);
-        }
+      if (activityResult.status === "fulfilled") {
+        setActivityData(activityResult.value);
+      } else {
+        console.warn("Activity data unavailable", activityResult.reason);
+        setActivityData([]);
+      }
 
-        if (topicsResult.status === "fulfilled") {
-          setTopicsSnapshot(topicsResult.value);
-        } else {
-          console.warn("Topic snapshot unavailable", topicsResult.reason);
-          setTopicsSnapshot([]);
-        }
-      });
-
-      setDashboardError(null);
+      if (topicsResult.status === "fulfilled") {
+        setTopicsSnapshot(topicsResult.value);
+      } else {
+        console.warn("Topic snapshot unavailable", topicsResult.reason);
+        setTopicsSnapshot([]);
+      }
 
       if (shouldAutoSync) {
         // Run sync in the background so initial dashboard render is fast.
         void dsaApi
           .syncLeetcode()
           .then(async () => {
-            const nextStats = await dsaApi.getDashboardStats();
-            setStats(nextStats);
+            const [nextStatsRes, nextActivityRes, nextTopicsRes] =
+              await Promise.allSettled([
+                dsaApi.getDashboardStats(),
+                dsaApi.getActivityData(),
+                dsaApi.getTopics(),
+              ]);
 
-            try {
-              const nextActivity = await dsaApi.getActivityData();
-              setActivityData(nextActivity);
-            } catch (nextActivityError) {
-              console.warn(
-                "Activity refresh unavailable after sync",
-                nextActivityError,
-              );
+            if (nextStatsRes.status === "fulfilled") {
+              setStats(nextStatsRes.value);
             }
-
-            try {
-              const nextTopics = await dsaApi.getTopics();
-              setTopicsSnapshot(nextTopics);
-            } catch (nextTopicsError) {
-              console.warn(
-                "Topic snapshot unavailable after sync",
-                nextTopicsError,
-              );
+            if (nextActivityRes.status === "fulfilled") {
+              setActivityData(nextActivityRes.value);
+            }
+            if (nextTopicsRes.status === "fulfilled") {
+              setTopicsSnapshot(nextTopicsRes.value);
             }
           })
           .catch((syncError) => {
@@ -232,7 +229,7 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [errorToast]);
 
   useEffect(() => {
     if (status !== "authenticated") {
@@ -257,7 +254,7 @@ export default function Dashboard() {
         window.localStorage.setItem(syncStorageKey, Date.now().toString());
       }
     });
-  }, [status, session?.user?.email]);
+  }, [status, session?.user?.email, loadDashboardData]);
 
   if (loading) {
     return (
@@ -274,7 +271,7 @@ export default function Dashboard() {
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, index) => (
-            <div key={index} className="h-28 rounded-2xl border border-[var(--border-subtle)] shimmer" />
+            <div key={`stat-skeleton-${index}`} className="h-28 rounded-2xl border border-[var(--border-subtle)] shimmer" />
           ))}
         </div>
       </div>
