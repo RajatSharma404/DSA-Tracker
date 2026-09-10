@@ -17,30 +17,46 @@ This document covers engineering workflows: running, building, seeding, and depl
 - `npm run dev`: run backend + frontend concurrently
 - `npm run build`: build backend then frontend
 - `npm run start`: start both services in production mode
+- `npm run typecheck`: run TypeScript diagnostics check concurrently across both apps
+- `npm run lint`: run ESLint across the frontend codebase
+- `npm run check:prisma-sync`: verify backend and frontend Prisma schemas are byte-for-byte in sync
+- `npm run sync:prisma`: copy backend Prisma schema to frontend
+- `npm run qa`: execute complete local CI quality gate (Prisma sync, typecheck, lint, all 304 tests)
 
 ## Backend scripts
 
-- `npm run dev`: run backend TypeScript entry
-- `npm run build`: TypeScript compile + Prisma generate
-- `npm start`: run compiled backend from `dist`
+- `npm run dev`: run backend TypeScript entry via ts-node
+- `npm run build`: TypeScript compile to dist/ + Prisma generate
+- `npm start`: run compiled backend from `dist/index.js`
+- `npm test`: run backend Vitest test suite (113 tests across 10 files)
 
 ## Frontend scripts
 
-- `npm run dev`: Next.js dev server
-- `npm run build`: Next.js production build
-- `npm start`: start production Next.js server
+- `npm run dev`: Next.js dev server on port 3005 (0.0.0.0 for mobile testing)
+- `npm run build`: Next.js production build with standalone output
+- `npm start`: start production Next.js server on port 3005
+- `npm run lint`: run ESLint (0 errors)
+- `npm test`: run frontend Vitest test suite (191 tests across 45 files)
+- `npm run cap:sync`: synchronize web assets and plugins to Android native shell
 
-## Database Workflow
+## Database & Container Workflow
 
-Typical local flow:
+Multi-tier Docker Compose (PostgreSQL 15, backend, and Next.js standalone frontend):
 
 ```bash
-docker compose up -d
+docker compose up --build -d
+docker compose ps
+docker compose logs -f
+```
+
+Local database flow:
+
+```bash
+docker compose up -d db
 cd backend
 npx prisma db push
 npx prisma db seed
-cd ../frontend
-npx prisma db push
+npm run check:prisma-sync
 ```
 
 ## Seeding Modes
