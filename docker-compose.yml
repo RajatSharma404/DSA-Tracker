@@ -1,16 +1,92 @@
 name: dsa-tracker-pro
+
 services:
+  # ===================================================
+  # Database Tier: PostgreSQL 15
+  # ===================================================
   db:
-    image: postgres:15
+    image: postgres:15-alpine
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: dsatracker
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-dsatracker}
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d dsatracker"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dsa-network
+
+  # ===================================================
+  # Backend Tier: Express + Prisma + Gemini API
+  # ===================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-dsatracker}?schema=public
+      JWT_SECRET: ${JWT_SECRET:-dsa-tracker-jwt-secret-key-production-32b}
+      COOKIE_ENCRYPTION_KEY: ${COOKIE_ENCRYPTION_KEY:-0123456789abcdef0123456789abcdef}
+      CORS_ORIGINS: http://localhost:3005,http://127.0.0.1:3005
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    ports:
+      - "3001:3001"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3001/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - dsa-network
+
+  # ===================================================
+  # Frontend Tier: Next.js Standalone
+  # ===================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3005
+      BACKEND_URL: http://backend:3001
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3005}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-dsa-tracker-nextauth-secret-key-32b}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-dsatracker}?schema=public
+    ports:
+      - "3005:3005"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3005/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks:
+      - dsa-network
 
 volumes:
   pgdata:
+    driver: local
+
+networks:
+  dsa-network:
+    driver: bridge
