@@ -1,6 +1,4 @@
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "./db/prisma";
 
 const clamp = (value: number, min: number, max: number) =>
   Math.max(min, Math.min(max, value));
