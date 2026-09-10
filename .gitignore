@@ -58,3 +58,10 @@ frontend/android/.idea/
 frontend/android/*.iml
 frontend/android/app/*.iml
 frontend/android/capacitor-cordova-android-plugins/
+
+# Build Archives & Compressed Artifacts
+*.zip
+*.tar.gz
+*.tar
+*.rar
+
