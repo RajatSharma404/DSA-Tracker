@@ -478,19 +478,26 @@ npm run dev
 - `npm run dev`: Runs frontend and backend concurrently in development mode.
 - `npm run build`: Compiles backend (TypeScript) and builds frontend (Next.js production bundle).
 - `npm run start`: Concurrently runs production builds.
+- `npm run typecheck`: Concurrently runs TypeScript typechecks across backend and frontend.
+- `npm run lint`: Runs ESLint validation on the frontend codebase.
+- `npm run check:prisma-sync`: Verifies that backend and frontend Prisma schemas are byte-for-byte in sync.
+- `npm run sync:prisma`: Synchronizes the backend Prisma schema to the frontend.
+- `npm run qa`: Complete local CI quality gate (Prisma sync check, typecheck, lint, and all 304 tests).
+- `npm run add:sol`: Adds a standardized algorithmic solution.
+- `npm run sync:sol`: Synchronizes local solutions into the database.
 
 ### Backend (`cd backend`)
 - `npm run dev`: Starts backend using `ts-node`.
 - `npm run build`: Compiles TypeScript to `dist/` and runs `prisma generate`.
 - `npm run start`: Starts production Node server (`node dist/index.js`).
-- `npm test`: Runs Vitest test suite across 5 test suites (73 unit tests).
+- `npm test`: Runs Vitest test suite across 10 test files (113 unit & integration tests).
 
 ### Frontend (`cd frontend`)
 - `npm run dev`: Starts Next.js development server on `0.0.0.0:3005` (LAN accessible for mobile testing).
 - `npm run build`: Compiles production Next.js build (`next build`).
 - `npm run start`: Starts Next.js production server on port 3005.
-- `npm run lint`: Runs ESLint flat config validation.
-- `npm test`: Runs Vitest test suite across 45 test suites (191 unit & component tests).
+- `npm run lint`: Runs ESLint flat config validation (0 errors).
+- `npm test`: Runs Vitest test suite across 45 test files (191 unit & component tests).
 - `npm run cap:sync`: Synchronizes web assets, config, and native plugins to `frontend/android/`.
 - `npm run cap:open`: Opens the native Android project in Android Studio.
 - `npm run cap:run`: Deploys and launches directly on a connected device or emulator.
@@ -527,7 +534,9 @@ DSA Tracker Pro includes a first-class native Android mobile wrapper powered by 
 
 ---
 
-### 2. 🔄 Live Reload Development Workflow
+### 2. 🔄 Live Reload & Dynamic LAN Network Workflow
+- **Automatic LAN IPv4 Discovery**: `frontend/capacitor.config.ts` dynamically detects the development machine's physical Wi-Fi or Ethernet LAN address via Node's `os.networkInterfaces()`, automatically pointing the Android WebView to `http://<LAN_IP>:3005`. This eliminates the common pitfall where `localhost` points to the physical Android device rather than the host machine.
+- **Emulator & Release Fallback**: Automatically falls back to `10.0.2.2:3005` on standard Android emulators, and omits `server.url` during production release builds (`CAPACITOR_RELEASE=true`) to serve offline static assets directly from `out/`.
 To develop with live hot-reloading on an Android device or emulator:
 
 1. **Find your development machine's local IP**:
@@ -596,6 +605,27 @@ To compile a standalone APK without needing Android Studio open:
 ---
 
 ## ☁️ Production Deployment
+
+### 🐳 Docker & Docker Compose (Recommended)
+
+DSA Tracker Pro includes production-ready multi-stage Dockerfiles for both backend and frontend, orchestrated with healthchecks and volume persistence:
+
+```bash
+# 1. Build and launch database, backend API, and standalone Next.js frontend
+docker compose up --build -d
+
+# 2. View unified application status & health
+docker compose ps
+
+# 3. Stream real-time container logs
+docker compose logs -f
+```
+
+- **Backend Container (`backend/Dockerfile`)**: Multi-stage Node 20 Alpine with unprivileged `node` user, OpenSSL, Prisma client generation, and health check on `/health` (Port 3001).
+- **Frontend Container (`frontend/Dockerfile`)**: Multi-stage Next.js standalone build on Alpine (~150MB footprint) with unprivileged `nextjs` user and health check on `/` (Port 3005).
+- **Database Container**: PostgreSQL 15 Alpine with persistent named volume `pgdata` and automated `pg_isready` health check.
+
+---
 
 ### Deploying to Render.com
 
