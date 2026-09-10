@@ -23,6 +23,7 @@ model Account {
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
   @@map("accounts")
 }
 
@@ -33,6 +34,7 @@ model Session {
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
   @@map("sessions")
 }
 
@@ -47,6 +49,7 @@ model User {
   role             Role            @default(USER)
   leetcodeUsername String?
   leetcodeSession  String?
+  leetcodeSessionHash String?
   mockInterviews   MockInterview[]
   progress         Progress[]
   streak           Streak?
@@ -58,6 +61,8 @@ model User {
   bookmarks        Bookmark[]
   tags             UserTag[]
   theoryLessonProgress UserTheoryLessonProgress[]
+
+  @@index([leetcodeSessionHash])
 }
 
 model Topic {
@@ -105,6 +110,9 @@ model Problem {
   bookmarks  Bookmark[]
   problemTags ProblemTag[]
   theoryProblemLinks TheoryProblemLink[]
+
+  @@index([topicId, orderIndex])
+  @@index([difficulty])
 }
 
 model ProblemNote {
@@ -119,6 +127,7 @@ model ProblemNote {
   problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
 
   @@index([userId, problemId])
+  @@index([userId, updatedAt])
   @@map("problem_notes")
 }
 
@@ -147,6 +156,10 @@ model Progress {
   user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, problemId])
+  @@index([userId, status])
+  @@index([userId, status, nextReviewDate])
+  @@index([userId, completedAt])
+  @@index([problemId])
 }
 
 model Streak {
@@ -169,6 +182,8 @@ model MockInterview {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
 }
 
 model VerificationToken {
@@ -217,6 +232,7 @@ model SolutionHistory {
   problem     Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
 
   @@index([userId, problemId])
+  @@index([userId, createdAt])
   @@map("solution_history")
 }
 
@@ -229,6 +245,7 @@ model Bookmark {
   problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
 
   @@unique([userId, problemId])
+  @@index([userId, createdAt])
   @@map("bookmarks")
 }
 
@@ -254,6 +271,7 @@ model ProblemTag {
   tag       UserTag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@unique([problemId, tagId])
+  @@index([tagId])
   @@map("problem_tags")
 }
 
@@ -360,6 +378,7 @@ model UserTheoryLessonProgress {
 
   @@id([userId, lessonId])
   @@index([lessonId])
+  @@index([userId, status])
   @@map("user_theory_lesson_progress")
 }
 
