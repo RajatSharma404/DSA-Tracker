@@ -4,15 +4,19 @@ import { prisma } from "../db/prisma";
 import { notifyLogin } from "../services/emailService";
 import { TtlCache } from "../utils/cache";
 
-export const NEXTAUTH_SECRETS = Array.from(
-  new Set(
-    [process.env.NEXTAUTH_SECRET, process.env.AUTH_SECRET]
-      .map((s) => (typeof s === "string" ? s.trim() : ""))
-      .filter(Boolean),
-  ),
-);
+export function getAuthSecrets(): string[] {
+  return Array.from(
+    new Set(
+      [process.env.NEXTAUTH_SECRET, process.env.AUTH_SECRET]
+        .map((s) => (typeof s === "string" ? s.trim() : ""))
+        .filter(Boolean),
+    ),
+  );
+}
 
-if (process.env.NODE_ENV !== "test" && NEXTAUTH_SECRETS.length === 0) {
+export const NEXTAUTH_SECRETS = getAuthSecrets();
+
+if (process.env.NODE_ENV !== "test" && getAuthSecrets().length === 0) {
   throw new Error("NEXTAUTH_SECRET (or AUTH_SECRET) is required");
 }
 
@@ -70,7 +74,10 @@ export const resolveAuthenticatedUser = async (authHeader?: string) => {
   const token = authHeader.split(" ")[1];
   let decoded: { email: string; role: string } | null = null;
 
-  for (const secret of NEXTAUTH_SECRETS) {
+  const secrets = getAuthSecrets();
+  const candidateSecrets = secrets.length > 0 ? secrets : NEXTAUTH_SECRETS;
+
+  for (const secret of candidateSecrets) {
     try {
       decoded = jwt.verify(token, secret) as {
         email: string;
@@ -128,13 +135,18 @@ export const requireAuth = async (
   try {
     const user = await resolveAuthenticatedUser(req.headers.authorization);
     if (!user) {
-      return res.status(401).json({ error: "Unauthorized: No token provided" });
+      return res.status(401).json({
+        error: req.headers.authorization
+          ? "Unauthorized: Invalid or expired token"
+          : "Unauthorized: No token provided",
+      });
     }
 
     req.user = user;
     next();
-  } catch (_err) {
-    return res.status(401).json({ error: "Unauthorized: Invalid token" });
+  } catch (err) {
+    console.error("[auth] Internal authentication error:", err);
+    return res.status(500).json({ error: "Internal server error during authentication" });
   }
 };
 
@@ -148,8 +160,8 @@ export const attachOptionalAuth = async (
     if (user) {
       req.user = user;
     }
-  } catch {
-    // Public browse routes should still work without auth.
+  } catch (err) {
+    console.error("[auth] Optional auth resolution error:", err);
   }
   next();
 };

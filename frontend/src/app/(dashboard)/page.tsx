@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { dsaApi, DashboardStats, Topic } from "@/lib/api";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
@@ -91,6 +92,7 @@ const ActivityCalendarHeatmap = dynamic(
 import { queryCache } from "@/lib/queryCache";
 
 export default function Dashboard() {
+  const router = useRouter();
   const { data: session, status } = useSession();
   const { error: errorToast } = useToastNotification();
   
@@ -148,12 +150,15 @@ export default function Dashboard() {
 
   const formatApiError = (error: unknown) => {
     const err = error as any;
+    const statusCode = err?.response?.status;
+    if (statusCode === 401) {
+      return "Session expired or unauthenticated. Please sign in again.";
+    }
     const message =
       err?.response?.data?.error ||
       err?.response?.data?.details ||
       err?.message ||
       "Unknown API error";
-    const statusCode = err?.response?.status;
     return statusCode ? `${statusCode}: ${String(message)}` : String(message);
   };
 
@@ -221,21 +226,31 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error("Failed to load dashboard data", error);
+      const err = error as any;
+      const is401 = err?.response?.status === 401;
       const errorMsg = formatApiError(error);
       setDashboardError(errorMsg);
       setStats(null);
       setActivityData([]);
-      errorToast("Failed to load dashboard data. Please try again.");
+      if (is401) {
+        errorToast("Session expired. Redirecting to login...");
+        router.replace("/login");
+      } else {
+        errorToast("Failed to load dashboard data. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
-  }, [errorToast]);
+  }, [errorToast, router]);
 
   useEffect(() => {
+    if (status === "unauthenticated") {
+      setLoading(false);
+      router.replace("/login");
+      return;
+    }
+
     if (status !== "authenticated") {
-      if (status === "unauthenticated") {
-        setLoading(false);
-      }
       return;
     }
 
@@ -254,7 +269,7 @@ export default function Dashboard() {
         window.localStorage.setItem(syncStorageKey, Date.now().toString());
       }
     });
-  }, [status, session?.user?.email, loadDashboardData]);
+  }, [status, session?.user?.email, loadDashboardData, router]);
 
   if (loading) {
     return (
