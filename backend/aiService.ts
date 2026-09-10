@@ -393,6 +393,247 @@ export const evaluateCode = async (
  */
 export const getAlgoTracing = async (code: string, problemTitle: string) => {
   const complexity = analyzeComplexityAccurately(code);
+  const normalizedTitle = (problemTitle || "").toLowerCase();
+  const normalizedCode = (code || "").toLowerCase();
+
+  const isTree =
+    normalizedTitle.includes("tree") ||
+    normalizedTitle.includes("inorder") ||
+    normalizedTitle.includes("bst") ||
+    normalizedCode.includes("treenode") ||
+    normalizedCode.includes(".left") ||
+    normalizedCode.includes(".right");
+
+  const isGraph =
+    normalizedTitle.includes("graph") ||
+    normalizedTitle.includes("island") ||
+    normalizedTitle.includes("course") ||
+    normalizedTitle.includes("matrix") ||
+    normalizedCode.includes("visited") ||
+    normalizedCode.includes("adj");
+
+  const isDp =
+    normalizedTitle.includes("dp") ||
+    normalizedTitle.includes("subsequence") ||
+    normalizedTitle.includes("climbing") ||
+    normalizedTitle.includes("coin") ||
+    normalizedCode.includes("dp[") ||
+    normalizedCode.includes("memo");
+
+  if (isTree) {
+    return {
+      sampleInput: "root = [4, 2, 7, 1, 3]",
+      expectedOutput: "[1, 2, 3, 4, 7]",
+      approach: `Recursive tree traversal and subtree invariant resolution for ${problemTitle} (${complexity.time} time, ${complexity.space} space).`,
+      steps: [
+        {
+          step: 1,
+          phase: "INIT",
+          codeLine: "if (!root) return null;",
+          narrative: "Visit root node (value: 4). Inspect left and right pointers.",
+          thinking: "Entry at root establishes base of tree traversal recursion stack.",
+          variables: [
+            { name: "currVal", value: "4", changed: true },
+            { name: "depth", value: "1", changed: true },
+          ],
+          dataStructure: {
+            type: "tree",
+            label: "Binary Tree Nodes",
+            items: [
+              { value: "4", state: "active" as const },
+              { value: "2", state: "default" as const },
+              { value: "7", state: "default" as const },
+              { value: "1", state: "default" as const },
+              { value: "3", state: "default" as const },
+            ],
+          },
+        },
+        {
+          step: 2,
+          phase: "PROCESS",
+          codeLine: "traverseSubtree(root.left);",
+          narrative: "Descend into left child (value: 2). Recurse on subproblems.",
+          thinking: "Branching left explores smaller subproblem bounds in logarithmic height.",
+          variables: [
+            { name: "currVal", value: "2", changed: true },
+            { name: "depth", value: "2", changed: true },
+          ],
+          dataStructure: {
+            type: "tree",
+            label: "Binary Tree Nodes",
+            items: [
+              { value: "4", state: "done" as const },
+              { value: "2", state: "highlight" as const },
+              { value: "7", state: "default" as const },
+              { value: "1", state: "compare" as const },
+              { value: "3", state: "default" as const },
+            ],
+          },
+        },
+        {
+          step: 3,
+          phase: "RETURN",
+          codeLine: "return aggregatedResults;",
+          narrative: "Combine solved subtree values and bubble up final tree structure.",
+          thinking: "All child invariants satisfied; bottom-up collapse completed.",
+          variables: [{ name: "result", value: "Solved", changed: true }],
+          dataStructure: {
+            type: "tree",
+            label: "Resolved Tree",
+            items: [
+              { value: "4", state: "highlight" as const },
+              { value: "2", state: "highlight" as const },
+              { value: "7", state: "highlight" as const },
+              { value: "1", state: "highlight" as const },
+              { value: "3", state: "highlight" as const },
+            ],
+          },
+        },
+      ],
+    };
+  }
+
+  if (isGraph) {
+    return {
+      sampleInput: "V = 4, edges = [[0,1],[1,2],[2,3],[0,3]]",
+      expectedOutput: "Traversal Complete",
+      approach: `Graph exploration and frontier traversal for ${problemTitle} (${complexity.time} time, ${complexity.space} space).`,
+      steps: [
+        {
+          step: 1,
+          phase: "INIT",
+          codeLine: "const visited = new Set(); queue.push(start);",
+          narrative: "Initialize frontier queue at start node 0 and mark visited.",
+          thinking: "Enqueuing starting vertex begins BFS frontier exploration.",
+          variables: [
+            { name: "frontierSize", value: "1", changed: true },
+            { name: "visitedCount", value: "1", changed: true },
+          ],
+          dataStructure: {
+            type: "graph",
+            label: "Graph Vertices",
+            items: [
+              { value: "Node 0", state: "active" as const },
+              { value: "Node 1", state: "default" as const },
+              { value: "Node 2", state: "default" as const },
+              { value: "Node 3", state: "default" as const },
+            ],
+          },
+        },
+        {
+          step: 2,
+          phase: "PROCESS",
+          codeLine: "for (const neighbor of adj[curr])",
+          narrative: "Pop Node 0, discover adjacent unvisited neighbors [Node 1, Node 3].",
+          thinking: "Expanding outgoing edges explores neighbor topology.",
+          variables: [
+            { name: "curr", value: "Node 0", changed: true },
+            { name: "frontierSize", value: "2", changed: true },
+          ],
+          dataStructure: {
+            type: "graph",
+            label: "Graph Vertices",
+            items: [
+              { value: "Node 0", state: "done" as const },
+              { value: "Node 1", state: "highlight" as const },
+              { value: "Node 2", state: "default" as const },
+              { value: "Node 3", state: "highlight" as const },
+            ],
+          },
+        },
+        {
+          step: 3,
+          phase: "FOUND",
+          codeLine: "return targetReached;",
+          narrative: "Target vertex reached with all reachable components processed.",
+          thinking: "Frontier exhausted without disconnected component misses.",
+          variables: [{ name: "status", value: "Target Found", changed: true }],
+          dataStructure: {
+            type: "graph",
+            label: "Graph Vertices",
+            items: [
+              { value: "Node 0", state: "done" as const },
+              { value: "Node 1", state: "done" as const },
+              { value: "Node 2", state: "highlight" as const },
+              { value: "Node 3", state: "done" as const },
+            ],
+          },
+        },
+      ],
+    };
+  }
+
+  if (isDp) {
+    return {
+      sampleInput: "n = 4, choices = [1, 2]",
+      expectedOutput: "5",
+      approach: `Dynamic programming optimal substructure transition for ${problemTitle} (${complexity.time} time, ${complexity.space} space).`,
+      steps: [
+        {
+          step: 1,
+          phase: "INIT",
+          codeLine: "dp[0] = 1; dp[1] = 1;",
+          narrative: "Define base cases for trivial problem sizes.",
+          thinking: "Base cases establish the initial conditions for inductive recurrence.",
+          variables: [
+            { name: "dp[0]", value: "1", changed: true },
+            { name: "dp[1]", value: "1", changed: true },
+          ],
+          dataStructure: {
+            type: "dp-table",
+            label: "DP State Array",
+            items: [
+              { value: "dp[0]: 1", state: "done" as const },
+              { value: "dp[1]: 1", state: "done" as const },
+              { value: "dp[2]: ?", state: "default" as const },
+              { value: "dp[3]: ?", state: "default" as const },
+            ],
+          },
+        },
+        {
+          step: 2,
+          phase: "PROCESS",
+          codeLine: "dp[i] = dp[i - 1] + dp[i - 2];",
+          narrative: "Compute state transition for i = 2: 1 + 1 = 2.",
+          thinking: "Overlapping subproblem solved in O(1) by reusing previously memoized values.",
+          variables: [
+            { name: "dp[2]", value: "2", changed: true },
+            { name: "i", value: "2", changed: true },
+          ],
+          dataStructure: {
+            type: "dp-table",
+            label: "DP State Array",
+            items: [
+              { value: "dp[0]: 1", state: "done" as const },
+              { value: "dp[1]: 1", state: "done" as const },
+              { value: "dp[2]: 2", state: "highlight" as const },
+              { value: "dp[3]: ?", state: "active" as const },
+            ],
+          },
+        },
+        {
+          step: 3,
+          phase: "RETURN",
+          codeLine: "return dp[n];",
+          narrative: "Final state computed: 3. Return globally optimal answer.",
+          thinking: "Entire table populated in linear time avoiding exponential branch recursion.",
+          variables: [{ name: "result", value: "3", changed: true }],
+          dataStructure: {
+            type: "dp-table",
+            label: "DP State Array",
+            items: [
+              { value: "dp[0]: 1", state: "done" as const },
+              { value: "dp[1]: 1", state: "done" as const },
+              { value: "dp[2]: 2", state: "done" as const },
+              { value: "dp[3]: 3", state: "highlight" as const },
+            ],
+          },
+        },
+      ],
+    };
+  }
+
+  // Default Array / Two Pointers pattern
   return {
     sampleInput: "nums = [2, 7, 11, 15], target = 9",
     expectedOutput: "[0, 1]",
@@ -401,18 +642,21 @@ export const getAlgoTracing = async (code: string, problemTitle: string) => {
       {
         step: 1,
         phase: "INIT",
-        codeLine: "initialize variables & data structures",
-        narrative: `Set up the starting search bounds and hash memory table.`,
+        codeLine: "initialize variables & pointers",
+        narrative: `Set up the starting search bounds and index tracking for ${problemTitle}.`,
         thinking: "Pre-allocating state upfront guarantees deterministic O(1) step transitions.",
-        variables: [{ name: "left", value: "0", changed: true }, { name: "right", value: "3", changed: true }],
+        variables: [
+          { name: "left", value: "0", changed: true },
+          { name: "right", value: "3", changed: true },
+        ],
         dataStructure: {
           type: "array",
           label: "Input Array",
           items: [
-            { value: "2", state: "active" },
-            { value: "7", state: "default" },
-            { value: "11", state: "default" },
-            { value: "15", state: "default" },
+            { value: "2", state: "active" as const },
+            { value: "7", state: "default" as const },
+            { value: "11", state: "default" as const },
+            { value: "15", state: "default" as const },
           ],
         },
       },
@@ -420,17 +664,20 @@ export const getAlgoTracing = async (code: string, problemTitle: string) => {
         step: 2,
         phase: "CHECK",
         codeLine: "evaluate candidate: nums[left] + nums[right]",
-        narrative: "Compute sum: 2 + 15 = 17. Target is 9 (sum is too large, decrement right pointer).",
-        thinking: "Since array is sorted, reducing the right index is mathematically guaranteed to decrease the pair sum.",
-        variables: [{ name: "currentSum", value: "17", changed: true }, { name: "right", value: "2", changed: true }],
+        narrative: "Compute sum: 2 + 15 = 17. Target is 9 (sum too large, decrement right pointer).",
+        thinking: "Since candidate exceeds target, narrowing the boundary monotonically approaches solution.",
+        variables: [
+          { name: "currentSum", value: "17", changed: true },
+          { name: "right", value: "2", changed: true },
+        ],
         dataStructure: {
           type: "array",
           label: "Input Array",
           items: [
-            { value: "2", state: "highlight" },
-            { value: "7", state: "default" },
-            { value: "11", state: "active" },
-            { value: "15", state: "done" },
+            { value: "2", state: "highlight" as const },
+            { value: "7", state: "default" as const },
+            { value: "11", state: "active" as const },
+            { value: "15", state: "done" as const },
           ],
         },
       },
@@ -438,15 +685,15 @@ export const getAlgoTracing = async (code: string, problemTitle: string) => {
         step: 3,
         phase: "MATCH",
         codeLine: "evaluate candidate: nums[0] + nums[1] == 9",
-        narrative: "Compute sum: 2 + 7 = 9. Target match found at indices [0, 1]!",
-        thinking: "Condition met in O(N) total pointer steps without any nested brute-force scans.",
+        narrative: "Compute sum: 2 + 7 = 9. Match found at indices [0, 1]!",
+        thinking: "Condition satisfied in linear steps without nested brute-force loops.",
         variables: [{ name: "result", value: "[0, 1]", changed: true }],
         dataStructure: {
           type: "array",
           label: "Matching Solution",
           items: [
-            { value: "2", state: "highlight" },
-            { value: "7", state: "highlight" },
+            { value: "2", state: "highlight" as const },
+            { value: "7", state: "highlight" as const },
           ],
         },
       },
