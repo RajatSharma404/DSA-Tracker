@@ -20,7 +20,7 @@ let lastMockEditor: any = null;
 // Mock @monaco-editor/react
 vi.mock("@monaco-editor/react", () => {
   return {
-    default: ({ onChange, onMount }: any) => {
+    default: function MockMonacoEditor({ onChange, onMount }: any) {
       const mockEditor = {
         deltaDecorations: vi.fn().mockReturnValue(["dec-1"]),
         revealLineInCenter: vi.fn(),
