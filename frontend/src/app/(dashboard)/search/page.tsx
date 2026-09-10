@@ -83,21 +83,20 @@ export default function SearchPage() {
   const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
-    dsaApi
-      .getTopics()
-      .then((data) => {
-        setTopics(data);
-        queryCache.set("topics", data);
-      })
-      .catch(() => setTopics([]));
-    dsaApi
-      .getTags()
-      .then((data) => {
-        setTags(data);
-        queryCache.set("user_tags", data);
-      })
-      .catch(() => {});
-    handleSearch();
+    Promise.allSettled([dsaApi.getTopics(), dsaApi.getTags()]).then(
+      ([topicsRes, tagsRes]) => {
+        if (topicsRes.status === "fulfilled") {
+          setTopics(topicsRes.value);
+          queryCache.set("topics", topicsRes.value);
+        } else {
+          setTopics([]);
+        }
+        if (tagsRes.status === "fulfilled") {
+          setTags(tagsRes.value);
+          queryCache.set("user_tags", tagsRes.value);
+        }
+      },
+    );
   }, []);
 
   const handleSearch = useCallback(async () => {
