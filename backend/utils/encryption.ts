@@ -11,8 +11,19 @@ function getEncryptionKey(): Buffer {
   const secret =
     process.env.COOKIE_ENCRYPTION_KEY ||
     process.env.NEXTAUTH_SECRET ||
-    process.env.AUTH_SECRET ||
-    "default-dsa-tracker-dev-insecure-key-32b";
+    process.env.AUTH_SECRET;
+
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "FATAL: COOKIE_ENCRYPTION_KEY or NEXTAUTH_SECRET must be defined in production.",
+      );
+    }
+    return crypto
+      .createHash("sha256")
+      .update("default-dsa-tracker-dev-insecure-key-32b")
+      .digest();
+  }
 
   return crypto.createHash("sha256").update(secret).digest();
 }
