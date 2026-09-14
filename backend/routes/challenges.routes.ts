@@ -49,11 +49,14 @@ router.get(
   requireAuth,
   async (req: Request, res: Response) => {
     try {
-      const session = (await (prisma as any).challengeSession.findUnique({
-        where: { id: req.params.id },
+      const userId = req.user!.id;
+      const session = (await (prisma as any).challengeSession.findFirst({
+        where: { id: req.params.id, userId },
       })) as any;
 
-      if (!session) return res.status(404).json({ error: "Session not found" });
+      if (!session) {
+        return res.status(404).json({ error: "Session not found" });
+      }
 
       const problems = await prisma.problem.findMany({
         where: { id: { in: session.problemIds } },
@@ -72,7 +75,21 @@ router.post(
   requireAuth,
   async (req: Request, res: Response) => {
     try {
+      const userId = req.user!.id;
       const { status } = req.body; // COMPLETED or FAILED
+
+      if (status !== "COMPLETED" && status !== "FAILED") {
+        return res.status(400).json({ error: "Invalid challenge status" });
+      }
+
+      const existingSession = await (prisma as any).challengeSession.findFirst({
+        where: { id: req.params.id, userId },
+      });
+
+      if (!existingSession) {
+        return res.status(404).json({ error: "Session not found or unauthorized" });
+      }
+
       const session = await (prisma as any).challengeSession.update({
         where: { id: req.params.id },
         data: {
