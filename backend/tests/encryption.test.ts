@@ -66,4 +66,25 @@ describe("Encryption & Cryptographic Protection Utilities", () => {
     expect(maskSecret("")).toBe("");
     expect(maskSecret("abc")).toBe("•••");
   });
+
+  it("should throw in production if encryption secrets are missing", () => {
+    const originalEnv = process.env.NODE_ENV;
+    const origCookieKey = process.env.COOKIE_ENCRYPTION_KEY;
+    const origNextAuth = process.env.NEXTAUTH_SECRET;
+    const origAuthSecret = process.env.AUTH_SECRET;
+
+    try {
+      process.env.NODE_ENV = "production";
+      delete process.env.COOKIE_ENCRYPTION_KEY;
+      delete process.env.NEXTAUTH_SECRET;
+      delete process.env.AUTH_SECRET;
+
+      expect(() => encryptSecret("secret-value")).toThrow(/FATAL: COOKIE_ENCRYPTION_KEY/);
+    } finally {
+      process.env.NODE_ENV = originalEnv;
+      if (origCookieKey !== undefined) process.env.COOKIE_ENCRYPTION_KEY = origCookieKey;
+      if (origNextAuth !== undefined) process.env.NEXTAUTH_SECRET = origNextAuth;
+      if (origAuthSecret !== undefined) process.env.AUTH_SECRET = origAuthSecret;
+    }
+  });
 });
