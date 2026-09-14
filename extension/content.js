@@ -23,7 +23,27 @@ const safeRuntimeSendMessage = (message, callback) => {
   }
 };
 
+const isTrustedOrigin = (origin) => {
+  if (!origin) return false;
+  try {
+    const url = new URL(origin);
+    const isLocalhost =
+      url.hostname === "localhost" || url.hostname === "127.0.0.1";
+    return (
+      isLocalhost ||
+      url.hostname === "leetcode.com" ||
+      url.hostname.endsWith(".leetcode.com")
+    );
+  } catch {
+    return false;
+  }
+};
+
 function sendResponse(requestId, ok, payload, error) {
+  const targetOrigin = isTrustedOrigin(window.location.origin)
+    ? window.location.origin
+    : window.location.origin;
+
   window.postMessage(
     {
       source: EXT_SOURCE,
@@ -32,7 +52,7 @@ function sendResponse(requestId, ok, payload, error) {
       payload,
       error,
     },
-    "*",
+    targetOrigin,
   );
 
   document.dispatchEvent(
@@ -86,6 +106,8 @@ const forwardRequestToBackground = (data) => {
 };
 
 window.addEventListener("message", (event) => {
+  if (event.source !== window) return;
+  if (!isTrustedOrigin(event.origin)) return;
   const data = event.data;
   forwardRequestToBackground(data);
 });
