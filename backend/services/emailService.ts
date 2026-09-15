@@ -16,7 +16,7 @@ const notifyFrom =
 const notifyTo =
   process.env.LOGIN_NOTIFY_EMAIL ||
   process.env.ADMIN_EMAIL ||
-  "rajat.sharma.myid1@gmail.com";
+  "";
 
 const mailTransporter =
   smtpHost && smtpUser && smtpPass
@@ -32,7 +32,7 @@ const mailTransporter =
     : null;
 
 export const notifyLogin = async (email: string) => {
-  if (!mailTransporter) {
+  if (!mailTransporter || !notifyTo) {
     return;
   }
 
