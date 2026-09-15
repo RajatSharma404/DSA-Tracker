@@ -24,6 +24,7 @@ import {
   Trophy,
 } from "lucide-react";
 import { soundEffects } from "@/lib/soundEffects";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 const TopicStudyGuide = dynamic(
   () => import("@/components/dashboard/TopicStudyGuide"),
@@ -614,9 +615,10 @@ export default function CityLevelPage() {
                         <div
                           className="prose prose-invert prose-sm max-w-none text-[var(--text-secondary)]"
                           dangerouslySetInnerHTML={{
-                            __html:
+                            __html: sanitizeHtml(
                               selectedProblemDetails?.content ||
-                              "<p>Problem details are unavailable.</p>",
+                                "<p>Problem details are unavailable.</p>",
+                            ),
                           }}
                         />
                         {selectedProblemDetails?.exampleTestcases && (
