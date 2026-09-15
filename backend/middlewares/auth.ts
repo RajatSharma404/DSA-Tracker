@@ -28,12 +28,32 @@ export interface CachedUser {
   role: string;
 }
 
+const DEFAULT_CACHE_TTL = process.env.USER_CACHE_TTL_MS
+  ? parseInt(process.env.USER_CACHE_TTL_MS, 10)
+  : 60 * 1000; // 1 minute default for tighter RBAC revocation
+
 export const userCache = new TtlCache<string, CachedUser>({
-  defaultTtlMs: 5 * 60 * 1000, // 5 minutes TTL
+  defaultTtlMs: DEFAULT_CACHE_TTL,
   maxSize: 1000,
 });
 
 const idToEmailMap = new Map<string, string>();
+
+type CacheInvalidationListener = (identifier: string) => void;
+const invalidationListeners: CacheInvalidationListener[] = [];
+
+/**
+ * Registers an invalidation listener for multi-node / distributed cache sync (e.g. Redis pub/sub).
+ */
+export function onUserCacheInvalidated(
+  listener: CacheInvalidationListener,
+): () => void {
+  invalidationListeners.push(listener);
+  return () => {
+    const idx = invalidationListeners.indexOf(listener);
+    if (idx !== -1) invalidationListeners.splice(idx, 1);
+  };
+}
 
 /**
  * Invalidates cached user entries by email, userId, or both.
@@ -47,6 +67,14 @@ export function invalidateUserCache(identifier: string): void {
   if (mappedEmail) {
     userCache.delete(mappedEmail);
     idToEmailMap.delete(identifier);
+  }
+
+  for (const listener of invalidationListeners) {
+    try {
+      listener(identifier);
+    } catch (err) {
+      console.error("[auth] Cache invalidation listener error:", err);
+    }
   }
 }
 
@@ -123,7 +151,7 @@ export const resolveAuthenticatedUser = async (authHeader?: string) => {
     userCache.set(user.email.toLowerCase(), user);
   }
 
-  await notifyLogin(decoded.email);
+  void notifyLogin(decoded.email).catch(() => {});
   return { id: user.id, role: user.role };
 };
 
