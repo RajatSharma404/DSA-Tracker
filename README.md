@@ -482,7 +482,7 @@ npm run dev
 - `npm run lint`: Runs ESLint validation on the frontend codebase.
 - `npm run check:prisma-sync`: Verifies that backend and frontend Prisma schemas are byte-for-byte in sync.
 - `npm run sync:prisma`: Synchronizes the backend Prisma schema to the frontend.
-- `npm run qa`: Complete local CI quality gate (Prisma sync check, typecheck, lint, and all 304 tests).
+- `npm run qa`: Complete local CI quality gate (Prisma sync check, typecheck, lint, and all 305 tests).
 - `npm run add:sol`: Adds a standardized algorithmic solution.
 - `npm run sync:sol`: Synchronizes local solutions into the database.
 
@@ -490,7 +490,7 @@ npm run dev
 - `npm run dev`: Starts backend using `ts-node`.
 - `npm run build`: Compiles TypeScript to `dist/` and runs `prisma generate`.
 - `npm run start`: Starts production Node server (`node dist/index.js`).
-- `npm test`: Runs Vitest test suite across 10 test files (113 unit & integration tests).
+- `npm test`: Runs Vitest test suite across 10 test files (114 unit & integration tests).
 
 ### Frontend (`cd frontend`)
 - `npm run dev`: Starts Next.js development server on `0.0.0.0:3005` (LAN accessible for mobile testing).
