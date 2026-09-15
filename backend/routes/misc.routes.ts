@@ -89,12 +89,30 @@ router.get(
       }));
 
       if (format === "csv") {
+        const sanitizeCsvCell = (value: unknown): string => {
+          if (value === null || value === undefined) return '""';
+          let str = String(value).replace(/"/g, '""');
+          // Neutralize CSV formula injection: =, +, -, @, \t, \r
+          if (/^[=+\-@\t\r]/.test(str)) {
+            str = `'${str}`;
+          }
+          return `"${str}"`;
+        };
+
         const headers =
           "Topic,Problem,Difficulty,Status,Time Spent (min),Completed At,Link,Next Review\n";
         const csv = data
-          .map(
-            (d) =>
-              `"${d.topic}","${d.problem}","${d.difficulty}","${d.status}",${d.timeSpent},"${d.completedAt || ""}","${d.link || ""}","${d.nextReviewDate || ""}"`,
+          .map((d) =>
+            [
+              sanitizeCsvCell(d.topic),
+              sanitizeCsvCell(d.problem),
+              sanitizeCsvCell(d.difficulty),
+              sanitizeCsvCell(d.status),
+              Number.isFinite(d.timeSpent) ? d.timeSpent : 0,
+              sanitizeCsvCell(d.completedAt ? new Date(d.completedAt).toISOString() : ""),
+              sanitizeCsvCell(d.link || ""),
+              sanitizeCsvCell(d.nextReviewDate ? new Date(d.nextReviewDate).toISOString() : ""),
+            ].join(","),
           )
           .join("\n");
         res.setHeader("Content-Type", "text/csv");
