@@ -32,3 +32,22 @@ export const generalApiLimiter = rateLimit({
     error: "Too many requests. Please try again later.",
   },
 });
+
+/**
+ * Rate limiter for AI endpoints (hints, code reviews, algorithm tracing).
+ * Protects against API quota exhaustion and runaway billing.
+ */
+export const aiRateLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: process.env.NODE_ENV === "test" ? 1000 : 20, // 20 requests per minute
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    error: "Too many AI requests. Please wait a moment before requesting more hints or reviews.",
+  },
+  handler: (_req: Request, res: Response) => {
+    res.status(429).json({
+      error: "Too many AI requests. Please wait a moment before requesting more hints or reviews.",
+    });
+  },
+});
