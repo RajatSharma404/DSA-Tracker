@@ -24,6 +24,23 @@ services:
       - dsa-network
 
   # ===================================================
+  # Cache Tier: Redis 7
+  # ===================================================
+  redis:
+    image: redis:7-alpine
+    restart: always
+    command: redis-server --save "" --appendonly no
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dsa-network
+
+  # ===================================================
   # Backend Tier: Express + Prisma + Gemini API
   # ===================================================
   backend:
@@ -34,12 +51,15 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       NODE_ENV: production
       PORT: 3001
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-dsatracker}?schema=public
-      JWT_SECRET: ${JWT_SECRET:-dsa-tracker-jwt-secret-key-production-32b}
-      COOKIE_ENCRYPTION_KEY: ${COOKIE_ENCRYPTION_KEY:-0123456789abcdef0123456789abcdef}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      COOKIE_ENCRYPTION_KEY: ${COOKIE_ENCRYPTION_KEY:?COOKIE_ENCRYPTION_KEY is required}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       CORS_ORIGINS: http://localhost:3005,http://127.0.0.1:3005
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
     ports:
@@ -70,7 +90,7 @@ services:
       BACKEND_URL: http://backend:3001
       NEXT_PUBLIC_API_URL: http://localhost:3001
       NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3005}
-      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-dsa-tracker-nextauth-secret-key-32b}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:?NEXTAUTH_SECRET is required}
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-dsatracker}?schema=public
     ports:
       - "3005:3005"
