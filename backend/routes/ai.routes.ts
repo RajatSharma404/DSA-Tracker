@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { prisma } from "../db/prisma";
 import { requireAuth } from "../middlewares/auth";
+import { aiRateLimiter } from "../middlewares/rateLimiter";
 import {
   getAIRecommendations,
 } from "../aiService";
@@ -15,6 +16,7 @@ import { getRevisionReminders } from "../services";
 import { buildNextAction } from "../services/nextActionService";
 
 const router = Router();
+router.use(aiRateLimiter);
 
 // AI Hint
 router.post("/ai/hint", requireAuth, async (req: Request, res: Response) => {
