@@ -23,6 +23,7 @@ import {
 import Link from "next/link";
 import { trackEvent } from "@/lib/analytics";
 import { soundEffects } from "@/lib/soundEffects";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 const LeetCodeEditor = dynamic(
   () =>
@@ -369,7 +370,7 @@ export default function ProblemSolvePage() {
             >
               <div
                 className="prose prose-invert prose-sm max-w-none text-[var(--text-secondary)] leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: problemDetails.content }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(problemDetails.content) }}
               />
             </div>
           )}
