@@ -47,8 +47,28 @@ router.post("/notes", requireAuth, async (req: Request, res: Response) => {
     const userId = req.user!.id;
     const { problemId, content, type } = req.body;
 
+    if (!problemId || typeof problemId !== "string" || problemId.trim().length === 0) {
+      return res.status(400).json({ error: "Invalid problemId" });
+    }
+
+    if (!content || typeof content !== "string" || content.trim().length === 0) {
+      return res.status(400).json({ error: "Note content cannot be empty" });
+    }
+
+    if (content.length > 10000) {
+      return res.status(400).json({ error: "Note content exceeds maximum 10,000 characters" });
+    }
+
+    const allowedTypes = new Set(["GOTCHA", "LEARNING", "TIP"]);
+    const noteType = allowedTypes.has(type) ? type : "LEARNING";
+
     const note = await prisma.problemNote.create({
-      data: { userId, problemId, content, type: type || "LEARNING" },
+      data: {
+        userId,
+        problemId: problemId.trim(),
+        content: content.trim(),
+        type: noteType,
+      },
     });
     res.json(note);
   } catch (err) {
@@ -66,9 +86,20 @@ router.put(
       const userId = req.user!.id;
       const { content, type } = req.body;
 
+      if (!content || typeof content !== "string" || content.trim().length === 0) {
+        return res.status(400).json({ error: "Note content cannot be empty" });
+      }
+
+      if (content.length > 10000) {
+        return res.status(400).json({ error: "Note content exceeds maximum 10,000 characters" });
+      }
+
+      const allowedTypes = new Set(["GOTCHA", "LEARNING", "TIP"]);
+      const noteType = allowedTypes.has(type) ? type : "LEARNING";
+
       const note = await prisma.problemNote.updateMany({
         where: { id: req.params.noteId as string, userId },
-        data: { content, type },
+        data: { content: content.trim(), type: noteType },
       });
       res.json(note);
     } catch (err) {
