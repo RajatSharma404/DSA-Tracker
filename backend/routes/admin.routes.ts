@@ -74,6 +74,16 @@ router.get(
   async (_req: Request, res: Response) => {
     try {
       const users = await prisma.user.findMany({
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          image: true,
+          role: true,
+          leetcodeUsername: true,
+          createdAt: true,
+          updatedAt: true,
+        },
         orderBy: { createdAt: "desc" },
       });
       res.json(users);
@@ -98,6 +108,16 @@ router.patch(
       const user = await prisma.user.update({
         where: { id: userId },
         data: { role: role as any } as any,
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          image: true,
+          role: true,
+          leetcodeUsername: true,
+          createdAt: true,
+          updatedAt: true,
+        },
       });
       invalidateUserCache(userId);
       if (user?.email) {
@@ -118,8 +138,19 @@ router.post(
   async (req: Request, res: Response) => {
     try {
       const { name, description, orderIndex } = req.body;
+      if (!name || typeof name !== "string" || name.trim().length === 0) {
+        return res.status(400).json({ error: "Topic name is required" });
+      }
+      const parsedOrder = Number.isFinite(parseInt(orderIndex, 10))
+        ? parseInt(orderIndex, 10)
+        : 0;
+
       const topic = await prisma.topic.create({
-        data: { name, description, orderIndex: parseInt(orderIndex) },
+        data: {
+          name: name.trim().slice(0, 100),
+          description: typeof description === "string" ? description.trim().slice(0, 500) : null,
+          orderIndex: parsedOrder,
+        },
       });
       res.json(topic);
     } catch (_error) {
@@ -136,9 +167,20 @@ router.put(
     try {
       const { name, description, orderIndex } = req.body;
       const topicId = req.params.id as string;
+      if (!name || typeof name !== "string" || name.trim().length === 0) {
+        return res.status(400).json({ error: "Topic name is required" });
+      }
+      const parsedOrder = Number.isFinite(parseInt(orderIndex, 10))
+        ? parseInt(orderIndex, 10)
+        : 0;
+
       const topic = await prisma.topic.update({
         where: { id: topicId },
-        data: { name, description, orderIndex: parseInt(orderIndex) },
+        data: {
+          name: name.trim().slice(0, 100),
+          description: typeof description === "string" ? description.trim().slice(0, 500) : null,
+          orderIndex: parsedOrder,
+        },
       });
       res.json(topic);
     } catch (_error) {
@@ -170,13 +212,22 @@ router.post(
   async (req: Request, res: Response) => {
     try {
       const { title, link, difficulty, topicId, orderIndex } = req.body;
+      if (!title || typeof title !== "string" || title.trim().length === 0) {
+        return res.status(400).json({ error: "Problem title is required" });
+      }
+      const allowedDiffs = new Set(["EASY", "MEDIUM", "HARD"]);
+      const normalizedDiff = allowedDiffs.has(difficulty) ? difficulty : "MEDIUM";
+      const parsedOrder = Number.isFinite(parseInt(orderIndex, 10))
+        ? parseInt(orderIndex, 10)
+        : 0;
+
       const problem = await prisma.problem.create({
         data: {
-          title,
-          link,
-          difficulty,
+          title: title.trim().slice(0, 200),
+          link: typeof link === "string" ? link.trim().slice(0, 500) : null,
+          difficulty: normalizedDiff as any,
           topicId,
-          orderIndex: parseInt(orderIndex),
+          orderIndex: parsedOrder,
         },
       });
       res.json(problem);
@@ -194,14 +245,23 @@ router.put(
     try {
       const { title, link, difficulty, topicId, orderIndex } = req.body;
       const probId = req.params.id as string;
+      if (!title || typeof title !== "string" || title.trim().length === 0) {
+        return res.status(400).json({ error: "Problem title is required" });
+      }
+      const allowedDiffs = new Set(["EASY", "MEDIUM", "HARD"]);
+      const normalizedDiff = allowedDiffs.has(difficulty) ? difficulty : "MEDIUM";
+      const parsedOrder = Number.isFinite(parseInt(orderIndex, 10))
+        ? parseInt(orderIndex, 10)
+        : 0;
+
       const problem = await prisma.problem.update({
         where: { id: probId },
         data: {
-          title,
-          link,
-          difficulty,
+          title: title.trim().slice(0, 200),
+          link: typeof link === "string" ? link.trim().slice(0, 500) : null,
+          difficulty: normalizedDiff as any,
           topicId,
-          orderIndex: parseInt(orderIndex),
+          orderIndex: parsedOrder,
         },
       });
       res.json(problem);
