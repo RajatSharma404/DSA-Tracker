@@ -21,19 +21,36 @@ router.post("/solutions", requireAuth, async (req: Request, res: Response) => {
       isAIGenerated,
     } = req.body;
 
+    if (!problemId || typeof problemId !== "string" || problemId.trim().length === 0) {
+      return res.status(400).json({ error: "Invalid or missing problemId" });
+    }
+
+    if (!code || typeof code !== "string") {
+      return res.status(400).json({ error: "Code content is required" });
+    }
+
+    if (code.length > 65536) {
+      return res.status(400).json({ error: "Code exceeds maximum size of 64KB" });
+    }
+
+    const normalizedLang = typeof language === "string" ? language.trim().slice(0, 50) : "cpp";
+    const normalizedScore = Number.isFinite(Number(score))
+      ? Math.max(0, Math.min(100, Math.round(Number(score))))
+      : 0;
+
     const solution = await prisma.solutionHistory.create({
       data: {
         userId,
-        problemId,
+        problemId: problemId.trim(),
         code,
-        language,
-        isCorrect: isCorrect || false,
-        score: score || 0,
-        verdict: verdict || null,
-        timeComplexity: timeComplexity || null,
-        spaceComplexity: spaceComplexity || null,
-        isOptimal: isOptimal || false,
-        isAIGenerated: isAIGenerated || "UNKNOWN",
+        language: normalizedLang,
+        isCorrect: Boolean(isCorrect),
+        score: normalizedScore,
+        verdict: typeof verdict === "string" ? verdict.trim().slice(0, 100) : null,
+        timeComplexity: typeof timeComplexity === "string" ? timeComplexity.trim().slice(0, 100) : null,
+        spaceComplexity: typeof spaceComplexity === "string" ? spaceComplexity.trim().slice(0, 100) : null,
+        isOptimal: Boolean(isOptimal),
+        isAIGenerated: typeof isAIGenerated === "string" ? isAIGenerated.trim().slice(0, 50) : "UNKNOWN",
       },
     });
     res.json(solution);
