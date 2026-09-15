@@ -3,6 +3,7 @@ import express, { Express } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
+import { generalApiLimiter } from "./middlewares/rateLimiter";
 
 import dashboardRoutes from "./routes/dashboard.routes";
 import statsRoutes from "./routes/stats.routes";
@@ -33,30 +34,58 @@ dotenv.config();
 export function createApp(): Express {
   const app = express();
 
-  app.use(
-    helmet({
-      contentSecurityPolicy: false,
-      crossOriginResourcePolicy: { policy: "cross-origin" },
-    }),
-  );
+  const defaultDevOrigins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3005",
+    "http://127.0.0.1:3005",
+  ];
 
-  const corsOrigins = (process.env.CORS_ORIGINS || "")
+  const configuredCorsOrigins = (process.env.CORS_ORIGINS || "")
     .split(",")
     .map((origin) => origin.trim())
     .filter(Boolean);
 
+  const allowedOrigins =
+    configuredCorsOrigins.length > 0
+      ? configuredCorsOrigins
+      : process.env.NODE_ENV === "production"
+        ? []
+        : defaultDevOrigins;
+
   app.use(
-    cors(
-      corsOrigins.length > 0
-        ? {
-            origin: corsOrigins,
-            credentials: true,
-          }
-        : undefined,
-    ),
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          imgSrc: ["'self'", "data:", "https:"],
+          connectSrc: ["'self'", ...allowedOrigins],
+        },
+      },
+      crossOriginResourcePolicy: { policy: "cross-origin" },
+    }),
+  );
+
+  app.use(
+    cors({
+      origin: (origin, callback) => {
+        // Allow requests with no origin (e.g. mobile apps, curl, server-to-server, tests)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin) || allowedOrigins.includes("*")) {
+          return callback(null, true);
+        }
+        return callback(new Error(`Origin ${origin} not allowed by CORS`));
+      },
+      credentials: true,
+    }),
   );
 
   app.use(express.json());
+
+  // Mount baseline API rate limiter
+  app.use("/api", generalApiLimiter);
 
   // Request logger
   app.use((req, _res, next) => {
@@ -99,6 +128,33 @@ export function createApp(): Express {
   app.get("/health", (_req, res) => {
     res.status(200).json({ status: "healthy" });
   });
+
+  // 404 handler for unmatched API routes
+  app.use("/api", (_req, res) => {
+    res.status(404).json({ error: "Endpoint not found" });
+  });
+
+  // Centralized error-handling middleware (prevents leaking internal stack traces / paths)
+  app.use(
+    (
+      err: any,
+      _req: express.Request,
+      res: express.Response,
+      _next: express.NextFunction,
+    ) => {
+      console.error("[Unhandled Error]:", err?.message || err);
+      const statusCode =
+        Number.isInteger(err?.status) && err.status >= 400 && err.status < 600
+          ? err.status
+          : 500;
+      res.status(statusCode).json({
+        error:
+          process.env.NODE_ENV === "production"
+            ? "Internal server error"
+            : err?.message || "Internal server error",
+      });
+    },
+  );
 
   return app;
 }
