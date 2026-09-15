@@ -4,7 +4,60 @@ This file tracks daily development milestones, testing scores, architectural cha
 
 ---
 
-## 📅 2026-09-09
+## 📅 2026-09-15
+
+### 🛡️ Security & Vulnerability Remediation (Audits 1–5)
+- **High-Severity Vulnerability Fixes**:
+  - `extension/content.js`: Hardened `window.addEventListener("message")` origin validation against trusted origin list (`localhost`, `127.0.0.1`, configured domains); removed wildcard target origin `"*"` in responses, replacing with explicit `window.location.origin`.
+  - `backend/routes/challenges.routes.ts`: Remediated IDOR on `GET /challenges/:id` and `POST /challenges/:id/complete` by strictly enforcing `userId: req.user!.id` ownership.
+  - `backend/utils/encryption.ts` & `backend/tests/encryption.test.ts`: Prevented silent fallback to insecure static encryption key in production mode (throws fatal exception) and added test coverage.
+- **Medium-Severity Hardening**:
+  - `backend/middlewares/rateLimiter.ts` & `backend/routes/ai.routes.ts`: Exported and attached `aiRateLimiter` (10 req/min) to all Gemini AI endpoints.
+  - `backend/app.ts`: Mounted `generalApiLimiter` on `/api`, hardened CORS origin resolution, and configured Helmet CSP directives.
+  - `backend/routes/misc.routes.ts`: Added `sanitizeCsvCell` neutralizing formula injection (`=`, `+`, `-`, `@`, `\t`, `\r`) and escaping quotes.
+  - `backend/routes/extension.routes.ts`: Hardened user session lookup to prioritize blind index hash `leetcodeSessionHash`.
+  - `frontend/src/lib/sanitize.ts`: Created DOMPurify HTML sanitizer.
+  - `frontend/src/app/(dashboard)/problems/[problemId]/page.tsx`, `city/[levelId]/page.tsx`, `challenge/[id]/page.tsx`: Sanitized all HTML rendered via `dangerouslySetInnerHTML`.
+- **Low-Severity & Architectural Hardening**:
+  - `backend/middlewares/auth.ts`: Added `onUserCacheInvalidated` hook and tightened user cache TTL.
+  - `backend/routes/solutions.routes.ts`, `notes.routes.ts`, `admin.routes.ts`: Added payload size caps (64KB code, 10KB notes), input sanitization, and safe integer parsing for `orderIndex`.
+  - `backend/services/geminiService.ts`: Added `sanitizePromptInput` (15,000 char cap, backtick neutralization) and prompt injection delimiters.
+- **Infrastructure & Bearer Extension Sync**:
+  - `backend/routes/extension.routes.ts`: Added Bearer token authentication support so extension sync does not need to send raw session cookies over HTTP.
+  - `extension/background.js`: Attached Bearer token from `chrome.storage` when available.
+  - `docker-compose.yml`: Added `redis:7-alpine` service, connected backend via `REDIS_URL`, and eliminated hardcoded fallback keys using `:?` required variable syntax.
+- **Dependencies, Error Handling, & Data Leakage**:
+  - `backend/package.json`: Fixed vulnerable dependencies (`axios`, `shell-quote`, `body-parser`, `qs`, `form-data`, and updated `nodemailer` to `@latest`).
+  - `backend/routes/admin.routes.ts`: Explicitly selected safe fields in `GET /admin/users` and `PATCH /admin/users/:id/role`, omitting `leetcodeSession` ciphertext and `leetcodeSessionHash`.
+  - `backend/services/emailService.ts`: Removed hardcoded personal email, defaulting safely to configurable environment variables.
+  - `backend/middlewares/auth.ts`: Converted `await notifyLogin(...)` into non-blocking background task (`void notifyLogin(...).catch(...)`).
+  - `backend/app.ts`: Added centralized JSON error handling middleware and 404 handler for `/api` routes (Express 5 compatible).
+
+### 🚀 Platform & Automation Enhancements
+- **`/update` Skill & Pre-Departure Verification Overhaul**:
+  - Upgraded `.agents/skills/update/SKILL.md` with complete 7-stage runbook.
+  - Fixed path resolution bug in `.agents/skills/update/scripts/eod_check.ps1` and `eod_check.sh` (`Resolve-Path "$PSScriptRoot\..\..\..\.."`).
+  - Integrated Prisma schema synchronization and backend TypeScript typecheck to the pre-flight verification gate.
+  - Verified cross-platform mobile synchronization (`npm run cap:sync`).
+
+### 🧪 Test & QA Health
+- **Full Stack Quality Gate (`powershell .agents/skills/update/scripts/eod_check.ps1`)**: **PASS** (exit code 0).
+- **Backend Test Suite**: 10 test files, **114 unit & integration tests passing** (Vitest).
+- **Frontend Test Suite**: 45 test files, **191 unit & component tests passing** (Vitest).
+- **Total Tests Passing**: **305 / 305 tests (100%)**.
+- **TypeScript Diagnostics**: Clean pass across backend and frontend (`npx tsc --noEmit` exited 0).
+- **Frontend ESLint Check**: Clean pass (**0 errors**).
+- **Prisma Schema Synchronization**: 100% verified (`npm run check:prisma-sync` exited 0).
+- **Capacitor Native Sync**: Clean pass (`npm run cap:sync` exited 0).
+
+### 📑 Documentation & Configuration
+- Updated `README.md` test metrics to reflect 305 passing tests across 55 test suites.
+- Updated `.agents/skills/update/SKILL.md`, `eod_check.ps1`, and `eod_check.sh`.
+
+### 📌 Status
+- Clean working directory, all 305 tests green, all 5 audit stages resolved, ready for commit.
+
+---
 
 ### 🚀 Key Features & Enhancements
 - **Streak Tracking, Activity Heatmap & Weak-Topic Targeting**:
