@@ -33,11 +33,24 @@ const getCandidateApiBases = async () => {
 };
 
 const trySyncToApi = async (baseUrl, problemSlug, leetcodeSession) => {
+  let authToken = "";
+  try {
+    const stored = await chrome.storage.sync.get(["dsaApiToken"]);
+    authToken = typeof stored.dsaApiToken === "string" ? stored.dsaApiToken.trim() : "";
+  } catch {
+    // Ignore storage read error
+  }
+
+  const headers = {
+    "Content-Type": "application/json",
+  };
+  if (authToken) {
+    headers["Authorization"] = `Bearer ${authToken}`;
+  }
+
   const response = await fetch(`${baseUrl}/api/extension/sync`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers,
     body: JSON.stringify({
       problemSlug,
       leetcodeSession,
