@@ -21,6 +21,7 @@ import {
   Trophy,
 } from "lucide-react";
 import { soundEffects } from "@/lib/soundEffects";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 const CodeEditor = dynamic(
   () =>
@@ -502,8 +503,9 @@ export default function ChallengeSimulator() {
                   <div
                     className="custom-scrollbar max-h-75 overflow-y-auto pr-2 text-sm text-[var(--text-secondary)] leading-relaxed"
                     dangerouslySetInnerHTML={{
-                      __html:
+                      __html: sanitizeHtml(
                         problemContent || "<p>No description available.</p>",
+                      ),
                     }}
                   />
                 )}
