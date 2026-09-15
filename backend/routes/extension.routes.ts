@@ -2,12 +2,13 @@ import { Router, Request, Response } from "express";
 import { prisma } from "../db/prisma";
 import { fetchProblemSubmissions } from "../leetcodeService";
 import { isDifficulty } from "../services/nextActionService";
-import { hashSecret, encryptSecret } from "../utils/encryption";
+import { hashSecret, encryptSecret, decryptSecret } from "../utils/encryption";
 import { extensionSyncLimiter } from "../middlewares/rateLimiter";
+import { resolveAuthenticatedUser } from "../middlewares/auth";
 
 const router = Router();
 
-// Extension direct sync (bypass normal requireAuth by using leetcodeSession)
+// Extension sync (supports Bearer token auth or blind session hash)
 router.post(
   "/extension/sync",
   extensionSyncLimiter,
@@ -18,45 +19,75 @@ router.post(
       typeof problemSlug === "string" ? problemSlug.trim().toLowerCase() : "";
     const normalizedSession =
       typeof leetcodeSession === "string" ? leetcodeSession.trim() : "";
+
+    const authHeader = req.headers.authorization;
     if (
       !normalizedSlug ||
       !/^[a-z0-9-]+$/.test(normalizedSlug) ||
-      !normalizedSession ||
-      normalizedSession.length < 20
+      (!authHeader && (!normalizedSession || normalizedSession.length < 20))
     ) {
       return res.status(400).json({ error: "Missing problemSlug or session" });
     }
 
-    const sessionHash = hashSecret(normalizedSession);
+    let user: any = null;
 
-    const user = (await prisma.user.findFirst({
-      where: {
-        OR: [
-          { leetcodeSessionHash: sessionHash },
-          { leetcodeSession: normalizedSession },
-        ],
-      } as any,
-    })) as any;
+    // 1. Authenticate via Bearer Token if provided
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      const authUser = await resolveAuthenticatedUser(authHeader);
+      if (authUser) {
+        user = await prisma.user.findUnique({ where: { id: authUser.id } });
+      }
+    }
 
-    if (user && !user.leetcodeSessionHash) {
-      await prisma.user.update({
-        where: { id: user.id },
-        data: {
-          leetcodeSession: encryptSecret(normalizedSession),
-          leetcodeSessionHash: sessionHash,
-        } as any,
-      });
+    // 2. Fallback to blind index hash lookup by session
+    if (!user && normalizedSession && normalizedSession.length >= 20) {
+      const sessionHash = hashSecret(normalizedSession);
+
+      user = (await prisma.user.findFirst({
+        where: { leetcodeSessionHash: sessionHash } as any,
+      })) as any;
+
+      if (!user) {
+        user = (await prisma.user.findFirst({
+          where: {
+            OR: [
+              { leetcodeSession: normalizedSession },
+              { leetcodeSession: encryptSecret(normalizedSession) },
+            ],
+          } as any,
+        })) as any;
+
+        if (user) {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: {
+              leetcodeSession: encryptSecret(normalizedSession),
+              leetcodeSessionHash: sessionHash,
+            } as any,
+          });
+        }
+      }
     }
 
     if (!user) {
       return res
         .status(401)
-        .json({ error: "No user linked to this LeetCode session" });
+        .json({ error: "No user linked to this request or LeetCode session" });
+    }
+
+    const activeSession =
+      normalizedSession ||
+      (user.leetcodeSession ? decryptSecret(user.leetcodeSession) : "");
+
+    if (!activeSession) {
+      return res
+        .status(400)
+        .json({ error: "No active LeetCode session found for this user" });
     }
 
     const data = await fetchProblemSubmissions(
       normalizedSlug,
-      normalizedSession,
+      activeSession,
     );
     const submissions = data?.questionSubmissionList?.submissions || [];
     const acceptedSub = submissions.find(
