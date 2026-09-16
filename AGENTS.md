@@ -24,3 +24,15 @@ When the user enters `/commit`, `commit`, or asks to commit and push changes one
   4. **Git Push**: Push the branch to remote tracking repository (`git push origin <branch>`).
   5. **Summary**: Provide a detailed table of all commits and SHAs.
 
+## Specialized Domain Skills & Directives
+
+- **`/solution` or `/add-solution`**: Activate **`solution-vault`** (`.agents/skills/solution-vault/SKILL.md`) to scaffold, document Big-O complexity, and re-index `solutions/README.md`.
+- **`/schema` or `/db-sync`**: Activate **`schema-guard`** (`.agents/skills/schema-guard/SKILL.md`) to ensure dual-Prisma parity between backend and frontend, safe migrations, and seed verification.
+- **`/extension` or `/ext-sync`**: Activate **`extension-sync`** (`.agents/skills/extension-sync/SKILL.md`) to validate Manifest V3 permissions, DOM event listeners, and API sync.
+- **`/mobile` or `/cap-sync`**: Activate **`mobile-sync`** (`.agents/skills/mobile-sync/SKILL.md`) to sync frontend builds to native Android via Capacitor and verify PWA offline queues.
+- **`/security` or `/audit`**: Activate **`security-gate`** (`.agents/skills/security-gate/SKILL.md`) to audit IDOR protections, JWT cookies, rate limits, and sanitize inputs.
+
+## 🔄 Autonomous Skill Self-Evolution Protocol
+
+Whenever any new route, database model, npm script, component, utility, or architectural pattern is created, modified, or deprecated, the agent MUST automatically inspect `.agents/skills/` and update the relevant `SKILL.md` runbook and documentation so skills never suffer from documentation drift.
+
