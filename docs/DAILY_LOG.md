@@ -4,6 +4,31 @@ This file tracks daily development milestones, testing scores, architectural cha
 
 ---
 
+## 📅 2026-09-18
+
+### 🐛 Runtime AxiosError 403 & Platform Resilience Fixes
+- **Backend Routing & Gamification Guard Hardening**:
+  - `backend/routes/problems.routes.ts`: Replaced unconditional `403 Forbidden` response on `GET /problems/:problemId` with non-blocking `isFloorLocked` metadata payload, preventing unexpected lockouts when accessing problems from Search, Topics, Command Palette, or Challenge rooms (strict 403 lock preserved when `enforceLock=true` query parameter is passed).
+  - `backend/services/cityProgressService.ts`: Clamped required problem counts (`reqEasy`, `reqMedium`, `reqHard`) to total available problems in each topic via `Math.min`, ensuring topics with limited problem sets can complete floors and unlock subsequent levels.
+- **Frontend Hover Prefetch & Promise Rejection Safeguards**:
+  - `frontend/src/components/roadmap/ProblemDrawer.tsx`: Protected `void dsaApi.getProblem(p.id)` hover prefetch with `.catch(() => {})`, eliminating unhandled promise rejections that triggered Next.js/Turbopack runtime error overlays.
+  - `frontend/src/app/(dashboard)/search/page.tsx`: Protected hover prefetch with `.catch(() => {})` for smooth, crash-free instant transitions.
+  - `frontend/src/app/(dashboard)/challenge/page.tsx`: Added `.catch()` rejection handler to `dsaApi.getTopics()` call on initial arena render.
+  - `frontend/src/app/(dashboard)/problems/[problemId]/page.tsx`: Added stateful error handling capturing 403, 404, and network exceptions, rendering a styled locked floor / problem banner with return navigation.
+- **UI & Interaction Enhancements**:
+  - `frontend/src/app/(dashboard)/flashcards/page.tsx`: Polished flashcard interactive review card layout and invariant reveal controls.
+  - `frontend/src/app/(dashboard)/page.tsx`: Streamlined dashboard layout and stats components.
+
+### 🧪 Test & QA Health
+- **Full Stack Quality Gate**: **PASS** (exit code 0).
+- **Backend Test Suite**: 10 test files, **114 unit & integration tests passing** (Vitest).
+- **Frontend Test Suite**: 45 test files, **191 unit & component tests passing** (Vitest).
+- **Total Tests Passing**: **305 / 305 tests (100%)**.
+- **TypeScript Diagnostics**: Clean pass across backend and frontend (`npx tsc --noEmit` exited 0).
+- **Prisma Schema Synchronization**: 100% verified (`npm run check:prisma-sync` exited 0).
+
+---
+
 ## 📅 2026-09-15
 
 ### 🛡️ Security & Vulnerability Remediation (Audits 1–5)
