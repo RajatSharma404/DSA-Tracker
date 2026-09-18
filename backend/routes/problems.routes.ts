@@ -30,11 +30,13 @@ router.get(
 
       const cityInfo = await getUserCityProgressInfo(userId);
       const levelIndex = cityInfo.levels.findIndex((l) => l.id === problem.topicId);
-      if (levelIndex > 0) {
-        const prevLevel = cityInfo.levels[levelIndex - 1];
-        if (!prevLevel.isCompleted) {
-          return res.status(403).json({ error: "Level is locked. Complete the previous floor to unlock this level." });
-        }
+      const isFloorLocked =
+        levelIndex > 0 ? !cityInfo.levels[levelIndex - 1]?.isCompleted : false;
+
+      if (req.query.enforceLock === "true" && isFloorLocked) {
+        return res.status(403).json({
+          error: "Level is locked. Complete the previous floor to unlock this level.",
+        });
       }
 
       const enrichedProblem = {
@@ -43,6 +45,7 @@ router.get(
         timeSpent: problem.progress[0]?.timeSpent || 0,
         leetcodeRuntime: problem.progress[0]?.leetcodeRuntime || null,
         leetcodeMemory: problem.progress[0]?.leetcodeMemory || null,
+        isFloorLocked,
       };
 
       res.json(enrichedProblem);
