@@ -81,14 +81,6 @@ const WeakTopicBanner = dynamic(
   { ssr: false },
 );
 
-const ActivityCalendarHeatmap = dynamic(
-  () => import("@/components/dashboard/ActivityCalendarHeatmap"),
-  {
-    ssr: false,
-    loading: () => <ActivityCardSkeleton />,
-  },
-);
-
 import { queryCache } from "@/lib/queryCache";
 
 export default function Dashboard() {
@@ -806,9 +798,6 @@ export default function Dashboard() {
         />
         <StatCard title="Active Topics" value="In Progress" icon={BookOpen} />
       </div>
-
-      {/* GitHub-style Activity Heatmap (Feature 2) */}
-      <ActivityCalendarHeatmap />
 
       {/* Progress Bar overall */}
       <div className="p-6 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-subtle)] shadow-xl relative overflow-hidden">
