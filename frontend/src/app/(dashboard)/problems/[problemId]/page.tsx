@@ -19,6 +19,7 @@ import {
   Minimize2,
   Maximize2,
   Zap,
+  ShieldAlert,
 } from "lucide-react";
 import Link from "next/link";
 import { trackEvent } from "@/lib/analytics";
@@ -101,6 +102,7 @@ export default function ProblemSolvePage() {
   const [problem, setProblem] = useState<Problem | null>(null);
   const [problemDetails, setProblemDetails] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<
     "solve" | "hints" | "architect" | "notes" | "trace"
   >("solve");
@@ -169,6 +171,7 @@ export default function ProblemSolvePage() {
   const loadProblem = async () => {
     try {
       setLoading(true);
+      setErrorMessage(null);
 
       const problemData = await dsaApi.getProblem(problemId);
       setProblem(problemData);
@@ -180,8 +183,18 @@ export default function ProblemSolvePage() {
           setProblemDetails(details);
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to load problem:", error);
+      if (error?.response?.status === 403) {
+        setErrorMessage(
+          error?.response?.data?.error ||
+            "This problem belongs to a locked floor. Complete the previous floor to unlock it.",
+        );
+      } else if (error?.response?.status === 404) {
+        setErrorMessage("Problem not found.");
+      } else {
+        setErrorMessage("Failed to load problem details. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -250,12 +263,15 @@ export default function ProblemSolvePage() {
   if (!problem || !problemDetails) {
     return (
       <div className="flex flex-col items-center justify-center h-full gap-4 py-20 text-center">
-        <p className="text-[var(--text-muted)] font-medium">
-          Problem not found or LeetCode link missing
+        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400">
+          <ShieldAlert size={32} />
+        </div>
+        <p className="text-[var(--text-primary)] font-semibold text-base">
+          {errorMessage || "Problem not found or LeetCode link missing"}
         </p>
         <Link
           href="/topics"
-          className="px-4 py-2 rounded-xl bg-[var(--accent-primary)] text-black font-bold text-xs uppercase tracking-wider"
+          className="px-5 py-2.5 rounded-xl bg-[var(--accent-primary)] text-black font-bold text-xs uppercase tracking-wider hover:opacity-90 transition-opacity"
         >
           ← Back to Topics
         </Link>
