@@ -293,7 +293,7 @@ export default function ProblemDrawer({
                         <Link
                           href={`/problems/${p.id}`}
                           onMouseEnter={() => {
-                            void dsaApi.getProblem(p.id);
+                            void dsaApi.getProblem(p.id).catch(() => {});
                           }}
                           onClick={() => soundEffects.playClick()}
                           className="text-xs font-bold text-[var(--text-primary)] group-hover:text-[var(--accent-primary)] transition-colors truncate"
