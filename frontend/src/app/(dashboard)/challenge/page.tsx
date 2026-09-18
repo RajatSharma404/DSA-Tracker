@@ -96,10 +96,15 @@ export default function ChallengeSelection() {
   const router = useRouter();
 
   useEffect(() => {
-    dsaApi.getTopics().then((data) => {
-      setTopics(data);
-      if (data.length > 0) setSelectedTopic(data[0].id);
-    });
+    dsaApi
+      .getTopics()
+      .then((data) => {
+        setTopics(data);
+        if (data.length > 0) setSelectedTopic(data[0].id);
+      })
+      .catch((err) => {
+        console.error("Failed to load topics:", err);
+      });
   }, []);
 
   const handleModeSelect = (mode: ArenaMode) => {
