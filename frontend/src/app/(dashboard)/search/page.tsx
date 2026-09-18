@@ -483,7 +483,7 @@ function ProblemRow({
             href={`/problems/${p.id}`}
             onMouseEnter={() => {
               // Pre-fetch problem details on hover for instant 0ms transition
-              void dsaApi.getProblem(p.id);
+              void dsaApi.getProblem(p.id).catch(() => {});
             }}
             onClick={() => soundEffects.playClick()}
             className="text-sm font-bold text-[var(--text-primary)] hover:text-[var(--accent-primary)] transition-colors block truncate font-display"
