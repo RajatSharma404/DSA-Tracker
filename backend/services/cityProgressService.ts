@@ -40,7 +40,14 @@ export async function getUserCityProgressInfo(userId: string) {
       }
     });
 
-    const isCompleted = easySolved >= 2 && mediumSolved >= 2 && hardSolved >= 1;
+    const reqEasy = Math.min(2, easyTotal);
+    const reqMedium = Math.min(2, mediumTotal);
+    const reqHard = Math.min(1, hardTotal);
+
+    const isCompleted =
+      easySolved >= reqEasy &&
+      mediumSolved >= reqMedium &&
+      hardSolved >= reqHard;
     if (isCompleted) {
       floors++;
     }
@@ -50,9 +57,9 @@ export async function getUserCityProgressInfo(userId: string) {
       name: topic.name,
       isCompleted,
       progress: {
-        easy: { solved: easySolved, required: 2, total: easyTotal },
-        medium: { solved: mediumSolved, required: 2, total: mediumTotal },
-        hard: { solved: hardSolved, required: 1, total: hardTotal },
+        easy: { solved: easySolved, required: reqEasy, total: easyTotal },
+        medium: { solved: mediumSolved, required: reqMedium, total: mediumTotal },
+        hard: { solved: hardSolved, required: reqHard, total: hardTotal },
       },
     };
   });
