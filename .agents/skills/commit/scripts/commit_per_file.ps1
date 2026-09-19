@@ -37,7 +37,10 @@ $commits = @(
     @{ File = "AGENTS.md"; Message = "docs(agents): register /commit command in project agent directives" }
 )
 
-Write-Host "Starting atomic per-file commits..." -ForegroundColor Cyan
+$currentBranch = (git branch --show-current).Trim()
+if (-not $currentBranch) { $currentBranch = "main" }
+Write-Host "Active branch: $currentBranch" -ForegroundColor Cyan
+Write-Host "Starting atomic per-file commit and push cycle..." -ForegroundColor Cyan
 
 $count = 0
 foreach ($item in $commits) {
@@ -48,9 +51,10 @@ foreach ($item in $commits) {
         $status = git status --porcelain $file
         if ($status) {
             $count++
-            Write-Host "[$count] Committing $file..." -ForegroundColor Yellow
+            Write-Host "[$count] Committing and pushing $file..." -ForegroundColor Yellow
             git add $file
             git commit -m $msg
+            git push origin $currentBranch
         } else {
             Write-Host "Skipping $file (no changes detected)." -ForegroundColor DarkGray
         }
@@ -62,15 +66,16 @@ foreach ($item in $commits) {
 # Any leftover untracked or modified files
 $remaining = git status --porcelain
 if ($remaining) {
-    Write-Host "`nCommitting remaining changes individually..." -ForegroundColor Yellow
+    Write-Host "`nCommitting and pushing remaining changes individually..." -ForegroundColor Yellow
     $lines = $remaining -split "`n" | Where-Object { $_.Trim().Length -gt 3 }
     foreach ($line in $lines) {
         $relFile = $line.Substring(3).Trim()
         if (Test-Path $relFile) {
             $count++
-            Write-Host "[$count] Committing leftover $relFile..." -ForegroundColor Yellow
+            Write-Host "[$count] Committing and pushing leftover $relFile..." -ForegroundColor Yellow
             git add $relFile
             git commit -m "chore: update $relFile"
+            git push origin $currentBranch
         }
     }
 }
@@ -80,12 +85,13 @@ $scriptPath = ".agents/skills/commit/scripts/commit_per_file.ps1"
 $scriptStatus = git status --porcelain $scriptPath
 if ($scriptStatus) {
     $count++
-    Write-Host "[$count] Committing script $scriptPath..." -ForegroundColor Yellow
+    Write-Host "[$count] Committing and pushing script $scriptPath..." -ForegroundColor Yellow
     git add $scriptPath
     git commit -m "feat(skills): add atomic commit PowerShell script helper"
+    git push origin $currentBranch
 }
 
-Write-Host "`nAll $count files committed individually!" -ForegroundColor Green
+Write-Host "`nAll $count files committed and pushed individually!" -ForegroundColor Green
 Write-Host "Checking git status..."
 git status -s
 Pop-Location
