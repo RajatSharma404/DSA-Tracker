@@ -18,9 +18,9 @@ When requested or triggered by `/commit`, each modified, created, or deleted fil
 graph TD
   A["Trigger: /commit or Per-File Commit Request"] --> B["Stage 1: Pre-Commit Quality Assurance"]
   B --> C["Stage 2: File Inventory & Topological Ordering"]
-  C --> D["Stage 3: Per-File Individual Commits (1 commit per file)"]
+  C --> D["Stage 3: Per-File Commit & Immediate Push Loop (1 commit & push per file)"]
   D --> E["Stage 4: Working Tree Cleanliness Verification"]
-  E --> F["Stage 5: Git Push to Remote Tracking Branch"]
+  E --> F["Stage 5: Remote Branch Parity & Status Verification"]
   F --> G["Stage 6: Commit Log Summary Report"]
 ```
 
@@ -61,36 +61,40 @@ Categorize and order the files logically so that the commit history reads chrono
 
 ---
 
-## Stage 3: Per-File Individual Commits
+## Stage 3: Per-File Individual Commit & Push Loop
 
-For **every single file** in the inventory:
+For **every single file** in the inventory, execute the commit and push cycle individually so that GitHub records exactly 1 commit per file pushed in real-time:
 
+```bash
+# Determine active branch
+BRANCH=$(git branch --show-current)
+```
+
+For each file `<filepath>`:
 1. **Stage exactly that one file**:
    ```bash
    git add <filepath>
    ```
 
-2. **Craft a specific Conventional Commit message**:
-   Use standard types and appropriate scopes:
-   - `feat(<scope>)`: New capability added in this file.
-   - `fix(<scope>)` / `security(<scope>)`: Bug or vulnerability patched in this file.
-   - `refactor(<scope>)`: Structural cleanup without functional change.
-   - `chore(<scope>)`: Dependency updates, configs, build scripts.
-   - `docs(<scope>)`: Readme, daily log, or documentation changes.
-
-3. **Commit the single file**:
+2. **Commit with a scoped Conventional Commit message**:
    ```bash
    git commit -m "<type>(<scope>): <concise, file-specific summary of changes>"
    ```
 
-4. **Verify file is committed**:
-   Ensure `git status -s` no longer shows that file as staged. Repeat until no modified or untracked files remain.
+3. **Immediately push this single commit to remote**:
+   ```bash
+   git push origin $BRANCH
+   ```
+   *(This ensures that each file displays on GitHub as an isolated, standalone commit pushed immediately).*
+
+4. **Verify file is committed and pushed**:
+   Ensure `git status -s` no longer shows that file. Repeat the cycle for the next file until the working tree is clean.
 
 ---
 
 ## Stage 4: Cleanliness Check
 
-Ensure all files have been committed:
+Ensure all files have been committed and pushed:
 ```bash
 git status -s
 ```
@@ -98,17 +102,13 @@ git status -s
 
 ---
 
-## Stage 5: Git Push to Remote
+## Stage 5: Remote Branch Parity & Status Verification
 
-Push all generated atomic commits to the remote branch:
+Verify local and remote branch tracking:
 ```bash
-git push origin <branch>
+git status -sb
 ```
-*Example*:
-```bash
-git push origin main
-```
-Verify exit code is 0 and remote is up-to-date.
+*Requirement*: Local branch must be strictly up to date with `origin/<branch>`.
 
 ---
 
