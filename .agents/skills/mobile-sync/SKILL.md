@@ -79,8 +79,10 @@ Inspect `frontend/android/app/src/main/AndroidManifest.xml`:
 
 ---
 
-## 🔄 Autonomous Skill Self-Evolution Protocol
+## 🔄 Autonomous Skill Self-Evolution & Technology Modernization Protocol
 
-Whenever this skill executes or mobile configurations change:
-1. **New Capacitor Plugin Added**: When a new plugin is installed (e.g. `@capacitor/haptics`, `@capacitor/network`, `@capacitor/status-bar`), immediately update this `SKILL.md` to document its sync requirements and configuration steps.
-2. **New Native Platform Added**: If iOS or another mobile target is configured, add its corresponding sync and provisioning commands to this runbook.
+Whenever new technologies, mobile SDKs, or platform upgrades are introduced (e.g., Capacitor major releases, Android SDK / Target API level bumps, Gradle upgrades, iOS platform support, PWA service worker cache API advancements, or new native hardware plugins):
+1. **Native Bridge & Plugin Modernization**: Automatically update this runbook when new Capacitor plugins (`@capacitor/camera`, `@capacitor/push-notifications`, `@capacitor/filesystem`, etc.) are installed to record required Android manifest entitlements and sync procedures.
+2. **Platform & Build Tooling Updates**: Update Stage 2 through Stage 4 commands whenever build scripts (`next export`, static output modes) or native build tools (Capacitor CLI, Android Studio Gradle scripts) adopt new commands or configurations.
+3. **PWA & Offline Resilience Evolution**: Update Stage 1 caching strategies when modern browser service worker specifications (Workbox, Background Sync API, Periodic Sync) or offline IndexedDB adapters are upgraded.
+4. **Proactive Self-Update**: The agent must automatically verify and modernize this skill during mobile builds, capacitor sync operations, or PWA architectural updates.
