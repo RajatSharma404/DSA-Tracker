@@ -4,6 +4,20 @@ This file tracks daily development milestones, testing scores, architectural cha
 
 ---
 
+## 📅 2026-09-21
+
+### 🛠️ Full-Stack Project Audit & 'improvement' Skill Creation
+- **New Improvement Skill Runbook (`.agents/skills/improvement/SKILL.md`)**:
+  - Implemented comprehensive 7-stage runbook to systematically audit Frontend, Backend, Database schemas, Cross-Platform components, and Codebase Architecture.
+  - Covers bug detection, N+1 query hotspots, foreign key indexing, heavy bundle dynamic imports, accessibility, responsive UI, feature consolidation, and $O(N)$ algorithmic optimization.
+- **Cross-Platform Diagnostic Tooling (`scripts/audit_project.mjs`, `.ps1`, `.sh`)**:
+  - Added Node.js, PowerShell, and Bash runners to scan dual Prisma parity, unindexed relations, heavy bundle imports (Monaco, Three.js, ReactFlow), unbounded queries, and type safety leaks.
+  - Added `"audit:improvements"` root npm script.
+- **Agent Directives & Rules (`AGENTS.md`, `.agents/rules/improvement-trigger.md`)**:
+  - Registered `/improvement` command directive and autonomous skill self-evolution protocol.
+
+---
+
 ## 📅 2026-09-18
 
 ### 🐛 Runtime AxiosError 403 & Platform Resilience Fixes
