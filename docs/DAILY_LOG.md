@@ -16,6 +16,46 @@ This file tracks daily development milestones, testing scores, architectural cha
 - **Agent Directives & Rules (`AGENTS.md`, `.agents/rules/improvement-trigger.md`)**:
   - Registered `/improvement` command directive and autonomous skill self-evolution protocol.
 
+### 🛡️ Tier 1 Critical Bug Fixes & Database Optimizations
+- **Challenge Randomizer Defect Fix (`backend/routes/challenges.routes.ts`)**:
+  - Resolved SQL `take: 2` limitation bug where users were repeatedly assigned the exact same first two problems in topic.
+  - Implemented in-memory Fisher-Yates shuffle sampling across topic problem IDs with graceful clamping and support for custom `count`.
+  - Replaced `(prisma as any).challengeSession` with fully typed `prisma.challengeSession` methods and strict `ChallengeStatus` typing.
+- **Search "TODO" Filter Disappearance Fix (`backend/routes/search.routes.ts`)**:
+  - Remediated bug where explicit `Progress` records with `status: "TODO"` were excluded due to `where.progress = { none: { userId } }`.
+  - Implemented collision-safe `where.AND` structure with composite `OR` condition matching unattempted and explicitly marked `TODO` progress records.
+  - Eliminated loose `any` casts in search parameters, enforcing strict `Prisma.ProblemWhereInput`.
+- **Database Index Optimization (`backend/prisma/schema.prisma` & `frontend/prisma/schema.prisma`)**:
+  - Added composite indexes `@@index([userId, status])` and `@@index([userId, createdAt])` to model `ChallengeSession` to eliminate table scans on cascade deletes, active challenge queries, and chronological history lists.
+  - Verified 100% byte-level dual-schema parity via `npm run check:prisma-sync` and regenerated Prisma Clients.
+- **Automated Test Coverage (`backend/tests/tier1Fixes.test.ts`)**:
+  - Added 7 unit and integration tests covering challenge randomizer distribution, 404 handlers, completion status validation, and search composite `TODO` querying.
+
+### ⚡ Tier 2 Architectural Scalability & Bundle Decoupling
+- **Frontend Three.js Bundle Decoupling (`frontend/src/types/city.ts`, `CityLeaderboard.tsx`, `UserInspectorModal.tsx`)**:
+  - Created standalone domain type definitions `LeaderboardUser`, `CityTheme`, and `CameraMode` in `@/types/city`.
+  - Migrated `CityLeaderboard.tsx` and `UserInspectorModal.tsx` from importing types directly from `CityScene.tsx` (which pulled `@react-three/fiber` and `three.js` ~600KB into the main dashboard 2D bundle) to lightweight type-only imports.
+  - Verified with `npm run audit:improvements` that static 3D library imports in 2D dashboard modals are completely cleared.
+- **Backend Full-Curriculum Scan Elimination (`backend/services/cityProgressService.ts`, `backend/routes/problems.routes.ts`)**:
+  - Added targeted `isTopicFloorLocked(userId, topicOrderIndex)` helper to `cityProgressService`.
+  - Replaced the heavy `getUserCityProgressInfo` call in `GET /problems/:problemId` (which previously scanned and recalculated progress for every topic in the entire curriculum) with single-query topic evaluation, dropping computation from $O(T \times P)$ to $O(P_{topic})$.
+- **LeetCode Sync N+1 Query Elimination (`backend/routes/user.routes.ts`)**:
+  - Replaced per-problem sequential database reads and writes in `POST /api/user/sync-leetcode` with bulk lookups.
+  - Preloaded matching roadmap problems in a single `prisma.problem.findMany` query and existing user progress in a single `prisma.userProblemProgress.findMany` query.
+  - In-memory dictionary matching ($O(1)$) determines non-DONE problems needing update, batching `prisma.userProblemProgress.upsert` executions and skipping redundant network fetches for already-solved problems.
+  - Removed 9 loose `any` casts in `user.routes.ts`, restoring full type safety.
+- **Automated Test Coverage (`backend/tests/tier2Fixes.test.ts`)**:
+  - Added 5 comprehensive tests validating `isTopicFloorLocked` for Floor 1 auto-unlock, prerequisite floor satisfaction, bulk LeetCode synchronization without N+1 queries, and duplicate submission handling.
+
+### 🧪 Test & QA Health
+- **Full Stack Quality Gate**: **PASS** (exit code 0).
+- **Backend Test Suite**: 12 test files, **126 unit & integration tests passing** (Vitest).
+- **Frontend Test Suite**: 45 test files, **191 unit & component tests passing** (Vitest).
+- **Total Tests Passing**: **317 / 317 tests (100%)**.
+- **TypeScript Diagnostics**: Clean pass across backend and frontend (`npx tsc --noEmit` exited 0).
+- **Prisma Schema Parity**: 100% synchronized and verified (`npm run check:prisma-sync` exited 0).
+- **Architecture Health Score**: **70 / 100** (improved from 62/100).
+
 ---
 
 ## 📅 2026-09-18
