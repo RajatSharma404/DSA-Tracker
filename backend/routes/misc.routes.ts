@@ -68,6 +68,7 @@ router.get(
 
       const progress = await prisma.progress.findMany({
         where: { userId },
+        take: 10000,
         include: {
           problem: { include: { topic: true } },
         },
