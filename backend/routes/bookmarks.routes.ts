@@ -35,8 +35,10 @@ router.post(
 router.get("/bookmarks", requireAuth, async (req: Request, res: Response) => {
   try {
     const userId = req.user!.id;
+    const limit = Math.min(Math.max(Number(req.query.limit) || 100, 1), 500);
     const bookmarks = await prisma.bookmark.findMany({
       where: { userId },
+      take: limit,
       include: {
         problem: {
           include: {
