@@ -24,8 +24,10 @@ router.post("/tags", requireAuth, async (req: Request, res: Response) => {
 router.get("/tags", requireAuth, async (req: Request, res: Response) => {
   try {
     const userId = req.user!.id;
+    const limit = Math.min(Math.max(Number(req.query.limit) || 100, 1), 500);
     const tags = await prisma.userTag.findMany({
       where: { userId },
+      take: limit,
       include: { problems: true },
       orderBy: { createdAt: "desc" },
     });
