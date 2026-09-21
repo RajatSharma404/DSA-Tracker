@@ -169,19 +169,11 @@ const handler = nextAuthSecret
   ? NextAuth(createAuthOptions(nextAuthSecret))
   : null;
 
-export async function GET(req: Request, context: unknown) {
-  if (!handler) {
-    console.error(
-      "[next-auth][error][NO_SECRET] NEXTAUTH_SECRET or AUTH_SECRET is required",
-    );
-    return missingSecretResponse();
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return handler(req as any, context as any);
+interface RouteContext {
+  params: Promise<{ nextauth: string[] }>;
 }
 
-export async function POST(req: Request, context: unknown) {
+export async function GET(req: Request, context: RouteContext) {
   if (!handler) {
     console.error(
       "[next-auth][error][NO_SECRET] NEXTAUTH_SECRET or AUTH_SECRET is required",
@@ -189,6 +181,22 @@ export async function POST(req: Request, context: unknown) {
     return missingSecretResponse();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return handler(req as any, context as any);
+  return (handler as (req: Request, ctx: RouteContext) => Promise<Response>)(
+    req,
+    context,
+  );
+}
+
+export async function POST(req: Request, context: RouteContext) {
+  if (!handler) {
+    console.error(
+      "[next-auth][error][NO_SECRET] NEXTAUTH_SECRET or AUTH_SECRET is required",
+    );
+    return missingSecretResponse();
+  }
+
+  return (handler as (req: Request, ctx: RouteContext) => Promise<Response>)(
+    req,
+    context,
+  );
 }
