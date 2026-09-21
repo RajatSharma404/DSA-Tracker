@@ -134,7 +134,8 @@ function auditFrontend() {
 
         for (const lib of heavyLibraries) {
           if (content.includes(`from '${lib.name}'`) || content.includes(`from "${lib.name}"`)) {
-            if (isClientComponent && !isDynamic && !entry.name.toLowerCase().includes('canvas') && !entry.name.toLowerCase().includes('editor')) {
+            const isKnownLazyLeaf = /canvas|editor|builder|graph|node|[\\/]3d[\\/]|scene/i.test(relativePath);
+            if (isClientComponent && !isDynamic && !isKnownLazyLeaf) {
               findings.frontend.push({
                 type: 'PERFORMANCE',
                 title: `Direct Static Import of Heavy Library (${lib.name})`,
