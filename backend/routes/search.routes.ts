@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { prisma } from "../db/prisma";
 import { requireAuth } from "../middlewares/auth";
+import { Difficulty, Prisma, ProgressStatus } from "@prisma/client";
 
 const router = Router();
 
@@ -10,43 +11,58 @@ router.get("/search", requireAuth, async (req: Request, res: Response) => {
     const userId = req.user!.id;
     const { q, difficulty, status, topicId, bookmarked, tagId } = req.query;
 
-    const where: any = {};
+    const where: Prisma.ProblemWhereInput = {};
 
-    if (q) {
-      where.title = { contains: q as string, mode: "insensitive" };
+    if (typeof q === "string" && q.trim()) {
+      where.title = { contains: q.trim(), mode: "insensitive" };
     }
-    if (difficulty) {
-      where.difficulty = difficulty as string;
+    if (typeof difficulty === "string" && (difficulty === "EASY" || difficulty === "MEDIUM" || difficulty === "HARD")) {
+      where.difficulty = difficulty as Difficulty;
     }
-    if (topicId) {
-      where.topicId = topicId as string;
+    if (typeof topicId === "string" && topicId.trim()) {
+      where.topicId = topicId.trim();
     }
 
-    if (status) {
+    const andConditions: Prisma.ProblemWhereInput[] = [];
+
+    if (typeof status === "string") {
       if (status === "TODO") {
-        where.progress = {
-          none: { userId },
-        };
-      } else {
-        where.progress = {
-          some: {
-            userId,
-            status: status as any,
+        andConditions.push({
+          OR: [
+            { progress: { none: { userId } } },
+            { progress: { some: { userId, status: ProgressStatus.TODO } } },
+          ],
+        });
+      } else if (status === "DOING" || status === "DONE") {
+        andConditions.push({
+          progress: {
+            some: {
+              userId,
+              status: status as ProgressStatus,
+            },
           },
-        };
+        });
       }
     }
 
     if (bookmarked === "true") {
-      where.bookmarks = {
-        some: { userId },
-      };
+      andConditions.push({
+        bookmarks: {
+          some: { userId },
+        },
+      });
     }
 
-    if (tagId) {
-      where.problemTags = {
-        some: { tagId: tagId as string },
-      };
+    if (typeof tagId === "string" && tagId.trim()) {
+      andConditions.push({
+        problemTags: {
+          some: { tagId: tagId.trim() },
+        },
+      });
+    }
+
+    if (andConditions.length > 0) {
+      where.AND = andConditions;
     }
 
     const problems = await prisma.problem.findMany({
@@ -72,7 +88,7 @@ router.get("/search", requireAuth, async (req: Request, res: Response) => {
       timeSpent: p.progress[0]?.timeSpent || 0,
       nextReviewDate: p.progress[0]?.nextReviewDate,
       isBookmarked: p.bookmarks.length > 0,
-      tags: p.problemTags.map((pt: any) => pt.tag),
+      tags: p.problemTags.map((pt) => pt.tag),
     }));
 
     res.json(result);
