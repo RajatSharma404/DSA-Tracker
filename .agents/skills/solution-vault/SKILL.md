@@ -121,8 +121,10 @@ node scripts/sync-solutions.js
 
 ---
 
-## 🔄 Autonomous Skill Self-Evolution Protocol
+## 🔄 Autonomous Skill Self-Evolution & Technology Modernization Protocol
 
-Whenever this skill is executed or when changes occur in the project:
-1. **New Topic Directory Detected**: If a new folder is added to `solutions/` (e.g. `16-string-algorithms`), automatically edit this `SKILL.md` file to append the new topic to Stage 1.
-2. **New Language Added**: If solutions in a new programming language (e.g. `Go`, `Rust`, `Kotlin`) are introduced, update `scripts/sync-solutions.js` and edit this `SKILL.md` to include its file extension and comment template.
+Whenever new programming languages, algorithmic frameworks, or solution tooling are introduced (e.g., adding Rust, Go, Swift, or Kotlin solutions, updating C++20/23 compiler standards, or modernizing AST parsing engines like Babel/SWC/Tree-sitter):
+1. **Multi-Language Parity & Scaffolding**: Automatically update Stage 2 templates and `scripts/sync-solutions.js` to support new language file extensions, docstring conventions, and complexity tags.
+2. **Topic Hierarchy Expansion**: If new algorithmic domains (e.g. `16-trie-and-aho-corasick`, `17-segment-trees`, `18-computational-geometry`) or company question categories are added, update Stage 1 directories immediately.
+3. **Tooling & Indexer Modernization**: Keep `scripts/sync-solutions.js` and `solutions/README.md` synchronized with the latest markdown badge standards, sorting algorithms, and category structures.
+4. **Proactive Self-Update**: The agent must automatically modernize this runbook whenever solutions in new languages or new topic classifications are scaffolded.
