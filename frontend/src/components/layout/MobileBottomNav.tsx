@@ -31,7 +31,7 @@ export function MobileBottomNav({
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 h-16 bg-[var(--bg-secondary)]/95 backdrop-blur-lg border-t border-[var(--border-subtle)] px-2 flex items-center justify-around md:hidden pb-[env(safe-area-inset-bottom)]"
+      className="fixed bottom-0 left-0 right-0 z-40 h-[calc(4rem+env(safe-area-inset-bottom))] bg-[var(--bg-secondary)]/95 backdrop-blur-lg border-t border-[var(--border-subtle)] px-2 flex items-center justify-around md:hidden pb-[env(safe-area-inset-bottom)]"
       role="navigation"
       aria-label="Mobile primary navigation"
     >
@@ -45,7 +45,7 @@ export function MobileBottomNav({
           <Link
             key={item.href}
             href={item.href}
-            className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all cursor-pointer ${
+            className={`flex flex-col items-center justify-center py-1 px-3 min-w-[48px] min-h-[44px] rounded-xl transition-all cursor-pointer ${
               isActive
                 ? "text-[var(--accent-primary)] font-semibold"
                 : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
@@ -66,7 +66,7 @@ export function MobileBottomNav({
       {/* Menu / More toggle */}
       <button
         onClick={onToggleDrawer}
-        className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all cursor-pointer ${
+        className={`flex flex-col items-center justify-center py-1 px-3 min-w-[48px] min-h-[44px] rounded-xl transition-all cursor-pointer ${
           isDrawerOpen
             ? "text-[var(--accent-primary)] font-semibold"
             : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
