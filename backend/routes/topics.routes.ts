@@ -10,6 +10,7 @@ router.get("/topics", requireAuth, async (req: Request, res: Response) => {
     const userId = req.user!.id;
 
     const topics = await prisma.topic.findMany({
+      take: 200,
       include: {
         problems: {
           include: {
@@ -55,6 +56,7 @@ router.get(
 
       const problems = await prisma.problem.findMany({
         where: { topicId },
+        take: 500,
         include: {
           progress: {
             where: { userId },
