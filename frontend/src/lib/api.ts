@@ -275,6 +275,8 @@ export interface Problem {
   status: "TODO" | "DOING" | "DONE";
   timeSpent: number;
   nextReviewDate?: string | Date;
+  leetcodeRuntime?: string | null;
+  leetcodeMemory?: string | null;
 }
 
 export interface UserTag {
@@ -295,6 +297,8 @@ export interface SearchProblem {
   status: "TODO" | "DOING" | "DONE";
   timeSpent: number;
   nextReviewDate?: string | Date;
+  leetcodeRuntime?: string | null;
+  leetcodeMemory?: string | null;
   isBookmarked: boolean;
   tags: UserTag[];
 }
