@@ -76,8 +76,10 @@ In `extension/background.js`:
 
 ---
 
-## 🔄 Autonomous Skill Self-Evolution Protocol
+## 🔄 Autonomous Skill Self-Evolution & Technology Modernization Protocol
 
-Whenever this skill executes or extension files are touched:
-1. **Backend Endpoint Signature Shifts**: If the submission API endpoint (`/api/problems/sync`) changes URL, payload shape, or required headers, immediately update the code snippet in `extension/background.js` and this `SKILL.md` runbook.
-2. **New Platform Supported**: If support for additional platforms (e.g. Codeforces, GeeksforGeeks) is added to `manifest.json`, update `host_permissions` and record the DOM selectors in this file.
+Whenever new technologies, browser extension standards, or architectural updates are introduced (e.g., Chrome Manifest updates, WebExtensions polyfills, new browser security policies, LeetCode UI/GraphQL schema changes, or backend auth shifts like WebAuthn or OAuth):
+1. **Manifest & API Modernization**: Automatically update this runbook and `extension/manifest.json` whenever Manifest V3 specifications evolve or new declarativeNetRequest / scripting APIs are standardized.
+2. **Backend Endpoint & Payload Shifts**: If the submission API endpoint (`/api/problems/sync`) changes URL, payload shape, authentication headers, or validation rules, immediately update `extension/background.js` and this `SKILL.md` runbook.
+3. **Platform Expansion**: If support for additional coding platforms (e.g. Codeforces, GeeksforGeeks, HackerRank) is introduced, automatically update `host_permissions`, content script selectors, and parsing logic in this file.
+4. **Proactive Self-Update**: The agent must inspect and update this skill whenever extension files, network payloads, or browser permission APIs are modified.
