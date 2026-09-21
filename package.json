@@ -18,6 +18,7 @@
     "check:prisma-sync": "node -e \"const fs=require('fs'); const b=fs.readFileSync('backend/prisma/schema.prisma','utf8'); const f=fs.readFileSync('frontend/prisma/schema.prisma','utf8'); if (b!==f) { console.error('Prisma schemas are out of sync!'); process.exit(1); } else { console.log('Prisma schemas are synchronized.'); }\"",
     "sync:prisma": "node -e \"const fs=require('fs'); fs.copyFileSync('backend/prisma/schema.prisma', 'frontend/prisma/schema.prisma'); console.log('Copied backend schema to frontend.');\"",
     "qa": "npm run check:prisma-sync && npm run typecheck && npm run lint && npm test",
+    "audit:improvements": "node .agents/skills/improvement/scripts/audit_project.mjs",
     "add:sol": "node scripts/add-solution.js",
     "sync:sol": "node scripts/sync-solutions.js"
   },
