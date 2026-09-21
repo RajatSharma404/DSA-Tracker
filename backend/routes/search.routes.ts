@@ -65,8 +65,10 @@ router.get("/search", requireAuth, async (req: Request, res: Response) => {
       where.AND = andConditions;
     }
 
+    const limit = Math.min(Math.max(Number(req.query.limit) || 2000, 1), 5000);
     const problems = await prisma.problem.findMany({
       where,
+      take: limit,
       include: {
         topic: true,
         progress: { where: { userId } },
