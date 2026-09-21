@@ -109,8 +109,10 @@ npm run typecheck
 
 ---
 
-## 🔄 Autonomous Skill Self-Evolution Protocol
+## 🔄 Autonomous Skill Self-Evolution & Technology Modernization Protocol
 
-Whenever this skill executes or when database changes are made:
-1. **New Database Model Added**: If a new model or enum is added (e.g., `ChallengeParticipant`, `InterviewSession`, `Badge`), automatically update this `SKILL.md` file to record the new model under the monitored models list.
-2. **Seed Data Schema Changes**: If `dsa-roadmap-seed.json` shifts its JSON structure, update Stage 3 instructions with the updated seed script commands.
+Whenever new database technologies, Prisma ORM updates, or schema architectural enhancements are introduced (e.g., Prisma major version releases, Prisma Accelerate / Pulse, driver adapters like `@prisma/adapter-pg`, multi-database providers, Neon serverless, Supabase, or SQLite to PostgreSQL migrations):
+1. **Prisma CLI & Driver Modernization**: Automatically update this runbook when Prisma syntax, migration commands (`prisma migrate dev`, `prisma db push`), or generator options change.
+2. **Schema & Model Evolution**: Whenever a new model, field relation, or enum is added (e.g., `ChallengeParticipant`, `InterviewSession`, `Badge`), update this runbook and verify dual-schema parity immediately.
+3. **Seeding Architecture Updates**: If `dsa-roadmap-seed.json`, `backend/prisma/seed.ts`, or migration scripts change data formats or execution runners, update Stage 3 with the exact new seed commands.
+4. **Proactive Self-Update**: The agent must automatically inspect and modernize this skill runbook during schema changes, database migrations, or ORM dependency upgrades.
