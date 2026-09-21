@@ -33,6 +33,7 @@ router.get("/dashboard/bootstrap", requireAuth, async (req: Request, res: Respon
       prisma.problem.count(),
       prisma.progress.findMany({
         where: { userId, status: "DONE" },
+        take: 10000,
         select: {
           completedAt: true,
           updatedAt: true,
