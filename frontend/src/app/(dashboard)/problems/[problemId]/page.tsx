@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter, useParams } from "next/navigation";
+import axios from "axios";
 import { dsaApi, Problem } from "@/lib/api";
 import {
   ArrowLeft,
@@ -25,6 +26,19 @@ import Link from "next/link";
 import { trackEvent } from "@/lib/analytics";
 import { soundEffects } from "@/lib/soundEffects";
 import { sanitizeHtml } from "@/lib/sanitize";
+
+interface LeetCodeProblemDetails {
+  questionId?: string;
+  title?: string;
+  content?: string;
+  topicTags?: Array<{ name: string; slug?: string }>;
+  codeSnippets?: Array<{ lang: string; langSlug: string; code: string }>;
+  sampleTestCase?: string;
+  hints?: string[];
+  stats?: string;
+  similarQuestions?: string;
+  solution?: { id: string; canSeeDetail: boolean; paidOnly: boolean; hasVideoSolution: boolean };
+}
 
 const LeetCodeEditor = dynamic(
   () =>
@@ -100,7 +114,7 @@ export default function ProblemSolvePage() {
   const problemId = params?.problemId as string;
 
   const [problem, setProblem] = useState<Problem | null>(null);
-  const [problemDetails, setProblemDetails] = useState<any>(null);
+  const [problemDetails, setProblemDetails] = useState<LeetCodeProblemDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<
@@ -183,14 +197,14 @@ export default function ProblemSolvePage() {
           setProblemDetails(details);
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to load problem:", error);
-      if (error?.response?.status === 403) {
+      if (axios.isAxiosError(error) && error.response?.status === 403) {
         setErrorMessage(
-          error?.response?.data?.error ||
+          (error.response.data as { error?: string })?.error ||
             "This problem belongs to a locked floor. Complete the previous floor to unlock it.",
         );
-      } else if (error?.response?.status === 404) {
+      } else if (axios.isAxiosError(error) && error.response?.status === 404) {
         setErrorMessage("Problem not found.");
       } else {
         setErrorMessage("Failed to load problem details. Please try again.");
@@ -209,7 +223,7 @@ export default function ProblemSolvePage() {
     if (problem) {
       soundEffects.playSuccess();
       const previousStatus = problem.status;
-      setProblem((prev) => (prev ? { ...prev, status: "DONE" as any } : null));
+      setProblem((prev) => (prev ? { ...prev, status: "DONE" } : null));
       const submittedAt = new Date().toISOString();
       setLastSubmission({ submittedAt, timeSpent });
       trackEvent("problem_submitted", {
@@ -312,7 +326,7 @@ export default function ProblemSolvePage() {
               </div>
               <p className="text-xs text-[var(--text-muted)] mt-0.5">
                 {problemDetails.topicTags
-                  ?.map((tag: any) => tag.name)
+                  ?.map((tag) => tag.name)
                   .join(", ")}
               </p>
             </div>
