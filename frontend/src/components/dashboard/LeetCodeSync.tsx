@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { dsaApi } from "@/lib/api";
 import { RefreshCcw, Save, CheckCircle2, HelpCircle, ArrowRight } from "lucide-react";
 
@@ -108,11 +109,12 @@ export default function LeetCodeSync({ onSyncComplete }: LeetCodeSyncProps) {
     <div className="p-6 rounded-3xl bg-[#0d0d0d] border border-white/5 space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-black text-white flex items-center gap-2">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src="https://leetcode.com/static/images/LeetCode_logo_rvs.png"
+            width={20}
+            height={20}
             className="h-5 w-5"
-            alt=""
+            alt="LeetCode logo"
           />
           LeetCode Sync
         </h3>
