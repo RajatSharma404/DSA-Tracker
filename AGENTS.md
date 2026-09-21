@@ -31,8 +31,12 @@ When the user enters `/commit`, `commit`, or asks to commit and push changes one
 - **`/extension` or `/ext-sync`**: Activate **`extension-sync`** (`.agents/skills/extension-sync/SKILL.md`) to validate Manifest V3 permissions, DOM event listeners, and API sync.
 - **`/mobile` or `/cap-sync`**: Activate **`mobile-sync`** (`.agents/skills/mobile-sync/SKILL.md`) to sync frontend builds to native Android via Capacitor and verify PWA offline queues.
 - **`/security` or `/audit`**: Activate **`security-gate`** (`.agents/skills/security-gate/SKILL.md`) to audit IDOR protections, JWT cookies, rate limits, and sanitize inputs.
+- **`/improvement` or `/audit-full`**: Activate **`improvement`** (`.agents/skills/improvement/SKILL.md`) to perform an exhaustive full-stack project audit across frontend, backend, DB, suggesting bug fixes, architectural enhancements, UI/UX polish, feature merges/additions, and optimal code refactorings.
 
-## 🔄 Autonomous Skill Self-Evolution Protocol
+## 🔄 Autonomous Skill Self-Evolution & Technology Modernization Protocol
 
-Whenever any new route, database model, npm script, component, utility, or architectural pattern is created, modified, or deprecated, the agent MUST automatically inspect `.agents/skills/` and update the relevant `SKILL.md` runbook and documentation so skills never suffer from documentation drift.
+Whenever any new technology, framework, dependency, runtime, npm package, database model, route, component, or architectural pattern is introduced, upgraded, or deprecated:
+1. **Universal Skill Self-Update**: The agent MUST automatically inspect `.agents/skills/` and update ALL affected `SKILL.md` runbooks, checklists, and scripts so skills perpetually adapt to the latest technology and never suffer from obsolescence or documentation drift.
+2. **Automated Tooling Modernization**: Update all helper scripts (`scripts/*.mjs`, `scripts/*.ps1`, `scripts/*.sh`) in the skills to support new build systems, test runners, compiler flags, and CLI arguments.
+3. **Proactive Modernization**: Do not wait for explicit user commands to modernize skills; automatically synchronize skill runbooks during daily commits, EOD updates, and feature implementations.
 
