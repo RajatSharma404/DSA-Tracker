@@ -3,6 +3,7 @@
 import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, Suspense, useState } from "react";
+import Image from "next/image";
 import { LayoutDashboard, Target, Zap } from "lucide-react";
 
 function ErrorMessage() {
@@ -82,11 +83,14 @@ export default function LoginPage() {
       <div className="relative w-full max-w-110 flex flex-col items-center">
         {/* Logo Section */}
         <div className="mb-10 flex flex-col items-center space-y-4">
-          <div className="h-14 w-14 rounded-2xl shadow-[0_0_40px_rgba(96,165,250,0.15)] ring-1 ring-white/10 overflow-hidden">
-            <img
+          <div className="h-14 w-14 rounded-2xl shadow-[0_0_40px_rgba(96,165,250,0.15)] ring-1 ring-white/10 overflow-hidden flex items-center justify-center">
+            <Image
               src="/logo.svg"
               alt="DSA Tracker Pro logo"
-              className="h-full w-full"
+              width={56}
+              height={56}
+              priority
+              className="h-full w-full object-contain"
             />
           </div>
           <div className="text-center">
@@ -120,9 +124,11 @@ export default function LoginPage() {
                 onClick={() => signIn("google", { callbackUrl: "/" })}
                 className="group relative w-full flex items-center justify-center gap-3 py-4 px-6 bg-white text-black rounded-2xl font-bold text-sm tracking-tight hover:bg-gray-200 transition-all active:scale-[0.98] shadow-lg"
               >
-                <img
+                <Image
                   src="https://authjs.dev/img/providers/google.svg"
                   alt="Google"
+                  width={20}
+                  height={20}
                   className="w-5 h-5"
                 />
                 Continue with Google
