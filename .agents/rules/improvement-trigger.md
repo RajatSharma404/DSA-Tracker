@@ -21,4 +21,4 @@ You MUST immediately activate and execute the **`improvement`** skill ([.agents/
    - 📁 **File-by-File Breakdown Table**
 4. **Be Opinionated & Specific**: Provide concrete, runnable code snippets rather than generic recommendations.
 5. **Privacy Compliance**: Mask all credentials, API keys, and sensitive tokens found during the audit.
-6. **Autonomous Self-Evolution**: Update the skill runbook if new frameworks or architectural patterns are encountered.
+6. **Autonomous Self-Evolution & Technology Modernization**: Proactively update the skill runbooks, checklists, and audit scripts whenever new technologies, packages, or architectural updates are introduced.
