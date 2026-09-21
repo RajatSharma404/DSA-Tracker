@@ -16,6 +16,13 @@ import {
 
 const router = Router();
 
+interface SolvedProblemEntry {
+  title: string;
+  titleSlug: string;
+  difficulty: string;
+  timestamp: number;
+}
+
 // 6. Update LeetCode Username
 router.patch(
   "/user/leetcode",
@@ -34,7 +41,7 @@ router.patch(
 
       await prisma.user.update({
         where: { id: userId },
-        data: { leetcodeUsername: normalizedUsername } as any,
+        data: { leetcodeUsername: normalizedUsername },
       });
 
       res.json({ success: true, leetcodeUsername: normalizedUsername });
@@ -51,15 +58,15 @@ router.post(
   async (req: Request, res: Response) => {
     try {
       const userId = req.user!.id;
-      const user = (await prisma.user.findUnique({
+      const user = await prisma.user.findUnique({
         where: { id: userId },
-      })) as any;
+      });
 
       if (!user?.leetcodeUsername) {
         return res.status(400).json({ error: "LeetCode username not set" });
       }
 
-      const solvedMap = new Map<string, any>();
+      const solvedMap = new Map<string, SolvedProblemEntry>();
       let syncSource: "session" | "username" = "username";
       let sessionUsername: string | null = null;
       let sessionMismatchWarning: string | null = null;
@@ -100,49 +107,96 @@ router.post(
       if (solvedMap.size === 0) {
         const data = await fetchLeetCodeSolvedProblems(user.leetcodeUsername);
         const recentSubmissions = data.recentSubmissionList || [];
-        recentSubmissions.forEach((sub: any) => {
-          if (
-            sub.statusDisplay === "Accepted" &&
-            (!solvedMap.has(sub.titleSlug) ||
-              sub.timestamp > solvedMap.get(sub.titleSlug).timestamp)
-          ) {
-            solvedMap.set(sub.titleSlug, sub);
-          }
-        });
+        recentSubmissions.forEach(
+          (sub: {
+            title: string;
+            titleSlug: string;
+            timestamp: string | number;
+            statusDisplay: string;
+          }) => {
+            const ts = Number(sub.timestamp) || 0;
+            if (
+              sub.statusDisplay === "Accepted" &&
+              (!solvedMap.has(sub.titleSlug) ||
+                ts > (solvedMap.get(sub.titleSlug)?.timestamp || 0))
+            ) {
+              solvedMap.set(sub.titleSlug, {
+                title: sub.title,
+                titleSlug: sub.titleSlug,
+                difficulty: "MEDIUM",
+                timestamp: ts,
+              });
+            }
+          },
+        );
         console.log(
           `Syncing LeetCode for ${user.leetcodeUsername}: Found ${solvedMap.size} unique accepted problems via username (recent submissions).`,
         );
       }
 
-      const results = [];
-      for (const [slug, sub] of solvedMap.entries()) {
-        const problem = await prisma.problem.findFirst({
-          where: {
-            OR: [
-              { title: { equals: sub.title, mode: "insensitive" } },
-              { link: { contains: slug } },
-            ],
-          },
-        });
+      // 1. Bulk preload all roadmap problems (1 DB query instead of N queries)
+      const allRoadmapProblems = await prisma.problem.findMany({
+        select: { id: true, title: true, link: true, topicId: true },
+      });
 
-        let existingProgress: any = null;
-        if (problem) {
-          existingProgress = await prisma.progress.findUnique({
-            where: {
-              userId_problemId: {
-                userId,
-                problemId: problem.id,
-              },
-            },
-            select: {
-              completedAt: true,
-              status: true,
-            },
-          });
+      const problemByTitle = new Map<string, (typeof allRoadmapProblems)[0]>();
+      const problemBySlug = new Map<string, (typeof allRoadmapProblems)[0]>();
+
+      for (const p of allRoadmapProblems) {
+        problemByTitle.set(p.title.trim().toLowerCase(), p);
+        if (p.link) {
+          const match = p.link.match(/problems\/([^/]+)/);
+          if (match) {
+            problemBySlug.set(match[1].trim().toLowerCase(), p);
+          }
+        }
+      }
+
+      // 2. Bulk preload user's existing progress (1 DB query instead of N queries)
+      const userProgressRecords = await prisma.progress.findMany({
+        where: { userId },
+        select: {
+          problemId: true,
+          status: true,
+          completedAt: true,
+          leetcodeRuntime: true,
+          leetcodeMemory: true,
+        },
+      });
+      const progressMap = new Map(
+        userProgressRecords.map((prog) => [prog.problemId, prog]),
+      );
+
+      // 3. Preload the "Extra Practice" topic in 1 query if needed
+      let miscTopic = await prisma.topic.findFirst({
+        where: { name: "Extra Practice (Auto-Synced)" },
+      });
+
+      const results: string[] = [];
+      let externalSubmissionQueries = 0;
+      const MAX_EXTERNAL_SUBMISSION_QUERIES = 20;
+
+      for (const [slug, sub] of solvedMap.entries()) {
+        const problem =
+          problemBySlug.get(slug.toLowerCase()) ||
+          problemByTitle.get(sub.title.trim().toLowerCase());
+
+        const existingProgress = problem ? progressMap.get(problem.id) : null;
+
+        // Skip fully synced records (already marked DONE with metrics)
+        if (
+          existingProgress?.status === "DONE" &&
+          existingProgress.leetcodeRuntime &&
+          existingProgress.leetcodeMemory
+        ) {
+          if (problem) results.push(problem.title);
+          continue;
         }
 
-        let runtimeOpt = null;
-        let memoryOpt = null;
+        let runtimeOpt: string | null =
+          existingProgress?.leetcodeRuntime || null;
+        let memoryOpt: string | null =
+          existingProgress?.leetcodeMemory || null;
         let timestampOpt: number | null =
           typeof sub.timestamp === "number" && sub.timestamp > 0
             ? sub.timestamp
@@ -151,8 +205,10 @@ router.post(
         if (
           syncSource === "session" &&
           user.leetcodeSession &&
-          existingProgress?.status !== "DONE"
+          existingProgress?.status !== "DONE" &&
+          externalSubmissionQueries < MAX_EXTERNAL_SUBMISSION_QUERIES
         ) {
+          externalSubmissionQueries++;
           try {
             const subs = await fetchProblemSubmissions(
               slug,
@@ -160,23 +216,23 @@ router.post(
             );
             const acceptedSubs =
               subs?.questionSubmissionList?.submissions?.filter(
-                (s: any) => s.statusDisplay === "Accepted",
+                (s: { statusDisplay?: string }) => s.statusDisplay === "Accepted",
               ) || [];
             const theSub = acceptedSubs[0];
             if (theSub) {
-              runtimeOpt = theSub.runtime;
-              memoryOpt = theSub.memory;
+              runtimeOpt = theSub.runtime || null;
+              memoryOpt = theSub.memory || null;
             }
 
             const acceptedTimestamps = acceptedSubs
-              .map((s: any) => Number(s?.timestamp))
+              .map((s: { timestamp?: string | number }) => Number(s?.timestamp))
               .filter((t: number) => Number.isFinite(t) && t > 0);
 
             if (acceptedTimestamps.length > 0) {
               timestampOpt = Math.min(...acceptedTimestamps);
             }
           } catch (_e) {
-            // Silent fallback, could be invalid session or quota limits
+            // Fallback gracefully on rate limits or network issues
           }
         }
 
@@ -204,14 +260,7 @@ router.post(
           });
           results.push(problem.title);
         } else {
-          console.log(
-            `LeetCode problem not found in roadmap: ${sub.title} (${slug}). Injecting as Extra Practice.`,
-          );
-
-          let miscTopic = await prisma.topic.findFirst({
-            where: { name: "Extra Practice (Auto-Synced)" },
-          });
-
+          // Extra practice auto-sync
           if (!miscTopic) {
             const maxOrderTopic = await prisma.topic.findFirst({
               orderBy: { orderIndex: "desc" },
@@ -241,6 +290,10 @@ router.post(
               orderIndex: (maxOrderProblem?.orderIndex || 0) + 1,
             },
           });
+
+          // Add to local dictionary immediately to prevent duplicate problem creation
+          problemByTitle.set(newProblem.title.trim().toLowerCase(), newProblem);
+          problemBySlug.set(slug.toLowerCase(), newProblem);
 
           await prisma.progress.create({
             data: {
@@ -306,7 +359,7 @@ router.patch(
         data: {
           leetcodeSession: encrypted,
           leetcodeSessionHash: sessionHash,
-        } as any,
+        },
       });
 
       res.json({ success: true });
@@ -316,43 +369,35 @@ router.patch(
   },
 );
 
-// Get Solution History
-router.get(
-  "/user/solution-history",
+// Delete/Clear LeetCode Session Cookie
+router.delete(
+  "/user/leetcode-session",
   requireAuth,
   async (req: Request, res: Response) => {
     try {
       const userId = req.user!.id;
-      const history = await prisma.solutionHistory.findMany({
-        where: { userId },
-        include: {
-          problem: {
-            select: {
-              title: true,
-              topic: {
-                select: { name: true },
-              },
-            },
-          },
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          leetcodeSession: null,
+          leetcodeSessionHash: null,
         },
-        orderBy: { createdAt: "desc" },
       });
-      res.json(history);
-    } catch (error) {
-      console.error("Get Solution History Error:", error);
-      res.status(500).json({ error: "Failed to load solution history" });
+      res.json({ success: true });
+    } catch (_error) {
+      res.status(500).json({ error: "Failed to remove leetcode session" });
     }
   },
 );
 
-// Get User Settings
+// Get User Profile & Settings
 router.get(
   "/user/settings",
   requireAuth,
   async (req: Request, res: Response) => {
     try {
       const userId = req.user!.id;
-      const user = (await prisma.user.findUnique({
+      const user = await prisma.user.findUnique({
         where: { id: userId },
         select: {
           id: true,
@@ -361,7 +406,7 @@ router.get(
           leetcodeUsername: true,
           leetcodeSession: true,
         },
-      })) as any;
+      });
 
       if (!user) {
         return res.status(404).json({ error: "User not found" });
@@ -423,7 +468,7 @@ router.put(
         data: {
           leetcodeSession: encrypted,
           leetcodeSessionHash: sessionHash,
-        } as any,
+        },
       });
 
       res.json({
