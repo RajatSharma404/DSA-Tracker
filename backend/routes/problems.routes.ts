@@ -63,8 +63,9 @@ router.get(
       const problemTags = await prisma.problemTag.findMany({
         where: { problemId, tag: { userId } },
         include: { tag: true },
+        take: 100,
       });
-      res.json(problemTags.map((pt: any) => pt.tag));
+      res.json(problemTags.map((pt) => pt.tag));
     } catch (_err) {
       res.status(500).json({ error: "Failed to get problem tags" });
     }
