@@ -125,3 +125,12 @@ Conclude the execution with a structured markdown table summarizing all generate
 | 2 | `e4f5g6h`  | `backend/app.ts` | `feat(api): mount general rate limiter and central error handler` |
 ...
 ```
+
+---
+
+## 🔄 Autonomous Skill Self-Evolution & Technology Modernization Protocol
+
+Whenever new technologies, tools, version control strategies, or frameworks are introduced to the repository (e.g. monorepo tooling like Turborepo, pnpm workspaces, changes to git hooks, Husky, commitlint configs, or new package directories):
+1. **Scope & Convention Adaptation**: Automatically update Stage 2 and Stage 3 with newly recognized package scopes (e.g. `extension`, `mobile`, `ai`, `db`, `tracer`, `city`).
+2. **Tooling Synchronization**: Modernize `scripts/commit_per_file.ps1` and any corresponding bash scripts to accommodate new branch naming patterns, authentication methods, or remote setups.
+3. **Continuous Modernization**: Never allow commit workflows to drift from the active tech stack—proactively reflect git conventions and directory structures as the codebase evolves.
