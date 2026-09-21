@@ -1,7 +1,6 @@
 "use client";
 
-import React from "react";
-import { LeaderboardUser } from "../3d/CityScene";
+import type { LeaderboardUser } from "@/types/city";
 import { cn } from "@/lib/design-tokens";
 import { soundEffects } from "@/lib/soundEffects";
 import { Crown, Sparkles, Trophy } from "lucide-react";
