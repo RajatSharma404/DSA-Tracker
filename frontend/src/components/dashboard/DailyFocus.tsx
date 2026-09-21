@@ -14,6 +14,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { trackEvent } from "@/lib/analytics";
 
 interface DailyProblem {
@@ -322,15 +323,18 @@ export default function DailyFocus() {
                 <h4 className="text-base font-black text-[var(--text-primary)] mb-2 break-words">
                   {dailyLc.question.title}
                 </h4>
-                <p className="text-[11px] text-[var(--text-muted)] leading-relaxed mb-4">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                <p className="text-[11px] text-[var(--text-muted)] leading-relaxed mb-4 flex items-center">
+                  <Image
                     src="https://leetcode.com/static/images/LeetCode_logo_rvs.png"
+                    width={12}
+                    height={12}
                     className="inline w-3 h-3 mr-1.5 grayscale opacity-70"
-                    alt=""
+                    alt="LeetCode logo"
                   />
-                  LeetCode&apos;s official problem of the day. Keep your streak
-                  alive!
+                  <span>
+                    LeetCode&apos;s official problem of the day. Keep your streak
+                    alive!
+                  </span>
                 </p>
               </div>
 
