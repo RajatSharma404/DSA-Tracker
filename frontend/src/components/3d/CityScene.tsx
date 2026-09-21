@@ -21,15 +21,8 @@ import {
   Zap,
 } from "lucide-react";
 
-export interface LeaderboardUser {
-  id: string;
-  username: string;
-  completedLevels: number;
-  lastActivityDate?: string | null;
-}
-
-export type CityTheme = "cyberpunk" | "sunset" | "matrix";
-export type CameraMode = "iso" | "cinematic" | "top" | "focus";
+import type { LeaderboardUser, CityTheme, CameraMode } from "@/types/city";
+export type { LeaderboardUser, CityTheme, CameraMode };
 
 interface CitySceneProps {
   users: LeaderboardUser[];
