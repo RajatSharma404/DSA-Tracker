@@ -248,3 +248,14 @@ Deliver a crisp developer summary to conclude the update run:
   1. [Next feature / next task]
   2. [Next priority item]
 ```
+
+---
+
+## 🔄 Autonomous Skill Self-Evolution & Technology Modernization Protocol
+
+Whenever new technologies, test runners, build pipelines, or packages are adopted (e.g. Next.js major upgrades, Vitest version bumps, ESLint flat config migrations, Turbopack, Docker container revisions, or mobile sync additions):
+1. **QA Gate Modernization**: Automatically update Stage 1 commands, test runners, and script paths in `scripts/eod_check.ps1` and `scripts/eod_check.sh` to match modern package scripts and compiler configurations.
+2. **Platform Sync Adaptation**: Update Stage 2 whenever new build artifacts, static export workflows, or native mobile/extension targets are added.
+3. **Metric Tracking Evolution**: Dynamically update Stage 4 and Stage 7 templates to track the latest metrics (e.g., test suite counts, coverage percentiles, bundle size budgets).
+4. **Proactive Self-Update**: The agent must inspect and modernize this runbook whenever packages, build commands, or test frameworks are upgraded.
+
