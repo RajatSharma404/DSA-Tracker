@@ -86,6 +86,9 @@ model ChallengeSession {
   duration    Int
   status      ChallengeStatus @default(IN_PROGRESS)
   createdAt   DateTime       @default(now())
+
+  @@index([userId, status])
+  @@index([userId, createdAt])
 }
 
 enum ChallengeStatus {
