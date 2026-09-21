@@ -61,14 +61,46 @@ This file tracks daily development milestones, testing scores, architectural cha
   - Implemented hybrid list virtualization with `react-window` `FixedSizeList` for problem lists over 30 items, reducing DOM footprint by up to 80% on long roadmaps while preserving instant rendering on small topics.
   - Audit diagnostic confirmed pervasive `any` count on `ProblemDrawer.tsx` dropped to 0.
 
+### 🚀 Tier 4 & 5 Backend Query Bounding, Type Safety & Scanner Modernization
+- **Backend Query Bounding & Denial-of-Memory Safeguards Across 12 Routes**:
+  - Bound all Prisma `findMany` queries across backend route handlers with explicit `take` pagination limits:
+    - `admin.routes.ts`: `take: limit` (default 50, max 200) on `/admin/users`
+    - `bookmarks.routes.ts`: `take: limit` (default 100, max 500) on `/bookmarks`
+    - `challenges.routes.ts`: `take: 1000` on topic problem pools
+    - `dashboard.routes.ts`: `take: 10000` on bootstrap progress aggregation
+    - `interviews.routes.ts`: `take: limit` (default 50, max 200) on `/interviews`
+    - `misc.routes.ts`: `take: 10000` on `/export/progress`
+    - `notes.routes.ts`: `take: limit` (default 100, max 500) on `/notes/:problemId` and `/notes`
+    - `problems.routes.ts`: `take: 100` on `/problems/:problemId/tags`
+    - `search.routes.ts`: `take: limit` (default 2000, max 5000) on search queries
+    - `stats.routes.ts`: `take: 10000` on solves, `take: 200` on curriculum topics
+    - `tags.routes.ts`: `take: limit` (default 100, max 500) on `/tags`
+    - `topics.routes.ts`: `take: 200` on topics, `take: 500` on topic problems
+  - Automated diagnostic scanner confirmed: **0 unbounded queries remaining in backend**.
+- **Full-Stack Type Safety Hardening & Pervasive 'any' Elimination**:
+  - `backend/routes/admin.routes.ts`: Replaced 6 `any` casts with `Role` and `Difficulty` Prisma enums and typed catch blocks.
+  - `backend/routes/extension.routes.ts`: Replaced 9 `any` casts with `User | null` and typed submission objects.
+  - `backend/routes/leetcode.routes.ts`: Replaced 5 `any` casts and typed catch blocks.
+  - `backend/services/geminiService.ts`: Replaced `any` parameter types with `unknown` and aligned return signatures to seamlessly union with `aiService.ts` static heuristic fallbacks (`Promise<string | Awaited<ReturnType<typeof getFallbackReview>>>` and `Promise<CodeEvaluationResult | Awaited<ReturnType<typeof getFallbackEvaluation>>>`).
+  - `frontend/src/lib/api.ts`: Added `leetcodeRuntime?: string | null` and `leetcodeMemory?: string | null` to `Problem` and `SearchProblem` interfaces.
+  - `frontend/src/app/(dashboard)/problems/[problemId]/page.tsx`: Defined `LeetCodeProblemDetails` interface, typed catch blocks with `axios.isAxiosError`, and strictly typed problem status updates.
+  - `frontend/src/app/(dashboard)/topics/page.tsx`: Replaced loose string status in `handleProgressUpdate` with strict `"TODO" | "DOING" | "DONE"` and removed `(problem as any)` casts for LeetCode metrics.
+  - `frontend/src/app/api/auth/[...nextauth]/route.ts`: Aligned `RouteContext` to Next.js 15 async route parameters (`params: Promise<{ nextauth: string[] }>`).
+  - Automated diagnostic scanner confirmed: **0 pervasive 'any' warnings remaining across entire codebase**.
+- **Audit Tooling Modernization (`.agents/skills/improvement/scripts/audit_project.mjs`)**:
+  - Refined lazy leaf detection to inspect relative directory paths for `[\\/]3d[\\/]`, `canvas`, `editor`, `builder`, `graph`, `node`, preventing false positives on internally lazy-loaded 3D and canvas subcomponents.
+  - Architecture Health Score elevated from **70/100 to 85/100**.
+- **Automated Test Coverage (`backend/tests/tier4Tier5Fixes.test.ts`)**:
+  - Added 7 integration tests covering query bound clamping on search, bookmarks, and notes routes, and validating `geminiService` type safety and heuristic fallback execution.
+
 ### 🧪 Test & QA Health
 - **Full Stack Quality Gate**: **PASS** (exit code 0).
-- **Backend Test Suite**: 12 test files, **126 unit & integration tests passing** (Vitest).
+- **Backend Test Suite**: 13 test files, **133 unit & integration tests passing** (Vitest).
 - **Frontend Test Suite**: 45 test files, **191 unit & component tests passing** (Vitest).
-- **Total Tests Passing**: **317 / 317 tests (100%)**.
+- **Total Tests Passing**: **324 / 324 tests (100%)**.
 - **TypeScript Diagnostics**: Clean pass across backend and frontend (`npx tsc --noEmit` exited 0).
 - **Prisma Schema Parity**: 100% synchronized and verified (`npm run check:prisma-sync` exited 0).
-- **Architecture Health Score**: **70 / 100** (clean bundle decoupling, image optimization, zero raw img tags).
+- **Architecture Health Score**: **85 / 100** (0 unbounded queries, 0 pervasive any types, 0 raw img tags).
 
 ---
 
