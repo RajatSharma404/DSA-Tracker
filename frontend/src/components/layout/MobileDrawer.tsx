@@ -153,7 +153,7 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
         aria-label="Mobile Navigation Menu"
       >
         {/* Header with logo & close */}
-        <div className="flex items-center justify-between p-4 border-b border-[var(--border-subtle)]">
+        <div className="flex items-center justify-between p-4 pt-[calc(1rem+env(safe-area-inset-top))] border-b border-[var(--border-subtle)]">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent-primary)] shadow-[0_0_8px_var(--accent-glow)]" />
             <span className="text-[var(--text-primary)] font-bold text-lg tracking-wide font-display">
@@ -222,7 +222,7 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
         </nav>
 
         {/* Footer with User info & Sign out */}
-        <div className="p-4 border-t border-[var(--border-subtle)] space-y-3 bg-[var(--bg-tertiary)]">
+        <div className="p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] border-t border-[var(--border-subtle)] space-y-3 bg-[var(--bg-tertiary)]">
           {session?.user && (
             <div className="flex items-center gap-3">
               {session.user.image ? (
