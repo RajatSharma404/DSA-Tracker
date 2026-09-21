@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import { prisma } from "../db/prisma";
+import { User } from "@prisma/client";
 import { fetchProblemSubmissions } from "../leetcodeService";
 import { isDifficulty } from "../services/nextActionService";
 import { hashSecret, encryptSecret, decryptSecret } from "../utils/encryption";
@@ -29,7 +30,7 @@ router.post(
       return res.status(400).json({ error: "Missing problemSlug or session" });
     }
 
-    let user: any = null;
+    let user: User | null = null;
 
     // 1. Authenticate via Bearer Token if provided
     if (authHeader && authHeader.startsWith("Bearer ")) {
@@ -43,19 +44,19 @@ router.post(
     if (!user && normalizedSession && normalizedSession.length >= 20) {
       const sessionHash = hashSecret(normalizedSession);
 
-      user = (await prisma.user.findFirst({
-        where: { leetcodeSessionHash: sessionHash } as any,
-      })) as any;
+      user = await prisma.user.findFirst({
+        where: { leetcodeSessionHash: sessionHash },
+      });
 
       if (!user) {
-        user = (await prisma.user.findFirst({
+        user = await prisma.user.findFirst({
           where: {
             OR: [
               { leetcodeSession: normalizedSession },
               { leetcodeSession: encryptSecret(normalizedSession) },
             ],
-          } as any,
-        })) as any;
+          },
+        });
 
         if (user) {
           await prisma.user.update({
@@ -63,7 +64,7 @@ router.post(
             data: {
               leetcodeSession: encryptSecret(normalizedSession),
               leetcodeSessionHash: sessionHash,
-            } as any,
+            },
           });
         }
       }
@@ -89,9 +90,16 @@ router.post(
       normalizedSlug,
       activeSession,
     );
-    const submissions = data?.questionSubmissionList?.submissions || [];
+    const submissions = (data?.questionSubmissionList?.submissions || []) as Array<{
+      title: string;
+      difficulty: string;
+      timestamp: number;
+      runtime?: string;
+      memory?: string;
+      statusDisplay: string;
+    }>;
     const acceptedSub = submissions.find(
-      (s: any) => s.statusDisplay === "Accepted",
+      (s) => s.statusDisplay === "Accepted",
     );
 
     if (!acceptedSub) {
@@ -149,18 +157,18 @@ router.post(
       update: {
         status: "DONE",
         completedAt: new Date(acceptedSub.timestamp * 1000),
-        leetcodeRuntime: acceptedSub.runtime,
-        leetcodeMemory: acceptedSub.memory,
-      } as any,
+        leetcodeRuntime: acceptedSub.runtime ?? null,
+        leetcodeMemory: acceptedSub.memory ?? null,
+      },
       create: {
         userId: user.id,
         problemId: problem.id,
         status: "DONE",
         timeSpent: 0,
         completedAt: new Date(acceptedSub.timestamp * 1000),
-        leetcodeRuntime: acceptedSub.runtime,
-        leetcodeMemory: acceptedSub.memory,
-      } as any,
+        leetcodeRuntime: acceptedSub.runtime ?? null,
+        leetcodeMemory: acceptedSub.memory ?? null,
+      },
     });
 
     res.json({
