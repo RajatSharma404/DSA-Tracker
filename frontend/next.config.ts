@@ -24,6 +24,26 @@ const BACKEND_BASE_URL = RAW_BACKEND_URL.replace(/\/+$/, "").replace(
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "leetcode.com",
+      },
+      {
+        protocol: "https",
+        hostname: "authjs.dev",
+      },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+      },
+      {
+        protocol: "https",
+        hostname: "avatars.githubusercontent.com",
+      },
+    ],
+  },
   // Unique build ID per deploy — busts CDN / browser caches on every redeploy
   generateBuildId: async () => {
     return crypto.randomBytes(8).toString("hex");
