@@ -212,19 +212,18 @@ const TopicCard = memo(function TopicCard({
 
   const handleProgressUpdate = async (
     problemId: string,
-    currentStatus: string,
+    currentStatus: "TODO" | "DOING" | "DONE",
   ) => {
-    const newStatus = currentStatus === "DONE" ? "TODO" : "DONE";
+    const newStatus: "TODO" | "DOING" | "DONE" =
+      currentStatus === "DONE" ? "TODO" : "DONE";
 
     // Optimistic UI update
     setProblems((prev) =>
-      prev.map((p) =>
-        p.id === problemId ? { ...p, status: newStatus as any } : p,
-      ),
+      prev.map((p) => (p.id === problemId ? { ...p, status: newStatus } : p)),
     );
 
     try {
-      const response = await dsaApi.updateProgress(problemId, newStatus as any, 0);
+      const response = await dsaApi.updateProgress(problemId, newStatus, 0);
       
       if (response.levelCleared) {
         // Emit an event that the 3D building component can subscribe to
@@ -241,7 +240,7 @@ const TopicCard = memo(function TopicCard({
       // Revert on error
       setProblems((prev) =>
         prev.map((p) =>
-          p.id === problemId ? { ...p, status: currentStatus as any } : p,
+          p.id === problemId ? { ...p, status: currentStatus } : p,
         ),
       );
     }
@@ -430,15 +429,15 @@ const TopicCard = memo(function TopicCard({
                             <Clock size={12} /> {problem.timeSpent}m
                           </span>
                         )}
-                        {(problem as any).leetcodeRuntime && (
+                        {problem.leetcodeRuntime && (
                           <span className="text-[10px] font-mono text-gray-400 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded flex items-center gap-1">
                             <Sparkles size={10} className="text-yellow-400" />{" "}
-                            {(problem as any).leetcodeRuntime}
+                            {problem.leetcodeRuntime}
                           </span>
                         )}
-                        {(problem as any).leetcodeMemory && (
+                        {problem.leetcodeMemory && (
                           <span className="text-[10px] font-mono text-gray-400 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded flex items-center gap-1">
-                            ⬇️ {(problem as any).leetcodeMemory}
+                            ⬇️ {problem.leetcodeMemory}
                           </span>
                         )}
                       </div>
