@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { dsaApi } from "@/lib/api";
 import { ArrowLeft, Shield, User } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useSession } from "next-auth/react";
 
 interface AppUser {
@@ -95,11 +96,13 @@ export default function AdminUsers() {
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     {appUser.image ? (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img
+                      <Image
                         src={appUser.image}
-                        alt=""
-                        className="h-8 w-8 rounded-full"
+                        alt={appUser.name || "User avatar"}
+                        width={32}
+                        height={32}
+                        unoptimized
+                        className="h-8 w-8 rounded-full object-cover"
                       />
                     ) : (
                       <div className="h-8 w-8 rounded-full bg-gray-800 flex items-center justify-center">
