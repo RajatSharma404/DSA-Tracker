@@ -11,8 +11,10 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       const userId = req.user!.id;
+      const limit = Math.min(Math.max(Number(req.query.limit) || 50, 1), 100);
       const notes = await prisma.problemNote.findMany({
         where: { userId, problemId: req.params.problemId as string },
+        take: limit,
         orderBy: { createdAt: "desc" },
       });
       res.json(notes);
@@ -27,8 +29,10 @@ router.get(
 router.get("/notes", requireAuth, async (req: Request, res: Response) => {
   try {
     const userId = req.user!.id;
+    const limit = Math.min(Math.max(Number(req.query.limit) || 100, 1), 500);
     const notes = await prisma.problemNote.findMany({
       where: { userId },
+      take: limit,
       include: {
         problem: { select: { title: true, topic: { select: { name: true } } } },
       },
