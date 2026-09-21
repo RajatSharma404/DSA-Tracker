@@ -7,6 +7,45 @@ import {
   getAlgoTracing as getFallbackTrace,
 } from "../aiService";
 
+export interface CodeEvaluationResult {
+  complexity: {
+    time: string;
+    timeExplanation: string;
+    space: string;
+    spaceExplanation: string;
+    isOptimal: boolean;
+    optimalNote?: string;
+  };
+  cleanCode: Array<{ suggestion: string; example: string }>;
+  edgeCases: Array<{ case: string; handled: boolean; note: string }>;
+  score: number;
+  verdict: string;
+}
+
+export interface AlgoTraceStep {
+  step: number;
+  phase: string;
+  codeLine: string;
+  narrative: string;
+  thinking: string;
+  variables: Array<{ name: string; value: string; changed: boolean }>;
+  dataStructure: {
+    type: string;
+    label: string;
+    items: Array<{
+      value: string;
+      state: "default" | "active" | "highlight" | "done" | "compare";
+    }>;
+  };
+}
+
+export interface AlgoTraceResult {
+  sampleInput: string;
+  expectedOutput: string;
+  approach: string;
+  steps: AlgoTraceStep[];
+}
+
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
 let geminiClient: GoogleGenAI | null = null;
@@ -61,8 +100,9 @@ Focus on the key intuition or invariant. Do NOT write the entire solution. Keep 
       if (response.text?.trim()) {
         return response.text.trim();
       }
-    } catch (error: any) {
-      console.warn("Gemini hint generation failed, using heuristic fallback:", error?.message);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
+      console.warn("Gemini hint generation failed, using heuristic fallback:", msg);
     }
   }
 
@@ -94,8 +134,9 @@ Keep it structured, practical, and concise in Markdown.`;
       if (response.text?.trim()) {
         return response.text.trim();
       }
-    } catch (error: any) {
-      console.warn("Gemini pattern explanation failed, using heuristic fallback:", error?.message);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
+      console.warn("Gemini pattern explanation failed, using heuristic fallback:", msg);
     }
   }
 
@@ -109,7 +150,7 @@ export async function generateAICodeReview(
   code: string,
   problemTitle: string,
   topicName: string,
-): Promise<any> {
+): Promise<string | Awaited<ReturnType<typeof getFallbackReview>>> {
   const client = getGeminiClient();
   if (client) {
     try {
@@ -140,8 +181,9 @@ Format nicely in Markdown.`;
       if (response.text?.trim()) {
         return response.text.trim();
       }
-    } catch (error: any) {
-      console.warn("Gemini code review failed, using heuristic fallback:", error?.message);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
+      console.warn("Gemini code review failed, using heuristic fallback:", msg);
     }
   }
 
@@ -157,7 +199,7 @@ export async function evaluateCodeWithGemini(
   topicName: string,
   difficulty: string,
   language?: string,
-): Promise<any> {
+): Promise<CodeEvaluationResult | Awaited<ReturnType<typeof getFallbackEvaluation>>> {
   const client = getGeminiClient();
   if (client) {
     try {
@@ -204,11 +246,12 @@ Respond ONLY with valid JSON matching this exact structure:
         const cleaned = rawText.replace(/^```json\s*|^```\s*|```$/g, "").trim();
         const parsed = JSON.parse(cleaned);
         if (parsed.complexity && parsed.score !== undefined) {
-          return parsed;
+          return parsed as CodeEvaluationResult;
         }
       }
-    } catch (error: any) {
-      console.warn("Gemini evaluateCode failed, using heuristic fallback:", error?.message);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
+      console.warn("Gemini evaluateCode failed, using heuristic fallback:", msg);
     }
   }
 
@@ -305,15 +348,31 @@ Do not include any conversational preamble or markdown code blocks, just raw JSO
           Array.isArray(parsed.steps) &&
           parsed.steps.length > 0
         ) {
-          const validStates = new Set(["default", "active", "highlight", "done", "compare"]);
-          const sanitizedSteps = parsed.steps.map((s: any, idx: number) => ({
+          const validStates = new Set(["default", "active", "highlight", "done", "compare"] as const);
+          type ItemState = "default" | "active" | "highlight" | "done" | "compare";
+
+          const rawSteps = parsed.steps as Array<{
+            step?: number;
+            phase?: string;
+            codeLine?: string;
+            narrative?: string;
+            thinking?: string;
+            variables?: Array<{ name?: string; value?: unknown; changed?: boolean }>;
+            dataStructure?: {
+              type?: string;
+              label?: string;
+              items?: Array<{ value?: unknown; state?: string }>;
+            };
+          }>;
+
+          const sanitizedSteps: AlgoTraceStep[] = rawSteps.map((s, idx: number) => ({
             step: typeof s.step === "number" ? s.step : idx + 1,
             phase: typeof s.phase === "string" ? s.phase.toUpperCase() : "PROCESS",
             codeLine: typeof s.codeLine === "string" ? s.codeLine : "",
             narrative: typeof s.narrative === "string" ? s.narrative : "",
             thinking: typeof s.thinking === "string" ? s.thinking : "",
             variables: Array.isArray(s.variables)
-              ? s.variables.map((v: any) => ({
+              ? s.variables.map((v) => ({
                   name: String(v.name || ""),
                   value: String(v.value ?? ""),
                   changed: Boolean(v.changed),
@@ -323,9 +382,9 @@ Do not include any conversational preamble or markdown code blocks, just raw JSO
               type: String(s.dataStructure?.type || "array"),
               label: String(s.dataStructure?.label || "Data Structure"),
               items: Array.isArray(s.dataStructure?.items)
-                ? s.dataStructure.items.map((item: any) => ({
+                ? s.dataStructure.items.map((item) => ({
                     value: String(item.value ?? ""),
-                    state: validStates.has(item.state) ? (item.state as any) : "default",
+                    state: (validStates.has(item.state as ItemState) ? item.state : "default") as ItemState,
                   }))
                 : [],
             },
@@ -339,8 +398,9 @@ Do not include any conversational preamble or markdown code blocks, just raw JSO
           };
         }
       }
-    } catch (error: any) {
-      console.warn("Gemini algo tracing failed, using heuristic fallback:", error?.message);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
+      console.warn("Gemini algo tracing failed, using heuristic fallback:", msg);
     }
   }
 
