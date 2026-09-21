@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import { prisma } from "../db/prisma";
 import { requireAuth } from "../middlewares/auth";
-import { getUserCityProgressInfo } from "../services/cityProgressService";
+import { isTopicFloorLocked } from "../services/cityProgressService";
 
 const router = Router();
 
@@ -28,10 +28,7 @@ router.get(
         return res.status(404).json({ error: "Problem not found" });
       }
 
-      const cityInfo = await getUserCityProgressInfo(userId);
-      const levelIndex = cityInfo.levels.findIndex((l) => l.id === problem.topicId);
-      const isFloorLocked =
-        levelIndex > 0 ? !cityInfo.levels[levelIndex - 1]?.isCompleted : false;
+      const isFloorLocked = await isTopicFloorLocked(userId, problem.topic.orderIndex);
 
       if (req.query.enforceLock === "true" && isFloorLocked) {
         return res.status(403).json({
