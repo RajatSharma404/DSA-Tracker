@@ -20,9 +20,9 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       const userId = req.user!.id;
-      const user = (await prisma.user.findUnique({
+      const user = await prisma.user.findUnique({
         where: { id: userId },
-      })) as any;
+      });
 
       if (!user?.leetcodeSession) {
         return res
@@ -84,9 +84,9 @@ router.post(
     try {
       const { questionSlug, code, lang } = req.body;
       const userId = req.user!.id;
-      const user = (await prisma.user.findUnique({
+      const user = await prisma.user.findUnique({
         where: { id: userId },
-      })) as any;
+      });
 
       if (!user?.leetcodeSession) {
         return res.status(400).json({
@@ -101,11 +101,12 @@ router.post(
         decryptSecret(user.leetcodeSession),
       );
       res.json(result);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Submit Code Error:", error);
+      const errObj = error as { response?: { data?: unknown }; message?: string };
       res.status(500).json({
         error: "Failed to submit code to LeetCode",
-        details: error.response?.data || error.message,
+        details: errObj.response?.data || errObj.message || String(error),
       });
     }
   },
@@ -118,9 +119,9 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       const userId = req.user!.id;
-      const user = (await prisma.user.findUnique({
+      const user = await prisma.user.findUnique({
         where: { id: userId },
-      })) as any;
+      });
 
       if (!user?.leetcodeSession) {
         return res
@@ -147,9 +148,9 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       const userId = req.user!.id;
-      const user = (await prisma.user.findUnique({
+      const user = await prisma.user.findUnique({
         where: { id: userId },
-      })) as any;
+      });
 
       if (!user?.leetcodeSession) {
         return res
