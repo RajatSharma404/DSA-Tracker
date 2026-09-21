@@ -2,12 +2,14 @@ import { Router, Request, Response } from "express";
 import fs from "fs";
 import path from "path";
 import { prisma } from "../db/prisma";
+import { Role, Difficulty } from "@prisma/client";
 import { requireAuth, requireAdmin, invalidateUserCache } from "../middlewares/auth";
 import { seedStarterTheoryContent } from "../services/theoryService";
 import { seedComprehensiveDSA } from "../seedComprehensiveDSA";
 import { seedLearnCppCurriculum } from "../seedLearnCppCurriculum";
 
 const router = Router();
+const ALLOWED_DIFFICULTIES = new Set(["EASY", "MEDIUM", "HARD"]);
 
 router.post(
   "/admin/learn/seed",
@@ -71,9 +73,11 @@ router.get(
   "/admin/users",
   requireAuth,
   requireAdmin,
-  async (_req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
+      const limit = Math.min(Math.max(Number(req.query.limit) || 100, 1), 500);
       const users = await prisma.user.findMany({
+        take: limit,
         select: {
           id: true,
           email: true,
@@ -107,7 +111,7 @@ router.patch(
       }
       const user = await prisma.user.update({
         where: { id: userId },
-        data: { role: role as any } as any,
+        data: { role: role as Role },
         select: {
           id: true,
           email: true,
@@ -225,7 +229,7 @@ router.post(
         data: {
           title: title.trim().slice(0, 200),
           link: typeof link === "string" ? link.trim().slice(0, 500) : null,
-          difficulty: normalizedDiff as any,
+          difficulty: normalizedDiff as Difficulty,
           topicId,
           orderIndex: parsedOrder,
         },
@@ -259,7 +263,7 @@ router.put(
         data: {
           title: title.trim().slice(0, 200),
           link: typeof link === "string" ? link.trim().slice(0, 500) : null,
-          difficulty: normalizedDiff as any,
+          difficulty: normalizedDiff as Difficulty,
           topicId,
           orderIndex: parsedOrder,
         },
@@ -332,7 +336,9 @@ router.post(
               where: { id: existing.id },
               data: {
                 link: problemData.leetcode,
-                difficulty: problemData.difficulty.toUpperCase() as any,
+                difficulty: (ALLOWED_DIFFICULTIES.has(problemData.difficulty?.toUpperCase())
+                  ? problemData.difficulty.toUpperCase()
+                  : "MEDIUM") as Difficulty,
                 orderIndex: problemData.order,
               },
             });
@@ -341,7 +347,9 @@ router.post(
               data: {
                 title: problemData.title,
                 link: problemData.leetcode,
-                difficulty: problemData.difficulty.toUpperCase() as any,
+                difficulty: (ALLOWED_DIFFICULTIES.has(problemData.difficulty?.toUpperCase())
+                  ? problemData.difficulty.toUpperCase()
+                  : "MEDIUM") as Difficulty,
                 orderIndex: problemData.order,
                 topicId: topic.id,
               },
