@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { Topic, Problem } from "@/lib/api";
 import Link from "next/link";
+import { FixedSizeList as List } from "react-window";
 import {
   X,
   Search,
@@ -54,7 +55,7 @@ export default function ProblemDrawer({
   >("ALL");
 
   const handleToggleStatus = async (problemId: string, currentStatus: string) => {
-    const nextStatus = currentStatus === "DONE" ? "TODO" : "DONE";
+    const nextStatus: "TODO" | "DONE" = currentStatus === "DONE" ? "TODO" : "DONE";
     if (nextStatus === "DONE") {
       soundEffects.playSuccess();
     } else {
@@ -63,19 +64,24 @@ export default function ProblemDrawer({
 
     // Optimistic Update
     setLocalProblems((prev) =>
-      prev.map((p) => (p.id === problemId ? { ...p, status: nextStatus as any } : p)),
+      prev.map((p) => (p.id === problemId ? { ...p, status: nextStatus } : p)),
     );
-    onProblemStatusChange?.(problemId, nextStatus as any);
+    onProblemStatusChange?.(problemId, nextStatus);
 
     try {
-      await dsaApi.updateProgress(problemId, nextStatus as any, 0);
+      await dsaApi.updateProgress(problemId, nextStatus, 0);
     } catch (err) {
       console.error("Failed to update status", err);
       toast.error("Failed to save progress. Reverting...");
+      const rollbackStatus = (
+        ["TODO", "DOING", "DONE"].includes(currentStatus)
+          ? currentStatus
+          : "TODO"
+      ) as "TODO" | "DOING" | "DONE";
       setLocalProblems((prev) =>
-        prev.map((p) => (p.id === problemId ? { ...p, status: currentStatus as any } : p)),
+        prev.map((p) => (p.id === problemId ? { ...p, status: rollbackStatus } : p)),
       );
-      onProblemStatusChange?.(problemId, currentStatus as any);
+      onProblemStatusChange?.(problemId, rollbackStatus);
     }
   };
 
@@ -109,17 +115,6 @@ export default function ProblemDrawer({
     localProblems.length > 0 ? Math.round((solvedCount / localProblems.length) * 100) : 0;
 
   if (!isOpen || !topic) return null;
-
-  const getDiffBadge = (diff: string) => {
-    switch (diff) {
-      case "EASY":
-        return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
-      case "HARD":
-        return "bg-rose-500/10 text-rose-400 border-rose-500/20";
-      default:
-        return "bg-amber-500/10 text-amber-400 border-amber-500/20";
-    }
-  };
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end animate-in fade-in duration-300">
@@ -252,89 +247,132 @@ export default function ProblemDrawer({
                 Try loosening your filters or search query
               </p>
             </div>
-          ) : (
-            filteredProblems.map((p) => {
-              const isDone = p.status === "DONE";
-              const isDoing = p.status === "DOING";
-              const isDue =
-                isDone &&
-                !!p.nextReviewDate &&
-                new Date(p.nextReviewDate) <= new Date();
-
-              return (
-                <div
-                  key={p.id}
-                  className="group flex items-center justify-between p-3.5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] hover:border-[var(--border-medium)] transition-all"
-                >
-                  <div className="flex items-center gap-3 min-w-0 pr-3">
-                    <button
-                      type="button"
-                      onClick={() => handleToggleStatus(p.id, p.status)}
-                      className="shrink-0 transition-transform active:scale-90 hover:scale-110 cursor-pointer"
-                      title={isDone ? "Mark as Incomplete" : "Mark as Solved"}
-                    >
-                      {isDone ? (
-                        <CheckCircle2
-                          size={20}
-                          className="text-emerald-400 fill-emerald-500/20 shadow-[0_0_8px_rgba(16,185,129,0.5)]"
-                        />
-                      ) : isDoing ? (
-                        <div className="w-4.5 h-4.5 rounded-full border-2 border-amber-400 border-t-transparent animate-spin" />
-                      ) : (
-                        <Circle
-                          size={20}
-                          className="text-[var(--text-muted)] hover:text-emerald-400 transition-colors"
-                        />
-                      )}
-                    </button>
-
-                    <div className="space-y-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <Link
-                          href={`/problems/${p.id}`}
-                          onMouseEnter={() => {
-                            void dsaApi.getProblem(p.id).catch(() => {});
-                          }}
-                          onClick={() => soundEffects.playClick()}
-                          className="text-xs font-bold text-[var(--text-primary)] group-hover:text-[var(--accent-primary)] transition-colors truncate"
-                        >
-                          {p.title}
-                        </Link>
-                      </div>
-
-                      <div className="flex items-center gap-2 font-mono">
-                        <span
-                          className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full border ${getDiffBadge(
-                            p.difficulty,
-                          )}`}
-                        >
-                          {p.difficulty}
-                        </span>
-
-                        {isDue && (
-                          <span className="text-[9px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20 flex items-center gap-1">
-                            <Clock size={10} /> Due Review
-                          </span>
-                        )}
-                      </div>
+          ) : filteredProblems.length > 30 ? (
+            <div className="h-full w-full">
+              <List
+                height={600}
+                itemCount={filteredProblems.length}
+                itemSize={78}
+                width="100%"
+              >
+                {({ index, style }) => {
+                  const p = filteredProblems[index];
+                  return (
+                    <div style={style} className="pb-3">
+                      <ProblemRowItem
+                        problem={p}
+                        onToggleStatus={() => handleToggleStatus(p.id, p.status)}
+                      />
                     </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 shrink-0">
-                    <Link
-                      href={`/problems/${p.id}`}
-                      onClick={() => soundEffects.playClick()}
-                      className="p-2 rounded-xl bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--accent-primary)]/40 transition-all"
-                      title="Open in Workspace"
-                    >
-                      <ChevronRight size={15} />
-                    </Link>
-                  </div>
-                </div>
-              );
-            })
+                  );
+                }}
+              </List>
+            </div>
+          ) : (
+            filteredProblems.map((p) => (
+              <ProblemRowItem
+                key={p.id}
+                problem={p}
+                onToggleStatus={() => handleToggleStatus(p.id, p.status)}
+              />
+            ))
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function ProblemRowItem({
+  problem: p,
+  onToggleStatus,
+}: {
+  problem: Problem;
+  onToggleStatus: () => void;
+}) {
+  const isDone = p.status === "DONE";
+  const isDoing = p.status === "DOING";
+  const isDue =
+    isDone &&
+    !!p.nextReviewDate &&
+    new Date(p.nextReviewDate) <= new Date();
+
+  const getDiffBadge = (diff: string) => {
+    switch (diff) {
+      case "EASY":
+        return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+      case "HARD":
+        return "bg-rose-500/10 text-rose-400 border-rose-500/20";
+      default:
+        return "bg-amber-500/10 text-amber-400 border-amber-500/20";
+    }
+  };
+
+  return (
+    <div className="group flex items-center justify-between p-3.5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] hover:border-[var(--border-medium)] transition-all shadow-xs">
+      <div className="flex items-center gap-3 min-w-0 pr-3">
+        <button
+          type="button"
+          onClick={onToggleStatus}
+          className="shrink-0 transition-transform active:scale-90 hover:scale-110 cursor-pointer"
+          title={isDone ? "Mark as Incomplete" : "Mark as Solved"}
+        >
+          {isDone ? (
+            <CheckCircle2
+              size={20}
+              className="text-emerald-400 fill-emerald-500/20 shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+            />
+          ) : isDoing ? (
+            <div className="w-4.5 h-4.5 rounded-full border-2 border-amber-400 border-t-transparent animate-spin" />
+          ) : (
+            <Circle
+              size={20}
+              className="text-[var(--text-muted)] hover:text-emerald-400 transition-colors"
+            />
+          )}
+        </button>
+
+        <div className="space-y-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/problems/${p.id}`}
+              onMouseEnter={() => {
+                void dsaApi.getProblem(p.id).catch(() => {});
+              }}
+              onClick={() => soundEffects.playClick()}
+              className="text-xs font-bold text-[var(--text-primary)] group-hover:text-[var(--accent-primary)] transition-colors truncate"
+            >
+              {p.title}
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-2 font-mono">
+            <span
+              className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full border ${getDiffBadge(
+                p.difficulty,
+              )}`}
+            >
+              {p.difficulty}
+            </span>
+
+            {isDue && (
+              <span className="text-[9px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20 flex items-center gap-1">
+                <Clock size={10} /> Due Review
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 shrink-0">
+        <Link
+          href={`/problems/${p.id}`}
+          onClick={() => soundEffects.playClick()}
+          className="p-2 rounded-xl bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--accent-primary)]/40 transition-all"
+          title="Open in Workspace"
+        >
+          <ChevronRight size={15} />
+        </Link>
       </div>
     </div>
   );
