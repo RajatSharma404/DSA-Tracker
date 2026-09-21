@@ -18,6 +18,7 @@ router.post(
       const topicProblems = await prisma.problem.findMany({
         where: { topicId },
         select: { id: true },
+        take: 1000,
       });
 
       if (topicProblems.length === 0) {
