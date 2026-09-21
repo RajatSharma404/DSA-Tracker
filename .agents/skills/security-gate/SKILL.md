@@ -89,8 +89,10 @@ git status -s
 
 ---
 
-## 🔄 Autonomous Skill Self-Evolution Protocol
+## 🔄 Autonomous Skill Self-Evolution & Technology Modernization Protocol
 
-Whenever this skill executes or new backend routes/controllers are created:
-1. **New Route Created**: Add the new route to the route security inventory table in this skill file.
-2. **New Security Middleware**: When middleware (e.g. CSRF protection, IP filtering) is added, update Stage 3 with the corresponding verification steps.
+Whenever new security technologies, authentication libraries, or backend security dependencies are introduced (e.g., NextAuth / Auth.js upgrades, Redis rate-limiting clusters, Helmet policy revisions, CSRF libraries, passkeys / WebAuthn, JWT algorithm upgrades, or cloud IAM shifts):
+1. **Route & Endpoint Inventory Updates**: When new API routes or controllers are created, automatically audit them for `requireAuth`, IDOR defense, and input sanitization, adding them to this skill's security inventory.
+2. **Middleware & Security Modernization**: When new security middlewares (e.g. distributed rate limiting with Redis, IP reputation, WAF rules, DOMPurify updates) are installed, update Stages 2 and 3 with active verification steps.
+3. **Vulnerability Mitigation Evolution**: Update security checks whenever new OWASP Top 10 vulnerabilities, CVE dependencies, or AI prompt injection mitigation standards are recognized.
+4. **Proactive Self-Update**: The agent must automatically review and modernize this runbook during security audits, auth refactoring, or dependency updates.
