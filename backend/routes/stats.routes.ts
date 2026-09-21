@@ -19,6 +19,7 @@ router.get("/stats/streak", requireAuth, async (req: Request, res: Response) => 
     const [solves, streakRecord] = await Promise.all([
       prisma.progress.findMany({
         where: { userId, status: "DONE" },
+        take: 10000,
         select: { completedAt: true, updatedAt: true },
       }),
       prisma.streak.findUnique({
@@ -44,6 +45,7 @@ router.get("/stats/heatmap", requireAuth, async (req: Request, res: Response) =>
     const userId = req.user!.id;
     const progress = await prisma.progress.findMany({
       where: { userId, status: "DONE" },
+      take: 10000,
       select: { completedAt: true, updatedAt: true },
     });
 
@@ -60,6 +62,7 @@ router.get("/stats/weak-topic", requireAuth, async (req: Request, res: Response)
   try {
     const userId = req.user!.id;
     const topics = await prisma.topic.findMany({
+      take: 200,
       include: {
         problems: {
           select: {
@@ -86,6 +89,7 @@ router.get("/stats/topic-breakdown", requireAuth, async (req: Request, res: Resp
   try {
     const userId = req.user!.id;
     const topics = await prisma.topic.findMany({
+      take: 200,
       include: {
         problems: {
           select: {
@@ -114,6 +118,7 @@ router.get("/stats/weekly", requireAuth, async (req: Request, res: Response) => 
     const userId = req.user!.id;
     const solves = await prisma.progress.findMany({
       where: { userId, status: "DONE" },
+      take: 10000,
       select: { completedAt: true, updatedAt: true },
     });
 
@@ -131,6 +136,7 @@ router.get("/stats/difficulty-by-month", requireAuth, async (req: Request, res: 
     const userId = req.user!.id;
     const solves = await prisma.progress.findMany({
       where: { userId, status: "DONE" },
+      take: 10000,
       select: {
         completedAt: true,
         updatedAt: true,
