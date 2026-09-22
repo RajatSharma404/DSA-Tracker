@@ -31,7 +31,7 @@ When the user enters `/commit`, `commit`, or asks to commit and push changes one
 - **`/extension` or `/ext-sync`**: Activate **`extension-sync`** (`.agents/skills/extension-sync/SKILL.md`) to validate Manifest V3 permissions, DOM event listeners, and API sync.
 - **`/mobile` or `/cap-sync`**: Activate **`mobile-sync`** (`.agents/skills/mobile-sync/SKILL.md`) to sync frontend builds to native Android via Capacitor and verify PWA offline queues.
 - **`/security` or `/audit`**: Activate **`security-gate`** (`.agents/skills/security-gate/SKILL.md`) to audit IDOR protections, JWT cookies, rate limits, and sanitize inputs.
-- **`/improvement` or `/audit-full`**: Activate **`improvement`** (`.agents/skills/improvement/SKILL.md`) to perform an exhaustive full-stack project audit across frontend, backend, DB, suggesting bug fixes, architectural enhancements, UI/UX polish, feature merges/additions, and optimal code refactorings.
+- **`/improvement` or `/audit-full`**: Activate **`improvement`** (`.agents/skills/improvement/SKILL.md`) to perform an exhaustive full-stack project audit across frontend, backend, DB; brainstorm and compare multiple improvement approaches with trade-off matrices; and produce an actionable, step-by-step detailed implementation plan before execution.
 
 ## 🔄 Autonomous Skill Self-Evolution & Technology Modernization Protocol
 
