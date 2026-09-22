@@ -283,4 +283,4 @@ if (allFindings.length === 0) {
 
 const score = Math.max(70, 100 - allFindings.length * 3);
 console.log(`${colors.bold}Overall Architecture Health Score: ${score >= 90 ? colors.green : colors.yellow}${score}/100${colors.reset}`);
-console.log(`${colors.dim}Run '/improvement' to generate full-stack refactoring diffs and roadmaps.${colors.reset}\n`);
+console.log(`${colors.dim}Run '/improvement' to explore multiple solution approaches, trade-offs, and generate a detailed implementation plan.${colors.reset}\n`);
