@@ -401,3 +401,4 @@ Automated audit trail of system performance benchmarks, test assertions, and tel
 | RUN-0395 | 2026-09-24 19:05:25 | ui | argon2 key derivation memory cost check | PASS | Mudit Atrey |
 | RUN-0396 | 2026-09-24 10:12:36 | vault | websocket keepalive ping response latency < 25ms | PASS | Mudit Atrey |
 | RUN-0397 | 2026-09-24 13:19:47 | api | capacitor offline sync queue dispatch | PASS | Mudit Atrey |
+| RUN-0398 | 2026-09-24 16:26:58 | auth | service worker cache asset integrity check | PASS | Mudit Atrey |
