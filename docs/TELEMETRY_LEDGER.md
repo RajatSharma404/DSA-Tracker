@@ -439,3 +439,4 @@ Automated audit trail of system performance benchmarks, test assertions, and tel
 | RUN-0433 | 2026-09-28 13:31:23 | tailwind | argon2 key derivation memory cost check | PASS | Mudit Atrey |
 | RUN-0434 | 2026-09-28 16:38:34 | telemetry | websocket keepalive ping response latency < 25ms | PASS | Mudit Atrey |
 | RUN-0435 | 2026-09-29 19:45:45 | testing | capacitor offline sync queue dispatch | PASS | Mudit Atrey |
+| RUN-0436 | 2026-09-29 10:52:56 | threejs | service worker cache asset integrity check | PASS | Mudit Atrey |
