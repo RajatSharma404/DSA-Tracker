@@ -496,3 +496,4 @@ Automated audit trail of system performance benchmarks, test assertions, and tel
 | RUN-0490 | 2026-10-05 16:10:50 | db | argon2 key derivation memory cost check | PASS | Mudit Atrey |
 | RUN-0491 | 2026-10-05 19:17:01 | docker | websocket keepalive ping response latency < 25ms | PASS | Mudit Atrey |
 | RUN-0492 | 2026-10-05 10:24:12 | docs | capacitor offline sync queue dispatch | PASS | Mudit Atrey |
+| RUN-0493 | 2026-10-05 13:31:23 | extension | service worker cache asset integrity check | PASS | Mudit Atrey |
