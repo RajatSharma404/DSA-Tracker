@@ -494,3 +494,4 @@ Automated audit trail of system performance benchmarks, test assertions, and tel
 | RUN-0488 | 2026-10-05 10:56:28 | cache | cors preflight origin header assertion | PASS | Mudit Atrey |
 | RUN-0489 | 2026-10-05 13:03:39 | core | zod request validation schema pass | PASS | Mudit Atrey |
 | RUN-0490 | 2026-10-05 16:10:50 | db | argon2 key derivation memory cost check | PASS | Mudit Atrey |
+| RUN-0491 | 2026-10-05 19:17:01 | docker | websocket keepalive ping response latency < 25ms | PASS | Mudit Atrey |
