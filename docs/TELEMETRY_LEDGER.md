@@ -490,3 +490,4 @@ Automated audit trail of system performance benchmarks, test assertions, and tel
 | RUN-0484 | 2026-10-04 10:28:44 | vault | shader pipeline gpu frame render pass | PASS | Mudit Atrey |
 | RUN-0485 | 2026-10-04 13:35:55 | api | daily problem scheduler cron assertion | PASS | Mudit Atrey |
 | RUN-0486 | 2026-10-04 16:42:06 | auth | topic floor lock invariant check | PASS | Mudit Atrey |
+| RUN-0487 | 2026-10-05 19:49:17 | benchmarks | argon2/bcrypt password hash benchmark | PASS | Mudit Atrey |
