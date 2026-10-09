@@ -150,12 +150,18 @@ api.interceptors.response.use(
     }
 
     if (status !== 401 || !originalRequest || originalRequest._retry) {
+      if (status === 401) {
+        cachedAccessToken = null;
+        lastSessionReadAt = 0;
+      }
       throw error;
     }
 
     originalRequest._retry = true;
     const accessToken = await readAccessToken(true);
     if (!accessToken) {
+      cachedAccessToken = null;
+      lastSessionReadAt = 0;
       throw error;
     }
 
