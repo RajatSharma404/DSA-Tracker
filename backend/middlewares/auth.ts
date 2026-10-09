@@ -5,11 +5,16 @@ import { notifyLogin } from "../services/emailService";
 import { TtlCache } from "../utils/cache";
 
 export function getAuthSecrets(): string[] {
+  const rawSecrets = [
+    process.env.NEXTAUTH_SECRET,
+    process.env.AUTH_SECRET,
+    ...(process.env.AUTH_SECRETS ? process.env.AUTH_SECRETS.split(",") : []),
+  ];
   return Array.from(
     new Set(
-      [process.env.NEXTAUTH_SECRET, process.env.AUTH_SECRET]
+      rawSecrets
         .map((s) => (typeof s === "string" ? s.trim() : ""))
-        .filter(Boolean),
+        .filter((s) => Boolean(s) && s !== "your-secret-key-here"),
     ),
   );
 }
@@ -105,6 +110,7 @@ export const resolveAuthenticatedUser = async (authHeader?: string) => {
   const secrets = getAuthSecrets();
   const candidateSecrets = secrets.length > 0 ? secrets : NEXTAUTH_SECRETS;
 
+  let lastVerifyError: Error | null = null;
   for (const secret of candidateSecrets) {
     try {
       decoded = jwt.verify(token, secret) as {
@@ -112,12 +118,19 @@ export const resolveAuthenticatedUser = async (authHeader?: string) => {
         role: string;
       };
       break;
-    } catch {
-      // Try next secret candidate.
+    } catch (err: any) {
+      lastVerifyError = err;
     }
   }
 
   if (!decoded?.email) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn(
+        `[auth] Token verification failed across ${candidateSecrets.length} candidate secret(s): ${
+          lastVerifyError?.message || "Invalid token structure"
+        }. Verify NEXTAUTH_SECRET synchronization.`,
+      );
+    }
     return null;
   }
 
