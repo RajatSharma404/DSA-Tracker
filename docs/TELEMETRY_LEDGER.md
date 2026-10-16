@@ -590,3 +590,4 @@ Automated audit trail of system performance benchmarks, test assertions, and tel
 | RUN-0584 | 2026-10-16 10:08:04 | interviews | zod request validation schema pass | PASS | Mudit Atrey |
 | RUN-0585 | 2026-10-16 13:15:15 | leetcode | argon2 key derivation memory cost check | PASS | Mudit Atrey |
 | RUN-0586 | 2026-10-16 16:22:26 | middleware | websocket keepalive ping response latency < 25ms | PASS | Mudit Atrey |
+| RUN-0587 | 2026-10-16 19:29:37 | migrations | capacitor offline sync queue dispatch | PASS | Mudit Atrey |
