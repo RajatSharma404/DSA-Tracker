@@ -761,3 +761,4 @@ Automated audit trail of system performance benchmarks, test assertions, and tel
 | RUN-0755 | 2026-11-04 19:05:25 | docker | zod request validation schema pass | PASS | Mudit Atrey |
 | RUN-0756 | 2026-11-04 10:12:36 | docs | argon2 key derivation memory cost check | PASS | Mudit Atrey |
 | RUN-0757 | 2026-11-04 13:19:47 | extension | websocket keepalive ping response latency < 25ms | PASS | Mudit Atrey |
+| RUN-0758 | 2026-11-05 16:26:58 | fsrs | capacitor offline sync queue dispatch | PASS | Mudit Atrey |
