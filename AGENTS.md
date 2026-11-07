@@ -3,35 +3,40 @@
 ## Single-Word `/update` Command
 
 When the user enters `/update`, `update`, `uypdate`, `eod`, or asks for an end-of-day / before-leaving-desk wrap up:
-- Immediately activate and run the **`update`** skill runbook (`.agents/skills/update/SKILL.md`).
+- Activate **`clean-code-guard`**, **`vitest-skill`**, **`deployment-procedures`**, and **`git-commit-message`** runbooks.
 - Execute all 7 stages:
-  1. **Pre-flight QA**: TypeScript type checks (`npx tsc --noEmit`) and tests (`npm test` in `frontend` and `backend`).
-  2. **Cross-Platform**: Mobile Capacitor sync and browser extension verification.
-  3. **Documentation**: Keep `README.md` and `docs/` fully updated with new features and test counts.
+  1. **Pre-flight QA**: TypeScript type checks (`npx tsc --noEmit`) and unit tests (`npm test` in `frontend` and `backend` using `vitest-skill`).
+  2. **Cross-Platform & Offline Sync**: Verify Chrome extension Manifest V3 and PWA / Capacitor assets (`chrome-extension-developer`, `progressive-web-app`).
+  3. **Documentation**: Keep `README.md` and `docs/` fully updated with new features, test metrics, and architecture.
   4. **Daily Developer Log**: Append an entry to `docs/DAILY_LOG.md`.
-  5. **Hygiene**: Clean up any temporary or stray files.
-  6. **Git Version Control**: Stage changes (`git add -A`) and commit with Conventional Commits format (`git commit`).
+  5. **Hygiene & Clean Code**: Clean up any temporary or stray files; enforce SOLID/DRY rules (`clean-code`).
+  6. **Git Version Control**: Stage changes (`git add -A`) and commit with Conventional Commits format (`git-commit-message`).
   7. **EOD Briefing**: Provide a concise summary of changes, commit SHA, and test metrics.
 
 ## Single-Word `/commit` Command
 
 When the user enters `/commit`, `commit`, or asks to commit and push changes one file per commit:
-- Immediately activate and run the **`commit`** skill runbook (`.agents/skills/commit/SKILL.md`).
+- Activate **`git-commit-message`** and **`git-workflow-and-versioning`** runbooks (`.agents/skills/git-commit-message/SKILL.md` & `.agents/skills/git-workflow-and-versioning/SKILL.md`).
 - Execute all stages:
-  1. **Pre-flight QA**: Verify TypeScript types and tests pass.
+  1. **Pre-flight QA**: Verify TypeScript types and tests pass (`vitest-skill`).
   2. **Per-File Commits**: Commit every changed or new file individually with a scoped Conventional Commit message.
   3. **Verify Clean Tree**: Confirm `git status -s` is clean.
   4. **Git Push**: Push the branch to remote tracking repository (`git push origin <branch>`).
   5. **Summary**: Provide a detailed table of all commits and SHAs.
 
-## Specialized Domain Skills & Directives
+## Specialized Domain Skills & Directives (Upgraded from agentic-awesome-skills)
 
-- **`/solution` or `/add-solution`**: Activate **`solution-vault`** (`.agents/skills/solution-vault/SKILL.md`) to scaffold, document Big-O complexity, and re-index `solutions/README.md`.
-- **`/schema` or `/db-sync`**: Activate **`schema-guard`** (`.agents/skills/schema-guard/SKILL.md`) to ensure dual-Prisma parity between backend and frontend, safe migrations, and seed verification.
-- **`/extension` or `/ext-sync`**: Activate **`extension-sync`** (`.agents/skills/extension-sync/SKILL.md`) to validate Manifest V3 permissions, DOM event listeners, and API sync.
-- **`/mobile` or `/cap-sync`**: Activate **`mobile-sync`** (`.agents/skills/mobile-sync/SKILL.md`) to sync frontend builds to native Android via Capacitor and verify PWA offline queues.
-- **`/security` or `/audit`**: Activate **`security-gate`** (`.agents/skills/security-gate/SKILL.md`) to audit IDOR protections, JWT cookies, rate limits, and sanitize inputs.
-- **`/improvement` or `/audit-full`**: Activate **`improvement`** (`.agents/skills/improvement/SKILL.md`) to perform an exhaustive full-stack project audit across frontend, backend, DB; brainstorm and compare multiple improvement approaches with trade-off matrices; and produce an actionable, step-by-step detailed implementation plan before execution.
+- **`/solution` or `/add-solution`**: Activate **`lemmaly`**, **`matematico-tao`**, and **`cpp-pro`** to state Big-O, data structures, and algorithm family before coding; calculate complexity invariants; and scaffold clean multi-language solutions.
+- **`/schema` or `/db-sync`**: Activate **`database-migration`** and **`database-design`** to ensure dual-Prisma schema parity between backend and frontend, execute non-destructive zero-downtime migrations (`prisma db push` / `prisma migrate deploy`), and optimize composite indexes.
+- **`/extension` or `/ext-sync`**: Activate **`chrome-extension-developer`** and **`browser-extension-builder`** to validate Manifest V3 permissions, background service worker listeners, DOM event parsers, and API sync.
+- **`/mobile` or `/cap-sync`**: Activate **`progressive-web-app`** to sync frontend builds to native Android via Capacitor and verify PWA offline queues and service worker caching.
+- **`/security` or `/audit`**: Activate **`007`**, **`broken-authentication`**, and **`prompt-injection-defense`** to audit IDOR protections, JWT cookies, NextAuth session tokens, rate limits, sanitize inputs, and safeguard AI prompts.
+- **`/improvement` or `/audit-full`**: Activate **`clean-code`**, **`clean-code-guard`**, **`backend-dev-guidelines`**, **`api-design-principles`**, and **`nextjs-app-router-patterns`** to perform an exhaustive full-stack project audit across frontend, backend, and DB; brainstorm multi-solution approaches; and produce an actionable step-by-step implementation plan.
+- **`/frontend` or `/ui`**: Activate **`tailwind-design-system`**, **`frontend-ui-dark-ts`**, and **`react-nextjs-development`** for modern dark-themed UI components, design tokens, and smooth micro-interactions.
+- **`/3d` or `/city`**: Activate **`3d-web-experience`** and **`threejs-fundamentals`** to optimize React Three Fiber shaders, scene graphs, lighting, and WebGL rendering in the 3D City Progress visualizer.
+- **`/ai` or `/tutoring`**: Activate **`prompt-engineering`** and **`prompt-injection-defense`** for Gemini AI tutoring prompts, AST code visualizer heuristics, and safe evaluation.
+- **`/deploy` or `/docker`**: Activate **`deployment-procedures`** and **`docker-expert`** to validate multi-stage Docker builds, Render deployment configs, and environment variable guards.
+- **`/test` or `/qa`**: Activate **`vitest-skill`** and **`test-driven-development`** for test-driven development, mocked API contracts, and coverage gates.
 
 ## 🔄 Autonomous Skill Self-Evolution & Technology Modernization Protocol
 
