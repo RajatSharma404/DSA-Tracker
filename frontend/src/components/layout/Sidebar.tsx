@@ -47,7 +47,8 @@ const navSections: Array<{ title: string; items: NavItem[] }> = [
       { icon: Swords, label: "1v1 PvP Battles", href: "/pvp" },
       { icon: Activity, label: "AlgoTracer 2.0", href: "/tracer" },
       { icon: BookOpen, label: "Topics", href: "/topics" },
-      { icon: Target, label: "DSA City", href: "/city" },
+      // [PREVIOUS LOGIC - COMMENTED OUT: DSA CITY FEATURE REMOVAL]
+      // { icon: Target, label: "DSA City", href: "/city" },
       { icon: Zap, label: "The Arena", href: "/challenge" },
       { icon: Target, label: "Mock Interviews", href: "/interviews" },
     ],
