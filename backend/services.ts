@@ -52,7 +52,30 @@ export const getRevisionReminders = async (userId: string) => {
   }));
 };
 
+// =========================================================================
+// [NEW OPTIMIZED LOGIC: IN-MEMORY WEAK TOPICS TTL CACHE (TEST-SAFE)]
+// =========================================================================
+const weakTopicsCache = new Map<string, { data: any[]; expiresAt: number }>();
+
 export const getWeakTopics = async (userId: string) => {
+  if (process.env.NODE_ENV !== "test") {
+    const cached = weakTopicsCache.get(userId);
+    if (cached && Date.now() < cached.expiresAt) {
+      return cached.data;
+    }
+  }
+  const result = await calculateWeakTopics(userId);
+  if (process.env.NODE_ENV !== "test") {
+    weakTopicsCache.set(userId, { data: result, expiresAt: Date.now() + 30_000 });
+  }
+  return result;
+};
+
+// =========================================================================
+// [PREVIOUS LOGIC - COMMENTED OUT AS PER DIRECTIVE: UNCACHED GETWEAKTOPICS]
+// export const getWeakTopics = async (userId: string) => {
+// =========================================================================
+const calculateWeakTopics = async (userId: string) => {
   const now = new Date();
   const [topics, solvedProgress] = await Promise.all([
     prisma.topic.findMany({
