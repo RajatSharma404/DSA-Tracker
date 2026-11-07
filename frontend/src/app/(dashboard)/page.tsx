@@ -98,6 +98,19 @@ export default function Dashboard() {
   const [activityData, setActivityData] = useState<Array<{ date: string; count: number }>>(cachedActivity || []);
   const [topicsSnapshot, setTopicsSnapshot] = useState<Topic[]>(cachedTopics || []);
   const [loading, setLoading] = useState(!cachedStats);
+  const [slowServerWakeup, setSlowServerWakeup] = useState(false);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (loading) {
+      timer = setTimeout(() => {
+        setSlowServerWakeup(true);
+      }, 4000);
+    } else {
+      setSlowServerWakeup(false);
+    }
+    return () => clearTimeout(timer);
+  }, [loading]);
 
   const recentSolvedCount = (days: number) => {
     if (activityData.length === 0) return 0;
@@ -246,8 +259,12 @@ export default function Dashboard() {
       return;
     }
 
-    setLoading(true);
-    setStats(null);
+    // Retain warm cache so page transitions and revisits render in 0ms (Stale-While-Revalidate)
+    const hasWarmCache = !!stats || !!queryCache.get<DashboardStats>("dashboard_stats");
+    if (!hasWarmCache) {
+      setLoading(true);
+      setStats(null);
+    }
 
     const userEmail = session?.user?.email || "unknown-user";
     const syncStorageKey = `leetcode-last-sync:${userEmail}`;
@@ -261,11 +278,16 @@ export default function Dashboard() {
         window.localStorage.setItem(syncStorageKey, Date.now().toString());
       }
     });
-  }, [status, session?.user?.email, loadDashboardData, router]);
+  }, [status, session?.user?.email, loadDashboardData, router, stats]);
 
   if (loading) {
     return (
       <div className="space-y-6 animate-in fade-in duration-300">
+        {slowServerWakeup && (
+          <div className="flex items-center justify-center p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs text-center animate-in fade-in">
+            <span>⚡ Connecting to backend server... (Render free instances take ~30–60s on cold start)</span>
+          </div>
+        )}
         <div className="h-10 w-72 rounded-xl border border-[var(--border-subtle)] shimmer" />
         <div className="h-32 rounded-[2.5rem] border border-[var(--border-subtle)] shimmer" />
         <div className="grid gap-6 md:grid-cols-12">

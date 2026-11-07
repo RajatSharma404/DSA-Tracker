@@ -10,6 +10,7 @@
     "test:coverage": "vitest run --coverage",
     "prebuild": "npm install --include=dev",
     "build": "tsc && prisma generate",
+    "build:render": "prisma db push && tsc && prisma generate",
     "start": "node dist/index.js",
     "postinstall": "prisma generate"
   },
