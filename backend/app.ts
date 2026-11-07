@@ -117,8 +117,15 @@ export function createApp(): Express {
   app.use("/api", tagsRoutes);
   app.use("/api", searchRoutes);
   app.use("/api", reviewQueueRoutes);
-  app.use("/api", cityRoutes);
+  // [PREVIOUS LOGIC - COMMENTED OUT: DSA CITY FEATURE REMOVAL]
+  // app.use("/api", cityRoutes);
   app.use("/api", miscRoutes);
+
+  // [NEW OPTIMIZED LOGIC: LIGHTWEIGHT KEEP-ALIVE PING TO PREVENT COLD STARTS]
+  app.get("/api/ping", (_req, res) => {
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.json({ status: "alive", timestamp: Date.now() });
+  });
 
   // Root & Health check
   app.get("/", (_req, res) => {
