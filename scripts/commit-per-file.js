@@ -29,7 +29,38 @@ function getCommitMessage(filePath, type) {
   }
 
   if (norm === 'scripts/commit-per-file.js') {
-    return 'chore(scripts): add commit-per-file automated helper script';
+    return 'chore(scripts): update commit-per-file script for fullstack upgrades';
+  }
+
+  // =========================================================================
+  // [NEW OPTIMIZED LOGIC: SPECIFIC SCOPED COMMIT MESSAGES FOR UPGRADES]
+  // =========================================================================
+  if (norm === 'backend/app.ts') {
+    return 'feat(backend): add /api/ping keep-alive and comment out city routes';
+  }
+  if (norm === 'backend/services.ts') {
+    return 'perf(backend/services): add in-memory TTL caching for getWeakTopics';
+  }
+  if (norm === 'frontend/src/app/(dashboard)/city/[levelId]/page.tsx') {
+    return 'refactor(city/district): decommission district view and redirect to roadmap';
+  }
+  if (norm === 'frontend/src/app/(dashboard)/city/page.tsx') {
+    return 'refactor(city): decommission DSA city page and add roadmap redirect';
+  }
+  if (norm === 'frontend/src/app/globals.css') {
+    return 'perf(css): add hardware-accelerated GPU shimmer animation';
+  }
+  if (norm === 'frontend/src/components/dashboard/ActivityCalendarHeatmap.tsx') {
+    return 'fix(dashboard/heatmap): replace external heatmap with zero-dependency SVG matrix';
+  }
+  if (norm === 'frontend/src/components/layout/CommandPalette.tsx') {
+    return 'refactor(layout/palette): comment out DSA City action item';
+  }
+  if (norm === 'frontend/src/components/layout/MobileDrawer.tsx') {
+    return 'refactor(layout/mobile): comment out DSA City navigation item';
+  }
+  if (norm === 'frontend/src/components/layout/Sidebar.tsx') {
+    return 'refactor(layout/sidebar): comment out DSA City navigation item';
   }
 
   if (norm.startsWith('.agents/skills/')) {
@@ -141,3 +172,4 @@ if (fs.existsSync(scriptFile)) {
 }
 
 console.log(`\nSuccessfully created ${commits.length} commits!`);
+
