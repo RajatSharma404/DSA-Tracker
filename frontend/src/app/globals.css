@@ -373,6 +373,10 @@ main[data-scroll-root="true"] {
   }
 }
 
+/* =========================================================================
+   [PREVIOUS LOGIC - COMMENTED OUT AS PER DIRECTIVE: STANDARD SHIMMER]
+   ========================================================================= */
+/*
 .shimmer {
   background: linear-gradient(90deg,
       var(--bg-card) 0%,
@@ -380,6 +384,20 @@ main[data-scroll-root="true"] {
       var(--bg-card) 100%) !important;
   background-size: 200% 100% !important;
   animation: shimmer 1.8s ease-in-out infinite !important;
+}
+*/
+/* =========================================================================
+   [NEW OPTIMIZED LOGIC: HARDWARE ACCELERATED GPU SHIMMER (60FPS)]
+   ========================================================================= */
+.shimmer {
+  background: linear-gradient(90deg,
+      var(--bg-card) 0%,
+      var(--bg-hover) 50%,
+      var(--bg-card) 100%) !important;
+  background-size: 200% 100% !important;
+  animation: shimmer 1.6s ease-in-out infinite !important;
+  will-change: background-position;
+  transform: translateZ(0);
 }
 
 /* Accent Glow Pulse */
