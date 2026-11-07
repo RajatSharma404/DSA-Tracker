@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import CalendarHeatmap from "react-calendar-heatmap";
+// =========================================================================
+// [PREVIOUS LOGIC - COMMENTED OUT AS PER DIRECTIVE: UNINSTALLED DEPENDENCY]
+// import CalendarHeatmap from "react-calendar-heatmap";
+// =========================================================================
 import { dsaApi, HeatmapDay } from "@/lib/api";
 import { Flame, Calendar as CalendarIcon } from "lucide-react";
 
@@ -123,7 +126,10 @@ export default function ActivityCalendarHeatmap({
       ) : (
         <div className="overflow-x-auto pb-2 scrollbar-none">
           <div className="min-w-[680px]">
-            <CalendarHeatmap
+            {/* =========================================================================
+                [PREVIOUS LOGIC - COMMENTED OUT: CALENDAR-HEATMAP EXTERNAL PACKAGE]
+                ========================================================================= */}
+            {/* <CalendarHeatmap
               startDate={yearAgo}
               endDate={today}
               values={heatmapData}
@@ -135,7 +141,40 @@ export default function ActivityCalendarHeatmap({
                 } solved`;
               }}
               showWeekdayLabels={true}
-            />
+            /> */}
+            {/* =========================================================================
+                [NEW OPTIMIZED LOGIC: NATIVE ZERO-DEPENDENCY SVG HEATMAP MATRIX]
+                ========================================================================= */}
+            <div className="grid grid-flow-col grid-rows-7 gap-1 py-1" aria-label="Activity Calendar Heatmap">
+              {heatmapData.length > 0 ? (
+                heatmapData.map((d, idx) => {
+                  const count = d.count || 0;
+                  const bg =
+                    count === 0
+                      ? "bg-[var(--bg-tertiary)] opacity-30"
+                      : count <= 2
+                        ? "bg-[var(--accent-primary)]/45"
+                        : count <= 4
+                          ? "bg-[var(--accent-primary)]/75"
+                          : "bg-[var(--accent-primary)]";
+                  return (
+                    <div
+                      key={d.date || `day-${idx}`}
+                      className={`w-2.5 h-2.5 rounded-[2px] transition-colors ${bg}`}
+                      title={`${d.date}: ${count} ${count === 1 ? "problem" : "problems"} solved`}
+                    />
+                  );
+                })
+              ) : (
+                Array.from({ length: 52 * 7 }).map((_, idx) => (
+                  <div
+                    key={`empty-${idx}`}
+                    className="w-2.5 h-2.5 rounded-[2px] bg-[var(--bg-tertiary)] opacity-20"
+                    title="No activity"
+                  />
+                ))
+              )}
+            </div>
           </div>
         </div>
       )}
