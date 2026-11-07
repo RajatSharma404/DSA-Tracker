@@ -439,13 +439,14 @@ export function CommandPalette() {
             <Zap className="mr-3 h-4 w-4 shrink-0" />
             The Arena Speed Challenge
           </Command.Item>
-          <Command.Item
+          {/* [PREVIOUS LOGIC - COMMENTED OUT: DSA CITY FEATURE REMOVAL] */}
+          {/* <Command.Item
             onSelect={() => runCommand(() => router.push("/city"))}
             className="relative flex cursor-pointer select-none items-center rounded-xl px-3 py-2 text-sm text-[var(--text-secondary)] outline-none aria-selected:bg-[var(--accent-primary)]/15 aria-selected:text-[var(--accent-primary)] aria-selected:font-semibold"
           >
             <Target className="mr-3 h-4 w-4 shrink-0" />
             DSA 3D City Metaverse
-          </Command.Item>
+          </Command.Item> */}
           <Command.Item
             onSelect={() => runCommand(() => router.push("/interviews"))}
             className="relative flex cursor-pointer select-none items-center rounded-xl px-3 py-2 text-sm text-[var(--text-secondary)] outline-none aria-selected:bg-[var(--accent-primary)]/15 aria-selected:text-[var(--accent-primary)] aria-selected:font-semibold"
