@@ -54,13 +54,24 @@ export function usePlayback({ totalSteps, onRunTrace }: UsePlaybackProps) {
   }, []);
 
   const togglePlay = useCallback(() => {
+    // Respect prefers-reduced-motion: don't start auto-playback if user prefers reduced motion
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (prefersReducedMotion) {
+      setIsPlaying(false);
+      nextStep();
+      return;
+    }
+
     if (currentStepIndex >= totalSteps - 1 && !isPlaying) {
       setCurrentStepIndex(0);
       setIsPlaying(true);
     } else {
       setIsPlaying((prev) => !prev);
     }
-  }, [currentStepIndex, totalSteps, isPlaying]);
+  }, [currentStepIndex, totalSteps, isPlaying, nextStep]);
 
   // Playback timer interval
   useEffect(() => {
@@ -105,6 +116,12 @@ export function usePlayback({ totalSteps, onRunTrace }: UsePlaybackProps) {
       } else if (e.key === "ArrowLeft") {
         e.preventDefault();
         prevStep();
+      } else if (e.key === "Home") {
+        e.preventDefault();
+        firstStep();
+      } else if (e.key === "End") {
+        e.preventDefault();
+        lastStep();
       } else if (e.key.toLowerCase() === "r") {
         e.preventDefault();
         reset();
@@ -113,7 +130,7 @@ export function usePlayback({ totalSteps, onRunTrace }: UsePlaybackProps) {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [togglePlay, nextStep, prevStep, reset, onRunTrace]);
+  }, [togglePlay, nextStep, prevStep, firstStep, lastStep, reset, onRunTrace]);
 
   return {
     currentStepIndex,

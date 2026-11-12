@@ -22,7 +22,7 @@ describe("Layout Components (components/layout)", () => {
       const onOpen = vi.fn();
       render(<TopNavbar onOpenCommandPalette={onOpen} streakCount={5} />);
 
-      const searchBtn = screen.getByLabelText("Open Command Search (⌘K)");
+      const searchBtn = screen.getByRole("button", { name: /Search problems/i });
       expect(searchBtn).toBeDefined();
       fireEvent.click(searchBtn);
       expect(onOpen).toHaveBeenCalled();
@@ -33,7 +33,7 @@ describe("Layout Components (components/layout)", () => {
       fireEvent.click(soundBtn);
 
       // Setup guide button
-      const setupBtn = screen.getByLabelText("Open Setup Instructions");
+      const setupBtn = screen.getByLabelText(/Open Setup Instructions/i);
       expect(setupBtn).toBeDefined();
       fireEvent.click(setupBtn);
     });

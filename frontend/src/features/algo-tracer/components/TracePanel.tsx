@@ -12,7 +12,7 @@ import { SplitMergeDiagram } from "./diagrams/SplitMergeDiagram";
 import { GraphDiagram } from "./diagrams/GraphDiagram";
 import { StackDiagram } from "./diagrams/StackDiagram";
 import { QueueDiagram } from "./diagrams/QueueDiagram";
-import { GripHorizontal, Cpu, LayoutTemplate } from "lucide-react";
+import { GripHorizontal, Cpu, LayoutTemplate, AlertCircle } from "lucide-react";
 import { soundEffects } from "@/lib/soundEffects";
 
 interface TracePanelProps {
@@ -21,6 +21,7 @@ interface TracePanelProps {
   currentStepIndex: number;
   diagramType: DiagramType;
   theory?: TheoryData;
+  error?: string | null;
 }
 
 export function TracePanel({
@@ -29,6 +30,7 @@ export function TracePanel({
   currentStepIndex,
   diagramType,
   theory,
+  error,
 }: TracePanelProps) {
   const [viewMode, setViewMode] = useState<"diagram" | "stack">("diagram");
   const [isTheoryOpen, setIsTheoryOpen] = useState(false);
@@ -152,6 +154,17 @@ export function TracePanel({
               size={10}
               className="text-[var(--text-muted)] opacity-0 group-hover:opacity-100"
             />
+          </div>
+        </div>
+      )}
+
+      {/* Graceful Error State when Parsing or Execution Fails */}
+      {error && (
+        <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs shrink-0 animate-in fade-in">
+          <AlertCircle size={16} className="text-rose-400 shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="font-bold">Couldn&apos;t trace this code</p>
+            <p className="text-[11px] text-rose-300/80 truncate">{error}</p>
           </div>
         </div>
       )}

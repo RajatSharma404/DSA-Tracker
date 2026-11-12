@@ -1,8 +1,15 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { jwtVerify } from "jose";
 import { prisma } from "../db/prisma";
 import { notifyLogin } from "../services/emailService";
 import { TtlCache } from "../utils/cache";
+
+export const BACKEND_JWT_SECRET =
+  process.env.BACKEND_JWT_SECRET?.trim() ||
+  (process.env.NODE_ENV === "test"
+    ? "development-backend-jwt-secret-at-least-32-bytes-long"
+    : "");
 
 export function getAuthSecrets(): string[] {
   const rawSecrets = [
@@ -20,10 +27,6 @@ export function getAuthSecrets(): string[] {
 }
 
 export const NEXTAUTH_SECRETS = getAuthSecrets();
-
-if (process.env.NODE_ENV !== "test" && getAuthSecrets().length === 0) {
-  throw new Error("NEXTAUTH_SECRET (or AUTH_SECRET) is required");
-}
 
 export const ADMIN_EMAIL = process.env.ADMIN_EMAIL?.trim().toLowerCase() || "";
 
@@ -105,30 +108,61 @@ export const resolveAuthenticatedUser = async (authHeader?: string) => {
   }
 
   const token = authHeader.split(" ")[1];
-  let decoded: { email: string; role: string } | null = null;
-
-  const secrets = getAuthSecrets();
-  const candidateSecrets = secrets.length > 0 ? secrets : NEXTAUTH_SECRETS;
-
+  let decoded: { email: string; role: string; sub?: string } | null = null;
   let lastVerifyError: Error | null = null;
-  for (const secret of candidateSecrets) {
+
+  // 1. Primary Modern Verification: Jose HS256, issuer dsa-web, audience dsa-api
+  if (BACKEND_JWT_SECRET && BACKEND_JWT_SECRET.length >= 32) {
     try {
-      decoded = jwt.verify(token, secret) as {
-        email: string;
-        role: string;
-      };
-      break;
+      const key = new TextEncoder().encode(BACKEND_JWT_SECRET);
+      const { payload } = await jwtVerify(token, key, {
+        algorithms: ["HS256"],
+        issuer: "dsa-web",
+        audience: "dsa-api",
+      });
+
+      if (payload.email && typeof payload.email === "string") {
+        decoded = {
+          email: payload.email,
+          role: typeof payload.role === "string" ? payload.role : "USER",
+          sub: typeof payload.sub === "string" ? payload.sub : undefined,
+        };
+      }
     } catch (err: any) {
       lastVerifyError = err;
+    }
+  }
+
+  // 2. Transition Fallback: Only allowed when AUTH_ACCEPT_LEGACY === "true"
+  if (!decoded && process.env.AUTH_ACCEPT_LEGACY === "true") {
+    const candidateSecrets = getAuthSecrets();
+    for (const secret of candidateSecrets) {
+      try {
+        const legacyDecoded = jwt.verify(token, secret) as {
+          email?: string;
+          role?: string;
+          sub?: string;
+        };
+        if (legacyDecoded?.email) {
+          decoded = {
+            email: legacyDecoded.email,
+            role: legacyDecoded.role ?? "USER",
+            sub: legacyDecoded.sub,
+          };
+          break;
+        }
+      } catch (err: any) {
+        lastVerifyError = err;
+      }
     }
   }
 
   if (!decoded?.email) {
     if (process.env.NODE_ENV !== "production") {
       console.warn(
-        `[auth] Token verification failed across ${candidateSecrets.length} candidate secret(s): ${
+        `[auth] Token verification failed: ${
           lastVerifyError?.message || "Invalid token structure"
-        }. Verify NEXTAUTH_SECRET synchronization.`,
+        }. Verify BACKEND_JWT_SECRET synchronization.`,
       );
     }
     return null;
@@ -142,7 +176,7 @@ export const resolveAuthenticatedUser = async (authHeader?: string) => {
       update: {},
       create: {
         email: decoded.email,
-        role: "USER",
+        role: (decoded.role === "ADMIN" ? "ADMIN" : "USER") as any,
       },
     })) as any;
 
@@ -161,6 +195,10 @@ export const resolveAuthenticatedUser = async (authHeader?: string) => {
     }
 
     idToEmailMap.set(user.id, user.email.toLowerCase());
+    userCache.set(user.email.toLowerCase(), user);
+  } else if (decoded.role && user.role !== decoded.role) {
+    // Sync role from verified token
+    user.role = decoded.role;
     userCache.set(user.email.toLowerCase(), user);
   }
 
@@ -207,7 +245,7 @@ export const attachOptionalAuth = async (
   next();
 };
 
-export const requireAdmin = (
+export const requireAdmin = async (
   req: Request,
   res: Response,
   next: NextFunction,
@@ -215,5 +253,21 @@ export const requireAdmin = (
   if (!req.user || req.user.role !== "ADMIN") {
     return res.status(403).json({ error: "Forbidden: Admin access required" });
   }
-  next();
+
+  try {
+    const dbUser = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: { role: true },
+    });
+
+    if (!dbUser || dbUser.role !== "ADMIN") {
+      return res.status(403).json({ error: "Forbidden: Admin access required" });
+    }
+
+    req.user.role = dbUser.role;
+    next();
+  } catch (err) {
+    console.error("[auth] Internal error during admin check:", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 };

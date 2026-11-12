@@ -1,25 +1,31 @@
 {
   "manifest_version": 3,
   "name": "DSA Pro Live Sync",
-  "version": "1.0",
-  "description": "Automatically pings DSA Tracker Pro when you get an 'Accepted' submission on LeetCode.",
-  "permissions": ["cookies", "storage", "tabs", "scripting"],
-  "host_permissions": [
-    "https://leetcode.com/*",
-    "http://localhost/*",
-    "http://127.0.0.1/*"
+  "version": "2.0",
+  "description": "Securely pairs with DSA Tracker Pro to automatically sync LeetCode submissions.",
+  "permissions": [
+    "storage",
+    "tabs",
+    "scripting"
   ],
+  "host_permissions": [
+    "https://leetcode.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "DSA Tracker Pro Sync"
+  },
   "background": {
     "service_worker": "background.js"
   },
   "content_scripts": [
     {
       "matches": [
-        "http://localhost/*",
-        "http://127.0.0.1/*",
         "https://leetcode.com/*"
       ],
-      "js": ["content.js"],
+      "js": [
+        "content.js"
+      ],
       "run_at": "document_idle"
     }
   ]

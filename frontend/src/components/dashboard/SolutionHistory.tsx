@@ -162,7 +162,7 @@ export function SolutionHistory({ problemId }: SolutionHistoryProps) {
             {isExpanded && (
               <div className="px-4 pb-4 space-y-3">
                 {/* Complexity */}
-                <div className="flex gap-4 text-xs">
+                <div className="flex items-center gap-4 text-xs">
                   {sol.timeComplexity && (
                     <span className="text-gray-400">
                       Time:{" "}
@@ -177,6 +177,14 @@ export function SolutionHistory({ problemId }: SolutionHistoryProps) {
                       <span className="font-mono text-white">
                         {sol.spaceComplexity}
                       </span>
+                    </span>
+                  )}
+                  {(sol.timeComplexity || sol.spaceComplexity) && (
+                    <span
+                      className="px-1.5 py-0.5 text-[9px] font-semibold rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 cursor-help"
+                      title="Estimated, not proven. Static AST / heuristic complexity estimate."
+                    >
+                      Estimated
                     </span>
                   )}
                 </div>

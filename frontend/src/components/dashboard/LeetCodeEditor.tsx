@@ -500,7 +500,14 @@ export function LeetCodeEditor({
   }
 
   return (
-    <div className="flex flex-col w-full bg-[#0a0a0a] rounded-3xl border border-white/10 overflow-hidden">
+    <div className="flex flex-col w-full bg-[#0a0a0a] rounded-3xl border border-white/10 overflow-hidden relative">
+      {/* Accessible skip link pair */}
+      <a
+        href="#monaco-code-editor"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 px-3 py-1.5 rounded-xl bg-[var(--accent-primary)] text-black text-xs font-bold shadow-lg"
+      >
+        Skip to code editor
+      </a>
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between px-6 py-4 bg-white/5 border-b border-white/5 gap-4 shrink-0">
         <div className="flex items-center gap-3 flex-wrap">
@@ -534,7 +541,7 @@ export function LeetCodeEditor({
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div id="editor-controls" className="flex items-center gap-2.5">
           <button
             type="button"
             onClick={handleVisualizeFlow}
@@ -577,18 +584,28 @@ export function LeetCodeEditor({
 
       {/* Editor & Flowchart Arena */}
       <div
-        className={`flex flex-col md:flex-row overflow-hidden border-b border-white/5 transition-all ${
+        role="region"
+        aria-label="Code Editor Region"
+        className={`flex flex-col md:flex-row overflow-hidden border-b border-white/5 transition-all relative ${
           flowchartData ? "md:h-140" : "h-125"
         }`}
       >
         {/* Editor Container */}
         <div
-          className={`h-full overflow-hidden transition-all ${
+          id="monaco-code-editor"
+          tabIndex={-1}
+          className={`h-full overflow-hidden transition-all relative ${
             flowchartData
               ? "w-full md:w-1/2 h-100 md:h-full border-b md:border-b-0 md:border-r border-white/10"
               : "w-full h-full"
           }`}
         >
+          <a
+            href="#editor-controls"
+            className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:right-2 focus:z-50 px-3 py-1.5 rounded-lg bg-[var(--bg-card)] border border-white/20 text-white text-xs font-bold"
+          >
+            Skip code editor
+          </a>
           <Editor
             height="100%"
             theme="vs-dark"
@@ -600,6 +617,8 @@ export function LeetCodeEditor({
               monacoRef.current = monaco;
             }}
             options={{
+              accessibilitySupport: "auto",
+              ariaLabel: "Code Editor text area",
               minimap: { enabled: !flowchartData },
               fontSize: flowchartData ? 13 : 14,
               fontFamily: '"Fira Code", "Cascadia Code", Consolas, monospace',
@@ -660,6 +679,12 @@ export function LeetCodeEditor({
           )}
         </div>
       )}
+
+      {/* Tab Key & Keyboard Navigation Accessibility Note */}
+      <div className="px-5 py-2 bg-white/5 border-b border-white/5 flex items-center justify-between text-[11px] text-[var(--text-muted)] font-mono">
+        <span>Keyboard: Press <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white font-bold">Esc</kbd> or <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white font-bold">Ctrl+M</kbd> inside editor to toggle Tab key focus trap.</span>
+        <span className="hidden sm:inline">Use Tab / Shift+Tab to navigate controls</span>
+      </div>
 
       {/* Evaluation Result */}
       {evaluation && (

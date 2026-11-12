@@ -315,17 +315,19 @@ describe("LeetCodeEditor Visualize Flow Integration", () => {
     });
     fireEvent.click(processNodes[0]);
 
-    expect(lastMockEditor.deltaDecorations).toHaveBeenCalledWith(
-      expect.any(Array),
-      expect.arrayContaining([
-        expect.objectContaining({
-          options: expect.objectContaining({
-            className: "codevis-highlight",
-            isWholeLine: true,
+    await waitFor(() => {
+      expect(lastMockEditor.deltaDecorations).toHaveBeenCalledWith(
+        expect.any(Array),
+        expect.arrayContaining([
+          expect.objectContaining({
+            options: expect.objectContaining({
+              className: "codevis-highlight",
+              isWholeLine: true,
+            }),
           }),
-        }),
-      ])
-    );
+        ])
+      );
+    });
     expect(lastMockEditor.revealLineInCenter).toHaveBeenCalledWith(5);
 
     // Click close button to restore full width and clear decorations

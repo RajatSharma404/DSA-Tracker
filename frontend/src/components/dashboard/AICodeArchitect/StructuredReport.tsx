@@ -69,10 +69,18 @@ export function StructuredReport({ data }: { data: StructuredReview }) {
 
       {/* Efficiency Section */}
       <div className="p-5 bg-[#0a0a0f] border border-white/5 rounded-2xl space-y-4">
-        <div className="flex items-center gap-2 mb-1">
-          <Zap size={14} className="text-blue-400" />
-          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-            Efficiency &Complexity
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-2">
+            <Zap size={14} className="text-blue-400" />
+            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+              Efficiency & Complexity
+            </span>
+          </div>
+          <span
+            className="px-2 py-0.5 text-[9px] font-bold rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 cursor-help"
+            title="Estimated, not proven. Derived via static AST analyzer and heuristic metrics."
+          >
+            Estimated
           </span>
         </div>
 

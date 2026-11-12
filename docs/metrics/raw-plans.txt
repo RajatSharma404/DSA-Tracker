@@ -1,0 +1,100 @@
+=== PostgreSQL EXPLAIN (ANALYZE, BUFFERS) Benchmark Results ===
+Environment: Local PostgreSQL 18.x on Windows
+Dataset: User bench-user-1 (5,000 Progress rows, 20,000 ActivityEvent rows)
+Date: 2026-11-12T08:54:47.534Z
+
+--------------------------------------------------
+1. Review Queue Query
+--------------------------------------------------
+Sort  (cost=46.28..46.60 rows=127 width=110) (actual time=0.290..0.295 rows=125.00 loops=1)
+  Sort Key: p."nextReviewDate"
+  Sort Method: quicksort  Memory: 39kB
+  Buffers: shared hit=27
+  ->  Nested Loop  (cost=21.06..41.84 rows=127 width=110) (actual time=0.110..0.223 rows=125.00 loops=1)
+        Buffers: shared hit=24
+        ->  Hash Join  (cost=20.90..37.37 rows=127 width=90) (actual time=0.095..0.181 rows=125.00 loops=1)
+              Hash Cond: (prob.id = p."problemId")
+              Buffers: shared hit=22
+              ->  Seq Scan on "Problem" prob  (cost=0.00..15.12 rows=512 width=51) (actual time=0.011..0.055 rows=512.00 loops=1)
+                    Buffers: shared hit=10
+              ->  Hash  (cost=19.31..19.31 rows=127 width=53) (actual time=0.075..0.075 rows=125.00 loops=1)
+                    Buckets: 1024  Batches: 1  Memory Usage: 20kB
+                    Buffers: shared hit=12
+                    ->  Bitmap Heap Scan on "Progress" p  (cost=5.77..19.31 rows=127 width=53) (actual time=0.024..0.059 rows=125.00 loops=1)
+                          Recheck Cond: (("userId" = 'bench-user-1'::text) AND (status = 'DONE'::"ProgressStatus") AND ("nextReviewDate" <= now()))
+                          Heap Blocks: exact=11
+                          Buffers: shared hit=12
+                          ->  Bitmap Index Scan on "Progress_userId_status_nextReviewDate_idx"  (cost=0.00..5.74 rows=127 width=0) (actual time=0.014..0.014 rows=125.00 loops=1)
+                                Index Cond: (("userId" = 'bench-user-1'::text) AND (status = 'DONE'::"ProgressStatus") AND ("nextReviewDate" <= now()))
+                                Index Searches: 1
+                                Buffers: shared hit=1
+        ->  Memoize  (cost=0.16..0.27 rows=1 width=64) (actual time=0.000..0.000 rows=1.00 loops=125)
+              Cache Key: prob."topicId"
+              Cache Mode: logical
+              Hits: 124  Misses: 1  Evictions: 0  Overflows: 0  Memory Usage: 1kB
+              Buffers: shared hit=2
+              ->  Index Scan using "Topic_pkey" on "Topic" t  (cost=0.15..0.26 rows=1 width=64) (actual time=0.009..0.009 rows=1.00 loops=1)
+                    Index Cond: (id = prob."topicId")
+                    Index Searches: 1
+                    Buffers: shared hit=2
+Planning:
+  Buffers: shared hit=430
+Planning Time: 6.737 ms
+Execution Time: 0.366 ms
+
+--------------------------------------------------
+2. Weak Topics Aggregation Query
+--------------------------------------------------
+HashAggregate  (cost=60.61..67.01 rows=512 width=88) (actual time=0.451..0.454 rows=4.00 loops=1)
+  Group Key: t.name
+  Batches: 1  Memory Usage: 49kB
+  Buffers: shared hit=29
+  ->  Nested Loop  (cost=21.68..54.21 rows=512 width=90) (actual time=0.101..0.377 rows=512.00 loops=1)
+        Buffers: shared hit=29
+        ->  Hash Right Join  (cost=21.52..40.13 rows=512 width=38) (actual time=0.094..0.267 rows=512.00 loops=1)
+              Hash Cond: (prog."problemId" = p.id)
+              Buffers: shared hit=21
+              ->  Seq Scan on "Progress" prog  (cost=0.00..17.29 rows=500 width=26) (actual time=0.005..0.061 rows=500.00 loops=1)
+                    Filter: ("userId" = 'bench-user-1'::text)
+                    Rows Removed by Filter: 3
+                    Buffers: shared hit=11
+              ->  Hash  (cost=15.12..15.12 rows=512 width=26) (actual time=0.082..0.083 rows=512.00 loops=1)
+                    Buckets: 1024  Batches: 1  Memory Usage: 38kB
+                    Buffers: shared hit=10
+                    ->  Seq Scan on "Problem" p  (cost=0.00..15.12 rows=512 width=26) (actual time=0.008..0.039 rows=512.00 loops=1)
+                          Buffers: shared hit=10
+        ->  Memoize  (cost=0.16..0.27 rows=1 width=64) (actual time=0.000..0.000 rows=1.00 loops=512)
+              Cache Key: p."topicId"
+              Cache Mode: logical
+              Hits: 508  Misses: 4  Evictions: 0  Overflows: 0  Memory Usage: 1kB
+              Buffers: shared hit=8
+              ->  Index Scan using "Topic_pkey" on "Topic" t  (cost=0.15..0.26 rows=1 width=64) (actual time=0.002..0.002 rows=1.00 loops=4)
+                    Index Cond: (id = p."topicId")
+                    Index Searches: 4
+                    Buffers: shared hit=8
+Planning:
+  Buffers: shared hit=27
+Planning Time: 0.247 ms
+Execution Time: 0.496 ms
+
+--------------------------------------------------
+3. Heatmap / Activity Events Query
+--------------------------------------------------
+Sort  (cost=682.36..683.27 rows=365 width=16) (actual time=3.864..3.873 rows=365.00 loops=1)
+  Sort Key: (date_trunc('day'::text, "occurredAt"))
+  Sort Method: quicksort  Memory: 36kB
+  Buffers: shared hit=31
+  ->  HashAggregate  (cost=662.26..666.83 rows=365 width=16) (actual time=3.795..3.817 rows=365.00 loops=1)
+        Group Key: date_trunc('day'::text, "occurredAt")
+        Batches: 1  Memory Usage: 56kB
+        Buffers: shared hit=31
+        ->  Index Only Scan using "activity_events_userId_occurredAt_idx" on activity_events  (cost=0.29..562.27 rows=19999 width=8) (actual time=0.115..2.327 rows=20000.00 loops=1)
+              Index Cond: (("userId" = 'bench-user-1'::text) AND ("occurredAt" >= (now() - '365 days'::interval)))
+              Heap Fetches: 0
+              Index Searches: 1
+              Buffers: shared hit=31
+Planning:
+  Buffers: shared hit=50
+Planning Time: 1.783 ms
+Execution Time: 3.923 ms
+

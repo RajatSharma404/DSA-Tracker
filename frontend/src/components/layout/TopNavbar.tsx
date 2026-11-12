@@ -57,7 +57,6 @@ export function TopNavbar({
         <button
           onClick={handleSearchClick}
           className="w-full flex items-center justify-between px-3.5 py-1.5 rounded-xl bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--accent-primary)]/50 hover:shadow-[0_0_0_2px_var(--accent-glow)] transition-all cursor-pointer shadow-xs group"
-          aria-label="Open Command Search (⌘K)"
         >
           <div className="flex items-center gap-2 text-xs">
             <Search size={14} className="text-[var(--text-muted)] group-hover:text-[var(--accent-primary)] transition-colors" />
@@ -84,7 +83,7 @@ export function TopNavbar({
           }}
           title="Extension & LeetCode Setup Instructions (Click to open)"
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border-subtle)] hover:border-[var(--border-medium)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-xs font-semibold transition-all cursor-pointer shadow-xs hover:bg-[var(--bg-hover)]"
-          aria-label="Open Setup Instructions"
+          aria-label="Setup Guide - Open Setup Instructions"
         >
           <HelpCircle size={14} className="text-[var(--accent-primary)]" />
           <span className="hidden lg:inline">Setup Guide</span>

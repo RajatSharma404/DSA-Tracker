@@ -52,6 +52,14 @@ const DailyFocus = dynamic(() => import("@/components/dashboard/DailyFocus"), {
   loading: () => <Skeleton variant="card" className="h-36" />,
 });
 
+const WeeklyPlanCard = dynamic(
+  () => import("@/components/dashboard/WeeklyPlanCard"),
+  {
+    ssr: false,
+    loading: () => <Skeleton variant="card" className="h-44" />,
+  },
+);
+
 const BadgeShowcase = dynamic(
   () => import("@/components/dashboard/BadgeShowcase"),
   {
@@ -99,17 +107,30 @@ export default function Dashboard() {
   const [topicsSnapshot, setTopicsSnapshot] = useState<Topic[]>(cachedTopics || []);
   const [loading, setLoading] = useState(!cachedStats);
   const [slowServerWakeup, setSlowServerWakeup] = useState(false);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let ticker: NodeJS.Timeout;
+    let wakeTimer: NodeJS.Timeout;
+
     if (loading) {
-      timer = setTimeout(() => {
+      const startTime = Date.now();
+      ticker = setInterval(() => {
+        setElapsedSeconds(Math.floor((Date.now() - startTime) / 1000));
+      }, 1000);
+
+      wakeTimer = setTimeout(() => {
         setSlowServerWakeup(true);
       }, 4000);
     } else {
       setSlowServerWakeup(false);
+      setElapsedSeconds(0);
     }
-    return () => clearTimeout(timer);
+
+    return () => {
+      clearInterval(ticker);
+      clearTimeout(wakeTimer);
+    };
   }, [loading]);
 
   const recentSolvedCount = (days: number) => {
@@ -248,6 +269,19 @@ export default function Dashboard() {
     }
   }, [errorToast, router]);
 
+  // Auto-retry polling every 3s up to 30s during cold starts
+  useEffect(() => {
+    if (!slowServerWakeup || !loading || elapsedSeconds > 30) return;
+
+    const retryTimer = setTimeout(() => {
+      if (status === "authenticated" && loading) {
+        loadDashboardData(false);
+      }
+    }, 3000);
+
+    return () => clearTimeout(retryTimer);
+  }, [slowServerWakeup, loading, elapsedSeconds, status, loadDashboardData]);
+
   useEffect(() => {
     if (status === "unauthenticated") {
       setLoading(false);
@@ -284,8 +318,15 @@ export default function Dashboard() {
     return (
       <div className="space-y-6 animate-in fade-in duration-300">
         {slowServerWakeup && (
-          <div className="flex items-center justify-center p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs text-center animate-in fade-in">
-            <span>⚡ Connecting to backend server... (Render free instances take ~30–60s on cold start)</span>
+          <div className="flex items-center justify-between p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs animate-in fade-in">
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+              </span>
+              <span>⚡ Connecting to backend server... ({elapsedSeconds}s)</span>
+            </div>
+            <span className="text-[10px] text-amber-300/70">Auto-retrying every 3s (up to 30s)</span>
           </div>
         )}
         <div className="h-10 w-72 rounded-xl border border-[var(--border-subtle)] shimmer" />
@@ -359,6 +400,17 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
+      {/* Subtle Warm-up Corner Chip when rendering cached data during cold start */}
+      {slowServerWakeup && stats && (
+        <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-xl border border-amber-500/20 bg-[var(--bg-card)]/90 backdrop-blur px-3 py-1.5 text-xs text-amber-300 shadow-lg animate-in fade-in">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+          </span>
+          <span>⚡ Waking server... ({elapsedSeconds}s)</span>
+        </div>
+      )}
+
       {/* Weak Topic Alert Banner (Feature 3) */}
       <WeakTopicBanner />
 
@@ -373,6 +425,9 @@ export default function Dashboard() {
 
       {/* Daily Focus — Problem of the Day */}
       <DailyFocus />
+
+      {/* AI Weekly Study Plan Card */}
+      <WeeklyPlanCard />
 
       <div className="grid gap-4 lg:grid-cols-12">
         <div className="lg:col-span-7 rounded-[2.25rem] border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6 relative overflow-hidden shadow-xl">

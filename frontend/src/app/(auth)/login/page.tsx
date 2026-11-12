@@ -152,6 +152,7 @@ export default function LoginPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Name (optional)"
+                    aria-label="Name (optional)"
                     className="w-full rounded-2xl border border-white/15 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-gray-500 outline-none focus:border-white/30"
                   />
                   <input
@@ -159,6 +160,7 @@ export default function LoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Email"
+                    aria-label="Email address"
                     className="w-full rounded-2xl border border-white/15 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-gray-500 outline-none focus:border-white/30"
                   />
                   <button
@@ -208,11 +210,11 @@ export default function LoginPage() {
 
         {/* Footer info */}
         <div className="mt-10 flex items-center gap-6">
-          <span className="text-[11px] font-bold text-gray-600 uppercase tracking-[0.2em]">
+          <span className="text-[11px] font-bold text-gray-400 uppercase tracking-[0.2em]">
             Verified Secure
           </span>
-          <div className="h-1 w-1 rounded-full bg-gray-800"></div>
-          <span className="text-[11px] font-bold text-gray-600 uppercase tracking-[0.2em]">
+          <div className="h-1 w-1 rounded-full bg-gray-600"></div>
+          <span className="text-[11px] font-bold text-gray-400 uppercase tracking-[0.2em]">
             AWS Hosted
           </span>
         </div>

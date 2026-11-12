@@ -1,184 +1,491 @@
 import { Router, Request, Response } from "express";
+import { z } from "zod";
 import { prisma } from "../db/prisma";
 import { User } from "@prisma/client";
 import { fetchProblemSubmissions } from "../leetcodeService";
 import { isDifficulty } from "../services/nextActionService";
 import { hashSecret, encryptSecret, decryptSecret } from "../utils/encryption";
-import { extensionSyncLimiter } from "../middlewares/rateLimiter";
-import { resolveAuthenticatedUser } from "../middlewares/auth";
+import { extensionSyncLimiter, deviceSyncLimiter } from "../middlewares/rateLimiter";
+import { requireAuth, resolveAuthenticatedUser } from "../middlewares/auth";
+import {
+  requireExtensionToken,
+  generateDeviceToken,
+} from "../middlewares/extensionAuth";
+import { invalidateWeakTopicsCache } from "../services";
 
 const router = Router();
 
-// Extension sync (supports Bearer token auth or blind session hash)
+// =========================================================================
+// 2.1 PAIRING TOKEN DEVICE MANAGEMENT ROUTES (Requires User Auth)
+// =========================================================================
+
+const createDeviceSchema = z.object({
+  name: z.string().trim().min(1).max(100).default("Chrome Extension"),
+  scopes: z.array(z.string()).default(["sync:write"]),
+  expiresInDays: z.number().int().positive().optional(),
+});
+
+/**
+ * POST /api/extension/devices
+ * Creates a new extension pairing token for the authenticated user.
+ * Displays plaintext token ONCE; stores only the SHA-256 hash.
+ */
 router.post(
-  "/extension/sync",
-  extensionSyncLimiter,
+  "/extension/devices",
+  requireAuth,
   async (req: Request, res: Response) => {
-  try {
-    const { problemSlug, leetcodeSession } = req.body;
-    const normalizedSlug =
-      typeof problemSlug === "string" ? problemSlug.trim().toLowerCase() : "";
-    const normalizedSession =
-      typeof leetcodeSession === "string" ? leetcodeSession.trim() : "";
-
-    const authHeader = req.headers.authorization;
-    if (
-      !normalizedSlug ||
-      !/^[a-z0-9-]+$/.test(normalizedSlug) ||
-      (!authHeader && (!normalizedSession || normalizedSession.length < 20))
-    ) {
-      return res.status(400).json({ error: "Missing problemSlug or session" });
-    }
-
-    let user: User | null = null;
-
-    // 1. Authenticate via Bearer Token if provided
-    if (authHeader && authHeader.startsWith("Bearer ")) {
-      const authUser = await resolveAuthenticatedUser(authHeader);
-      if (authUser) {
-        user = await prisma.user.findUnique({ where: { id: authUser.id } });
+    try {
+      const parsed = createDeviceSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid device data", details: parsed.error.format() });
       }
-    }
 
-    // 2. Fallback to blind index hash lookup by session
-    if (!user && normalizedSession && normalizedSession.length >= 20) {
-      const sessionHash = hashSecret(normalizedSession);
+      const { name, scopes, expiresInDays } = parsed.data;
+      const { plaintext, tokenHash, tokenPrefix } = generateDeviceToken();
+      const expiresAt = expiresInDays
+        ? new Date(Date.now() + expiresInDays * 86_400_000)
+        : null;
 
-      user = await prisma.user.findFirst({
-        where: { leetcodeSessionHash: sessionHash },
+      const device = await prisma.extensionDevice.create({
+        data: {
+          userId: req.user!.id,
+          name,
+          tokenHash,
+          tokenPrefix,
+          scopes,
+          expiresAt,
+        },
+        select: {
+          id: true,
+          name: true,
+          tokenPrefix: true,
+          scopes: true,
+          createdAt: true,
+          expiresAt: true,
+        },
       });
 
-      if (!user) {
-        user = await prisma.user.findFirst({
+      return res.status(201).json({
+        device,
+        token: plaintext,
+      });
+    } catch (err) {
+      console.error("[extension] Error creating pairing token device:", err);
+      return res.status(500).json({ error: "Failed to create extension device pairing token" });
+    }
+  },
+);
+
+/**
+ * GET /api/extension/devices
+ * Lists pairing devices belonging to the authenticated user.
+ */
+router.get(
+  "/extension/devices",
+  requireAuth,
+  async (req: Request, res: Response) => {
+    try {
+      const devices = await prisma.extensionDevice.findMany({
+        where: { userId: req.user!.id },
+        select: {
+          id: true,
+          name: true,
+          tokenPrefix: true,
+          scopes: true,
+          lastUsedAt: true,
+          expiresAt: true,
+          revokedAt: true,
+          createdAt: true,
+        },
+        orderBy: { createdAt: "desc" },
+      });
+
+      return res.json({ devices });
+    } catch (err) {
+      console.error("[extension] Error listing pairing devices:", err);
+      return res.status(500).json({ error: "Failed to list extension pairing devices" });
+    }
+  },
+);
+
+/**
+ * DELETE /api/extension/devices/:id
+ * Revokes a pairing device. User can only revoke their own devices.
+ */
+router.delete(
+  "/extension/devices/:id",
+  requireAuth,
+  async (req: Request, res: Response) => {
+    try {
+      const deviceId = req.params.id as string;
+      const device = await prisma.extensionDevice.findFirst({
+        where: { id: deviceId, userId: req.user!.id },
+      });
+
+      if (!device) {
+        return res.status(404).json({ error: "Device not found or not owned by user" });
+      }
+
+      await prisma.extensionDevice.update({
+        where: { id: deviceId },
+        data: { revokedAt: new Date() },
+      });
+
+      return res.json({ success: true, message: "Device pairing revoked successfully" });
+    } catch (err) {
+      console.error("[extension] Error revoking device:", err);
+      return res.status(500).json({ error: "Failed to revoke extension device" });
+    }
+  },
+);
+
+// =========================================================================
+// 2.2 & 2.4 EXTENSION SYNC CONTRACT & LEGACY SYNC ROUTE
+// =========================================================================
+
+import { ExtensionSyncRequestSchema } from "../contracts/extensionSyncContract";
+
+const syncStrictSchema = ExtensionSyncRequestSchema;
+
+/**
+ * Helper middleware that supports pairing token auth (primary) or user JWT auth.
+ */
+async function authenticateSyncRequest(req: Request, res: Response, next: () => void) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    if (!req.body || !("submissionId" in req.body)) {
+      // Legacy unauthenticated validation fallback for backward compatibility
+      const { problemSlug, leetcodeSession } = req.body || {};
+      const normalizedSlug = typeof problemSlug === "string" ? problemSlug.trim() : "";
+      const normalizedSession = typeof leetcodeSession === "string" ? leetcodeSession.trim() : "";
+      if (!normalizedSlug || (!normalizedSession || normalizedSession.length < 20)) {
+        return res.status(400).json({ error: "Missing problemSlug or session" });
+      }
+      if (process.env.EXTENSION_LEGACY_SYNC === "true") {
+        return next();
+      }
+      return res.status(400).json({
+        error: "Legacy extension sync is deprecated. Upgrade your Chrome Extension to use pairing tokens.",
+      });
+    }
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const token = authHeader.slice(7).trim();
+  if (token.startsWith("dsat_")) {
+    return requireExtensionToken(req, res, next);
+  }
+
+  // Fallback to standard user JWT
+  const user = await resolveAuthenticatedUser(authHeader);
+  if (user) {
+    req.user = user;
+    return next();
+  }
+
+  return res.status(401).json({ error: "Unauthorized" });
+}
+
+/**
+ * POST /api/extension/sync
+ * Modern pairing-token authenticated sync endpoint with idempotent submission tracking.
+ */
+router.post(
+  "/extension/sync",
+  deviceSyncLimiter,
+  extensionSyncLimiter,
+  authenticateSyncRequest,
+  async (req: Request, res: Response) => {
+    try {
+      // 1. Check for Modern Strict Contract Payload (2.2)
+      if (req.body && "submissionId" in req.body) {
+        const parseResult = syncStrictSchema.safeParse(req.body);
+        if (!parseResult.success) {
+          return res.status(400).json({
+            error: "Invalid sync submission payload",
+            details: parseResult.error.format(),
+          });
+        }
+
+        const { submissionId, slug, verdict, runtimeMs, memoryKb, submittedAt } =
+          parseResult.data;
+        const userId = req.user!.id;
+
+        // Idempotency check: replay returns 200 with idempotent flag
+        const existingReceipt = await prisma.syncReceipt.findUnique({
+          where: {
+            userId_submissionId: {
+              userId,
+              submissionId,
+            },
+          },
+        });
+
+        if (existingReceipt) {
+          return res.status(200).json({
+            status: "already_synced",
+            submissionId,
+            idempotent: true,
+          });
+        }
+
+        // Find problem by slug or link
+        const normalizedSlug = slug.trim().toLowerCase();
+        const problem = await prisma.problem.findFirst({
           where: {
             OR: [
-              { leetcodeSession: normalizedSession },
-              { leetcodeSession: encryptSecret(normalizedSession) },
+              { link: { contains: `/problems/${normalizedSlug}` } },
+              { link: { contains: normalizedSlug } },
+              { id: normalizedSlug },
             ],
           },
         });
 
-        if (user) {
-          await prisma.user.update({
-            where: { id: user.id },
-            data: {
-              leetcodeSession: encryptSecret(normalizedSession),
-              leetcodeSessionHash: sessionHash,
-            },
+        if (!problem) {
+          return res.status(404).json({
+            error: "Problem not found",
+            code: "PROBLEM_NOT_FOUND",
+          });
+        }
+
+        const submittedDate = new Date(submittedAt);
+        const isAccepted = verdict.toUpperCase() === "ACCEPTED";
+
+        if (isAccepted) {
+          await prisma.$transaction(async (tx) => {
+            await tx.syncReceipt.create({
+              data: {
+                userId,
+                submissionId,
+                slug: normalizedSlug,
+                verdict,
+                syncedAt: new Date(),
+              },
+            });
+
+            await tx.progress.upsert({
+              where: {
+                userId_problemId: {
+                  userId,
+                  problemId: problem.id,
+                },
+              },
+              update: {
+                status: "DONE",
+                completedAt: submittedDate,
+                state: "REVIEW",
+                lastReviewedAt: submittedDate,
+                leetcodeRuntime: runtimeMs ? `${runtimeMs} ms` : null,
+                leetcodeMemory: memoryKb ? `${memoryKb} KB` : null,
+              },
+              create: {
+                userId,
+                problemId: problem.id,
+                status: "DONE",
+                completedAt: submittedDate,
+                state: "REVIEW",
+                lastReviewedAt: submittedDate,
+                leetcodeRuntime: runtimeMs ? `${runtimeMs} ms` : null,
+                leetcodeMemory: memoryKb ? `${memoryKb} KB` : null,
+              },
+            });
+
+            await tx.activityEvent.create({
+              data: {
+                userId,
+                problemId: problem.id,
+                type: "SOLVED",
+                occurredAt: submittedDate,
+                metadata: {
+                  submissionId,
+                  runtimeMs,
+                  memoryKb,
+                  verdict,
+                },
+              },
+            });
+          });
+
+          void invalidateWeakTopicsCache(userId);
+
+          return res.json({
+            success: true,
+            status: "solved",
+            submissionId,
+          });
+        } else {
+          // Non-ACCEPTED verdict logs an ATTEMPTED ActivityEvent without marking DONE
+          await prisma.$transaction(async (tx) => {
+            await tx.syncReceipt.create({
+              data: {
+                userId,
+                submissionId,
+                slug: normalizedSlug,
+                verdict,
+                syncedAt: new Date(),
+              },
+            });
+
+            await tx.activityEvent.create({
+              data: {
+                userId,
+                problemId: problem.id,
+                type: "ATTEMPTED",
+                occurredAt: submittedDate,
+                metadata: {
+                  submissionId,
+                  runtimeMs,
+                  memoryKb,
+                  verdict,
+                },
+              },
+            });
+          });
+
+          return res.json({
+            success: true,
+            status: "attempted",
+            submissionId,
           });
         }
       }
-    }
 
-    if (!user) {
-      return res
-        .status(401)
-        .json({ error: "No user linked to this request or LeetCode session" });
-    }
+      // 2. Legacy Hash-based or Cookie-based Sync Path (2.4)
+      if (process.env.EXTENSION_LEGACY_SYNC !== "true") {
+        return res.status(400).json({
+          error: "Legacy extension sync is deprecated. Upgrade your Chrome Extension to use pairing tokens.",
+        });
+      }
 
-    const activeSession =
-      normalizedSession ||
-      (user.leetcodeSession ? decryptSecret(user.leetcodeSession) : "");
+      console.warn(
+        "[DEPRECATION WARNING] Legacy hash-based extension sync invoked. Please transition to pairing tokens.",
+      );
 
-    if (!activeSession) {
-      return res
-        .status(400)
-        .json({ error: "No active LeetCode session found for this user" });
-    }
+      const { problemSlug, leetcodeSession } = req.body || {};
+      const normalizedSlug =
+        typeof problemSlug === "string" ? problemSlug.trim().toLowerCase() : "";
+      const normalizedSession =
+        typeof leetcodeSession === "string" ? leetcodeSession.trim() : "";
 
-    const data = await fetchProblemSubmissions(
-      normalizedSlug,
-      activeSession,
-    );
-    const submissions = (data?.questionSubmissionList?.submissions || []) as Array<{
-      title: string;
-      difficulty: string;
-      timestamp: number;
-      runtime?: string;
-      memory?: string;
-      statusDisplay: string;
-    }>;
-    const acceptedSub = submissions.find(
-      (s) => s.statusDisplay === "Accepted",
-    );
+      if (!normalizedSlug) {
+        return res.status(400).json({ error: "Missing problemSlug" });
+      }
 
-    if (!acceptedSub) {
-      return res.status(400).json({ error: "No accepted submission found" });
-    }
+      let user: User | null = null;
+      if (req.user?.id) {
+        user = await prisma.user.findUnique({ where: { id: req.user.id } });
+      } else if (normalizedSession && normalizedSession.length >= 20) {
+        const sessionHash = hashSecret(normalizedSession);
+        user = await prisma.user.findFirst({
+          where: { leetcodeSessionHash: sessionHash },
+        });
+      }
 
-    let problem = await prisma.problem.findFirst({
-      where: { link: { contains: problemSlug } },
-    });
+      if (!user) {
+        return res
+          .status(401)
+          .json({ error: "No user linked to this request or LeetCode session" });
+      }
 
-    if (!problem) {
-      let miscTopic = await prisma.topic.findFirst({
-        where: { name: "Extra Practice (Auto-Synced)" },
+      const activeSession =
+        normalizedSession ||
+        (user.leetcodeSession ? decryptSecret(user.leetcodeSession) : "");
+
+      if (!activeSession) {
+        return res
+          .status(400)
+          .json({ error: "No active LeetCode session found for this user" });
+      }
+
+      const data = await fetchProblemSubmissions(normalizedSlug, activeSession);
+      const submissions = (data?.questionSubmissionList?.submissions || []) as Array<{
+        title: string;
+        difficulty: string;
+        timestamp: number;
+        runtime?: string;
+        memory?: string;
+        statusDisplay: string;
+      }>;
+      const acceptedSub = submissions.find((s) => s.statusDisplay === "Accepted");
+
+      if (!acceptedSub) {
+        return res.status(400).json({ error: "No accepted submission found" });
+      }
+
+      let problem = await prisma.problem.findFirst({
+        where: { link: { contains: normalizedSlug } },
       });
 
-      if (!miscTopic) {
-        const maxOrderTopic = await prisma.topic.findFirst({
+      if (!problem) {
+        let miscTopic = await prisma.topic.findFirst({
+          where: { name: "Extra Practice (Auto-Synced)" },
+        });
+
+        if (!miscTopic) {
+          const maxOrderTopic = await prisma.topic.findFirst({
+            orderBy: { orderIndex: "desc" },
+          });
+          miscTopic = await prisma.topic.create({
+            data: {
+              name: "Extra Practice (Auto-Synced)",
+              description:
+                "Problems solved on LeetCode that are not part of the standard curriculum.",
+              orderIndex: (maxOrderTopic?.orderIndex || 99) + 1,
+            },
+          });
+        }
+
+        const maxOrderProblem = await prisma.problem.findFirst({
+          where: { topicId: miscTopic.id },
           orderBy: { orderIndex: "desc" },
         });
-        miscTopic = await prisma.topic.create({
+
+        problem = await prisma.problem.create({
           data: {
-            name: "Extra Practice (Auto-Synced)",
-            description:
-              "Problems solved on LeetCode that are not part of the standard curriculum.",
-            orderIndex: (maxOrderTopic?.orderIndex || 99) + 1,
+            title: acceptedSub.title,
+            link: `https://leetcode.com/problems/${normalizedSlug}/`,
+            difficulty: isDifficulty(acceptedSub.difficulty)
+              ? acceptedSub.difficulty
+              : "MEDIUM",
+            topicId: miscTopic.id,
+            orderIndex: (maxOrderProblem?.orderIndex || 0) + 1,
           },
         });
       }
 
-      const maxOrderProblem = await prisma.problem.findFirst({
-        where: { topicId: miscTopic.id },
-        orderBy: { orderIndex: "desc" },
-      });
-
-      problem = await prisma.problem.create({
-        data: {
-          title: acceptedSub.title,
-          link: `https://leetcode.com/problems/${normalizedSlug}/`,
-          difficulty: isDifficulty(acceptedSub.difficulty)
-            ? acceptedSub.difficulty
-            : "MEDIUM",
-          topicId: miscTopic.id,
-          orderIndex: (maxOrderProblem?.orderIndex || 0) + 1,
+      await prisma.progress.upsert({
+        where: {
+          userId_problemId: {
+            userId: user.id,
+            problemId: problem.id,
+          },
         },
-      });
-    }
-
-    await prisma.progress.upsert({
-      where: {
-        userId_problemId: {
+        update: {
+          status: "DONE",
+          completedAt: new Date(acceptedSub.timestamp * 1000),
+          leetcodeRuntime: acceptedSub.runtime ?? null,
+          leetcodeMemory: acceptedSub.memory ?? null,
+        },
+        create: {
           userId: user.id,
           problemId: problem.id,
+          status: "DONE",
+          timeSpent: 0,
+          completedAt: new Date(acceptedSub.timestamp * 1000),
+          leetcodeRuntime: acceptedSub.runtime ?? null,
+          leetcodeMemory: acceptedSub.memory ?? null,
         },
-      },
-      update: {
-        status: "DONE",
-        completedAt: new Date(acceptedSub.timestamp * 1000),
-        leetcodeRuntime: acceptedSub.runtime ?? null,
-        leetcodeMemory: acceptedSub.memory ?? null,
-      },
-      create: {
-        userId: user.id,
-        problemId: problem.id,
-        status: "DONE",
-        timeSpent: 0,
-        completedAt: new Date(acceptedSub.timestamp * 1000),
-        leetcodeRuntime: acceptedSub.runtime ?? null,
-        leetcodeMemory: acceptedSub.memory ?? null,
-      },
-    });
+      });
 
-    res.json({
-      success: true,
-      message: `Synced ${problem.title} from extension!`,
-    });
-  } catch (err) {
-    console.error("Extension Sync Error:", err);
-    res.status(500).json({ error: "Extension sync failed" });
-  }
-});
+      return res.json({
+        success: true,
+        message: `Synced ${problem.title} from extension!`,
+      });
+    } catch (err) {
+      console.error("Extension Sync Error:", err);
+      return res.status(500).json({ error: "Extension sync failed" });
+    }
+  },
+);
 
 export default router;

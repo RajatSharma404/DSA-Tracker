@@ -1,4 +1,5 @@
 const DEFAULT_API_BASES = ["http://localhost:3001"];
+
 const isAllowedApiBase = (urlString) => {
   try {
     const url = new URL(urlString);
@@ -14,7 +15,7 @@ const isAllowedApiBase = (urlString) => {
 
 const getCandidateApiBases = async () => {
   try {
-    const stored = await chrome.storage.sync.get([
+    const stored = await chrome.storage.local.get([
       "dsaApiBaseUrl",
       "dsaApiBaseUrls",
     ]);
@@ -32,467 +33,85 @@ const getCandidateApiBases = async () => {
   }
 };
 
-const trySyncToApi = async (baseUrl, problemSlug, leetcodeSession) => {
-  let authToken = "";
-  try {
-    const stored = await chrome.storage.sync.get(["dsaApiToken"]);
-    authToken = typeof stored.dsaApiToken === "string" ? stored.dsaApiToken.trim() : "";
-  } catch {
-    // Ignore storage read error
-  }
-
-  const headers = {
-    "Content-Type": "application/json",
-  };
-  if (authToken) {
-    headers["Authorization"] = `Bearer ${authToken}`;
-  }
-
-  const response = await fetch(`${baseUrl}/api/extension/sync`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify({
-      problemSlug,
-      leetcodeSession,
-    }),
-  });
-
-  if (!response.ok) {
-    const body = await response.text();
-    throw new Error(`Sync failed (${response.status}): ${body}`);
-  }
-
-  return response.json();
-};
-
-const getLeetCodeSessionCookie = () =>
+const getPairingToken = () =>
   new Promise((resolve) => {
-    chrome.cookies.get(
-      { url: "https://leetcode.com", name: "LEETCODE_SESSION" },
-      (cookie) => resolve(cookie?.value || ""),
+    chrome.storage.local.get(["pairingToken"], (res) => {
+      resolve(res?.pairingToken || "");
+    });
+  });
+
+const setPairingState = (state) =>
+  new Promise((resolve) => {
+    chrome.storage.local.set(state, resolve);
+  });
+
+const clearPairingToken = () =>
+  new Promise((resolve) => {
+    chrome.storage.local.set(
+      {
+        pairingToken: "",
+        pairingStatus: "re_pair_needed",
+        lastError: "Pairing token rejected or expired (401 Unauthorized). Re-pair needed.",
+      },
+      resolve,
     );
   });
 
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-const isMissingTabError = (error) =>
-  /No tab with id|Cannot access contents of the page/i.test(
-    String(error?.message || ""),
-  );
-
-const withScript = async (tabId, func, args = [], world = "ISOLATED") => {
-  try {
-    const result = await chrome.scripting.executeScript({
-      target: { tabId },
-      func,
-      args,
-      world,
+/**
+ * Sends submission sync payload with pairing token to the backend.
+ */
+const syncToApi = async (payload) => {
+  const token = await getPairingToken();
+  if (!token) {
+    await setPairingState({
+      pairingStatus: "not_paired",
+      lastError: "Extension is not paired. Paste your pairing token in the extension popup.",
     });
-    return result?.[0]?.result;
-  } catch (error) {
-    if (isMissingTabError(error)) {
-      throw new Error(
-        "LeetCode tab was closed before submission finished. Please retry.",
-      );
-    }
-    throw error;
+    throw new Error("Extension is not paired. Please open extension popup to pair.");
   }
-};
 
-const waitForTabLoad = async (tabId, timeoutMs = 10000) => {
-  const start = Date.now();
-  while (Date.now() - start < timeoutMs) {
-    let tab;
+  const bases = await getCandidateApiBases();
+  let lastError = null;
+
+  for (const baseUrl of bases) {
     try {
-      tab = await chrome.tabs.get(tabId);
-    } catch (error) {
-      if (isMissingTabError(error)) {
-        throw new Error(
-          "LeetCode tab was closed before submission finished. Please retry.",
-        );
-      }
-      throw error;
-    }
-    if (tab.status === "complete") return true;
-    await delay(250);
-  }
-  return false;
-};
-
-const waitForEditorReady = async (tabId, timeoutMs = 20000) => {
-  const start = Date.now();
-  while (Date.now() - start < timeoutMs) {
-    const ready = await withScript(
-      tabId,
-      () => {
-        const hasMonaco = Boolean(window.monaco?.editor?.getModels?.()?.length);
-        const hasTextarea = Boolean(document.querySelector("textarea"));
-        return hasMonaco || hasTextarea;
-      },
-      [],
-      "MAIN",
-    );
-
-    if (ready) return true;
-    await delay(300);
-  }
-  return false;
-};
-
-const normalizeForCompare = (value) =>
-  String(value || "")
-    .replace(/\r\n/g, "\n")
-    .trimEnd();
-
-const setLanguageOnLeetCode = async (tabId, language) => {
-  return withScript(
-    tabId,
-    (lang) => {
-      const normalizeLang = (value) => {
-        const map = {
-          cpp: "C++",
-          c: "C",
-          java: "Java",
-          python3: "Python3",
-        };
-        return map[value] || "C++";
-      };
-
-      const target = normalizeLang(lang);
-      const langButton =
-        document.querySelector('[data-e2e-locator="lang-select-btn"]') ||
-        document.querySelector('[class*="lang-select"] button');
-
-      if (!langButton) return false;
-      langButton.click();
-
-      const options = Array.from(document.querySelectorAll("div,button,li"));
-      const match = options.find((el) => {
-        const text = (el.textContent || "").trim().toLowerCase();
-        return (
-          text === target.toLowerCase() || text.includes(target.toLowerCase())
-        );
+      const response = await fetch(`${baseUrl}/api/extension/sync`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
       });
 
-      if (!match) return false;
-      match.click();
-      return true;
-    },
-    [language],
-    "MAIN",
-  );
-};
-
-const writeCodeToLeetCodeEditor = async (tabId, code) => {
-  return withScript(
-    tabId,
-    (submissionCode) => {
-      const pickBestEditor = (editorApi) => {
-        const editors = editorApi.getEditors?.() || [];
-        if (!editors.length) return null;
-
-        const activeEl = document.activeElement;
-
-        const focused = editors.find((editor) => {
-          const node = editor.getDomNode?.();
-          if (!node) return false;
-          if (node.classList.contains("focused")) return true;
-          return Boolean(activeEl && node.contains(activeEl));
-        });
-        if (focused) return focused;
-
-        const visible = editors.find((editor) => {
-          const node = editor.getDomNode?.();
-          return Boolean(node && node.offsetParent !== null);
-        });
-        if (visible) return visible;
-
-        return editors[0];
-      };
-
-      const writeWithMonaco = () => {
-        const monaco = window.monaco;
-        const editorApi = monaco?.editor;
-        if (!editorApi) return { ok: false, source: "none" };
-
-        const activeEditor = pickBestEditor(editorApi);
-
-        if (activeEditor?.getModel?.()) {
-          const model = activeEditor.getModel();
-          activeEditor.focus?.();
-          activeEditor.executeEdits?.("dsa-tracker-sync", [
-            {
-              range: model.getFullModelRange(),
-              text: submissionCode,
-              forceMoveMarkers: true,
-            },
-          ]);
-
-          // Also update model directly to handle cases where executeEdits is ignored.
-          model.pushEditOperations(
-            [],
-            [
-              {
-                range: model.getFullModelRange(),
-                text: submissionCode,
-              },
-            ],
-            () => null,
-          );
-
-          const value = model.getValue();
-          if (value === submissionCode) {
-            return {
-              ok: true,
-              source: "monaco-active",
-              valueLength: value.length,
-            };
-          }
-        }
-
-        const models = editorApi.getModels?.() || [];
-        for (const model of models) {
-          model.pushEditOperations(
-            [],
-            [
-              {
-                range: model.getFullModelRange(),
-                text: submissionCode,
-              },
-            ],
-            () => null,
-          );
-        }
-
-        const readBack = models[0]?.getValue?.() || "";
-        return {
-          ok: readBack === submissionCode,
-          source: "monaco-models",
-          valueLength: readBack.length,
-        };
-      };
-
-      const writeTextarea = () => {
-        const textarea = document.querySelector("textarea");
-        if (!textarea) return { ok: false, source: "none" };
-        textarea.focus();
-        textarea.value = submissionCode;
-        textarea.dispatchEvent(new InputEvent("input", { bubbles: true }));
-        textarea.dispatchEvent(new Event("change", { bubbles: true }));
-        return {
-          ok: textarea.value === submissionCode,
-          source: "textarea",
-          valueLength: textarea.value.length,
-        };
-      };
-
-      const monacoResult = writeWithMonaco();
-      if (monacoResult.ok) return monacoResult;
-      return writeTextarea();
-    },
-    [code],
-    "MAIN",
-  );
-};
-
-const readCurrentLeetCodeEditorCode = async (tabId) => {
-  return withScript(
-    tabId,
-    () => {
-      const monaco = window.monaco;
-      const editorApi = monaco?.editor;
-
-      if (editorApi) {
-        const editors = editorApi.getEditors?.() || [];
-        const activeEl = document.activeElement;
-
-        const focused = editors.find((editor) => {
-          const node = editor.getDomNode?.();
-          if (!node) return false;
-          if (node.classList.contains("focused")) return true;
-          return Boolean(activeEl && node.contains(activeEl));
-        });
-
-        if (focused && focused.getModel?.()) {
-          return {
-            source: "monaco-focused",
-            code: focused.getModel().getValue() || "",
-          };
-        }
-
-        for (const editor of editors) {
-          const node = editor.getDomNode?.();
-          if (node && node.offsetParent !== null && editor.getModel?.()) {
-            return {
-              source: "monaco-active",
-              code: editor.getModel().getValue() || "",
-            };
-          }
-        }
-
-        const models = editorApi.getModels?.() || [];
-        if (models.length > 0) {
-          return {
-            source: "monaco-model",
-            code: models[0].getValue() || "",
-          };
-        }
+      if (response.status === 401) {
+        await clearPairingToken();
+        throw new Error("Authentication failed (401 Unauthorized). Pairing token was revoked or expired. Re-pair needed.");
       }
 
-      const textarea = document.querySelector("textarea");
-      if (textarea) {
-        return { source: "textarea", code: textarea.value || "" };
+      if (!response.ok) {
+        const body = await response.text();
+        throw new Error(`Sync failed (${response.status}): ${body}`);
       }
 
-      return { source: "none", code: "" };
-    },
-    [],
-    "MAIN",
-  );
-};
+      const result = await response.json();
+      await setPairingState({
+        pairingStatus: "paired",
+        lastSyncAt: new Date().toISOString(),
+        lastSyncedSlug: payload.slug || payload.problemSlug,
+        lastError: "",
+      });
 
-const clickSubmit = async (tabId) => {
-  return withScript(tabId, () => {
-    const selectors = [
-      '[data-e2e-locator="console-submit-button"]',
-      '[data-cy="submit-code-btn"]',
-      'button[data-e2e-locator*="submit"]',
-      'button[type="button"]',
-    ];
-    for (const sel of selectors) {
-      const nodes = Array.from(document.querySelectorAll(sel));
-      const btn = nodes.find((node) =>
-        /submit/i.test((node.textContent || "").trim()),
-      );
-      if (btn && !btn.disabled) {
-        btn.click();
-        return true;
+      return result;
+    } catch (err) {
+      lastError = err;
+      if (err.message && err.message.includes("401")) {
+        throw err;
       }
     }
-    return false;
-  });
-};
-
-const readVerdict = async (tabId) => {
-  return withScript(tabId, () => {
-    const pendingWords = ["pending", "running", "judging"];
-    const candidates = Array.from(
-      document.querySelectorAll("div,span,p,strong"),
-    ).map((el) => (el.textContent || "").trim());
-    const joined = candidates.join(" ").toLowerCase();
-    if (pendingWords.some((w) => joined.includes(w))) {
-      return { pending: true };
-    }
-    const nonAccepted = [
-      "wrong answer",
-      "time limit exceeded",
-      "runtime error",
-      "memory limit exceeded",
-      "compilation error",
-      "output limit exceeded",
-      "presentation error",
-    ];
-    if (joined.includes("accepted")) {
-      return { pending: false, verdict: "Accepted", accepted: true };
-    }
-    const hit = nonAccepted.find((v) => joined.includes(v));
-    if (hit) {
-      return { pending: false, verdict: hit.toUpperCase(), accepted: false };
-    }
-    return { pending: true };
-  });
-};
-
-const runLeetCodeSubmission = async ({
-  problemSlug,
-  code,
-  language,
-  timeoutMs,
-}) => {
-  const leetcodeSession = await getLeetCodeSessionCookie();
-  if (!leetcodeSession) {
-    throw new Error("Your LeetCode is not signed in");
   }
 
-  let tabId = null;
-  try {
-    const createdTab = await chrome.tabs.create({
-      url: `https://leetcode.com/problems/${problemSlug}/description/`,
-      active: false,
-    });
-    tabId = createdTab.id;
-    if (!tabId) throw new Error("Failed to open LeetCode tab");
-
-    await waitForTabLoad(tabId, 15000);
-    await delay(1400);
-
-    const editorReady = await waitForEditorReady(tabId, 20000);
-    if (!editorReady) {
-      throw new Error("LeetCode editor did not load in time");
-    }
-
-    let codeSet = false;
-    const languageSet = await setLanguageOnLeetCode(tabId, language);
-    if (languageSet) {
-      await delay(900);
-    }
-
-    for (let attempt = 0; attempt < 5; attempt += 1) {
-      const writeResult = await writeCodeToLeetCodeEditor(tabId, code);
-      await delay(650);
-
-      const editorSnapshot = await readCurrentLeetCodeEditorCode(tabId);
-      const normalizedCurrent = normalizeForCompare(editorSnapshot?.code || "");
-      const normalizedExpected = normalizeForCompare(code || "");
-
-      if (writeResult?.ok && normalizedCurrent === normalizedExpected) {
-        codeSet = true;
-        break;
-      }
-
-      await delay(400);
-    }
-
-    if (!codeSet) {
-      throw new Error(
-        "Unable to verify pasted code in LeetCode editor. Open LeetCode tab to inspect.",
-      );
-    }
-
-    const clicked = await clickSubmit(tabId);
-    if (!clicked) throw new Error("Unable to click submit on LeetCode");
-
-    const start = Date.now();
-    while (Date.now() - start < timeoutMs) {
-      await delay(1300);
-      const result = await readVerdict(tabId);
-      if (result && !result.pending) {
-        if (!result.accepted) {
-          await chrome.tabs.update(tabId, { active: true });
-        } else {
-          await chrome.tabs.remove(tabId).catch(() => {});
-        }
-        return {
-          accepted: Boolean(result.accepted),
-          verdict: result.verdict || "Unknown",
-          timedOut: false,
-        };
-      }
-    }
-
-    await chrome.tabs.update(tabId, { active: true });
-    return {
-      accepted: false,
-      verdict: "TIMEOUT",
-      timedOut: true,
-      details: "Timed out waiting for LeetCode verdict (45s).",
-    };
-  } catch (error) {
-    if (tabId) {
-      await chrome.tabs.update(tabId, { active: true }).catch(() => {});
-    }
-    throw error;
-  }
+  throw lastError || new Error("All API endpoints unreachable");
 };
 
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
@@ -506,57 +125,98 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
         return;
       }
 
-      if (requestType === "PING") {
-        const session = await getLeetCodeSessionCookie();
+      // Check extension status
+      if (requestType === "PING" || requestType === "GET_PAIRING_STATUS") {
+        const token = await getPairingToken();
+        const stored = await chrome.storage.local.get([
+          "pairingStatus",
+          "lastSyncAt",
+          "lastError",
+        ]);
+        const status = token
+          ? "paired"
+          : stored?.pairingStatus || "not_paired";
+
         sendResponse({
           ok: true,
-          payload: { installed: true, leetcodeSignedIn: Boolean(session) },
+          payload: {
+            installed: true,
+            paired: Boolean(token),
+            status,
+            lastSyncAt: stored?.lastSyncAt || null,
+            lastError: stored?.lastError || "",
+          },
         });
         return;
       }
 
-      if (requestType === "SUBMIT_TO_LEETCODE") {
-        try {
-          const payload = request.payload || {};
-          const result = await runLeetCodeSubmission({
-            problemSlug: String(payload.problemSlug || "")
-              .trim()
-              .toLowerCase(),
-            code: String(payload.code || ""),
-            language: String(payload.language || "cpp"),
-            timeoutMs: Number(payload.timeoutMs || 30000),
-          });
-          sendResponse({ ok: true, payload: result });
-        } catch (error) {
+      // Save pairing token from popup
+      if (requestType === "SET_PAIRING_TOKEN") {
+        const token = String(request.token || "").trim();
+        if (!token.startsWith("dsat_") || token.length < 32) {
           sendResponse({
             ok: false,
-            error: error?.message || "LeetCode submission failed",
+            error: "Invalid token format. Pairing tokens begin with 'dsat_'.",
           });
+          return;
         }
+
+        await setPairingState({
+          pairingToken: token,
+          pairingStatus: "paired",
+          lastError: "",
+        });
+
+        sendResponse({ ok: true, payload: { paired: true } });
         return;
       }
 
-      if (requestType === "SYNC_PROBLEM") {
-        const cookie = await getLeetCodeSessionCookie();
-        if (!cookie) {
-          sendResponse({ ok: false, error: "No LeetCode session found" });
-          return;
-        }
-        const candidates = await getCandidateApiBases();
-        let lastError = null;
-        for (const baseUrl of candidates) {
-          try {
-            await trySyncToApi(baseUrl, request.problemSlug, cookie);
-            sendResponse({ ok: true, payload: { synced: true } });
-            return;
-          } catch (err) {
-            lastError = err;
-          }
-        }
-        sendResponse({
-          ok: false,
-          error: lastError?.message || "All sync attempts failed",
+      // Unpair from popup
+      if (requestType === "UNPAIR") {
+        await setPairingState({
+          pairingToken: "",
+          pairingStatus: "not_paired",
+          lastError: "",
+          lastSyncAt: null,
         });
+
+        sendResponse({ ok: true, payload: { paired: false } });
+        return;
+      }
+
+      // Sync submission (new 2.2 contract)
+      if (requestType === "SYNC_SUBMISSION") {
+        const payload = request.payload || {};
+        const submissionId =
+          payload.submissionId ||
+          `sub_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+        const result = await syncToApi({
+          submissionId,
+          slug: String(payload.slug || "").trim().toLowerCase(),
+          verdict: String(payload.verdict || "ACCEPTED").trim().toUpperCase(),
+          runtimeMs: typeof payload.runtimeMs === "number" ? payload.runtimeMs : undefined,
+          memoryKb: typeof payload.memoryKb === "number" ? payload.memoryKb : undefined,
+          submittedAt: payload.submittedAt || new Date().toISOString(),
+        });
+
+        sendResponse({ ok: true, payload: result });
+        return;
+      }
+
+      // Fallback for legacy SYNC_PROBLEM message
+      if (requestType === "SYNC_PROBLEM") {
+        const slug = String(request.problemSlug || "").trim().toLowerCase();
+        const submissionId = `sync_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+        const result = await syncToApi({
+          submissionId,
+          slug,
+          verdict: "ACCEPTED",
+          submittedAt: new Date().toISOString(),
+        });
+
+        sendResponse({ ok: true, payload: result });
         return;
       }
 

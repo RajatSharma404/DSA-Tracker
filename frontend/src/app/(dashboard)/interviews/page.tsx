@@ -27,7 +27,8 @@ import {
   Flame,
 } from "lucide-react";
 import { format } from "date-fns";
-import { useRouter } from "next/navigation";
+import { useRouter, notFound } from "next/navigation";
+import { useFeature } from "@/components/providers/FeaturesProvider";
 import { toast } from "sonner";
 import { soundEffects } from "@/lib/soundEffects";
 
@@ -119,6 +120,11 @@ const PERSONAS = [
 ];
 
 export default function InterviewsPage() {
+  const isEnabled = useFeature("interviews");
+  if (!isEnabled) {
+    notFound();
+  }
+
   const [interviews, setInterviews] = useState<MockInterview[]>([]);
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);

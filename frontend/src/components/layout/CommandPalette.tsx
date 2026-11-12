@@ -30,10 +30,11 @@ import {
   ExternalLink,
   HelpCircle,
 } from "lucide-react";
-import { signOut } from "next-auth/react";
+import { safeSignOut } from "@/lib/auth/safeSignOut";
 import { dsaApi, SearchProblem, Topic } from "@/lib/api";
 import { useTheme, THEME_OPTIONS, ThemeMode } from "@/components/providers/ThemeProvider";
 import { soundEffects } from "@/lib/soundEffects";
+import { useFeatures } from "@/components/providers/FeaturesProvider";
 
 const DIFFICULTY_STYLES: Record<string, { bg: string; text: string; border: string }> = {
   EASY: {
@@ -63,6 +64,7 @@ export function CommandPalette() {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const router = useRouter();
+  const features = useFeatures();
   const { theme, setTheme } = useTheme();
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -404,13 +406,15 @@ export function CommandPalette() {
             <Target className="mr-3 h-4 w-4 shrink-0" />
             Visual Roadmap & Curriculum
           </Command.Item>
-          <Command.Item
-            onSelect={() => runCommand(() => router.push("/tracer"))}
-            className="relative flex cursor-pointer select-none items-center rounded-xl px-3 py-2 text-sm text-[var(--text-secondary)] outline-none aria-selected:bg-[var(--accent-primary)]/15 aria-selected:text-[var(--accent-primary)] aria-selected:font-semibold"
-          >
-            <Activity className="mr-3 h-4 w-4 shrink-0" />
-            AlgoTracer 2.0 Visualizer
-          </Command.Item>
+          {features.algotracer && (
+            <Command.Item
+              onSelect={() => runCommand(() => router.push("/tracer"))}
+              className="relative flex cursor-pointer select-none items-center rounded-xl px-3 py-2 text-sm text-[var(--text-secondary)] outline-none aria-selected:bg-[var(--accent-primary)]/15 aria-selected:text-[var(--accent-primary)] aria-selected:font-semibold"
+            >
+              <Activity className="mr-3 h-4 w-4 shrink-0" />
+              AlgoTracer 2.0 Visualizer
+            </Command.Item>
+          )}
           <Command.Item
             onSelect={() => runCommand(() => router.push("/search"))}
             className="relative flex cursor-pointer select-none items-center rounded-xl px-3 py-2 text-sm text-[var(--text-secondary)] outline-none aria-selected:bg-[var(--accent-primary)]/15 aria-selected:text-[var(--accent-primary)] aria-selected:font-semibold"
@@ -421,40 +425,40 @@ export function CommandPalette() {
         </Command.Group>
 
         {/* Competitive & Practice */}
-        <Command.Group
-          heading="Competitive & Practice"
-          className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-bold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-[var(--text-muted)]"
-        >
-          <Command.Item
-            onSelect={() => runCommand(() => router.push("/pvp"))}
-            className="relative flex cursor-pointer select-none items-center rounded-xl px-3 py-2 text-sm text-[var(--text-secondary)] outline-none aria-selected:bg-[var(--accent-primary)]/15 aria-selected:text-[var(--accent-primary)] aria-selected:font-semibold"
+        {(features.pvp || features.arena || features.interviews) && (
+          <Command.Group
+            heading="Competitive & Practice"
+            className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-bold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-[var(--text-muted)]"
           >
-            <Swords className="mr-3 h-4 w-4 shrink-0" />
-            1v1 PvP Speed Duels
-          </Command.Item>
-          <Command.Item
-            onSelect={() => runCommand(() => router.push("/challenge"))}
-            className="relative flex cursor-pointer select-none items-center rounded-xl px-3 py-2 text-sm text-[var(--text-secondary)] outline-none aria-selected:bg-[var(--accent-primary)]/15 aria-selected:text-[var(--accent-primary)] aria-selected:font-semibold"
-          >
-            <Zap className="mr-3 h-4 w-4 shrink-0" />
-            The Arena Speed Challenge
-          </Command.Item>
-          {/* [PREVIOUS LOGIC - COMMENTED OUT: DSA CITY FEATURE REMOVAL] */}
-          {/* <Command.Item
-            onSelect={() => runCommand(() => router.push("/city"))}
-            className="relative flex cursor-pointer select-none items-center rounded-xl px-3 py-2 text-sm text-[var(--text-secondary)] outline-none aria-selected:bg-[var(--accent-primary)]/15 aria-selected:text-[var(--accent-primary)] aria-selected:font-semibold"
-          >
-            <Target className="mr-3 h-4 w-4 shrink-0" />
-            DSA 3D City Metaverse
-          </Command.Item> */}
-          <Command.Item
-            onSelect={() => runCommand(() => router.push("/interviews"))}
-            className="relative flex cursor-pointer select-none items-center rounded-xl px-3 py-2 text-sm text-[var(--text-secondary)] outline-none aria-selected:bg-[var(--accent-primary)]/15 aria-selected:text-[var(--accent-primary)] aria-selected:font-semibold"
-          >
-            <MonitorPlay className="mr-3 h-4 w-4 shrink-0" />
-            AI Mock Technical Interviews
-          </Command.Item>
-        </Command.Group>
+            {features.pvp && (
+              <Command.Item
+                onSelect={() => runCommand(() => router.push("/pvp"))}
+                className="relative flex cursor-pointer select-none items-center rounded-xl px-3 py-2 text-sm text-[var(--text-secondary)] outline-none aria-selected:bg-[var(--accent-primary)]/15 aria-selected:text-[var(--accent-primary)] aria-selected:font-semibold"
+              >
+                <Swords className="mr-3 h-4 w-4 shrink-0" />
+                1v1 PvP Speed Duels
+              </Command.Item>
+            )}
+            {features.arena && (
+              <Command.Item
+                onSelect={() => runCommand(() => router.push("/challenge"))}
+                className="relative flex cursor-pointer select-none items-center rounded-xl px-3 py-2 text-sm text-[var(--text-secondary)] outline-none aria-selected:bg-[var(--accent-primary)]/15 aria-selected:text-[var(--accent-primary)] aria-selected:font-semibold"
+              >
+                <Zap className="mr-3 h-4 w-4 shrink-0" />
+                The Arena Speed Challenge
+              </Command.Item>
+            )}
+            {features.interviews && (
+              <Command.Item
+                onSelect={() => runCommand(() => router.push("/interviews"))}
+                className="relative flex cursor-pointer select-none items-center rounded-xl px-3 py-2 text-sm text-[var(--text-secondary)] outline-none aria-selected:bg-[var(--accent-primary)]/15 aria-selected:text-[var(--accent-primary)] aria-selected:font-semibold"
+              >
+                <MonitorPlay className="mr-3 h-4 w-4 shrink-0" />
+                AI Mock Technical Interviews
+              </Command.Item>
+            )}
+          </Command.Group>
+        )}
 
         {/* Retention & Spaced Repetition */}
         <Command.Group
@@ -550,7 +554,7 @@ export function CommandPalette() {
             Settings & Themes
           </Command.Item>
           <Command.Item
-            onSelect={() => runCommand(() => signOut({ callbackUrl: "/login" }))}
+            onSelect={() => runCommand(() => safeSignOut())}
             className="relative flex cursor-pointer select-none items-center rounded-xl px-3 py-2 text-sm text-rose-400 outline-none aria-selected:bg-rose-500/10 aria-selected:text-rose-400"
           >
             <LogOut className="mr-3 h-4 w-4 shrink-0" />

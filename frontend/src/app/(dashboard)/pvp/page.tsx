@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, notFound } from "next/navigation";
+import { useFeature } from "@/components/providers/FeaturesProvider";
 import {
   Swords,
   Trophy,
@@ -131,6 +132,11 @@ const LEADERBOARD_DATA: LeaderboardGladiator[] = [
 ];
 
 export default function PvPMainPage() {
+  const isEnabled = useFeature("pvp");
+  if (!isEnabled) {
+    notFound();
+  }
+
   const router = useRouter();
   const [matchingMode, setMatchingMode] = useState<string | null>(null);
   const [matchmakingSecs, setMatchmakingSecs] = useState(0);

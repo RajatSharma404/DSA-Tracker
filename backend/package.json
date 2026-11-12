@@ -10,7 +10,8 @@
     "test:coverage": "vitest run --coverage",
     "prebuild": "npm install --include=dev",
     "build": "tsc && prisma generate",
-    "build:render": "prisma db push && tsc && prisma generate",
+    "build:render": "prisma generate && tsc && prisma migrate deploy",
+    "db:push": "prisma db push",
     "start": "node dist/index.js",
     "postinstall": "prisma generate"
   },
@@ -25,6 +26,10 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.3.0",
     "@types/nodemailer": "^7.0.11",
+    "@upstash/ratelimit": "2.2.0",
+    "@upstash/redis": "1.41.0",
+    "acorn": "8.19.0",
+    "acorn-walk": "8.3.5",
     "axios": "^1.13.5",
     "concurrently": "^9.2.1",
     "cors": "^2.8.6",
@@ -32,13 +37,17 @@
     "express": "^5.2.1",
     "express-rate-limit": "^8.7.0",
     "helmet": "^8.3.0",
+    "jose": "6.2.17",
     "jsonwebtoken": "^9.0.3",
     "nodemailer": "^10.0.10",
     "pg": "^8.18.0",
+    "pino": "10.4.0",
     "prisma": "^5.22.0",
+    "ts-fsrs": "6.0.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "zod": "3.24.2"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -46,6 +55,7 @@
   "devDependencies": {
     "@types/supertest": "^7.2.1",
     "@vitest/coverage-v8": "^4.1.11",
+    "fast-check": "4.10.2",
     "supertest": "^7.2.2",
     "vitest": "^4.1.11"
   }

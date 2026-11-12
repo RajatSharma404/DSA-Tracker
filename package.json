@@ -15,15 +15,27 @@
     "typecheck": "concurrently \"npm run typecheck:backend\" \"npm run typecheck:frontend\"",
     "typecheck:backend": "cd backend && npx tsc --noEmit",
     "typecheck:frontend": "cd frontend && npx tsc --noEmit",
-    "check:prisma-sync": "node -e \"const fs=require('fs'); const b=fs.readFileSync('backend/prisma/schema.prisma','utf8'); const f=fs.readFileSync('frontend/prisma/schema.prisma','utf8'); if (b!==f) { console.error('Prisma schemas are out of sync!'); process.exit(1); } else { console.log('Prisma schemas are synchronized.'); }\"",
+    "check:prisma-sync": "node scripts/check-schema-sync.mjs",
     "sync:prisma": "node -e \"const fs=require('fs'); fs.copyFileSync('backend/prisma/schema.prisma', 'frontend/prisma/schema.prisma'); console.log('Copied backend schema to frontend.');\"",
     "qa": "npm run check:prisma-sync && npm run typecheck && npm run lint && npm test",
     "audit:improvements": "node .agents/skills/improvement/scripts/audit_project.mjs",
+    "docs:erd": "node scripts/generate-mermaid-erd.mjs",
+    "check:erd": "node scripts/check-erd-freshness.mjs",
+    "check:mermaid": "node scripts/validate-mermaid.mjs",
+    "check:links": "node scripts/check-markdown-links.mjs",
     "add:sol": "node scripts/add-solution.js",
-    "sync:sol": "node scripts/sync-solutions.js"
+    "sync:sol": "node scripts/sync-solutions.js",
+    "e2e:db": "docker compose -f docker-compose.e2e.yml up -d",
+    "e2e:seed": "node scripts/run-seed-e2e.mjs --reset",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "animejs": "^4.3.6",
     "concurrently": "^8.2.2"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.65.0",
+    "mermaid": "11.4.1"
   }
 }

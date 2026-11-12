@@ -124,7 +124,13 @@ document.addEventListener(REQUEST_DOM_EVENT, (event) => {
   });
 });
 
-// Existing auto-sync behavior for accepted submissions on LeetCode pages.
+// =========================================================================
+// [SUBMISSION DETECTOR: DOM FALLBACK ACTIVE]
+// TODO: Page-world script wrapping fetch/XHR to intercept LeetCode's submission-check network response.
+// NOTE: Per directive, do not guess LeetCode's endpoint or response fields.
+// Awaiting user-supplied HAR file or sample response payload before writing the network hook.
+// Until provided, the DOM 'Accepted' detector below is the active and verified fallback.
+// =========================================================================
 if (window.location.hostname.includes("leetcode.com")) {
   let hasSynced = false;
 
@@ -167,8 +173,19 @@ if (window.location.hostname.includes("leetcode.com")) {
 
     if (acceptedFromCandidates || acceptedFromTextScan) {
       hasSynced = true;
+      const submissionId = `dom_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
       safeRuntimeSendMessage(
-        { type: "SYNC_PROBLEM", problemSlug: slug },
+        {
+          type: "SYNC_SUBMISSION",
+          payload: {
+            submissionId,
+            slug,
+            verdict: "ACCEPTED",
+            submittedAt: new Date().toISOString(),
+          },
+          // Backward compatibility for existing listeners
+          problemSlug: slug,
+        },
         () => {},
       );
     }

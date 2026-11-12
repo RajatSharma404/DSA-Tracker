@@ -1,10 +1,6 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-// =========================================================================
-// [PREVIOUS LOGIC - COMMENTED OUT AS PER DIRECTIVE: UNINSTALLED DEPENDENCY]
-// import CalendarHeatmap from "react-calendar-heatmap";
-// =========================================================================
 import { dsaApi, HeatmapDay } from "@/lib/api";
 import { Flame, Calendar as CalendarIcon } from "lucide-react";
 
@@ -126,25 +122,6 @@ export default function ActivityCalendarHeatmap({
       ) : (
         <div className="overflow-x-auto pb-2 scrollbar-none">
           <div className="min-w-[680px]">
-            {/* =========================================================================
-                [PREVIOUS LOGIC - COMMENTED OUT: CALENDAR-HEATMAP EXTERNAL PACKAGE]
-                ========================================================================= */}
-            {/* <CalendarHeatmap
-              startDate={yearAgo}
-              endDate={today}
-              values={heatmapData}
-              classForValue={getClassForValue}
-              titleForValue={(value) => {
-                if (!value || !value.date) return "No activity";
-                return `${value.date}: ${value.count || 0} ${
-                  value.count === 1 ? "problem" : "problems"
-                } solved`;
-              }}
-              showWeekdayLabels={true}
-            /> */}
-            {/* =========================================================================
-                [NEW OPTIMIZED LOGIC: NATIVE ZERO-DEPENDENCY SVG HEATMAP MATRIX]
-                ========================================================================= */}
             <div className="grid grid-flow-col grid-rows-7 gap-1 py-1" aria-label="Activity Calendar Heatmap">
               {heatmapData.length > 0 ? (
                 heatmapData.map((d, idx) => {

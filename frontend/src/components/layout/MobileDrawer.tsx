@@ -3,7 +3,8 @@
 import React, { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { safeSignOut } from "@/lib/auth/safeSignOut";
 import {
   LayoutDashboard,
   GraduationCap,
@@ -30,11 +31,14 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { ThemeSelector } from "@/components/ui/ThemeSelector";
+import { useFeatures } from "@/components/providers/FeaturesProvider";
+import { FeatureName } from "@/types/features";
 
 type NavItem = {
   icon: LucideIcon;
   label: string;
   href: string;
+  feature?: FeatureName;
 };
 
 const navSections: Array<{ title: string; items: NavItem[] }> = [
@@ -44,13 +48,11 @@ const navSections: Array<{ title: string; items: NavItem[] }> = [
       { icon: LayoutDashboard, label: "Dashboard", href: "/" },
       { icon: GraduationCap, label: "Learn", href: "/learn" },
       { icon: Network, label: "Visual Roadmap", href: "/roadmap" },
-      { icon: Swords, label: "1v1 PvP Battles", href: "/pvp" },
-      { icon: Activity, label: "AlgoTracer 2.0", href: "/tracer" },
+      { icon: Swords, label: "1v1 PvP Battles", href: "/pvp", feature: "pvp" },
+      { icon: Activity, label: "AlgoTracer 2.0", href: "/tracer", feature: "algotracer" },
       { icon: BookOpen, label: "Topics", href: "/topics" },
-      // [PREVIOUS LOGIC - COMMENTED OUT: DSA CITY FEATURE REMOVAL]
-      // { icon: Target, label: "DSA City", href: "/city" },
-      { icon: Zap, label: "The Arena", href: "/challenge" },
-      { icon: Target, label: "Mock Interviews", href: "/interviews" },
+      { icon: Zap, label: "The Arena", href: "/challenge", feature: "arena" },
+      { icon: Target, label: "Mock Interviews", href: "/interviews", feature: "interviews" },
     ],
   },
   {
@@ -115,13 +117,16 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
 
   if (!isOpen) return null;
 
+  const features = useFeatures();
   const isAdmin =
     ((session?.user as { role?: string } | undefined)?.role || "USER") ===
     "ADMIN";
 
   const displaySections = navSections.map((section) => ({
     ...section,
-    items: [...section.items],
+    items: section.items.filter(
+      (item) => !item.feature || features[item.feature],
+    ),
   }));
 
   if (isAdmin) {
@@ -249,7 +254,7 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
           )}
 
           <button
-            onClick={() => signOut({ callbackUrl: "/login" })}
+            onClick={() => safeSignOut()}
             className="flex items-center justify-center w-full px-3 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] rounded-xl transition-colors cursor-pointer border border-[var(--border-subtle)]"
           >
             <LogOut size={16} className="mr-2" />

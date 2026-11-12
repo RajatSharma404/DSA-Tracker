@@ -27,6 +27,14 @@ import {
 import { trackEvent } from "@/lib/analytics";
 import { toast } from "sonner";
 import { soundEffects } from "@/lib/soundEffects";
+import WhyDidIForgetModal from "@/components/dashboard/WhyDidIForgetModal";
+import { SyncStatusChip } from "@/components/offline/SyncStatusChip";
+import {
+  saveReviewQueueSnapshot,
+  getCachedReviewQueue,
+  enqueuePendingReview,
+} from "@/lib/offline/db";
+import { syncManager } from "@/lib/offline/syncManager";
 
 interface ReviewItem {
   progressId: string;
@@ -98,6 +106,7 @@ export default function ReviewQueuePage() {
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<"due" | "upcoming" | "all">("due");
   const [reviewNotice, setReviewNotice] = useState<string | null>(null);
+  const [forgotModal, setForgotModal] = useState<{ problemId: string; title: string } | null>(null);
 
   useEffect(() => {
     trackEvent("review_queue_viewed");
@@ -107,11 +116,62 @@ export default function ReviewQueuePage() {
   async function loadReviewQueue() {
     setLoading(true);
     try {
-      const res = await dsaApi.getReviewQueue();
-      setData(res);
+      const isOnline = typeof navigator !== "undefined" ? navigator.onLine : true;
+      if (isOnline) {
+        const res = await dsaApi.getReviewQueue();
+        setData(res);
+        if (res?.due) {
+          await saveReviewQueueSnapshot(
+            res.due.map((item: ReviewItem) => ({
+              problemId: item.problemId,
+              title: item.title,
+              difficulty: item.difficulty,
+              topicName: item.topicName,
+              link: item.link || undefined,
+              nextReviewDate: item.nextReviewDate,
+              interval: item.interval,
+              dueAt: item.nextReviewDate,
+            })),
+          );
+        }
+      } else {
+        const cached = await getCachedReviewQueue();
+        setData({
+          due: cached.map((c) => ({
+            progressId: c.problemId,
+            problemId: c.problemId,
+            title: c.title,
+            difficulty: c.difficulty,
+            topicName: c.topicName,
+            link: c.link || null,
+            nextReviewDate: c.nextReviewDate || new Date().toISOString(),
+            interval: c.interval || 1,
+          })),
+          upcoming: [],
+          stats: { totalDue: cached.length, totalUpcoming: 0 },
+        });
+      }
     } catch (err) {
-      console.error("Failed to load review queue", err);
-      toast.error("Failed to refresh review queue");
+      console.warn("Failed to load online review queue, checking offline cache:", err);
+      const cached = await getCachedReviewQueue();
+      if (cached.length > 0) {
+        setData({
+          due: cached.map((c) => ({
+            progressId: c.problemId,
+            problemId: c.problemId,
+            title: c.title,
+            difficulty: c.difficulty,
+            topicName: c.topicName,
+            link: c.link || null,
+            nextReviewDate: c.nextReviewDate || new Date().toISOString(),
+            interval: c.interval || 1,
+          })),
+          upcoming: [],
+          stats: { totalDue: cached.length, totalUpcoming: 0 },
+        });
+      } else {
+        toast.error("Failed to refresh review queue");
+      }
     } finally {
       setLoading(false);
     }
@@ -163,29 +223,49 @@ export default function ReviewQueuePage() {
   ) => {
     soundEffects.playSuccess();
     setReviewingId(problemId);
-    try {
-      const res = await dsaApi.completeReview(problemId, quality);
-      setCompletedIds((prev) => new Set([...prev, problemId]));
-      const qualityLabel =
-        QUALITY_OPTIONS.find((q) => q.q === quality)?.label || "Reviewed";
-      const nextDays = res.interval ?? 1;
-      setReviewNotice(
-        `Rated "${title || "Problem"}" as ${qualityLabel} (Next in: ${
-          res.nextReviewIn || `${nextDays}d`
-        })`,
-      );
-      toast.success(
-        `SM-2 Updated: Next review ${res.nextReviewIn || `in ${nextDays} days`}`,
-      );
 
-      trackEvent("review_quality_selected", {
+    // Map quality (1, 3, 4, 5) to FSRS rating (1: Again, 2: Hard, 3: Good, 4: Easy)
+    const fsrsRating = quality <= 2 ? 1 : quality === 3 ? 2 : quality === 4 ? 3 : 4;
+    const clientEventId =
+      typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `rev_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    const reviewedAt = new Date().toISOString();
+
+    // 1. Optimistic UI advance and outbox enqueue immediately
+    setCompletedIds((prev) => new Set([...prev, problemId]));
+    const qualityLabel =
+      QUALITY_OPTIONS.find((q) => q.q === quality)?.label || "Reviewed";
+    setReviewNotice(`Rated "${title || "Problem"}" as ${qualityLabel}`);
+    toast.success(`Rated "${title || "Problem"}" as ${qualityLabel}`);
+
+    trackEvent("review_quality_selected", {
+      problemId,
+      quality,
+      fsrsRating,
+    });
+
+    if (quality === 1) {
+      setForgotModal({ problemId, title: title || "Problem" });
+    }
+
+    try {
+      // 2. Enqueue into IndexedDB outbox
+      await enqueuePendingReview({
+        clientEventId,
         problemId,
-        quality,
-        nextIntervalDays: nextDays,
+        rating: fsrsRating,
+        reviewedAt,
       });
+
+      // 3. Trigger background sync if online
+      if (typeof navigator !== "undefined" && navigator.onLine) {
+        syncManager.flushOutbox().catch((err) => {
+          console.warn("[Review] Background flush error:", err);
+        });
+      }
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to record review score");
+      console.error("Failed to enqueue review in outbox:", err);
     } finally {
       setReviewingId(null);
     }
@@ -233,16 +313,19 @@ export default function ReviewQueuePage() {
           </p>
         </div>
 
-        <button
-          onClick={() => {
-            soundEffects.playClick();
-            loadReviewQueue();
-          }}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] rounded-2xl text-xs font-bold text-[var(--text-secondary)] transition-all border border-[var(--border-subtle)] cursor-pointer self-start sm:self-auto shadow-sm"
-        >
-          <RefreshCw size={14} />
-          <span>Refresh Queue</span>
-        </button>
+        <div className="flex items-center gap-3 self-start sm:self-auto">
+          <SyncStatusChip />
+          <button
+            onClick={() => {
+              soundEffects.playClick();
+              loadReviewQueue();
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] rounded-2xl text-xs font-bold text-[var(--text-secondary)] transition-all border border-[var(--border-subtle)] cursor-pointer shadow-sm"
+          >
+            <RefreshCw size={14} />
+            <span>Refresh Queue</span>
+          </button>
+        </div>
       </div>
 
       {/* Hero SM-2 Leitner Hub */}
@@ -598,6 +681,15 @@ export default function ReviewQueuePage() {
             </div>
           )}
         </div>
+      )}
+
+      {forgotModal && (
+        <WhyDidIForgetModal
+          problemId={forgotModal.problemId}
+          problemTitle={forgotModal.title}
+          isOpen={Boolean(forgotModal)}
+          onClose={() => setForgotModal(null)}
+        />
       )}
     </div>
   );

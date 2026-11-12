@@ -112,6 +112,10 @@ describe("AnalyticsPage & CodeVis Sandbox", () => {
       { month: "Jan", easy: 3, medium: 2, hard: 1, total: 6 },
       { month: "Feb", easy: 4, medium: 3, hard: 2, total: 9 },
     ]);
+
+    vi.spyOn(dsaApi, "getMistakePatterns").mockResolvedValue({
+      patterns: [],
+    });
   });
 
   it("renders the 3 new Recharts charts with cards and titles", async () => {

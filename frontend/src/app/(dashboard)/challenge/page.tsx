@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { dsaApi, Topic } from "@/lib/api";
-import { useRouter } from "next/navigation";
+import { useRouter, notFound } from "next/navigation";
+import { useFeature } from "@/components/providers/FeaturesProvider";
 import {
   Timer,
   Zap,
@@ -85,6 +86,11 @@ const ARENA_MODES: ArenaMode[] = [
 ];
 
 export default function ChallengeSelection() {
+  const isEnabled = useFeature("arena");
+  if (!isEnabled) {
+    notFound();
+  }
+
   const [topics, setTopics] = useState<Topic[]>([]);
   const [selectedTopic, setSelectedTopic] = useState("");
   const [selectedModeId, setSelectedModeId] = useState("gauntlet");

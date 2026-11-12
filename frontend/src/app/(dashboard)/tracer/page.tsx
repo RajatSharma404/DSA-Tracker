@@ -2,6 +2,8 @@
 
 import React from "react";
 import dynamic from "next/dynamic";
+import { notFound } from "next/navigation";
+import { useFeature } from "@/components/providers/FeaturesProvider";
 
 const AlgoTracer = dynamic(
   () => import("@/features/algo-tracer").then((mod) => mod.AlgoTracer),
@@ -16,6 +18,11 @@ const AlgoTracer = dynamic(
 );
 
 export default function TracerPage() {
+  const isEnabled = useFeature("algotracer");
+  if (!isEnabled) {
+    notFound();
+  }
+
   return (
     <div className="-mt-16 -mb-20 -mx-4 sm:-m-6 lg:-m-8 h-[calc(100vh-3.5rem-4rem)] sm:h-screen w-auto overflow-hidden flex flex-col">
       <AlgoTracer />

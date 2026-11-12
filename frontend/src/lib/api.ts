@@ -1,5 +1,6 @@
 import axios, { InternalAxiosRequestConfig } from "axios";
 import { getSession } from "next-auth/react";
+import { FeatureFlags, DEFAULT_FEATURE_FLAGS } from "@/types/features";
 
 type SessionWithToken = {
   accessToken?: string;
@@ -9,6 +10,10 @@ let cachedAccessToken: string | null = null;
 let lastSessionReadAt = 0;
 const SESSION_CACHE_MS = 30_000;
 let sessionReadPromise: Promise<string | null> | null = null;
+
+let cachedBackendToken: string | null = null;
+let backendTokenExpiresAt = 0;
+let backendTokenPromise: Promise<string | null> | null = null;
 
 // No browser check needed
 
@@ -82,9 +87,53 @@ const readAccessToken = async (force = false): Promise<string | null> => {
   return sessionReadPromise;
 };
 
+/**
+ * Fetches and caches the 10-minute HS256 backend JWT from /api/backend-token in memory.
+ * Automatically refreshes 60 seconds before expiry.
+ * Falls back to NextAuth session accessToken in testing/legacy environments.
+ */
+export const fetchBackendJwt = async (force = false): Promise<string | null> => {
+  const now = Date.now();
+  const shouldRefresh =
+    force || !cachedBackendToken || now >= backendTokenExpiresAt - 60_000;
+
+  if (!shouldRefresh) {
+    return cachedBackendToken;
+  }
+
+  if (!backendTokenPromise) {
+    backendTokenPromise = (async () => {
+      try {
+        if (typeof window !== "undefined") {
+          const res = await fetch("/api/backend-token", {
+            method: "GET",
+            headers: { Accept: "application/json" },
+          });
+          if (res.ok) {
+            const data = (await res.json()) as { token?: string; expiresIn?: number };
+            if (data?.token) {
+              cachedBackendToken = data.token;
+              backendTokenExpiresAt = Date.now() + (data.expiresIn || 600) * 1000;
+              return data.token;
+            }
+          }
+        }
+      } catch {
+        // Fall back gracefully
+      } finally {
+        backendTokenPromise = null;
+      }
+
+      return readAccessToken(force);
+    })();
+  }
+
+  return backendTokenPromise;
+};
+
 // Automatically attach JWT token to all requests
 api.interceptors.request.use(async (config) => {
-  const accessToken = await readAccessToken();
+  const accessToken = await fetchBackendJwt();
 
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
@@ -154,15 +203,19 @@ api.interceptors.response.use(
       if (status === 401) {
         cachedAccessToken = null;
         lastSessionReadAt = 0;
+        cachedBackendToken = null;
+        backendTokenExpiresAt = 0;
       }
       throw error;
     }
 
     originalRequest._retry = true;
-    const accessToken = await readAccessToken(true);
+    const accessToken = await fetchBackendJwt(true);
     if (!accessToken) {
       cachedAccessToken = null;
       lastSessionReadAt = 0;
+      cachedBackendToken = null;
+      backendTokenExpiresAt = 0;
       throw error;
     }
 
@@ -704,6 +757,26 @@ export const dsaApi = {
     const res = await api.post("/ai/evaluate", { problemId, code, language });
     return res.data;
   },
+  getAiQuota: async () => {
+    const res = await api.get("/ai/quota");
+    return res.data;
+  },
+  getStudyPlan: async () => {
+    const res = await api.get("/ai/study-plan");
+    return res.data;
+  },
+  generateStudyPlan: async (weeklyHours = 10) => {
+    const res = await api.post("/ai/study-plan", { weeklyHours });
+    return res.data;
+  },
+  getMistakePatterns: async () => {
+    const res = await api.get("/ai/mistake-patterns");
+    return res.data;
+  },
+  getForgotAnalysis: async (problemId: string) => {
+    const res = await api.post("/ai/forgot-analysis", { problemId });
+    return res.data;
+  },
 
   // === Solution History ===
   saveSolution: async (data: {
@@ -715,6 +788,7 @@ export const dsaApi = {
     verdict?: string;
     timeComplexity?: string | null;
     spaceComplexity?: string | null;
+    estimatedComplexity?: any;
     isOptimal?: boolean;
     isAIGenerated?: boolean;
   }) => {
@@ -794,14 +868,22 @@ export const dsaApi = {
   completeReview: async (
     problemId: string,
     quality: number,
+    options?: {
+      clientEventId?: string;
+      reviewedAt?: string;
+      rating?: number;
+    },
   ): Promise<{
     nextReviewIn?: string;
     interval?: number;
     easinessFactor?: number;
+    deduplicated?: boolean;
+    reviewLogId?: string;
   }> => {
     const res = await api.post("/review-queue/complete", {
       problemId,
       quality,
+      ...options,
     });
     return res.data;
   },
@@ -906,6 +988,20 @@ export const dsaApi = {
     return res.data;
   },
 
+  // === Extension Device Pairing Methods ===
+  getExtensionDevices: async () => {
+    const res = await api.get("/extension/devices");
+    return res.data;
+  },
+  createExtensionDevice: async (name?: string) => {
+    const res = await api.post("/extension/devices", { name: name || "Chrome Extension" });
+    return res.data;
+  },
+  revokeExtensionDevice: async (id: string) => {
+    const res = await api.delete(`/extension/devices/${id}`);
+    return res.data;
+  },
+
   // === Stats Endpoints ===
   getTopicBreakdown: async () => {
     const res = await api.get("/stats/topic-breakdown");
@@ -918,5 +1014,18 @@ export const dsaApi = {
   getDifficultyByMonth: async () => {
     const res = await api.get("/stats/difficulty-by-month");
     return res.data;
+  },
+  getFeatureFlags: async (): Promise<FeatureFlags> => {
+    try {
+      const res = await api.get<FeatureFlags>("/features");
+      return {
+        pvp: Boolean(res.data?.pvp),
+        arena: Boolean(res.data?.arena),
+        interviews: Boolean(res.data?.interviews),
+        algotracer: res.data?.algotracer !== undefined ? Boolean(res.data.algotracer) : true,
+      };
+    } catch {
+      return DEFAULT_FEATURE_FLAGS;
+    }
   },
 };

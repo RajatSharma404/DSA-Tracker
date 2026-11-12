@@ -1,8 +1,36 @@
 import { Router, Request, Response } from "express";
+import { z } from "zod";
 import { prisma } from "../db/prisma";
 import { requireAuth } from "../middlewares/auth";
+import { validate } from "../middlewares/validate";
 
 const router = Router();
+
+const createNoteSchema = {
+  body: z.object({
+    problemId: z.string().trim().min(1, "Invalid problemId"),
+    content: z
+      .string()
+      .trim()
+      .min(1, "Note content cannot be empty")
+      .max(10000, "Note content exceeds maximum 10,000 characters"),
+    type: z.enum(["GOTCHA", "LEARNING", "TIP"]).optional().default("LEARNING"),
+  }),
+};
+
+const updateNoteSchema = {
+  params: z.object({
+    noteId: z.string().trim().min(1, "Invalid noteId"),
+  }),
+  body: z.object({
+    content: z
+      .string()
+      .trim()
+      .min(1, "Note content cannot be empty")
+      .max(10000, "Note content exceeds maximum 10,000 characters"),
+    type: z.enum(["GOTCHA", "LEARNING", "TIP"]).optional().default("LEARNING"),
+  }),
+};
 
 // Get notes for a specific problem
 router.get(
@@ -46,7 +74,11 @@ router.get("/notes", requireAuth, async (req: Request, res: Response) => {
 });
 
 // Create a note
-router.post("/notes", requireAuth, async (req: Request, res: Response) => {
+router.post(
+  "/notes",
+  requireAuth,
+  validate(createNoteSchema),
+  async (req: Request, res: Response) => {
   try {
     const userId = req.user!.id;
     const { problemId, content, type } = req.body;
@@ -85,6 +117,7 @@ router.post("/notes", requireAuth, async (req: Request, res: Response) => {
 router.put(
   "/notes/:noteId",
   requireAuth,
+  validate(updateNoteSchema),
   async (req: Request, res: Response) => {
     try {
       const userId = req.user!.id;

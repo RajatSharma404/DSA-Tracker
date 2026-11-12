@@ -1,6 +1,8 @@
 import { Router, Request, Response } from "express";
+import { z } from "zod";
 import { prisma } from "../db/prisma";
 import { requireAuth } from "../middlewares/auth";
+import { validate } from "../middlewares/validate";
 import {
   isNonEmptyString,
   isProgressStatus,
@@ -10,8 +12,22 @@ import { getUserCityProgressInfo } from "../services/cityProgressService";
 
 const router = Router();
 
+const updateProgressSchema = {
+  body: z.object({
+    problemId: z.string().trim().min(1, "Invalid problemId"),
+    status: z.enum(["TODO", "DOING", "DONE"], {
+      errorMap: () => ({ message: "Invalid status" }),
+    }),
+    timeSpent: z.coerce.number().min(0, "Invalid timeSpent").max(24 * 60, "Invalid timeSpent").default(0),
+  }),
+};
+
 // 4. Update Problem Progress
-router.post("/progress", requireAuth, async (req: Request, res: Response) => {
+router.post(
+  "/progress",
+  requireAuth,
+  validate(updateProgressSchema),
+  async (req: Request, res: Response) => {
   try {
     const { problemId, status, timeSpent } = req.body;
     const userId = req.user!.id;

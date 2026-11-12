@@ -47,6 +47,7 @@ model User {
   createdAt        DateTime        @default(now()) @map("created_at")
   updatedAt        DateTime        @updatedAt @map("updated_at")
   role             Role            @default(USER)
+  timezone         String          @default("UTC")
   leetcodeUsername String?
   leetcodeSession  String?
   leetcodeSessionHash String?
@@ -61,6 +62,12 @@ model User {
   bookmarks        Bookmark[]
   tags             UserTag[]
   theoryLessonProgress UserTheoryLessonProgress[]
+  reviewLogs       ReviewLog[]
+  activityEvents   ActivityEvent[]
+  extensionDevices ExtensionDevice[]
+  syncReceipts     SyncReceipt[]
+  aiUsages         AiUsage[]
+  studyPlans       StudyPlan[]
 
   @@index([leetcodeSessionHash])
 }
@@ -113,6 +120,8 @@ model Problem {
   bookmarks  Bookmark[]
   problemTags ProblemTag[]
   theoryProblemLinks TheoryProblemLink[]
+  reviewLogs ReviewLog[]
+  activityEvents ActivityEvent[]
 
   @@index([topicId, orderIndex])
   @@index([difficulty])
@@ -153,6 +162,12 @@ model Progress {
   easinessFactor Float          @default(2.5)
   interval       Int            @default(0)
   nextReviewDate DateTime?
+  repetitions    Int            @default(0)
+  lapses         Int            @default(0)
+  stability      Float?
+  difficultyFsrs Float?
+  lastReviewedAt DateTime?
+  state          ReviewState    @default(NEW)
   leetcodeRuntime String?
   leetcodeMemory  String?
   problem        Problem        @relation(fields: [problemId], references: [id], onDelete: Cascade)
@@ -228,6 +243,7 @@ model SolutionHistory {
   verdict     String?
   timeComplexity  String?
   spaceComplexity String?
+  estimatedComplexity Json?
   isOptimal   Boolean  @default(false)
   isAIGenerated String @default("UNKNOWN") // HUMAN, AI_GENERATED, AI_ASSISTED, TEMPLATE, UNKNOWN
   createdAt   DateTime @default(now())
@@ -404,3 +420,115 @@ enum TheoryProgressStatus {
   IN_PROGRESS
   COMPLETED
 }
+
+enum ReviewState {
+  NEW
+  LEARNING
+  REVIEW
+  RELEARNING
+}
+
+enum ActivityEventType {
+  SOLVED
+  REVIEWED
+  ATTEMPTED
+  SYNCED
+}
+
+model ReviewLog {
+  id               String       @id @default(uuid())
+  userId           String
+  problemId        String
+  clientEventId    String?
+  rating           Int
+  reviewedAt       DateTime     @default(now())
+  elapsedDays      Int
+  scheduledDays    Int
+  stabilityBefore  Float?
+  stabilityAfter   Float?
+  difficultyBefore Float?
+  difficultyAfter  Float?
+  stateBefore      ReviewState
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem          Problem      @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, clientEventId])
+  @@index([userId, reviewedAt])
+  @@index([userId, problemId])
+  @@map("review_logs")
+}
+
+model ActivityEvent {
+  id         String            @id @default(uuid())
+  userId     String
+  problemId  String?
+  type       ActivityEventType
+  occurredAt DateTime          @default(now())
+  metadata   Json?
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem    Problem?          @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@index([userId, occurredAt])
+  @@map("activity_events")
+}
+
+model ExtensionDevice {
+  id          String    @id @default(uuid())
+  userId      String
+  name        String
+  tokenHash   String    @unique
+  tokenPrefix String
+  scopes      String[]  @default(["sync:write"])
+  createdAt   DateTime  @default(now())
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  revokedAt   DateTime?
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("extension_devices")
+}
+
+model SyncReceipt {
+  id           String    @id @default(uuid())
+  userId       String
+  submissionId String
+  slug         String
+  verdict      String
+  syncedAt     DateTime  @default(now())
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, submissionId])
+  @@index([userId, syncedAt])
+  @@map("sync_receipts")
+}
+
+model AiUsage {
+  id        String   @id @default(uuid())
+  userId    String
+  day       DateTime
+  feature   String
+  count     Int      @default(0)
+  tokensIn  Int?
+  tokensOut Int?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, day, feature])
+  @@index([userId, day])
+  @@map("ai_usages")
+}
+
+model StudyPlan {
+  id        String   @id @default(uuid())
+  userId    String
+  weekStart DateTime
+  plan      Json
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, weekStart])
+  @@map("study_plans")
+}
+
+
+

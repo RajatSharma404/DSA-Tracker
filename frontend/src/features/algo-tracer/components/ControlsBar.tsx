@@ -276,6 +276,15 @@ export function ControlsBar({
 
         {/* Right: Speed, Input Drawer, Reset, Randomize, Export */}
         <div className="flex items-center gap-1.5 shrink-0">
+          {/* Visible Keyboard Shortcuts Hint */}
+          <div className="hidden 2xl:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] font-mono text-[10px] text-[var(--text-muted)]">
+            <span><kbd className="px-1 rounded bg-[var(--bg-primary)] border border-[var(--border-subtle)] font-bold">Space</kbd> Play</span>
+            <span>•</span>
+            <span><kbd className="px-1 rounded bg-[var(--bg-primary)] border border-[var(--border-subtle)] font-bold">← / →</kbd> Step</span>
+            <span>•</span>
+            <span><kbd className="px-1 rounded bg-[var(--bg-primary)] border border-[var(--border-subtle)] font-bold">Home/End</kbd> Jump</span>
+          </div>
+
           {/* Speed presets */}
           <div className="hidden sm:flex items-center gap-0.5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] p-0.5 rounded-xl">
             {[

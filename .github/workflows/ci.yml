@@ -2,7 +2,7 @@ name: CI Pipeline
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, "upgrade/**"]
   pull_request:
     branches: [main, master]
 
@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   backend-qa:
-    name: Backend QA (Types & Tests)
+    name: Backend QA (Types, Tests & Build)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -22,10 +22,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
+      - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: backend/package-lock.json
 
@@ -45,8 +45,11 @@ jobs:
           COOKIE_ENCRYPTION_KEY: test-encryption-key-for-ci-pipeline-32b
           JWT_SECRET: test-jwt-secret-for-ci-pipeline
 
+      - name: Build backend application
+        run: npm run build
+
   frontend-qa:
-    name: Frontend QA (Lint, Types & Tests)
+    name: Frontend QA (Lint, Types, Tests & Build)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -56,10 +59,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
+      - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
@@ -86,13 +89,25 @@ jobs:
         env:
           NEXTAUTH_SECRET: test-nextauth-secret-for-ci
 
-  security-and-manifest-audit:
-    name: Security & Extension Permissions Audit
+      - name: Build frontend application
+        run: npm run build
+        env:
+          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_SECRET: test-nextauth-secret-for-ci
+          NEXT_PUBLIC_API_URL: http://localhost:5000/api
+
+  repo-checks:
+    name: Security, Extension Audit & Schema Parity
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
 
       - name: Verify Chrome Extension Least-Privilege Permissions
         run: |
@@ -104,11 +119,21 @@ jobs:
           echo "Verified: No wildcard permissions found."
 
       - name: Verify Prisma Schema Synchronization
+        run: node scripts/check-schema-sync.mjs
+
+      - name: Verify ERD Documentation Freshness
+        run: node scripts/check-erd-freshness.mjs
+
+      - name: Validate Mermaid Architecture Diagrams
+        run: node scripts/validate-mermaid.mjs
+
+      - name: Verify Extension Contract Parity & Checksum
+        run: node scripts/validate-extension-payload.mjs
+
+      - name: Verify Zero Migration Drift (prisma migrate diff)
+        working-directory: ./backend
         run: |
-          echo "Verifying backend and frontend Prisma schema synchronization..."
-          if ! cmp -s backend/prisma/schema.prisma frontend/prisma/schema.prisma; then
-            echo "ERROR: backend/prisma/schema.prisma and frontend/prisma/schema.prisma are out of sync!"
-            echo "Run 'npm run sync:prisma' to synchronize schemas."
-            exit 1
-          fi
-          echo "Verified: Backend and frontend Prisma schemas are synchronized."
+          npx prisma migrate diff \
+            --from-schema-datasource prisma/schema.prisma \
+            --to-schema-datamodel prisma/schema.prisma \
+            --exit-code

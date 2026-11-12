@@ -65,3 +65,8 @@ frontend/android/capacitor-cordova-android-plugins/
 *.tar
 *.rar
 
+# Playwright Test Outputs & Auth Artifacts
+test-results/
+playwright-report/
+e2e/.auth/
+

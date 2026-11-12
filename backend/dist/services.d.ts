@@ -4,16 +4,7 @@ export declare const getRevisionReminders: (userId: string) => Promise<{
     topicName: any;
     daysSince: number;
 }[]>;
-export declare const getWeakTopics: (userId: string) => Promise<{
-    name: string;
-    totalProblems: number;
-    solvedProblems: number;
-    avgTimeSpent: number;
-    completionPct: number;
-    overdueReviews: number;
-    masteryScore: number;
-    weaknessScore: number;
-}[]>;
+export declare const getWeakTopics: (userId: string) => Promise<any[]>;
 export declare const getMasteryStats: (userId: string) => Promise<{
     subject: string;
     A: number;

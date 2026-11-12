@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, use } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, notFound } from "next/navigation";
 import Link from "next/link";
+import { useFeature } from "@/components/providers/FeaturesProvider";
 import Editor from "@monaco-editor/react";
 import {
   Swords,
@@ -46,6 +47,11 @@ interface TestCase {
 }
 
 export default function PvPMatchBattlePage({ params }: PvPBattleProps) {
+  const isEnabled = useFeature("pvp");
+  if (!isEnabled) {
+    notFound();
+  }
+
   const resolvedParams = use(params);
   const router = useRouter();
 

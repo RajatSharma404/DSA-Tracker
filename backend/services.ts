@@ -1,4 +1,6 @@
 import { prisma } from "./db/prisma";
+import { appCacheStore } from "./utils/cacheStore";
+import { isFeatureEnabled, FeatureName } from "./features";
 
 const clamp = (value: number, min: number, max: number) =>
   Math.max(min, Math.min(max, value));
@@ -53,28 +55,31 @@ export const getRevisionReminders = async (userId: string) => {
 };
 
 // =========================================================================
-// [NEW OPTIMIZED LOGIC: IN-MEMORY WEAK TOPICS TTL CACHE (TEST-SAFE)]
+// [NEW OPTIMIZED LOGIC: REDIS/IN-MEMORY WEAK TOPICS TTL CACHE (TEST-SAFE)]
 // =========================================================================
-const weakTopicsCache = new Map<string, { data: any[]; expiresAt: number }>();
-
 export const getWeakTopics = async (userId: string) => {
+  const cacheKey = `weak_topics:${userId}`;
   if (process.env.NODE_ENV !== "test") {
-    const cached = weakTopicsCache.get(userId);
-    if (cached && Date.now() < cached.expiresAt) {
-      return cached.data;
+    const cached = await appCacheStore.get<any[]>(cacheKey);
+    if (cached) {
+      return cached;
     }
   }
   const result = await calculateWeakTopics(userId);
   if (process.env.NODE_ENV !== "test") {
-    weakTopicsCache.set(userId, { data: result, expiresAt: Date.now() + 30_000 });
+    await appCacheStore.set(cacheKey, result, 30);
   }
   return result;
 };
 
-// =========================================================================
-// [PREVIOUS LOGIC - COMMENTED OUT AS PER DIRECTIVE: UNCACHED GETWEAKTOPICS]
-// export const getWeakTopics = async (userId: string) => {
-// =========================================================================
+export const invalidateWeakTopicsCache = async (userId?: string): Promise<void> => {
+  if (userId) {
+    await appCacheStore.delete(`weak_topics:${userId}`);
+  } else {
+    await appCacheStore.clear();
+  }
+};
+
 const calculateWeakTopics = async (userId: string) => {
   const now = new Date();
   const [topics, solvedProgress] = await Promise.all([
@@ -806,6 +811,7 @@ interface Badge {
   unlocked: boolean;
   progress?: number; // 0-100
   unlockedAt?: string;
+  requiredFeature?: FeatureName;
 }
 
 const pct = (value: number, target: number) => {
@@ -1047,14 +1053,51 @@ export const getAchievements = async (userId: string) => {
       unlocked: completedTopics.length >= 5,
       progress: pct(completedTopics.length, 5),
     },
+
+    // Feature-gated badges (unlocked only when experimental/parked features are enabled)
+    {
+      id: "arena-champion",
+      name: "Arena Champion",
+      description: "Complete an Arena timed speed challenge",
+      icon: "⚡",
+      category: "Milestones",
+      requiredFeature: "arena",
+      unlocked: false,
+      progress: 0,
+    },
+    {
+      id: "pvp-gladiator",
+      name: "Colosseum Victor",
+      description: "Win a 1v1 PvP speed duel",
+      icon: "⚔️",
+      category: "Milestones",
+      requiredFeature: "pvp",
+      unlocked: false,
+      progress: 0,
+    },
+    {
+      id: "mock-interview-ace",
+      name: "Interview Ace",
+      description: "Score 80%+ on an AI Mock Technical Interview",
+      icon: "🎯",
+      category: "Milestones",
+      requiredFeature: "interviews",
+      unlocked: false,
+      progress: 0,
+    },
   ];
 
-  const unlockedCount = badges.filter((b) => b.unlocked).length;
+  // Exclude badges whose required feature is currently disabled
+  const activeBadges = badges.filter(
+    (b) => !b.requiredFeature || isFeatureEnabled(b.requiredFeature),
+  );
+
+  const unlockedCount = activeBadges.filter((b) => b.unlocked).length;
 
   return {
-    badges,
+    badges: activeBadges,
     stats: {
-      totalBadges: badges.length,
+      totalBadges: activeBadges.length,
       unlocked: unlockedCount,
       totalSolved,
       currentStreak,
