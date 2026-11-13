@@ -87,3 +87,15 @@ export function useTheme(): ThemeContextType {
   }
   return context;
 }
+
+/** Like useTheme, but safe outside a provider (falls back to the default theme). */
+export function useOptionalTheme(): ThemeContextType {
+  const context = useContext(ThemeContext);
+  return (
+    context ?? {
+      theme: DEFAULT_THEME,
+      setTheme: () => {},
+      currentThemeOption: THEME_OPTIONS.find((t) => t.id === DEFAULT_THEME) ?? THEME_OPTIONS[0],
+    }
+  );
+}

@@ -24,7 +24,7 @@ import {
 } from "@/components/FlowchartPanel";
 import { generateAstFlowchart } from "@/lib/astFlowchartEngine";
 import { dsaApi } from "@/lib/api";
-import { useTheme } from "@/components/providers/ThemeProvider";
+import { useOptionalTheme } from "@/components/providers/ThemeProvider";
 import {
   submitViaExtension,
   getExtensionHealth,
@@ -104,7 +104,7 @@ export function LeetCodeEditor({
   problemId,
   onSubmissionSuccess,
 }: LeetCodeEditorProps) {
-  const { currentThemeOption } = useTheme();
+  const { currentThemeOption } = useOptionalTheme();
   const [selectedLang, setSelectedLang] = useState<string>("cpp");
   const [code, setCode] = useState<string>("# Write your code here\n");
   const [isSubmitting, setIsSubmitting] = useState(false);

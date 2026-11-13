@@ -199,10 +199,10 @@ describe("LeetCodeEditor Visualize Flow Integration", () => {
 
     // Wait for snippets to load
     await waitFor(() => {
-      expect(screen.getByText("🔀 Visualize Flow")).toBeDefined();
+      expect(screen.getByRole("button", { name: /Flowchart/ })).toBeDefined();
     });
 
-    const visualizeBtn = screen.getByText("🔀 Visualize Flow");
+    const visualizeBtn = screen.getByRole("button", { name: /Flowchart/ });
     fireEvent.click(visualizeBtn);
 
     await waitFor(() => {
@@ -235,10 +235,10 @@ describe("LeetCodeEditor Visualize Flow Integration", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText("🔀 Visualize Flow")).toBeDefined();
+      expect(screen.getByRole("button", { name: /Flowchart/ })).toBeDefined();
     });
 
-    const visualizeBtn = screen.getByText("🔀 Visualize Flow");
+    const visualizeBtn = screen.getByRole("button", { name: /Flowchart/ });
     fireEvent.click(visualizeBtn);
 
     await waitFor(() => {
@@ -261,7 +261,7 @@ describe("LeetCodeEditor Visualize Flow Integration", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText("🔀 Visualize Flow")).toBeDefined();
+      expect(screen.getByRole("button", { name: /Flowchart/ })).toBeDefined();
     });
 
     const textarea = screen.getByTestId("monaco-editor-mock");
@@ -271,7 +271,7 @@ describe("LeetCodeEditor Visualize Flow Integration", () => {
       },
     });
 
-    const visualizeBtn = screen.getByText("🔀 Visualize Flow");
+    const visualizeBtn = screen.getByRole("button", { name: /Flowchart/ });
     fireEvent.click(visualizeBtn);
 
     await waitFor(() => {
@@ -301,10 +301,10 @@ describe("LeetCodeEditor Visualize Flow Integration", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText("🔀 Visualize Flow")).toBeDefined();
+      expect(screen.getByRole("button", { name: /Flowchart/ })).toBeDefined();
     });
 
-    fireEvent.click(screen.getByText("🔀 Visualize Flow"));
+    fireEvent.click(screen.getByRole("button", { name: /Flowchart/ }));
 
     await waitFor(() => {
       expect(screen.getAllByText("Process data").length).toBeGreaterThan(0);
