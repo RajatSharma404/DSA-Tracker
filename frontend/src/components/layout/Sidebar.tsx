@@ -9,9 +9,11 @@ import { safeSignOut } from "@/lib/auth/safeSignOut";
 import { useFeatures } from "@/components/providers/FeaturesProvider";
 import { motion } from "framer-motion";
 import { ThemeSelector } from "@/components/ui/ThemeSelector";
+import { BrandMark } from "@/components/ui/BrandMark";
 import { NAV_SECTIONS, filterNavByFeatures, isNavItemActive, type NavSection } from "@/lib/navigation";
 
 const COLLAPSE_KEY = "dsa_sidebar_collapsed";
+
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -74,12 +76,10 @@ export function Sidebar() {
       {/* Brand */}
       <div className="flex h-14 items-center gap-2 px-4 border-b border-[var(--border-subtle)]">
         <Link href="/" className="flex items-center gap-2.5 min-w-0" aria-label="DSA Pro home">
-          <span className="relative grid place-items-center w-8 h-8 shrink-0 rounded-xl bg-[image:var(--accent-gradient)] shadow-[var(--shadow-glow-sm)]">
-            <span className="font-display font-black text-[13px] text-white [--color-white:#fff]">D</span>
-          </span>
+          <BrandMark />
           {!effectiveCollapsed && (
-            <span className="font-display font-bold text-[15px] tracking-tight text-[var(--text-primary)] truncate">
-              DSA <span className="text-gradient">Pro</span>
+            <span className="truncate text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">
+              DSA Tracker
             </span>
           )}
         </Link>

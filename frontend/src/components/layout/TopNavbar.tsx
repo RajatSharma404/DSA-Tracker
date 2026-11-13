@@ -1,14 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import { useSession } from "next-auth/react";
 import {
   Search,
   Volume2,
   VolumeX,
-  Sparkles,
-  Command,
   HelpCircle,
 } from "lucide-react";
 import { ExtensionStatusBadge } from "@/components/layout/ExtensionStatusBadge";
@@ -23,7 +19,6 @@ export function TopNavbar({
   onOpenCommandPalette,
   streakCount = 1,
 }: TopNavbarProps) {
-  const { data: session } = useSession();
   const [isMuted, setIsMuted] = useState(false);
 
   useEffect(() => {
@@ -50,78 +45,41 @@ export function TopNavbar({
     onOpenCommandPalette();
   };
 
+  const iconBtn =
+    "grid h-8 w-8 place-items-center rounded-lg text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] transition-colors cursor-pointer";
+
   return (
-    <header className="hidden md:flex h-14 w-full bg-[var(--bg-secondary)]/80 backdrop-blur-md border-b border-[var(--border-subtle)] px-6 items-center justify-between gap-4 shrink-0 transition-colors duration-250 z-20">
-      {/* Left: Interactive Command Search Bar */}
-      <div className="flex items-center gap-3 flex-1 max-w-md">
-        <button
-          onClick={handleSearchClick}
-          className="w-full flex items-center justify-between px-3.5 py-1.5 rounded-xl bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--accent-primary)]/50 hover:shadow-[0_0_0_2px_var(--accent-glow)] transition-all cursor-pointer shadow-xs group"
-        >
-          <div className="flex items-center gap-2 text-xs">
-            <Search size={14} className="text-[var(--text-muted)] group-hover:text-[var(--accent-primary)] transition-colors" />
-            <span className="truncate">Search problems, topics, actions...</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <kbd className="hidden lg:inline-flex items-center gap-0.5 text-[10px] font-mono font-semibold text-[var(--text-muted)] px-1.5 py-0.5 rounded bg-[var(--bg-card)] border border-[var(--border-subtle)]">
-              <span>⌘</span>K
-            </kbd>
-          </div>
-        </button>
-      </div>
+    <header className="z-20 hidden h-14 w-full shrink-0 items-center justify-between gap-4 border-b border-[var(--border-subtle)] bg-[var(--bg-primary)]/80 px-6 backdrop-blur-md md:flex">
+      <button
+        onClick={handleSearchClick}
+        className="group flex w-full max-w-sm items-center gap-2 rounded-lg border border-[var(--input-border)] bg-[var(--input-bg)] px-3 py-1.5 text-[13px] text-[var(--text-muted)] transition-colors hover:border-[var(--border-strong)] cursor-pointer"
+        aria-label="Search (⌘K)"
+      >
+        <Search size={14} />
+        <span className="flex-1 truncate text-left">Search problems, topics and actions</span>
+        <kbd className="hidden rounded border border-[var(--border-subtle)] px-1.5 font-mono text-[10px] lg:inline">⌘K</kbd>
+      </button>
 
-      {/* Right: Metrics, Status, Sound, Theme, Profile */}
-      <div className="flex items-center gap-3">
-        {/* Extension Health Badge */}
+      <div className="flex items-center gap-1">
         <ExtensionStatusBadge compact />
-
-        {/* Setup & Sync Instructions Modal Button */}
+        <span className="mx-1.5 h-5 w-px bg-[var(--border-subtle)]" aria-hidden />
         <button
-          onClick={() => {
-            soundEffects.playClick();
-            window.dispatchEvent(new CustomEvent("dsa-open-sync-guide"));
-          }}
-          title="Extension & LeetCode Setup Instructions (Click to open)"
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border-subtle)] hover:border-[var(--border-medium)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-xs font-semibold transition-all cursor-pointer shadow-xs hover:bg-[var(--bg-hover)]"
-          aria-label="Setup Guide - Open Setup Instructions"
+          onClick={() => window.dispatchEvent(new CustomEvent("dsa-open-sync-guide"))}
+          title="Setup guide"
+          aria-label="Open setup guide"
+          className={iconBtn}
         >
-          <HelpCircle size={14} className="text-[var(--accent-primary)]" />
-          <span className="hidden lg:inline">Setup Guide</span>
+          <HelpCircle size={16} />
         </button>
-
-        {/* Global Sound FX Toggle */}
         <button
           onClick={handleToggleSound}
-          title={isMuted ? "Unmute Sound Effects" : "Mute Sound Effects"}
-          className={`p-2 rounded-xl border transition-all cursor-pointer ${
-            isMuted
-              ? "bg-[var(--bg-card)] border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-              : "bg-[var(--accent-primary)]/10 border-[var(--accent-primary)]/40 text-[var(--accent-primary)] glow-pulse"
-          }`}
-          aria-label="Toggle Sound Effects"
+          title={isMuted ? "Turn sounds on" : "Turn sounds off"}
+          aria-label={isMuted ? "Turn sounds on" : "Turn sounds off"}
+          aria-pressed={!isMuted}
+          className={iconBtn}
         >
-          {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+          {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
         </button>
-
-        {/* User Mini Profile */}
-        {session?.user && (
-          <Link
-            href="/settings"
-            title={`${session.user.name || "User"} (${session.user.email || ""})`}
-            className="flex items-center gap-2 pl-2 border-l border-[var(--border-subtle)] cursor-pointer group"
-          >
-            {session.user.image ? (
-              <div
-                className="w-7 h-7 rounded-full bg-cover bg-center border border-[var(--border-subtle)] group-hover:border-[var(--accent-primary)] transition-colors"
-                style={{ backgroundImage: `url(${session.user.image})` }}
-              />
-            ) : (
-              <div className="w-7 h-7 rounded-full bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 flex items-center justify-center text-[11px] font-bold">
-                {session.user.name?.charAt(0) || "U"}
-              </div>
-            )}
-          </Link>
-        )}
       </div>
     </header>
   );

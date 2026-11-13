@@ -1,17 +1,16 @@
 "use client";
 
-import { signIn, useSession } from "next-auth/react";
+import { signIn, useSession, getProviders } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, Suspense, useState } from "react";
-import Image from "next/image";
-import { LayoutDashboard, Target, Zap } from "lucide-react";
+import { BrandMark } from "@/components/ui/BrandMark";
 
 function ErrorMessage() {
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
   if (!error) return null;
   return (
-    <div className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-red-400 text-sm text-center">
+    <div className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-500">
       {error === "OAuthAccountNotLinked"
         ? "This email is already linked to another account."
         : error === "AccessDenied"
@@ -57,168 +56,110 @@ export default function LoginPage() {
     router.push(result?.url || "/");
   };
 
-  if (status === "loading") {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-[var(--bg-primary)] text-[var(--text-primary)] px-6">
-        <div className="w-full max-w-110 space-y-4 animate-pulse">
-          <div className="mx-auto h-14 w-14 rounded-2xl bg-[var(--bg-card)]" />
-          <div className="mx-auto h-8 w-56 rounded-full bg-[var(--bg-card)]" />
-          <div className="mx-auto h-4 w-72 max-w-full rounded-full bg-[var(--bg-card)]" />
-          <div className="h-12 w-full rounded-2xl bg-[var(--bg-card)]" />
-          <div className="h-12 w-full rounded-2xl bg-[var(--bg-card)]" />
-        </div>
-      </div>
-    );
-  }
+  const [hasGoogle, setHasGoogle] = useState<boolean | null>(null);
+  useEffect(() => {
+    getProviders()
+      .then((p) => setHasGoogle(Boolean(p?.google)))
+      .catch(() => setHasGoogle(false));
+  }, []);
+
+  const field =
+    "w-full rounded-lg border border-[var(--input-border)] bg-[var(--input-bg)] px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none focus:border-[var(--accent-primary)]";
 
   return (
-    <div
-      className="relative min-h-screen w-full bg-[var(--bg-primary)] text-[var(--text-primary)] flex items-center justify-center overflow-hidden p-6 font-sans"
-      data-scroll-reveal
-    >
-      {/* Balanced Radial Glows */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-150 w-150 rounded-full bg-blue-500/10 blur-[120px] pointer-events-none"></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-200 w-200 rounded-full bg-purple-500/5 blur-[160px] pointer-events-none"></div>
-
-      <div className="relative w-full max-w-110 flex flex-col items-center">
-        {/* Logo Section */}
-        <div className="mb-10 flex flex-col items-center space-y-4">
-          <div className="h-14 w-14 rounded-2xl shadow-[0_0_40px_rgba(96,165,250,0.15)] ring-1 ring-white/10 overflow-hidden flex items-center justify-center">
-            <Image
-              src="/logo.svg"
-              alt="DSA Tracker Pro logo"
-              width={56}
-              height={56}
-              priority
-              className="h-full w-full object-contain"
-            />
+    <main className="min-h-screen w-full bg-[var(--bg-primary)] text-[var(--text-primary)]">
+      <div className="mx-auto grid min-h-screen max-w-5xl items-center gap-12 px-6 py-12 lg:grid-cols-[1.1fr_1fr]">
+        <section className="max-w-md">
+          <div className="flex items-center gap-2.5">
+            <BrandMark />
+            <span className="text-[15px] font-semibold tracking-tight">DSA Tracker</span>
           </div>
-          <div className="text-center">
-            <h1 className="text-3xl font-bold tracking-tight text-white">
-              DSA Tracker <span className="text-gray-500">Pro</span>
-            </h1>
-            <p className="text-gray-400 text-sm mt-2 font-medium">
-              Elevate your algorithmic journey
-            </p>
-          </div>
-        </div>
+          <h1 className="font-serif-display mt-10 text-5xl leading-[1.05] sm:text-6xl">
+            Practise with a plan. <em className="italic text-[var(--accent-primary)]">Remember</em> what you solve.
+          </h1>
+          <p className="mt-5 text-[15px] leading-relaxed text-[var(--text-secondary)]">
+            A roadmap of 450+ interview problems, spaced repetition that schedules your reviews, and a browser
+            extension that records every accepted LeetCode submission for you.
+          </p>
+          <ul className="mt-8 space-y-3 text-sm text-[var(--text-secondary)]">
+            {[
+              "A single list each day: reviews first, then new practice",
+              "Memory forecast shows which patterns are fading",
+              "Submit to LeetCode from the editor and get the real verdict",
+            ].map((t) => (
+              <li key={t} className="flex gap-3">
+                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--accent-primary)]" />
+                {t}
+              </li>
+            ))}
+          </ul>
+        </section>
 
-        {/* Main Card */}
-        <div
-          className="w-full bg-[var(--bg-card)] border border-white/10 p-10 rounded-2xl shadow-2xl backdrop-blur-xl"
-          data-scroll-reveal
-        >
-          <div className="space-y-8">
-            <div className="text-center space-y-2">
-              <h2 className="text-xl font-semibold text-white">Welcome back</h2>
-              <p className="text-gray-500 text-sm">Sign in to continue</p>
-            </div>
+        <section className="surface w-full max-w-sm justify-self-center p-6 lg:justify-self-end">
+          <h2 className="text-lg font-semibold tracking-tight">Sign in</h2>
+          <p className="mt-1 text-sm text-[var(--text-muted)]">Your progress syncs across devices.</p>
 
-            {/* Error message from OAuth callback */}
+          <div className="mt-6 space-y-3">
             <Suspense fallback={null}>
               <ErrorMessage />
             </Suspense>
 
-            <div className="space-y-3">
+            {hasGoogle && (
               <button
                 onClick={() => signIn("google", { callbackUrl: "/" })}
-                className="group relative w-full flex items-center justify-center gap-3 py-4 px-6 bg-white text-black rounded-2xl font-bold text-sm tracking-tight hover:bg-gray-200 transition-all active:scale-[0.98] shadow-lg"
+                className="flex w-full items-center justify-center gap-2.5 rounded-lg border border-[var(--border-medium)] bg-[var(--bg-card)] px-4 py-2.5 text-sm font-medium hover:bg-[var(--bg-hover)] transition-colors cursor-pointer"
               >
-                <Image
-                  src="https://authjs.dev/img/providers/google.svg"
-                  alt="Google"
-                  width={20}
-                  height={20}
-                  className="w-5 h-5"
-                />
+                <svg width="16" height="16" viewBox="0 0 48 48" aria-hidden>
+                  <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z" />
+                  <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
+                  <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z" />
+                  <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z" />
+                </svg>
                 Continue with Google
               </button>
+            )}
 
-              {allowInsecureCredentialsLogin ? (
-                <>
-                  <div className="relative py-1">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t border-white/10" />
-                    </div>
-                    <div className="relative flex justify-center">
-                      <span className="bg-[var(--bg-card)] px-3 text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                        or use email
-                      </span>
-                    </div>
-                  </div>
+            {hasGoogle && allowInsecureCredentialsLogin && (
+              <div className="flex items-center gap-3 py-1 text-xs text-[var(--text-muted)]">
+                <span className="h-px flex-1 bg-[var(--border-subtle)]" /> or <span className="h-px flex-1 bg-[var(--border-subtle)]" />
+              </div>
+            )}
 
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Name (optional)"
-                    aria-label="Name (optional)"
-                    className="w-full rounded-2xl border border-white/15 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-gray-500 outline-none focus:border-white/30"
-                  />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Email"
-                    aria-label="Email address"
-                    className="w-full rounded-2xl border border-white/15 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-gray-500 outline-none focus:border-white/30"
-                  />
-                  <button
-                    onClick={handleSignIn}
-                    className="group relative w-full py-4 px-6 bg-white text-black rounded-2xl font-bold text-sm tracking-tight hover:bg-gray-200 transition-all active:scale-[0.98] shadow-lg"
-                  >
-                    Continue
-                  </button>
-                </>
-              ) : null}
-            </div>
+            {allowInsecureCredentialsLogin && (
+              <form
+                className="space-y-3"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSignIn();
+                }}
+              >
+                <label className="block space-y-1.5">
+                  <span className="text-xs text-[var(--text-secondary)]">Name</span>
+                  <input className={field} value={name} onChange={(e) => setName(e.target.value)} placeholder="Ada Lovelace" autoComplete="name" />
+                </label>
+                <label className="block space-y-1.5">
+                  <span className="text-xs text-[var(--text-secondary)]">Email</span>
+                  <input className={field} type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" autoComplete="email" />
+                </label>
+                {submitError && <p className="text-xs text-rose-500">{submitError}</p>}
+                <button
+                  type="submit"
+                  className="w-full rounded-lg bg-[var(--accent-primary)] px-4 py-2.5 text-sm font-medium text-[var(--on-accent)] hover:opacity-90 cursor-pointer"
+                >
+                  Continue with email
+                </button>
+                <p className="text-[11px] text-[var(--text-muted)]">Development sign-in: no password is checked.</p>
+              </form>
+            )}
 
-            {submitError ? (
-              <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-center text-sm text-red-400">
-                {submitError}
-              </div>
-            ) : null}
-
-            <div className="pt-4 grid grid-cols-3 gap-4">
-              <div className="flex flex-col items-center space-y-2">
-                <div className="p-2 rounded-lg bg-white/5 text-gray-400">
-                  <LayoutDashboard size={16} />
-                </div>
-                <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
-                  Stats
-                </span>
-              </div>
-              <div className="flex flex-col items-center space-y-2">
-                <div className="p-2 rounded-lg bg-white/5 text-gray-400">
-                  <Target size={16} />
-                </div>
-                <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
-                  Goals
-                </span>
-              </div>
-              <div className="flex flex-col items-center space-y-2">
-                <div className="p-2 rounded-lg bg-white/5 text-gray-400">
-                  <Zap size={16} />
-                </div>
-                <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
-                  Streaks
-                </span>
-              </div>
-            </div>
+            {hasGoogle === false && !allowInsecureCredentialsLogin && (
+              <p className="text-sm text-[var(--text-muted)]">
+                Sign-in isn&apos;t configured on this server. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET.
+              </p>
+            )}
           </div>
-        </div>
-
-        {/* Footer info */}
-        <div className="mt-10 flex items-center gap-6">
-          <span className="text-[11px] font-bold text-gray-400 uppercase tracking-[0.2em]">
-            Verified Secure
-          </span>
-          <div className="h-1 w-1 rounded-full bg-gray-600"></div>
-          <span className="text-[11px] font-bold text-gray-400 uppercase tracking-[0.2em]">
-            AWS Hosted
-          </span>
-        </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }

@@ -17,7 +17,7 @@ describe("ThemeSelector Component", () => {
     expect(triggerBtn).toBeDefined();
     fireEvent.click(triggerBtn);
 
-    const matrixOption = screen.getByText("Matrix Emerald");
+    const matrixOption = screen.getByText("Gruvbox");
     expect(matrixOption).toBeDefined();
     fireEvent.click(matrixOption);
 

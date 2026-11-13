@@ -42,7 +42,7 @@ describe("Providers (components/providers)", () => {
     it("should validate all available theme options", () => {
       expect(THEME_OPTIONS.length).toBe(9);
       expect(THEME_OPTIONS.some((t) => t.id === "graphite")).toBe(true);
-      expect(THEME_OPTIONS.some((t) => t.id === "matrix")).toBe(true);
+      expect(THEME_OPTIONS.some((t) => t.id === "gruvbox")).toBe(true);
     });
   });
 
