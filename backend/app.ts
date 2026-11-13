@@ -37,6 +37,12 @@ dotenv.config();
 export function createApp(): Express {
   const app = express();
 
+  // Behind Render's (or any single) reverse proxy, use the client IP from
+  // X-Forwarded-For; otherwise every user shares one rate-limit bucket.
+  if (process.env.NODE_ENV === "production" || process.env.TRUST_PROXY === "true") {
+    app.set("trust proxy", 1);
+  }
+
   const defaultDevOrigins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",

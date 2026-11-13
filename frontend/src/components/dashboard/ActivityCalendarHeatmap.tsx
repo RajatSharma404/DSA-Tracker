@@ -73,7 +73,7 @@ export default function ActivityCalendarHeatmap({
   return (
     <div
       id="activity-calendar-heatmap"
-      className={`p-6 sm:p-8 rounded-[2.5rem] bg-[var(--bg-card)] border border-[var(--border-subtle)] shadow-xl relative overflow-hidden transition-all duration-300 ${className}`}
+      className={`p-6 sm:p-8 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] shadow-xl relative overflow-hidden transition-all duration-300 ${className}`}
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">

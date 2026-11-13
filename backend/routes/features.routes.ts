@@ -1,5 +1,4 @@
 import { Router, Request, Response } from "express";
-import { requireAuth } from "../middlewares/auth";
 import { getFeatureFlags } from "../features";
 
 const router = Router();
@@ -7,10 +6,11 @@ const router = Router();
 /**
  * GET /api/features
  * Returns active runtime feature flags for client-side gating.
- * Authenticated and cacheable for 60s.
+ * Public: flags are not secret, and the dashboard's server layout reads
+ * them before any user token exists. Cacheable for 60s.
  */
-router.get("/features", requireAuth, (_req: Request, res: Response) => {
-  res.setHeader("Cache-Control", "private, max-age=60");
+router.get("/features", (_req: Request, res: Response) => {
+  res.setHeader("Cache-Control", "public, max-age=60");
   res.json(getFeatureFlags());
 });
 

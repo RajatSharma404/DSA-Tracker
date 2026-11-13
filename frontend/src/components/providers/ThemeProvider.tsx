@@ -6,6 +6,8 @@ import {
   THEME_OPTIONS,
   THEME_STORAGE_KEY,
   LIGHT_THEMES,
+  DEFAULT_THEME,
+  resolveThemeId,
   type ThemeMode,
   type ThemeOption,
 } from "@/lib/themes";
@@ -22,22 +24,20 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<ThemeMode>("oled");
+  const [theme, setThemeState] = useState<ThemeMode>(DEFAULT_THEME);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     try {
-      const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) as ThemeMode;
-      const activeTheme =
-        savedTheme && THEME_OPTIONS.some((option) => option.id === savedTheme)
-          ? savedTheme
-          : "oled";
+      const activeTheme = resolveThemeId(localStorage.getItem(THEME_STORAGE_KEY));
+      // Persist the migration from a legacy id so it only happens once.
+      localStorage.setItem(THEME_STORAGE_KEY, activeTheme);
       setThemeState(activeTheme);
       document.documentElement.setAttribute("data-theme", activeTheme);
       document.body.setAttribute("data-theme", activeTheme);
     } catch {
-      document.documentElement.setAttribute("data-theme", "oled");
-      document.body.setAttribute("data-theme", "oled");
+      document.documentElement.setAttribute("data-theme", DEFAULT_THEME);
+      document.body.setAttribute("data-theme", DEFAULT_THEME);
     }
     setMounted(true);
   }, []);

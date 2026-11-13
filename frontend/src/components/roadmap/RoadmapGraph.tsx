@@ -451,7 +451,7 @@ function InnerRoadmapGraph() {
 
   if (loading) {
     return (
-      <div className="flex h-160 w-full items-center justify-center rounded-[2.5rem] border border-[var(--border-subtle)] bg-[var(--bg-card)]">
+      <div className="flex h-160 w-full items-center justify-center rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)]">
         <div className="flex flex-col items-center gap-3">
           <div className="h-10 w-10 animate-spin rounded-full border-2 border-[var(--accent-primary)]/20 border-t-[var(--accent-primary)] shadow-[0_0_12px_var(--accent-glow)]" />
           <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest font-mono">
@@ -463,7 +463,7 @@ function InnerRoadmapGraph() {
   }
 
   return (
-    <div className="relative h-185 w-full rounded-[2.5rem] border border-[var(--border-subtle)] bg-[var(--bg-card)] overflow-hidden shadow-2xl">
+    <div className="relative h-185 w-full rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] overflow-hidden shadow-2xl">
       {/* Top Floating Control Console */}
       <div className="absolute top-5 left-5 right-5 z-20 flex flex-wrap items-center justify-between gap-3 pointer-events-none">
         {/* Left: Search Bar & Filters */}

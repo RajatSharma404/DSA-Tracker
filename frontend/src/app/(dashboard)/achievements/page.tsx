@@ -114,7 +114,7 @@ export default function AchievementsPage() {
     return (
       <div className="w-full space-y-8 min-w-0 animate-pulse">
         <div className="h-12 w-80 rounded-2xl bg-white/5" />
-        <div className="h-44 rounded-[2.5rem] bg-white/5" />
+        <div className="h-44 rounded-2xl bg-white/5" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="h-40 rounded-3xl bg-white/5" />
@@ -145,7 +145,7 @@ export default function AchievementsPage() {
       </div>
 
       {/* Hero EXP & Player Rank Banner */}
-      <div className="relative overflow-hidden rounded-[2.5rem] border border-amber-500/20 bg-linear-to-r from-[#181206] via-[#100d14] to-[#070914] p-6 sm:p-8 shadow-2xl">
+      <div className="relative overflow-hidden rounded-2xl border border-amber-500/20 bg-linear-to-r from-[#181206] via-[#100d14] to-[#070914] p-6 sm:p-8 shadow-2xl">
         <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-amber-500/15 blur-[100px] pointer-events-none" />
         <div className="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-purple-500/15 blur-[100px] pointer-events-none" />
 

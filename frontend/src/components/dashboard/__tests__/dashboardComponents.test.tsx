@@ -8,7 +8,7 @@ import LeetCodeSync from "../LeetCodeSync";
 import AIMentorHint from "../AIMentorHint";
 import AlgoPlayground from "../AlgoPlayground";
 import ProblemNotes from "../ProblemNotes";
-import ActivityHeatmap from "../ActivityHeatmap";
+import ActivityHeatmap, { buildYearGrid } from "../ActivityHeatmap";
 import { SolutionHistory } from "../SolutionHistory";
 import TopicStudyGuide from "../TopicStudyGuide";
 import { UserInspectorModal } from "../UserInspectorModal";
@@ -316,16 +316,39 @@ describe("Dashboard Components (components/dashboard)", () => {
   });
 
   describe("ActivityHeatmap", () => {
-    it("should render year selector, summary metrics, and activity matrix", () => {
+    it("renders a rolling-year summary and an accessible grid", () => {
+      const today = new Date();
+      const iso = (offset: number) => {
+        const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - offset);
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      };
       const mockActivity = [
-        { date: "2026-01-05", count: 3 },
-        { date: "2026-02-14", count: 7 },
-        { date: "2026-08-20", count: 1 },
+        { date: iso(0), count: 3 },
+        { date: iso(1), count: 7 },
+        { date: iso(40), count: 1 },
+        { date: iso(400), count: 9 }, // older than a year: excluded
       ];
 
       render(<ActivityHeatmap data={mockActivity} />);
-      expect(screen.getByText("11 Solved")).toBeDefined();
-      expect(screen.getByText("Mastery Consistency")).toBeDefined();
+      expect(screen.getByText("Solved this year")).toBeDefined();
+      expect(screen.getByText("11")).toBeDefined();
+      expect(screen.getByRole("img", { name: /11 problems solved over the last year across 3 active days/ })).toBeDefined();
+    });
+
+    it("buildYearGrid computes current and best streaks", () => {
+      const grid = buildYearGrid(
+        [
+          { date: "2026-11-13", count: 1 },
+          { date: "2026-11-12", count: 2 },
+          { date: "2026-10-01", count: 1 },
+          { date: "2026-10-02", count: 1 },
+          { date: "2026-10-03", count: 1 },
+        ],
+        new Date(2026, 10, 13),
+      );
+      expect(grid.current).toBe(2);
+      expect(grid.best).toBe(3);
+      expect(grid.weeks).toHaveLength(53);
     });
   });
 

@@ -249,7 +249,7 @@ export default function LearnPage() {
             {error && <p className="text-sm text-red-400">{error}</p>}
           </div>
 
-          <div className="rounded-[1.75rem] border border-white/10 bg-black/30 p-5 backdrop-blur-sm">
+          <div className="rounded-2xl border border-white/10 bg-black/30 p-5 backdrop-blur-sm">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-xs uppercase tracking-[0.24em] text-gray-500">

@@ -149,7 +149,7 @@ export default function ChallengeSelection() {
   return (
     <div className="w-full min-w-0 space-y-8 animate-in fade-in duration-500">
       {/* Arena Banner / Status Header */}
-      <div className="relative overflow-hidden rounded-[2.5rem] border border-[var(--border-subtle)] bg-[var(--bg-card)] p-8 sm:p-10 shadow-2xl">
+      <div className="relative overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-8 sm:p-10 shadow-2xl">
         <div className="absolute -right-16 -top-16 w-80 h-80 rounded-full bg-amber-500/10 blur-[100px] pointer-events-none" />
         <div className="absolute -left-16 -bottom-16 w-80 h-80 rounded-full bg-rose-500/10 blur-[100px] pointer-events-none" />
 

@@ -106,7 +106,7 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      <div className="p-8 rounded-[2rem] bg-gradient-to-br from-blue-600/10 to-purple-600/10 border border-white/5">
+      <div className="p-8 rounded-2xl bg-gradient-to-br from-blue-600/10 to-purple-600/10 border border-white/5">
         <h2 className="text-xl font-bold mb-4">Quick Stats</h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
           <div>

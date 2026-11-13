@@ -105,7 +105,7 @@ export default function LoginPage() {
 
         {/* Main Card */}
         <div
-          className="w-full bg-[var(--bg-card)] border border-white/10 p-10 rounded-[2.5rem] shadow-2xl backdrop-blur-xl"
+          className="w-full bg-[var(--bg-card)] border border-white/10 p-10 rounded-2xl shadow-2xl backdrop-blur-xl"
           data-scroll-reveal
         >
           <div className="space-y-8">

@@ -2,18 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-  Calendar,
-  Clock,
-  Sparkles,
-  RefreshCw,
-  CheckCircle2,
-  AlertCircle,
-  ExternalLink,
-  Target,
-} from "lucide-react";
-import { dsaApi } from "@/lib/api";
+import { ChevronRight, RefreshCw, CalendarRange } from "lucide-react";
 import { toast } from "sonner";
+import { dsaApi } from "@/lib/api";
+import { Panel } from "@/components/ui/Panel";
+import { DifficultyTag } from "@/components/dashboard/TodayPlan";
 
 interface PlanTask {
   problemId: string;
@@ -25,7 +18,7 @@ interface PlanTask {
 }
 
 interface PlanDay {
-  dayIndex: number;
+  dayIndex: number; // 1 = Monday … 7 = Sunday
   dayName: string;
   focusTopic: string;
   targetMinutes: number;
@@ -36,194 +29,143 @@ interface StudyPlanResponse {
   days: PlanDay[];
 }
 
+const TYPE_LABEL: Record<PlanTask["type"], string> = {
+  REVIEW: "Review",
+  NEW_TOPIC: "New topic",
+  WEAK_AREA: "Weak area",
+};
+
+const todayIndex = () => {
+  const d = new Date().getDay();
+  return d === 0 ? 7 : d;
+};
+
 export default function WeeklyPlanCard() {
   const [plan, setPlan] = useState<StudyPlanResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
-
-  const fetchPlan = async () => {
-    try {
-      const res = await dsaApi.getStudyPlan();
-      if (res?.plan?.days) {
-        setPlan(res.plan);
-      }
-    } catch {
-      // Degrade gracefully
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [selected, setSelected] = useState<number>(todayIndex());
 
   useEffect(() => {
-    fetchPlan();
+    dsaApi
+      .getStudyPlan()
+      .then((res) => res?.plan?.days && setPlan(res.plan))
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
-  const handleGenerate = async () => {
+  const generate = async () => {
     setGenerating(true);
     try {
       const res = await dsaApi.generateStudyPlan(10);
       if (res?.plan?.days) {
         setPlan(res.plan);
-        toast.success(
-          res.isFallback
-            ? "Weekly plan generated via deterministic bin-packing!"
-            : "AI Weekly plan successfully created!"
-        );
+        setSelected(todayIndex());
+        toast.success("Your week is planned");
       }
     } catch {
-      toast.error("Failed to generate weekly plan");
+      toast.error("Couldn't build a plan right now");
     } finally {
       setGenerating(false);
     }
   };
 
-  // Determine current day of week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
-  const currentDayIndex = new Date().getDay(); // 0-6
-  // Map JS Sunday(0)->7, Monday(1)->1, ..., Saturday(6)->6
-  const mappedDay = currentDayIndex === 0 ? 7 : currentDayIndex;
+  const days = [...(plan?.days ?? [])].sort((a, b) => a.dayIndex - b.dayIndex);
+  const day = days.find((d) => d.dayIndex === selected) ?? days[0];
+  const today = todayIndex();
+  const weekMinutes = days.reduce((s, d) => s + d.targetMinutes, 0);
 
-  const todayPlan = plan?.days?.find((d) => d.dayIndex === mappedDay) || plan?.days?.[0];
-
-  const getDifficultyBadge = (d: string) => {
-    switch (d?.toUpperCase()) {
-      case "EASY":
-        return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
-      case "HARD":
-        return "bg-rose-500/10 text-rose-400 border-rose-500/20";
-      default:
-        return "bg-amber-500/10 text-amber-400 border-amber-500/20";
-    }
-  };
-
-  const getTypeBadge = (t: string) => {
-    switch (t) {
-      case "REVIEW":
-        return "bg-purple-500/10 text-purple-400 border-purple-500/20";
-      case "WEAK_AREA":
-        return "bg-amber-500/10 text-amber-400 border-amber-500/20";
-      default:
-        return "bg-blue-500/10 text-blue-400 border-blue-500/20";
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="p-6 rounded-3xl border border-white/5 bg-[var(--bg-secondary)] animate-pulse h-48" />
-    );
-  }
+  if (loading) return <div className="surface h-56 shimmer" />;
 
   return (
-    <div className="p-6 rounded-3xl border border-white/5 bg-[var(--bg-secondary)] relative overflow-hidden space-y-4">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-            <Calendar size={18} />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-base font-bold text-white tracking-tight">
-                AI Weekly Study Plan
-              </h2>
-              {todayPlan && (
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-bold">
-                  {todayPlan.dayName} Focus: {todayPlan.focusTopic}
-                </span>
-              )}
-            </div>
-            <p className="text-xs text-gray-400">
-              Personalized spaced-repetition and weak-topic queue
-            </p>
-          </div>
-        </div>
-
-        <button
-          onClick={handleGenerate}
-          disabled={generating}
-          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-semibold transition-all self-start sm:self-auto disabled:opacity-50"
-        >
-          <RefreshCw size={13} className={generating ? "animate-spin" : ""} />
-          {generating ? "Generating..." : plan ? "Regenerate Plan" : "Generate Plan"}
-        </button>
-      </div>
-
-      {/* Plan Content */}
-      {!plan || !todayPlan ? (
-        <div className="p-8 border border-dashed border-white/10 rounded-2xl text-center space-y-3">
-          <Sparkles size={28} className="mx-auto text-indigo-400 opacity-60" />
-          <p className="text-sm text-gray-300 font-medium">
-            No active weekly plan found.
-          </p>
-          <p className="text-xs text-gray-500 max-w-md mx-auto">
-            Generate an AI-optimized schedule balancing your upcoming reviews and weakest mastery topics.
+    <Panel
+      title="This week"
+      description={
+        plan
+          ? `About ${Math.round(weekMinutes / 60)}h of practice, balanced across reviews and weak areas.`
+          : "A day-by-day plan built from your reviews and weakest topics."
+      }
+      action={
+        plan ? (
+          <button
+            onClick={generate}
+            disabled={generating}
+            className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-50 cursor-pointer"
+          >
+            <RefreshCw size={13} className={generating ? "animate-spin" : ""} />
+            Rebuild
+          </button>
+        ) : null
+      }
+      flush
+    >
+      {!plan || !day ? (
+        <div className="flex flex-col items-start gap-3 border-t border-[var(--border-subtle)] px-5 py-6">
+          <CalendarRange size={18} className="text-[var(--text-muted)]" />
+          <p className="max-w-sm text-sm text-[var(--text-secondary)]">
+            Plan seven days at roughly ten hours a week. You can rebuild it any time.
           </p>
           <button
-            onClick={handleGenerate}
+            onClick={generate}
             disabled={generating}
-            className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-all"
+            className="rounded-lg bg-[var(--accent-primary)] px-3.5 py-2 text-sm font-medium text-[var(--on-accent)] hover:opacity-90 disabled:opacity-60 cursor-pointer"
           >
-            Create My 7-Day Plan
+            {generating ? "Planning…" : "Plan my week"}
           </button>
         </div>
       ) : (
-        <div className="space-y-2.5">
-          <div className="flex items-center justify-between text-xs text-gray-400 px-1">
-            <span>Today&apos;s Recommended Practice</span>
-            <span className="flex items-center gap-1 font-mono text-[11px]">
-              <Clock size={12} className="text-gray-500" />
-              Target: ~{todayPlan.targetMinutes} mins
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-            {todayPlan.tasks.map((task) => (
-              <div
-                key={task.problemId}
-                className="p-3.5 rounded-2xl bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 transition-all flex items-start justify-between gap-3 group"
-              >
-                <div className="space-y-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-semibold text-sm text-white truncate">
-                      {task.title}
-                    </span>
-                    <span
-                      className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded border ${getDifficultyBadge(
-                        task.difficulty
-                      )}`}
-                    >
-                      {task.difficulty}
-                    </span>
-                    <span
-                      className={`text-[9px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wider ${getTypeBadge(
-                        task.type
-                      )}`}
-                    >
-                      {task.type.replace("_", " ")}
-                    </span>
+        <>
+          <div role="tablist" aria-label="Days of the week" className="grid grid-cols-7 border-y border-[var(--border-subtle)]">
+            {days.map((d) => {
+              const active = d.dayIndex === day.dayIndex;
+              const past = d.dayIndex < today;
+              return (
+                <button
+                  key={d.dayIndex}
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setSelected(d.dayIndex)}
+                  className={`relative px-1 py-2.5 text-center transition-colors cursor-pointer ${
+                    active ? "bg-[var(--bg-hover)]" : "hover:bg-[var(--bg-hover)]"
+                  } ${past ? "opacity-50" : ""}`}
+                >
+                  <div className={`text-xs ${d.dayIndex === today ? "font-semibold text-[var(--accent-primary)]" : "text-[var(--text-secondary)]"}`}>
+                    {d.dayName.slice(0, 3)}
                   </div>
-                  <p className="text-xs text-gray-400 line-clamp-1">
-                    {task.reason}
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-2 shrink-0 self-center">
-                  <span className="text-[11px] font-mono text-gray-500">
-                    ~{task.estimatedMinutes}m
-                  </span>
-                  <Link
-                    href={`/problems/${task.problemId}`}
-                    className="p-1.5 rounded-lg bg-white/5 hover:bg-indigo-500/20 text-gray-400 hover:text-indigo-300 transition-all"
-                    title="Solve Problem"
-                  >
-                    <ExternalLink size={13} />
-                  </Link>
-                </div>
-              </div>
-            ))}
+                  <div className="mt-0.5 text-[11px] text-[var(--text-muted)] tabular">{d.targetMinutes}m</div>
+                  {active && <span className="absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-[var(--accent-primary)]" />}
+                </button>
+              );
+            })}
           </div>
-        </div>
+          <div className="px-5 pt-3 pb-1 text-xs text-[var(--text-muted)]">
+            {day.dayIndex === today ? "Today" : day.dayName} · focus on{" "}
+            <span className="text-[var(--text-secondary)]">{day.focusTopic}</span>
+          </div>
+          <ul className="divide-y divide-[var(--border-subtle)]">
+            {day.tasks.map((t) => (
+              <li key={t.problemId}>
+                <Link
+                  href={`/problems/${t.problemId}`}
+                  className="group flex items-center gap-3 px-5 py-3 hover:bg-[var(--bg-hover)] transition-colors"
+                >
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center gap-2">
+                      <span className="truncate text-sm font-medium text-[var(--text-primary)]">{t.title}</span>
+                      <DifficultyTag value={t.difficulty} />
+                    </span>
+                    <span className="block truncate text-xs text-[var(--text-muted)]">
+                      {TYPE_LABEL[t.type] ?? t.type} · ~{t.estimatedMinutes} min
+                    </span>
+                  </span>
+                  <ChevronRight size={16} className="shrink-0 text-[var(--text-muted)] group-hover:text-[var(--text-primary)]" />
+                </Link>
+              </li>
+            ))}
+            {day.tasks.length === 0 && <li className="px-5 py-4 text-sm text-[var(--text-muted)]">Rest day.</li>}
+          </ul>
+        </>
       )}
-    </div>
+    </Panel>
   );
 }
-

@@ -135,7 +135,7 @@ export default function DailyFocus() {
 
   if (loading) {
     return (
-      <div className="h-44 w-full rounded-[2.5rem] bg-[var(--bg-card)] border border-[var(--border-subtle)] animate-pulse flex items-center justify-center">
+      <div className="h-44 w-full rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] animate-pulse flex items-center justify-center">
         <Loader2 className="animate-spin text-[var(--accent-primary)]" size={24} />
       </div>
     );
@@ -143,7 +143,7 @@ export default function DailyFocus() {
 
   if (allDone) {
     return (
-      <div className="p-8 rounded-[2.5rem] bg-[var(--bg-card)] border border-[var(--border-subtle)] relative overflow-hidden shadow-xl">
+      <div className="p-8 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] relative overflow-hidden shadow-xl">
         <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/10 via-emerald-600/5 to-transparent pointer-events-none" />
         <div className="relative flex flex-col items-center text-center py-6">
           <div className="p-4 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-4">
@@ -177,7 +177,7 @@ export default function DailyFocus() {
 
   return (
     <div
-      className={`p-6 sm:p-8 rounded-[2.5rem] bg-[var(--bg-card)] border border-[var(--border-subtle)] relative overflow-hidden ${config.glow} group transition-all duration-500 hover:border-[var(--border-medium)] shadow-xl`}
+      className={`p-6 sm:p-8 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] relative overflow-hidden ${config.glow} group transition-all duration-500 hover:border-[var(--border-medium)] shadow-xl`}
     >
       {/* Background gradient */}
       <div

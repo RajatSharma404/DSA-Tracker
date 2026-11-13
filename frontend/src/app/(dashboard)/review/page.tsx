@@ -329,7 +329,7 @@ export default function ReviewQueuePage() {
       </div>
 
       {/* Hero SM-2 Leitner Hub */}
-      <div className="relative overflow-hidden rounded-[2.5rem] border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6 sm:p-8 shadow-2xl">
+      <div className="relative overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6 sm:p-8 shadow-2xl">
         <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-purple-500/10 blur-[100px] pointer-events-none" />
         <div className="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-blue-500/10 blur-[100px] pointer-events-none" />
 
@@ -506,7 +506,7 @@ export default function ReviewQueuePage() {
       {activeTab === "due" && (
         <div className="space-y-4">
           {dueProblems.length === 0 ? (
-            <div className="rounded-[2.5rem] border border-[var(--border-subtle)] bg-[var(--bg-card)] p-12 text-center space-y-4 shadow-xl">
+            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-12 text-center space-y-4 shadow-xl">
               <div className="w-16 h-16 rounded-3xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/10">
                 <CheckCircle2 size={32} />
               </div>

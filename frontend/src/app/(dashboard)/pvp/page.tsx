@@ -233,7 +233,7 @@ export default function PvPMainPage() {
       </div>
 
       {/* Hero ELO Status Banner */}
-      <div className="relative overflow-hidden rounded-[2.5rem] border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6 sm:p-8 shadow-2xl">
+      <div className="relative overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6 sm:p-8 shadow-2xl">
         <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-rose-500/10 blur-[100px] pointer-events-none" />
         <div className="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-purple-500/10 blur-[100px] pointer-events-none" />
 

@@ -176,7 +176,7 @@ export default function CompanyTracksPage() {
       </div>
 
       {/* Monte Carlo Simulator Engine Card */}
-      <div className="relative overflow-hidden rounded-[2.5rem] border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6 sm:p-8 shadow-2xl">
+      <div className="relative overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6 sm:p-8 shadow-2xl">
         <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-[var(--accent-primary)]/10 blur-[100px] pointer-events-none" />
 
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">

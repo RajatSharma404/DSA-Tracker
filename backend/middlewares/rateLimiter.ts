@@ -25,7 +25,8 @@ export const extensionSyncLimiter = rateLimit({
  */
 export const generalApiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === "test" ? 1000 : 200,
+  // A single dashboard visit makes ~10 requests; 200 was exhausted by normal use.
+  max: 1000,
   standardHeaders: true,
   legacyHeaders: false,
   message: {

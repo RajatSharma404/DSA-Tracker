@@ -35,7 +35,7 @@ export default function BadgeShowcase() {
   if (badges.length === 0) return null;
 
   return (
-    <div className="p-6 rounded-[2.5rem] bg-[var(--bg-card)] border border-[var(--border-subtle)] relative overflow-hidden group shadow-xl">
+    <div className="p-6 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] relative overflow-hidden group shadow-xl">
       <div className="absolute top-0 left-0 w-24 h-24 bg-amber-500/5 blur-[40px] rounded-full -ml-12 -mt-12 group-hover:bg-amber-500/10 transition-all duration-700 pointer-events-none" />
 
       <div className="flex items-center justify-between mb-4 relative z-10">

@@ -519,7 +519,7 @@ export default function PvPMatchBattlePage({ params }: PvPBattleProps) {
       {/* Victory / Defeat Podium Modal Overlay */}
       {matchStatus !== "ACTIVE" && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xl flex items-center justify-center p-4 animate-in zoom-in-95 duration-300">
-          <div className="relative bg-[var(--bg-card)] border-2 border-[var(--border-medium)] rounded-[2.5rem] p-8 sm:p-10 max-w-lg w-full text-center space-y-6 shadow-[0_0_50px_var(--accent-glow)] overflow-hidden">
+          <div className="relative bg-[var(--bg-card)] border-2 border-[var(--border-medium)] rounded-2xl p-8 sm:p-10 max-w-lg w-full text-center space-y-6 shadow-[0_0_50px_var(--accent-glow)] overflow-hidden">
             <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.15),transparent_60%)]" />
 
             {/* Victory Podium Badge */}

@@ -1028,7 +1028,7 @@ export default function FlashcardsPage() {
       {/* Main Flashcard Stage */}
       <div className="max-w-2xl mx-auto space-y-6">
         {filteredCards.length === 0 ? (
-          <div className="text-center py-16 px-4 rounded-[2.5rem] border border-[var(--border-subtle)] bg-[var(--bg-card)] shadow-xl">
+          <div className="text-center py-16 px-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] shadow-xl">
             <Layers className="w-12 h-12 mx-auto text-purple-400/60 mb-3" />
             <h3 className="text-lg font-bold text-[var(--text-primary)]">No flashcards match this filter</h3>
             <p className="text-xs text-[var(--text-muted)] mt-1">Try selecting &quot;All&quot; in category or difficulty to view more cards.</p>
@@ -1108,7 +1108,7 @@ export default function FlashcardsPage() {
                     setIsFlipped(!isFlipped);
                   }
                 }}
-                className={`relative min-h-[420px] rounded-[2.5rem] border bg-[var(--bg-card)] p-8 sm:p-10 shadow-2xl cursor-grab active:cursor-grabbing transition-all duration-150 flex flex-col justify-between select-none group focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)] focus-visible:outline-none ${
+                className={`relative min-h-[420px] rounded-2xl border bg-[var(--bg-card)] p-8 sm:p-10 shadow-2xl cursor-grab active:cursor-grabbing transition-all duration-150 flex flex-col justify-between select-none group focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)] focus-visible:outline-none ${
                   dragOffset > 30
                     ? "border-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.35)]"
                     : dragOffset < -30

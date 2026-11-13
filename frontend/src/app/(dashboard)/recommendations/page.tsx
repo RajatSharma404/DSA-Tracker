@@ -183,7 +183,7 @@ export default function RecommendationsPage() {
       </div>
 
       {/* Hero AI Command Center */}
-      <div className="relative overflow-hidden rounded-[2.5rem] border border-purple-500/20 bg-linear-to-r from-[#140b22] via-[#0e0d18] to-[#070914] p-6 sm:p-8 shadow-2xl">
+      <div className="relative overflow-hidden rounded-2xl border border-purple-500/20 bg-linear-to-r from-[#140b22] via-[#0e0d18] to-[#070914] p-6 sm:p-8 shadow-2xl">
         <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-purple-500/15 blur-[100px] pointer-events-none" />
         <div className="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-cyan-500/15 blur-[100px] pointer-events-none" />
 

@@ -27,7 +27,7 @@ describe("Providers (components/providers)", () => {
       );
 
       const themeDisplay = screen.getByTestId("current-theme");
-      expect(["oled", "cyberpunk", "matrix", "tokyonight", "nordic", "light"]).toContain(
+      expect(THEME_OPTIONS.map((t) => t.id)).toContain(
         themeDisplay.textContent
       );
 
@@ -40,10 +40,8 @@ describe("Providers (components/providers)", () => {
     });
 
     it("should validate all available theme options", () => {
-      expect(THEME_OPTIONS.length).toBe(8);
-      expect(THEME_OPTIONS.some((t) => t.id === "aurora")).toBe(true);
-      expect(THEME_OPTIONS.some((t) => t.id === "paper")).toBe(true);
-      expect(THEME_OPTIONS.some((t) => t.id === "oled")).toBe(true);
+      expect(THEME_OPTIONS.length).toBe(9);
+      expect(THEME_OPTIONS.some((t) => t.id === "graphite")).toBe(true);
       expect(THEME_OPTIONS.some((t) => t.id === "matrix")).toBe(true);
     });
   });

@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { buildCalendarGrid } from "../LeetCodeLivePanel";
 import { buildStrands } from "../DsaDna";
 import { NAV_SECTIONS, isNavItemActive } from "@/lib/navigation";
-import { THEME_OPTIONS, LIGHT_THEMES, THEME_BOOT_SCRIPT } from "@/lib/themes";
+import { THEME_OPTIONS, LIGHT_THEMES, THEME_BOOT_SCRIPT, resolveThemeId } from "@/lib/themes";
 
 describe("buildCalendarGrid", () => {
   it("lays out 53 full weeks and sums LeetCode's unix-second buckets", () => {
@@ -53,9 +53,14 @@ describe("navigation + themes registry", () => {
     expect(isNavItemActive("/topics", "/")).toBe(false);
   });
 
-  it("registers the two new themes and lists light themes for the boot script", () => {
-    expect(THEME_OPTIONS.map((t) => t.id)).toEqual(expect.arrayContaining(["aurora", "paper"]));
-    expect(LIGHT_THEMES).toEqual(expect.arrayContaining(["light", "paper"]));
-    expect(THEME_BOOT_SCRIPT).toContain('"paper"');
+  it("ships established palettes and maps legacy theme ids", () => {
+    expect(THEME_OPTIONS.map((t) => t.id)).toEqual(
+      expect.arrayContaining(["graphite", "mocha", "rosepine", "nord", "latte", "dawn"]),
+    );
+    expect(LIGHT_THEMES).toEqual(["light", "latte", "dawn"]);
+    expect(resolveThemeId("oled")).toBe("graphite");
+    expect(resolveThemeId("paper")).toBe("dawn");
+    expect(resolveThemeId("nonsense")).toBe("graphite");
+    expect(THEME_BOOT_SCRIPT).toContain('"oled":"graphite"');
   });
 });
