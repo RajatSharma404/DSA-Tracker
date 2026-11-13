@@ -41,7 +41,7 @@ export default function RoadmapPage() {
     <div className="space-y-8 animate-in fade-in duration-700 w-full min-w-0">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="font-serif-display text-4xl leading-tight text-[var(--text-primary)]">Roadmap</h1>
+          <h1 className="page-title text-3xl leading-tight text-[var(--text-primary)]">Roadmap</h1>
           <p className="mt-1.5 max-w-2xl text-sm text-[var(--text-secondary)]">How the topics build on each other. Finish one to unlock what depends on it.</p>
         </div>
 

@@ -153,7 +153,7 @@ export default function WeeklyReportPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-4">
         <div>
-          <h1 className="font-serif-display text-4xl leading-tight text-[var(--text-primary)]">Weekly report</h1>
+          <h1 className="page-title text-3xl leading-tight text-[var(--text-primary)]">Weekly report</h1>
           <p className="mt-1.5 max-w-2xl text-sm text-[var(--text-secondary)]">Your last seven days at a glance.</p>
         </div>
 

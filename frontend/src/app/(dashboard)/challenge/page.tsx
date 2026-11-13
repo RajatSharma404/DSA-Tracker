@@ -155,7 +155,7 @@ export default function ChallengeSelection() {
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
-            <h1 className="font-serif-display text-4xl leading-tight text-[var(--text-primary)]">Timed challenges</h1>
+            <h1 className="page-title text-3xl leading-tight text-[var(--text-primary)]">Timed challenges</h1>
             <p className="mt-1.5 max-w-2xl text-sm text-[var(--text-secondary)]">Solve a set of problems against the clock.</p>
           </div>
 

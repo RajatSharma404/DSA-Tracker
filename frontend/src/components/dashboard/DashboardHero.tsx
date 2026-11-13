@@ -43,9 +43,9 @@ export function DashboardHero({ name, stats, solvedLast7d, projectedDaysToFinish
           <p className="text-[13px] text-[var(--text-muted)]">
             {now.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}
           </p>
-          <h1 className="font-serif-display mt-1 text-4xl leading-tight text-[var(--text-primary)] sm:text-[44px]">
+          <h1 className="page-title mt-1 text-3xl leading-tight text-[var(--text-primary)] sm:text-4xl">
             {greeting(now.getHours())}
-            {firstName ? <>, <em className="italic">{firstName}</em></> : null}
+            {firstName ? <>, <em>{firstName}</em></> : null}
           </h1>
           <p className="mt-2 max-w-xl text-sm text-[var(--text-secondary)]">{summary}</p>
         </div>

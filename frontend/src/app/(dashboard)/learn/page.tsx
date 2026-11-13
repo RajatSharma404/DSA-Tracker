@@ -175,7 +175,7 @@ export default function LearnPage() {
               <p className="text-xs uppercase tracking-[0.3em] text-gray-500">
                 Learn First
               </p>
-              <h1 className="font-serif-display text-4xl leading-tight text-[var(--text-primary)]">Learn</h1>
+              <h1 className="page-title text-3xl leading-tight text-[var(--text-primary)]">Learn</h1>
               <p className="mt-1.5 max-w-2xl text-sm text-[var(--text-secondary)]">Short lessons on each pattern, so you know the idea before you practise it.</p>
             </div>
 

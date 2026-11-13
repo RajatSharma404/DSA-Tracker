@@ -578,11 +578,15 @@ body {
   color: var(--text-muted);
 }
 
-/* Editorial display face, used sparingly (page titles, hero numbers). */
-.font-serif-display {
-  font-family: var(--font-serif), Georgia, serif;
-  font-weight: 400;
-  letter-spacing: -0.01em;
+/* Page titles: the UI face, tight and confident. */
+.page-title {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+}
+.page-title em {
+  font-style: normal;
+  color: var(--text-muted);
 }
 
 /* Tabular numerals for every stat. */

@@ -74,8 +74,8 @@ export default function LoginPage() {
             <BrandMark />
             <span className="text-[15px] font-semibold tracking-tight">DSA Tracker</span>
           </div>
-          <h1 className="font-serif-display mt-10 text-5xl leading-[1.05] sm:text-6xl">
-            Practise with a plan. <em className="italic text-[var(--accent-primary)]">Remember</em> what you solve.
+          <h1 className="page-title mt-10 text-4xl leading-[1.08] sm:text-5xl">
+            Practise with a plan. <span className="text-[var(--accent-primary)]">Remember</span> what you solve.
           </h1>
           <p className="mt-5 text-[15px] leading-relaxed text-[var(--text-secondary)]">
             A roadmap of 450+ interview problems, spaced repetition that schedules your reviews, and a browser

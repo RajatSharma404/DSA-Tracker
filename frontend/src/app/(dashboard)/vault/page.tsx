@@ -169,7 +169,7 @@ export default function VaultPage() {
               <BookOpen size={24} />
             </div>
             <div>
-              <h1 className="font-serif-display text-4xl leading-tight text-[var(--text-primary)]">Notes</h1>
+              <h1 className="page-title text-3xl leading-tight text-[var(--text-primary)]">Notes</h1>
               <p className="mt-1.5 max-w-2xl text-sm text-[var(--text-secondary)]">Everything you&apos;ve written down while solving.</p>
             </div>
           </div>

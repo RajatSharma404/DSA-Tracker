@@ -121,7 +121,7 @@ export default function TopicsPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="font-serif-display text-4xl leading-tight text-[var(--text-primary)]">Topics</h1>
+          <h1 className="page-title text-3xl leading-tight text-[var(--text-primary)]">Topics</h1>
           <p className="mt-1.5 max-w-2xl text-sm text-[var(--text-secondary)]">Every problem in the roadmap, grouped by pattern.</p>
         </div>
 

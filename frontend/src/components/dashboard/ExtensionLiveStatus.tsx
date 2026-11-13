@@ -50,7 +50,7 @@ export function ExtensionLiveStatus() {
       ok: status ? Boolean(installed && !status.outdated) : null,
       label: "Extension v2 installed",
       detail: !installed
-        ? "Load the /extension folder via chrome://extensions → Load unpacked"
+        ? "Follow the install steps below"
         : status?.outdated
           ? `v${status.version ?? "1.x"} found. Reload the extension to get v2`
           : `v${status?.version}`,
@@ -77,10 +77,7 @@ export function ExtensionLiveStatus() {
     <section className="surface p-5 sm:p-6" aria-labelledby="ext-live-title">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="eyebrow">Live status</p>
-          <h2 id="ext-live-title" className="font-display text-lg font-bold mt-1">
-            Sync pipeline
-          </h2>
+          <h2 id="ext-live-title" className="text-[15px] font-semibold tracking-tight">Status</h2>
         </div>
         <button
           onClick={importAll}
@@ -112,10 +109,6 @@ export function ExtensionLiveStatus() {
           </li>
         ))}
       </ol>
-      <p className="mt-3 text-[11px] text-[var(--text-muted)]">
-        No cookie pasting needed: the extension reads LeetCode from your own browser session. The cookie method
-        below remains as a fallback for devices without the extension.
-      </p>
     </section>
   );
 }

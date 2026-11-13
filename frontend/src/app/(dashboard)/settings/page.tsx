@@ -45,7 +45,7 @@ export default function SettingsPage() {
   return (
     <div className="w-full min-w-0 p-2 sm:p-6 space-y-8">
       <div>
-        <h1 className="font-serif-display text-4xl leading-tight text-[var(--text-primary)]">Settings</h1>
+        <h1 className="page-title text-3xl leading-tight text-[var(--text-primary)]">Settings</h1>
         <p className="mt-1.5 max-w-2xl text-sm text-[var(--text-secondary)]">Appearance, account and LeetCode connection.</p>
       </div>
 
@@ -127,7 +127,7 @@ export default function SettingsPage() {
               How to get your LeetCode Session Cookie:
             </h3>
             <Link
-              href="/extension?tab=cookie"
+              href="/extension"
               className="inline-flex items-center gap-1 text-xs font-bold text-[var(--accent-primary)] hover:underline"
             >
               <span>Full Visual Step-by-Step Guide</span>
@@ -164,7 +164,7 @@ export default function SettingsPage() {
             <span>Prefer automatic sync? Install our Chrome extension for 0-click solve recording.</span>
           </div>
           <Link
-            href="/extension?tab=extension"
+            href="/extension"
             className="px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 font-bold border border-emerald-500/30 transition-all shrink-0"
           >
             Extension Setup Guide →

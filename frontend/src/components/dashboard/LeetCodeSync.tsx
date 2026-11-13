@@ -190,7 +190,7 @@ export default function LeetCodeSync({ onSyncComplete }: LeetCodeSyncProps) {
               Required to sync your <b>complete historical progress</b> (all solved problems).
             </p>
             <Link
-              href="/extension?tab=cookie"
+              href="/extension"
               className="text-[10px] font-bold text-blue-400 hover:text-blue-300 flex items-center gap-0.5"
             >
               <span>Step-by-Step Guide</span>

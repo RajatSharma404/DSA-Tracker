@@ -27,7 +27,8 @@
     "sync:sol": "node scripts/sync-solutions.js",
     "e2e:db": "docker compose -f docker-compose.e2e.yml up -d",
     "e2e:seed": "node scripts/run-seed-e2e.mjs --reset",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "extension": "node scripts/setup-extension.mjs"
   },
   "dependencies": {
     "animejs": "^4.3.6",

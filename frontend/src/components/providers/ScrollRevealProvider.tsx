@@ -15,25 +15,21 @@ export default function ScrollRevealProvider() {
       '[data-scroll-root="true"]',
     );
 
+    // Only animate inside the dashboard's scroll container. Touching DOM
+    // elsewhere (e.g. the login page) before React hydrates it causes
+    // hydration mismatches.
+    if (!scrollRoot) return;
+
     const explicitElements = Array.from(
-      (scrollRoot || document).querySelectorAll<HTMLElement>(
-        "[data-scroll-reveal]",
-      ),
+      scrollRoot.querySelectorAll<HTMLElement>("[data-scroll-reveal]"),
     ).filter((element) => !isRevealExcluded(element));
 
-    const autoTargets = scrollRoot
-      ? Array.from(scrollRoot.children).filter(
-          (child): child is HTMLElement =>
-            child instanceof HTMLElement &&
-            !child.classList.contains("animate-pulse") &&
-            !isRevealExcluded(child),
-        )
-      : Array.from(document.querySelectorAll("main > *")).filter(
-          (node): node is HTMLElement =>
-            node instanceof HTMLElement &&
-            !node.classList.contains("animate-pulse") &&
-            !isRevealExcluded(node),
-        );
+    const autoTargets = Array.from(scrollRoot.children).filter(
+      (child): child is HTMLElement =>
+        child instanceof HTMLElement &&
+        !child.classList.contains("animate-pulse") &&
+        !isRevealExcluded(child),
+    );
 
     const elements = Array.from(new Set([...explicitElements, ...autoTargets]));
 

@@ -959,7 +959,7 @@ export default function FlashcardsPage() {
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between lg:items-end gap-4">
         <div>
-          <h1 className="font-serif-display text-4xl leading-tight text-[var(--text-primary)]">Flashcards</h1>
+          <h1 className="page-title text-3xl leading-tight text-[var(--text-primary)]">Flashcards</h1>
           <p className="mt-1.5 max-w-2xl text-sm text-[var(--text-secondary)]">Recall the key idea behind a problem in under a minute.</p>
         </div>
 

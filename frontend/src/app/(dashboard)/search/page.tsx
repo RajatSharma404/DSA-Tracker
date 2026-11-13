@@ -230,7 +230,7 @@ export default function SearchPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif-display text-4xl leading-tight text-[var(--text-primary)]">Explore</h1>
+          <h1 className="page-title text-3xl leading-tight text-[var(--text-primary)]">Explore</h1>
           <p className="mt-1.5 max-w-2xl text-sm text-[var(--text-secondary)]">Search and filter every problem in the tracker.</p>
         </div>
         <div className="flex gap-2 font-mono">
