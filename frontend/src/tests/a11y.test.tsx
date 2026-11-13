@@ -21,6 +21,7 @@ vi.mock("next-auth/react", () => ({
   }),
   signIn: vi.fn(),
   signOut: vi.fn(),
+  getProviders: vi.fn(async () => ({ google: { id: "google" } })),
 }));
 
 // Mock next/navigation

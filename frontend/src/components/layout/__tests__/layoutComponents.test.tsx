@@ -22,18 +22,18 @@ describe("Layout Components (components/layout)", () => {
       const onOpen = vi.fn();
       render(<TopNavbar onOpenCommandPalette={onOpen} streakCount={5} />);
 
-      const searchBtn = screen.getByRole("button", { name: /Search problems/i });
+      const searchBtn = screen.getByRole("button", { name: /Search/i });
       expect(searchBtn).toBeDefined();
       fireEvent.click(searchBtn);
       expect(onOpen).toHaveBeenCalled();
 
       // Sound mute toggle
-      const soundBtn = screen.getByLabelText(/Toggle Sound Effects/i);
+      const soundBtn = screen.getByLabelText(/Turn sounds (on|off)/i);
       expect(soundBtn).toBeDefined();
       fireEvent.click(soundBtn);
 
       // Setup guide button
-      const setupBtn = screen.getByLabelText(/Open Setup Instructions/i);
+      const setupBtn = screen.getByLabelText(/Open setup guide/i);
       expect(setupBtn).toBeDefined();
       fireEvent.click(setupBtn);
     });
@@ -211,12 +211,11 @@ describe("Layout Components (components/layout)", () => {
       fireEvent.click(shortcutsTab);
     });
 
-    it("should render ExtensionStatusBadge and open modal on click", () => {
+    it("shows a 'Connect LeetCode' link when the extension doesn't answer", async () => {
       render(<ExtensionStatusBadge />);
-      const badge = screen.getByRole("button");
-      expect(badge).toBeDefined();
-      fireEvent.click(badge);
-    });
+      const link = await screen.findByRole("link", { name: /Connect LeetCode/i }, { timeout: 6000 });
+      expect(link.getAttribute("href")).toBe("/extension");
+    }, 10000);
 
     it("should mount GlobalKeyBindings and handle two-stroke chords and single shortcuts", () => {
       render(<GlobalKeyBindings />);
