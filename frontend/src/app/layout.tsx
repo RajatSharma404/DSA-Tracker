@@ -5,6 +5,7 @@ import NextAuthProvider from "@/components/providers/NextAuthProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { THEME_BOOT_SCRIPT } from "@/lib/themes";
 import { PwaProvider } from "@/components/providers/PwaProvider";
 import { MobileProvider } from "@/components/providers/MobileProvider";
 
@@ -50,6 +51,9 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       data-theme="oled"
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
+      </head>
       <body className="antialiased font-sans h-screen w-full overflow-hidden m-0 p-0">
         <ErrorBoundary>
           <ThemeProvider>

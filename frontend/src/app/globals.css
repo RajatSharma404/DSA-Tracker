@@ -270,6 +270,233 @@ body[data-theme="light"],
   --color-foreground: var(--text-primary);
 }
 
+[data-theme="aurora"],
+html[data-theme="aurora"],
+body[data-theme="aurora"],
+.theme-aurora {
+  --bg-primary: #060912;
+  --bg-secondary: #0b1120;
+  --bg-tertiary: #131b2e;
+  --bg-card: #0c1322;
+  --bg-card-secondary: #111a2d;
+  --bg-hover: #142036;
+  --bg-active: #1b2a45;
+
+  --border-subtle: rgba(148, 233, 219, 0.1);
+  --border-medium: rgba(148, 233, 219, 0.2);
+  --border-strong: rgba(148, 233, 219, 0.35);
+  --border-glow: rgba(45, 212, 191, 0.55);
+
+  --text-primary: #eefcf9;
+  --text-secondary: #b9d7d4;
+  --text-muted: #6f8a99;
+  --text-accent: #5eead4;
+
+  --accent-primary: #2dd4bf;
+  --accent-secondary: #e879f9;
+  --accent-glow: rgba(45, 212, 191, 0.3);
+  --accent-muted: rgba(45, 212, 191, 0.16);
+  --accent-gradient: linear-gradient(135deg, #2dd4bf 0%, #818cf8 50%, #e879f9 100%);
+
+  --input-bg: rgba(148, 233, 219, 0.04);
+  --input-border: rgba(148, 233, 219, 0.16);
+  --shadow-sm: 0 2px 8px rgba(2, 6, 14, 0.5);
+  --shadow-md: 0 8px 24px rgba(2, 6, 14, 0.6);
+  --shadow-lg: 0 16px 40px rgba(2, 6, 14, 0.75);
+  --shadow-card: 0 10px 34px rgba(2, 6, 14, 0.55);
+  --shadow-glow: 0 0 24px rgba(45, 212, 191, 0.28);
+  --shadow-glow-sm: 0 0 10px rgba(45, 212, 191, 0.22);
+
+  --ambient-1: rgba(45, 212, 191, 0.16);
+  --ambient-2: rgba(232, 121, 249, 0.12);
+  --ambient-3: rgba(129, 140, 248, 0.12);
+
+  --color-background: var(--bg-primary);
+  --color-foreground: var(--text-primary);
+}
+
+[data-theme="paper"],
+html[data-theme="paper"],
+body[data-theme="paper"],
+.theme-paper {
+  --bg-primary: #f5efe3;
+  --bg-secondary: #fbf7ef;
+  --bg-tertiary: #efe6d5;
+  --bg-card: #fffcf5;
+  --bg-card-secondary: #f8f2e6;
+  --bg-hover: #f0e7d6;
+  --bg-active: #e7dbc4;
+
+  --border-subtle: rgba(87, 56, 24, 0.12);
+  --border-medium: rgba(87, 56, 24, 0.2);
+  --border-strong: rgba(87, 56, 24, 0.32);
+  --border-glow: rgba(194, 65, 12, 0.4);
+
+  --text-primary: #2b2118;
+  --text-secondary: #54453a;
+  --text-muted: #8a7a6a;
+  --text-accent: #c2410c;
+
+  --accent-primary: #c2410c;
+  --accent-secondary: #0f766e;
+  --accent-glow: rgba(194, 65, 12, 0.18);
+  --accent-muted: rgba(194, 65, 12, 0.12);
+  --accent-gradient: linear-gradient(135deg, #c2410c 0%, #b45309 50%, #0f766e 100%);
+
+  --input-bg: #fffaf0;
+  --input-border: rgba(87, 56, 24, 0.2);
+  --shadow-sm: 0 1px 3px rgba(87, 56, 24, 0.08);
+  --shadow-md: 0 6px 16px rgba(87, 56, 24, 0.08);
+  --shadow-lg: 0 14px 32px rgba(87, 56, 24, 0.12);
+  --shadow-card: 0 2px 0 rgba(87, 56, 24, 0.04), 0 8px 24px rgba(87, 56, 24, 0.07);
+  --shadow-glow: 0 0 16px rgba(194, 65, 12, 0.18);
+  --shadow-glow-sm: 0 0 8px rgba(194, 65, 12, 0.14);
+
+  --ambient-1: rgba(194, 65, 12, 0.07);
+  --ambient-2: rgba(15, 118, 110, 0.06);
+  --ambient-3: rgba(180, 83, 9, 0.05);
+
+  --color-background: var(--bg-primary);
+  --color-foreground: var(--text-primary);
+}
+
+/* ==========================================================================
+   LIGHT-THEME TOKEN REMAP
+   Many components were written dark-first (text-white, bg-white/5,
+   border-white/10, text-gray-400, bg-black/30 ...). Tailwind v4 resolves those
+   through --color-* variables, so re-pointing them here makes every such
+   component readable on light themes without touching each file.
+   ========================================================================== */
+:is([data-theme="light"], [data-theme="paper"], .theme-light, .theme-paper) {
+  --color-white: var(--text-primary);
+  --color-black: #ffffff;
+  --color-gray-100: #1f2937;
+  --color-gray-200: #1f2937;
+  --color-gray-300: #374151;
+  --color-gray-400: #4b5563;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #9ca3af;
+  --color-gray-700: #d1d5db;
+  --color-gray-800: #e5e7eb;
+  --color-gray-900: #f3f4f6;
+  --color-slate-300: #334155;
+  --color-slate-400: #475569;
+  --color-zinc-300: #3f3f46;
+  --color-zinc-400: #52525b;
+}
+
+/* Saturated fills keep real white text (and white tints) on light themes. */
+:is([data-theme="light"], [data-theme="paper"])
+  :is(
+    [class~="bg-[var(--accent-primary)]"],
+    [class~="bg-[var(--accent-secondary)]"],
+    [class*="bg-gradient-to-"],
+    [class*="bg-indigo-5"], [class*="bg-indigo-6"],
+    [class*="bg-blue-5"], [class*="bg-blue-6"],
+    [class*="bg-purple-5"], [class*="bg-purple-6"],
+    [class*="bg-violet-5"], [class*="bg-violet-6"],
+    [class*="bg-emerald-5"], [class*="bg-emerald-6"],
+    [class*="bg-green-5"], [class*="bg-green-6"],
+    [class*="bg-rose-5"], [class*="bg-rose-6"],
+    [class*="bg-red-5"], [class*="bg-red-6"],
+    [class*="bg-amber-5"], [class*="bg-orange-5"],
+    .monaco-editor
+  ):not([class*="/"]) {
+  --color-white: #ffffff;
+}
+
+/* ==========================================================================
+   AMBIENT BACKDROP — slow-drifting theme-tinted light behind the app shell
+   ========================================================================== */
+:where(:root) {
+  --ambient-1: color-mix(in srgb, var(--accent-primary) 14%, transparent);
+  --ambient-2: color-mix(in srgb, var(--accent-secondary) 10%, transparent);
+  --ambient-3: transparent;
+}
+
+.ambient-backdrop {
+  position: fixed;
+  inset: -20vmax;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(40vmax 30vmax at 15% 10%, var(--ambient-1), transparent 70%),
+    radial-gradient(35vmax 28vmax at 85% 20%, var(--ambient-2), transparent 70%),
+    radial-gradient(45vmax 30vmax at 50% 100%, var(--ambient-3), transparent 70%);
+  filter: saturate(1.1);
+  animation: ambient-drift 38s ease-in-out infinite alternate;
+}
+
+.ambient-backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+@keyframes ambient-drift {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50% { transform: translate3d(2vmax, -1.5vmax, 0) rotate(4deg); }
+  100% { transform: translate3d(-2vmax, 1vmax, 0) rotate(-3deg); }
+}
+
+[data-theme="aurora"] .ambient-backdrop {
+  animation-duration: 22s;
+}
+
+/* ==========================================================================
+   SURFACE PRIMITIVES (used by redesigned components)
+   ========================================================================== */
+.surface {
+  position: relative;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--text-primary) 3%, transparent), transparent 40%),
+    var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1.25rem;
+  box-shadow: var(--shadow-card);
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.surface-interactive:hover {
+  border-color: var(--border-medium);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Cursor-follow spotlight: set --mx/--my from JS (see SpotlightCard). */
+.spotlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: radial-gradient(380px circle at var(--mx, 50%) var(--my, 50%),
+      color-mix(in srgb, var(--accent-primary) 12%, transparent), transparent 60%);
+}
+
+.spotlight:hover::before {
+  opacity: 1;
+}
+
+.text-gradient {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
 body {
   background-color: var(--bg-primary) !important;
   color: var(--text-primary) !important;
