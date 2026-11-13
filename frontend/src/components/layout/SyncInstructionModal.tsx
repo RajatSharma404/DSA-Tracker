@@ -138,7 +138,7 @@ export function SyncInstructionModal({
       soundEffects.playSuccess();
 
       setIsSyncing(true);
-      const syncResult = await dsaApi.syncLeetcode();
+      const syncResult = await dsaApi.smartSyncLeetcode();
       if (syncResult?.syncSource === "session") {
         toast.success(`Session verified! Synced ${syncResult.syncedCount || 0} problems.`);
       } else if (syncResult?.warning) {

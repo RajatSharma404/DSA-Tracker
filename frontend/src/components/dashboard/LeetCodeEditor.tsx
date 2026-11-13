@@ -90,6 +90,12 @@ interface LeetCodeSubmissionState {
   verdict: string;
   accepted: boolean;
   details?: string;
+  runtime?: string | null;
+  memory?: string | null;
+  runtimePercentile?: number | null;
+  memoryPercentile?: number | null;
+  totalCorrect?: number | null;
+  totalTestcases?: number | null;
 }
 
 export function LeetCodeEditor({
@@ -316,116 +322,103 @@ export function LeetCodeEditor({
     setLeetcodeSubmission(null);
     setSubmitPath("IDLE");
 
-    try {
-      const langConfig = LANGUAGES[selectedLang];
+    const langConfig = LANGUAGES[selectedLang];
 
-      const result = await dsaApi.evaluateCode(
-        problemId,
-        code,
-        langConfig.leetcodeLang,
-      );
-
-      const evalResult = result.evaluation;
-      setEvaluation(evalResult);
-
-      let leetAccepted = false;
-      if (evalResult?.isCorrect) {
-        try {
-          const extensionResult = await submitViaExtension({
+    // LeetCode's judge is the source of truth; the AI review runs alongside it
+    // (previously a false negative from the AI blocked the real submission).
+    const leetcodePromise =
+      extensionHealth === "READY"
+        ? submitViaExtension({
             problemSlug,
             code,
             language: langConfig.leetcodeLang,
-            timeoutMs: 45_000,
-          });
-          setSubmitPath("EXTENSION");
-          setLeetcodeSubmission({
-            verdict: extensionResult.verdict,
-            accepted: extensionResult.accepted,
-            details: extensionResult.details,
-          });
-          leetAccepted = extensionResult.accepted;
-        } catch (extensionError: unknown) {
-          const errObj = extensionError as Record<string, unknown>;
-          const errorMessage = String(errObj?.message || "");
-          const isSignedOut = /not signed in|sign in/i.test(errorMessage);
-          setSubmitPath("UNAVAILABLE");
-          setLeetcodeSubmission({
-            verdict: "SUBMIT_FAILED",
-            accepted: false,
-            details: isSignedOut
-              ? "Your LeetCode is not signed in. Please sign in to LeetCode and try again."
-              : errorMessage ||
-              "Extension submit failed. Ensure extension is enabled and try again.",
-          });
-          console.error("LeetCode extension submit error:", extensionError);
-        }
-      }
+            timeoutMs: 60_000,
+          })
+            .then((r) => {
+              setSubmitPath("EXTENSION");
+              const state: LeetCodeSubmissionState = {
+                verdict: r.verdict,
+                accepted: r.accepted,
+                details: r.details,
+                runtime: r.runtime,
+                memory: r.memory,
+                runtimePercentile: r.runtimePercentile,
+                memoryPercentile: r.memoryPercentile,
+                totalCorrect: r.totalCorrect,
+                totalTestcases: r.totalTestcases,
+              };
+              setLeetcodeSubmission(state);
+              if (r.accepted) toast.success(`Accepted on LeetCode${r.runtime ? ` · ${r.runtime}` : ""}`);
+              else toast.error(`LeetCode: ${r.verdict}`);
+              return state;
+            })
+            .catch((err: unknown) => {
+              setSubmitPath("UNAVAILABLE");
+              const message = err instanceof Error ? err.message : String(err);
+              const state: LeetCodeSubmissionState = {
+                verdict: "SUBMIT_FAILED",
+                accepted: false,
+                details: /timed out/i.test(message)
+                  ? "The extension didn't answer. Make sure it's enabled, then refresh this page."
+                  : message,
+              };
+              setLeetcodeSubmission(state);
+              return state;
+            })
+        : Promise.resolve<LeetCodeSubmissionState | null>(null);
 
-      // Save solution to backend
+    const evaluationPromise = dsaApi
+      .evaluateCode(problemId, code, langConfig.leetcodeLang)
+      .then((r) => {
+        setEvaluation(r.evaluation);
+        return r.evaluation as EvaluationResult;
+      })
+      .catch((error: unknown) => {
+        const errObj = error as { message?: string; response?: { data?: { error?: string } } };
+        console.error("Evaluation error:", error);
+        const fallback: EvaluationResult = {
+          isCorrect: false,
+          verdict: "RUNTIME_ERROR",
+          verdictMessage:
+            errObj.response?.data?.error || errObj.message || "AI review unavailable. Please try again.",
+          score: 0,
+          complexity: { time: "N/A", timeExplanation: "", space: "N/A", spaceExplanation: "" },
+          optimalComplexity: { time: "N/A", space: "N/A", isCurrentOptimal: false, explanation: "" },
+          betterApproaches: [],
+          edgeCases: [],
+          feedback: "",
+        };
+        setEvaluation(fallback);
+        return null;
+      });
+
+    try {
+      const [leet, evalResult] = await Promise.all([leetcodePromise, evaluationPromise]);
+      const accepted = leet?.accepted ?? false;
+      const isCorrect = accepted || Boolean(evalResult?.isCorrect);
+
       try {
         await dsaApi.saveSolution({
           problemId,
           code,
           language: langConfig.leetcodeLang,
-          isCorrect: evalResult?.isCorrect || false,
-          score: evalResult?.score || 0,
-          verdict: evalResult?.verdict || "UNKNOWN",
+          isCorrect,
+          score: evalResult?.score ?? (accepted ? 100 : 0),
+          verdict: accepted ? "ACCEPTED" : evalResult?.verdict || leet?.verdict || "UNKNOWN",
           timeComplexity: evalResult?.complexity?.time || null,
           spaceComplexity: evalResult?.complexity?.space || null,
           isOptimal: evalResult?.optimalComplexity?.isCurrentOptimal || false,
         });
-        // Update local saved code cache
         setSavedCode((prev) => ({ ...prev, [selectedLang]: code }));
       } catch (saveErr) {
         console.error("Failed to save solution:", saveErr);
       }
 
-      if (evalResult?.isCorrect && leetAccepted) {
-        try {
-          await dsaApi.syncLeetcode();
-        } catch (syncError) {
-          console.warn("Post-submit LeetCode sync failed", syncError);
-        }
-
-        if (onSubmissionSuccess) {
-          const duration = Math.round((Date.now() - startTime) / 60000);
-          onSubmissionSuccess(Math.max(1, duration));
-        }
+      // The extension already reported the accepted submission to the API.
+      if (accepted && onSubmissionSuccess) {
+        const duration = Math.round((Date.now() - startTime) / 60000);
+        onSubmissionSuccess(Math.max(1, duration));
       }
-    } catch (error: unknown) {
-      const errObj = error as { message?: string; response?: { data?: { error?: string } } };
-      console.error("Evaluation error:", error);
-      const isExtensionTimeout = String(errObj?.message || "")
-        .toLowerCase()
-        .includes("extension request timed out");
-      if (isExtensionTimeout) {
-        setSubmitPath("UNAVAILABLE");
-      }
-      setEvaluation({
-        isCorrect: false,
-        verdict: "RUNTIME_ERROR",
-        verdictMessage: isExtensionTimeout
-          ? "Extension is not responding. Reload the extension and ensure it is enabled for this site."
-          : errObj.response?.data?.error ||
-          errObj.message ||
-          "Failed to evaluate code. Please try again.",
-        score: 0,
-        complexity: {
-          time: "N/A",
-          timeExplanation: "",
-          space: "N/A",
-          spaceExplanation: "",
-        },
-        optimalComplexity: {
-          time: "N/A",
-          space: "N/A",
-          isCurrentOptimal: false,
-          explanation: "",
-        },
-        betterApproaches: [],
-        edgeCases: [],
-        feedback: "",
-      });
     } finally {
       setIsSubmitting(false);
     }
@@ -490,7 +483,7 @@ export function LeetCodeEditor({
 
   if (loadingSnippets) {
     return (
-      <div className="flex items-center justify-center h-150 bg-[#0a0a0a] rounded-3xl border border-white/10">
+      <div className="flex items-center justify-center h-150 bg-[var(--bg-secondary)] rounded-3xl border border-white/10">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="animate-spin text-white" size={32} />
           <p className="text-gray-400 text-sm">Loading code templates...</p>
@@ -500,7 +493,7 @@ export function LeetCodeEditor({
   }
 
   return (
-    <div className="flex flex-col w-full bg-[#0a0a0a] rounded-3xl border border-white/10 overflow-hidden">
+    <div className="flex flex-col w-full bg-[var(--bg-secondary)] rounded-3xl border border-white/10 overflow-hidden">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between px-6 py-4 bg-white/5 border-b border-white/5 gap-4 shrink-0">
         <div className="flex items-center gap-3 flex-wrap">
@@ -627,7 +620,7 @@ export function LeetCodeEditor({
 
       {/* Mobile Flowchart Accordion (< 768px) */}
       {flowchartData && (
-        <div className="md:hidden flex flex-col border-b border-white/10 bg-[#0d0d14]">
+        <div className="md:hidden flex flex-col border-b border-white/10 bg-[var(--bg-secondary)]">
           <button
             type="button"
             onClick={() => setMobileFlowchartOpen(!mobileFlowchartOpen)}
@@ -726,23 +719,54 @@ export function LeetCodeEditor({
           </div>
 
           {leetcodeSubmission && (
-            <div className="px-6 py-3 border-b border-white/5 bg-white/5 text-sm">
-              <span className="font-semibold text-gray-200">
-                LeetCode verdict:
-              </span>{" "}
-              <span
-                className={
-                  leetcodeSubmission.accepted
-                    ? "text-green-400 font-semibold"
-                    : "text-red-400 font-semibold"
-                }
-              >
-                {leetcodeSubmission.verdict}
-              </span>
+            <div
+              className={`px-6 py-4 border-b border-[var(--border-subtle)] text-sm ${
+                leetcodeSubmission.accepted ? "bg-emerald-500/[0.06]" : "bg-red-500/[0.05]"
+              }`}
+            >
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
+                  LeetCode judge
+                </span>
+                <span
+                  className={`font-bold ${leetcodeSubmission.accepted ? "text-emerald-400" : "text-red-400"}`}
+                >
+                  {leetcodeSubmission.verdict}
+                </span>
+                {leetcodeSubmission.totalTestcases ? (
+                  <span className="text-xs text-[var(--text-muted)] font-mono">
+                    {leetcodeSubmission.totalCorrect ?? 0}/{leetcodeSubmission.totalTestcases} tests
+                  </span>
+                ) : null}
+              </div>
+              {leetcodeSubmission.accepted && (leetcodeSubmission.runtime || leetcodeSubmission.memory) && (
+                <div className="mt-3 grid grid-cols-2 gap-3 max-w-md">
+                  {[
+                    { label: "Runtime", value: leetcodeSubmission.runtime, pct: leetcodeSubmission.runtimePercentile },
+                    { label: "Memory", value: leetcodeSubmission.memory, pct: leetcodeSubmission.memoryPercentile },
+                  ].map((m) => (
+                    <div key={m.label} className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-3">
+                      <div className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">{m.label}</div>
+                      <div className="font-mono font-bold text-[var(--text-primary)]">{m.value ?? "—"}</div>
+                      {typeof m.pct === "number" && (
+                        <>
+                          <div className="mt-2 h-1.5 rounded-full bg-[var(--bg-tertiary)] overflow-hidden">
+                            <div
+                              className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-[var(--accent-primary)]"
+                              style={{ width: `${Math.min(100, Math.max(0, m.pct))}%` }}
+                            />
+                          </div>
+                          <div className="mt-1 text-[10px] text-[var(--text-muted)]">beats {m.pct.toFixed(1)}%</div>
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
               {leetcodeSubmission.details ? (
-                <p className="text-xs text-gray-400 mt-1">
+                <pre className="mt-3 text-xs text-[var(--text-secondary)] whitespace-pre-wrap font-mono bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-lg p-3 max-h-48 overflow-auto">
                   {leetcodeSubmission.details}
-                </p>
+                </pre>
               ) : null}
             </div>
           )}

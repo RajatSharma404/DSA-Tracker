@@ -28,6 +28,7 @@ import {
   Cpu,
 } from "lucide-react";
 import { toast } from "sonner";
+import { ExtensionLiveStatus } from "@/components/dashboard/ExtensionLiveStatus";
 import {
   getExtensionHealth,
   ExtensionHealthState,
@@ -126,7 +127,7 @@ function ExtensionHubContent() {
       
       // Auto-trigger sync validation
       setIsSyncing(true);
-      const syncResult = await dsaApi.syncLeetcode();
+      const syncResult = await dsaApi.smartSyncLeetcode();
       if (syncResult?.syncSource === "session") {
         toast.success(`Session verified! Synced ${syncResult.syncedCount || 0} problems.`);
       } else if (syncResult?.warning) {
@@ -154,7 +155,7 @@ function ExtensionHubContent() {
             Extension & Session Setup
           </h1>
           <p className="text-sm text-[var(--text-muted)] mt-1 max-w-2xl">
-            Configure the Chrome extension for zero-click background syncing or connect your LeetCode session cookie for full problem backlog imports and AI code reviews.
+            Install the extension once: it syncs every accepted LeetCode submission automatically, imports your full history in one click, and lets you submit to LeetCode from the editor here.
           </p>
         </div>
 
@@ -173,6 +174,8 @@ function ExtensionHubContent() {
           </button>
         </div>
       </div>
+
+      <ExtensionLiveStatus />
 
       {/* Live Diagnostic Banner */}
       <div className="p-5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">

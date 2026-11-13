@@ -31,6 +31,14 @@ const API_BASE_URL = !forceRemoteApiInLocalDev
     ? normalizedPublicApiBase
     : "/api";
 
+const invalidateProgressCaches = () => {
+  queryCache.invalidate("dashboard_stats");
+  queryCache.invalidate("activity_data");
+  queryCache.invalidate("topics");
+  queryCache.invalidate("topic_problems_");
+  queryCache.invalidate("mastery_stats");
+};
+
 export const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 30000,
@@ -261,6 +269,26 @@ export interface InterviewReadiness {
     coveredTopics: number;
     totalTopics: number;
   };
+}
+
+export interface RetentionReport {
+  generatedAt: string;
+  threshold: number;
+  averageRecall: number;
+  atRiskNow: number;
+  total: number;
+  forecast: Array<{ day: number; averageRecall: number; atRisk: number }>;
+  topics: Array<{ topic: string; averageRecall: number; count: number; atRisk: number }>;
+  items: Array<{
+    problemId: string;
+    title: string;
+    topic: string;
+    difficulty: "EASY" | "MEDIUM" | "HARD";
+    recall: number;
+    stabilityDays: number;
+    daysSinceReview: number;
+    daysUntilAtRisk: number;
+  }>;
 }
 
 export interface Topic {
@@ -658,6 +686,45 @@ export const dsaApi = {
     const res = await api.get("/leetcode/daily-challenge");
     return res.data;
   },
+  /** Imports a snapshot the extension read from the user's own LeetCode session. */
+  importLeetcodeSnapshot: async (snapshot: {
+    username?: string;
+    solved: unknown[];
+    recent: unknown[];
+  }) => {
+    const res = await api.post(
+      "/user/leetcode/import",
+      { username: snapshot.username, solved: snapshot.solved, recent: snapshot.recent },
+      { timeout: 120_000 },
+    );
+    invalidateProgressCaches();
+    return res.data as {
+      success: boolean;
+      syncSource: "extension";
+      syncedCount: number;
+      totalSolved: number;
+      matched: number;
+      created: number;
+      unchanged: number;
+      syncedProblems: string[];
+      warning?: string | null;
+    };
+  },
+  /**
+   * Preferred sync: full history via the extension (works for private
+   * profiles, no cookie pasting). Falls back to the server-side sync.
+   */
+  smartSyncLeetcode: async () => {
+    const { getExtensionStatus, fetchLeetCodeSnapshot } = await import("./extensionBridge");
+    const status = await getExtensionStatus();
+    if (status.state === "READY" && !status.outdated) {
+      const snapshot = await fetchLeetCodeSnapshot();
+      return dsaApi.importLeetcodeSnapshot(snapshot);
+    }
+    return dsaApi.syncLeetcode();
+  },
+  getRetentionReport: async (): Promise<RetentionReport> =>
+    (await api.get("/analytics/retention")).data,
   syncLeetcode: async () => {
     const res = await api.post("/user/sync-leetcode");
     // Invalidate caches when LeetCode sync finishes

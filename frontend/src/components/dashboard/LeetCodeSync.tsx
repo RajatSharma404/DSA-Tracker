@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { dsaApi } from "@/lib/api";
+import { toast } from "sonner";
 import { RefreshCcw, Save, CheckCircle2, HelpCircle, ArrowRight } from "lucide-react";
 
 interface LeetCodeSyncProps {
@@ -44,10 +45,10 @@ export default function LeetCodeSync({ onSyncComplete }: LeetCodeSyncProps) {
     setIsSavingUser(true);
     try {
       await dsaApi.updateLeetcodeUsername(username);
-      alert("LeetCode username updated!");
+      toast.success("LeetCode username updated");
     } catch (error) {
       console.error(error);
-      alert("Failed to update username");
+      toast.error("Failed to update username");
     } finally {
       setIsSavingUser(false);
     }
@@ -58,7 +59,7 @@ export default function LeetCodeSync({ onSyncComplete }: LeetCodeSyncProps) {
     setIsSavingSession(true);
     try {
       await dsaApi.updateLeetcodeSession(sessionCookie);
-      alert(
+      toast.success(
         "LeetCode session saved securely! AI Code reviews can now auto-sync your submission code.",
       );
       setSessionCookie(""); // Clear after save for neatness
@@ -68,7 +69,7 @@ export default function LeetCodeSync({ onSyncComplete }: LeetCodeSyncProps) {
       const backendMessage =
         errObj?.response?.data?.error ||
         "Failed to save session. Paste LEETCODE_SESSION value or a cookie string containing LEETCODE_SESSION=...";
-      alert(backendMessage);
+      toast.error(backendMessage);
     } finally {
       setIsSavingSession(false);
     }
@@ -77,7 +78,7 @@ export default function LeetCodeSync({ onSyncComplete }: LeetCodeSyncProps) {
   const handleSync = async () => {
     setIsSyncing(true);
     try {
-      const result = await dsaApi.syncLeetcode();
+      const result = await dsaApi.smartSyncLeetcode();
       setLastSyncResult({
         count: result.syncedCount,
         problems: result.syncedProblems,
@@ -87,18 +88,22 @@ export default function LeetCodeSync({ onSyncComplete }: LeetCodeSyncProps) {
         warning: result.warning,
       });
       if (result.warning) {
-        alert(result.warning);
+        toast.warning(result.warning);
       }
       if (result.syncedCount > 0) {
-        alert(`Successfully synced ${result.syncedCount} new problems!`);
+        toast.success(`Synced ${result.syncedCount} problems from LeetCode`);
       } else {
-        alert("No new problems to sync.");
+        toast.info("Already up to date — nothing new to sync");
       }
       onSyncComplete?.();
     } catch (error) {
       console.error(error);
-      alert(
-        "Failed to sync with LeetCode. Make sure your username is correct and public.",
+      const message =
+        (error as { response?: { data?: { error?: string } } })?.response?.data?.error ||
+        (error instanceof Error ? error.message : "");
+      toast.error(
+        message ||
+          "Failed to sync with LeetCode. Install the extension, or make sure your username is correct and public.",
       );
     } finally {
       setIsSyncing(false);
@@ -106,7 +111,7 @@ export default function LeetCodeSync({ onSyncComplete }: LeetCodeSyncProps) {
   };
 
   return (
-    <div className="p-6 rounded-3xl bg-[#0d0d0d] border border-white/5 space-y-6">
+    <div className="p-6 rounded-3xl bg-[var(--bg-card)] border border-white/5 space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-black text-white flex items-center gap-2">
           <Image
@@ -139,7 +144,7 @@ export default function LeetCodeSync({ onSyncComplete }: LeetCodeSyncProps) {
               placeholder="LeetCode Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="flex-1 bg-[#1a1a1a] border border-[#222] rounded-xl px-4 py-3 text-sm focus:border-[#ffa116] outline-none text-white"
+              className="flex-1 bg-[var(--bg-tertiary)] border border-[#222] rounded-xl px-4 py-3 text-sm focus:border-[#ffa116] outline-none text-white"
             />
             <button
               onClick={handleSaveUsername}
@@ -166,7 +171,7 @@ export default function LeetCodeSync({ onSyncComplete }: LeetCodeSyncProps) {
               placeholder="LEETCODE_SESSION Cookie (Optional)"
               value={sessionCookie}
               onChange={(e) => setSessionCookie(e.target.value)}
-              className="flex-1 bg-[#1a1a1a] border border-[#222] rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none text-white"
+              className="flex-1 bg-[var(--bg-tertiary)] border border-[#222] rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none text-white"
             />
             <button
               onClick={handleSaveSession}
