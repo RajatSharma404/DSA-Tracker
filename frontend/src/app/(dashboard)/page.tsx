@@ -175,8 +175,14 @@ export default function Dashboard() {
 
       if (shouldAutoSync) {
         // Run sync in the background so initial dashboard render is fast.
+        // Only when a LeetCode username is saved; otherwise the server
+        // rejects the sync and there's nothing to fetch anyway.
         void dsaApi
-          .syncLeetcode()
+          .getUserSettings()
+          .then((settings) => {
+            if (!settings?.leetcodeUsername) throw new Error("no-username");
+            return dsaApi.syncLeetcode();
+          })
           .then(async () => {
             const [nextStatsRes, nextActivityRes, nextTopicsRes] =
               await Promise.allSettled([
@@ -196,6 +202,7 @@ export default function Dashboard() {
             }
           })
           .catch((syncError) => {
+            if (syncError instanceof Error && syncError.message === "no-username") return;
             console.warn("LeetCode auto-sync skipped", syncError);
           });
       }

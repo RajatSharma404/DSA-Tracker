@@ -49,10 +49,13 @@ export const prisma =
   globalForPrisma.prisma ||
   new PrismaClient({
     datasources: databaseUrl ? { db: { url: databaseUrl } } : undefined,
+    // Query logging is opt-in: it floods the dev console otherwise.
     log:
-      process.env.NODE_ENV === "development"
+      process.env.PRISMA_LOG_QUERIES === "true"
         ? ["query", "error", "warn"]
-        : ["error"],
+        : process.env.NODE_ENV === "development"
+          ? ["error", "warn"]
+          : ["error"],
   });
 
 if (process.env.NODE_ENV !== "production") {
