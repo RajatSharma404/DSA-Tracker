@@ -13,6 +13,10 @@ import {
   hashSecret,
   maskSecret,
 } from "../utils/encryption";
+import {
+  importSolvedProblems,
+  sanitizeEntries,
+} from "../services/leetcodeImportService";
 
 const router = Router();
 
@@ -326,6 +330,55 @@ router.post(
     } catch (error) {
       console.error("Sync Error:", error);
       res.status(500).json({ error: "Failed to sync with LeetCode" });
+    }
+  },
+);
+
+// Import a LeetCode snapshot read by the browser extension.
+// The extension queries LeetCode from the user's own signed-in browser, so the
+// server never needs (or stores) the LEETCODE_SESSION cookie for this path.
+router.post(
+  "/user/leetcode/import",
+  requireAuth,
+  async (req: Request, res: Response) => {
+    try {
+      const userId = req.user!.id;
+      const { solved, recent, username } = (req.body || {}) as Record<string, unknown>;
+
+      // Recent ACs carry real timestamps; merge them over the solved list.
+      const entries = sanitizeEntries([
+        ...(Array.isArray(recent) ? recent : []),
+        ...(Array.isArray(solved) ? solved : []),
+      ]);
+      if (entries.length === 0) {
+        return res.status(400).json({ error: "No solved problems in snapshot" });
+      }
+
+      const normalizedUsername =
+        typeof username === "string" ? username.trim().toLowerCase() : "";
+      if (/^[a-z0-9_-]{1,30}$/i.test(normalizedUsername)) {
+        await prisma.user.update({
+          where: { id: userId },
+          data: { leetcodeUsername: normalizedUsername },
+        });
+      }
+
+      const result = await importSolvedProblems(userId, entries);
+      res.json({
+        success: true,
+        syncSource: "extension",
+        syncedCount: result.updated,
+        totalSolved: entries.length,
+        matched: result.matched,
+        created: result.created,
+        unchanged: result.unchanged,
+        syncedProblems: result.problems
+          .slice(0, 200)
+          .map((p) => p.title),
+      });
+    } catch (error) {
+      console.error("LeetCode import error:", error);
+      res.status(500).json({ error: "Failed to import LeetCode snapshot" });
     }
   },
 );

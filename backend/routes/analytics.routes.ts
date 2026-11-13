@@ -6,8 +6,49 @@ import {
   getTimeAnalytics,
   getInterviewReadinessIndex,
 } from "../services";
+import { buildRetentionReport } from "../services/retentionService";
 
 const router = Router();
+
+// Memory retention forecast (FSRS-style forgetting curve over SM-2 fields)
+router.get(
+  "/analytics/retention",
+  requireAuth,
+  async (req: Request, res: Response) => {
+    try {
+      const rows = await prisma.progress.findMany({
+        where: { userId: req.user!.id, status: "DONE" },
+        select: {
+          problemId: true,
+          completedAt: true,
+          nextReviewDate: true,
+          interval: true,
+          easinessFactor: true,
+          problem: {
+            select: { title: true, difficulty: true, topic: { select: { name: true } } },
+          },
+        },
+      });
+      const report = buildRetentionReport(
+        rows.map((r) => ({
+          problemId: r.problemId,
+          title: r.problem.title,
+          topic: r.problem.topic.name,
+          difficulty: r.problem.difficulty,
+          completedAt: r.completedAt,
+          nextReviewDate: r.nextReviewDate,
+          interval: r.interval,
+          easinessFactor: r.easinessFactor,
+        })),
+      );
+      // Keep the payload small: the 40 weakest memories are enough for the UI.
+      res.json({ ...report, items: report.items.slice(0, 40) });
+    } catch (error) {
+      console.error("Retention report error:", error);
+      res.status(500).json({ error: "Failed to build retention report" });
+    }
+  },
+);
 
 router.get(
   "/analytics/activity",
