@@ -273,3 +273,28 @@ This file tracks daily development milestones, testing scores, architectural cha
 ### 📌 Status
 - Clean working tree, all 304 tests green, production Docker compose verified, ready for commit.
 
+
+---
+
+## 2026-11-13 — LeetCode Sync v2, Themes & Insights Lab
+
+### ✨ Changes
+- **Extension v2 (MV3, `extension/`)**:
+  - Replaced DOM text-scanning verdict detection (false positives from "Accepted" in problem stats) with a MAIN-world network hook (`leetcode-hook.js`) on LeetCode's `/submit/` and `/check/` responses.
+  - Replaced editor/button automation for submissions with LeetCode's JSON submit API run inside a leetcode.com tab (same-origin CSRF), judge polling with backoff, 429 retry, tab reuse.
+  - Automatic pairing (`PAIR`) from the app with its access token; LEETCODE_SESSION no longer sent to the backend. Offline retry queue via `chrome.alarms`. Toolbar popup.
+  - `FETCH_LEETCODE_SNAPSHOT`: full solved list (two GraphQL schemas), recent ACs, profile/contest stats, submission calendar.
+- **Backend**: `services/leetcodeImportService.ts` (shared exact-slug matching; fixes `link contains slug` mismatching e.g. `two-sum` → `two-sum-ii-…`), `/extension/sync` v2 payload (stores accepted code in solution history), `POST /user/leetcode/import`, `GET /analytics/retention` + `services/retentionService.ts`.
+- **Frontend**:
+  - Editor: LeetCode judge runs in parallel with the AI review (an AI false negative previously blocked submission); richer verdict panel.
+  - Themes: added Aurora Borealis + Sepia Paper; light-theme token remap; pre-paint theme boot script; ambient backdrop; replaced hardcoded hex backgrounds with tokens.
+  - New sidebar (persisted collapse state, ⌘B, tooltips, clearer labels) sharing `lib/navigation.ts` with the mobile drawer.
+  - Dashboard hero (greeting, progress ring, key stats, adaptive CTA); removed duplicate stat row and progress bar; empty Daily Focus card hidden.
+  - Insights Lab (`/insights`): Memory Forecast, DSA DNA (PNG share card), LeetCode Live.
+  - Extension Hub live status checklist + one-click full import; `alert()` → toasts.
+  - Fixed `city/page.tsx` compile error (nested `*/` inside a commented-out block).
+
+### 🧪 Test & QA Health
+- Backend: 15 files, **147 tests passing** (+14 new: import service, extension v2, snapshot import, retention model).
+- Frontend: 46 files, **197 tests passing** (+6 new).
+- `tsc --noEmit` clean in both packages; ESLint 0 errors; Prisma schemas in sync.

@@ -108,14 +108,13 @@ Engineered with cutting-edge web technologies (Next.js 16 App Router, React 19, 
 └────────────────────────────┴────────────────────────────┴────────────────────────┘
 ```
 
-### 1. 🔌 Zero-Click Browser Extension Auto-Sync
-- **Manifest V3 Extension**: Connects with Chrome, Edge, Brave, or Arc via secure cryptographic token.
-- **Automated Submission Capture**: Whenever you submit code on LeetCode.com, the extension intercepts:
-  - Problem title, slug, and difficulty (`EASY`, `MEDIUM`, `HARD`).
-  - Exact time taken to solve.
-  - Complete code solution in JavaScript, TypeScript, C++, Python, or Java.
-  - Acceptance status and runtime/memory percentiles.
-- **Direct Database Scheduling**: Immediately schedules the problem into your **SM-2 Spaced Repetition Queue** without manual entry.
+### 1. 🔌 Zero-Click Browser Extension Auto-Sync (v2)
+- **No cookie pasting**: the extension pairs itself with your account whenever you open the tracker while signed in, and reads LeetCode from your own browser session. The `LEETCODE_SESSION` cookie never leaves the browser.
+- **Network-level verdict capture**: on leetcode.com, a page hook watches LeetCode's own `/submit/` and `/submissions/detail/<id>/check/` responses, so syncing only fires on real "Accepted" verdicts (the v1 DOM scan false-fired on the word "Accepted" in problem stats). Each sync carries title, difficulty, runtime/memory with percentiles, language and the accepted code, which is saved to your solution history.
+- **API-based submit from the tracker**: the editor submits through LeetCode's JSON API inside a LeetCode tab (same-origin, real CSRF token) and polls the judge. No editor automation, no button clicking. You get the verdict, test counts, runtime/memory percentiles and the failing test case. The LeetCode judge runs alongside the AI review, so an AI false negative no longer blocks a real submission.
+- **Full-history import**: "Import full LeetCode history" (Extension Hub, Insights Lab or ⌘K) pulls your entire solved list plus recent accepted timestamps via LeetCode GraphQL and upserts it in one request (`POST /api/user/leetcode/import`).
+- **Offline queue**: if the tracker is unreachable or the token expired, syncs are queued in the extension and retried every 2 minutes and on the next pairing.
+- **Toolbar popup** shows LeetCode sign-in, pairing, pending syncs and last sync.
 
 ### 2. 💻 Split-Screen LeetCode IDE Workspace (`/problems/[id]`)
 - **Fluid Resizable Split-Pane**: Problem description on left pane and Monaco code editor on right pane.
@@ -233,8 +232,10 @@ Engineered with cutting-edge web technologies (Next.js 16 App Router, React 19, 
 
 ---
 
-### 10. 🎨 Dynamic 6-Theme Engine & Web Audio Synthesizer
-- **6 Hand-Crafted Themes**: OLED Midnight, Cyberpunk 2077, Matrix Emerald, Tokyo Night, Nordic Slate, and Enterprise Light.
+### 10. 🎨 Dynamic 8-Theme Engine & Web Audio Synthesizer
+- **8 Hand-Crafted Themes**: OLED Midnight, Cyberpunk 2077, Matrix Emerald, Tokyo Night, Nordic Slate, **Aurora Borealis** (new), Enterprise Light and **Sepia Paper** (new, warm light).
+- **Light-theme token remap**: Tailwind's `white`/`black`/`gray` variables are re-pointed under light themes, so components written dark-first stay readable; saturated buttons keep real white text.
+- **No theme flash**: an inline boot script applies the saved theme before first paint. Each theme also drives a slow ambient backdrop.
 - **Zero-Latency Web Audio Synthesizer (`soundEffects.ts`)**: Tactile mechanical clicks, navigation chords (`playChord`), error buzzes (`playError`), and harmonic success fanfares (`playSuccess`).
 - **Accessibility & Motion Hardening**: `@media (prefers-reduced-motion: reduce)` rules and accessible `:focus-visible` outline rings.
 
@@ -273,6 +274,11 @@ Engineered with cutting-edge web technologies (Next.js 16 App Router, React 19, 
 - **Monte Carlo Hiring Bar Simulator**: Probabilistic readiness projection based on solve speed percentiles and category coverage.
 
 ---
+
+### 16. 🔭 Insights Lab (`/insights`)
+- **Memory Forecast**: an FSRS-style power forgetting curve, R = (1 + t/9S)⁻¹, over your SM-2 interval, ease and problem difficulty predicts average recall for the next 30 days, how many problems cross the 70% at-risk line, which problems are fading fastest, and recall per topic (`GET /api/analytics/retention`).
+- **DSA DNA**: a generative fingerprint of your skill profile. Each topic is a strand whose length is mastery, and the twist comes from a hash of your whole profile, so it is unique to you. Hover to inspect; **Share card** exports a 1200×630 PNG with your archetype and signature.
+- **LeetCode Live**: contest rating, global rank, active days, solved by difficulty and LeetCode's own 53-week submission calendar, read through the extension.
 
 ## ⌨️ Keyboard Shortcuts Cheat Sheet
 
@@ -506,11 +512,13 @@ npm run dev
 
 ## 🔌 Browser Extension Setup
 
-1. Open **Google Chrome** or **Microsoft Edge**.
-2. Navigate to `chrome://extensions` (or `edge://extensions`).
-3. Toggle on **Developer Mode** in the top right.
-4. Click **Load unpacked** and select the `/extension` directory in this repo.
-5. Navigate to **DSA Tracker Setup Hub (`/extension`)**, copy your API Key, and paste it into the extension popup.
+1. Open **Google Chrome**, **Edge**, **Brave** or **Arc**.
+2. Navigate to `chrome://extensions` and toggle on **Developer Mode**.
+3. Click **Load unpacked** and select the `/extension` directory in this repo (after pulling an update, press the reload icon on the extension card).
+4. Sign in to leetcode.com in the same browser profile.
+5. Open the tracker while signed in. The extension pairs automatically; the **Extension Hub (`/extension`)** shows a live 3-step checklist and an **Import full LeetCode history** button.
+
+The content script runs on `localhost`, `127.0.0.1` and `*.onrender.com`. For another domain, add it to `host_permissions`, `content_scripts[1].matches` and `isAllowedAppOrigin()` in `extension/background.js`.
 
 ---
 

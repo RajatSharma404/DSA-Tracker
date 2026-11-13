@@ -141,11 +141,14 @@ Admin routes are protected by both frontend middleware and backend role checks.
 
 ## Extension Sync Usage
 
-If extension is installed:
+With the v2 extension installed:
 
-1. log in to LeetCode in same browser profile
-2. keep valid `LEETCODE_SESSION` cookie
-3. solve and submit on LeetCode
-4. extension sends accepted-problem sync call to backend
+1. Sign in to LeetCode in the same browser profile.
+2. Open DSA Tracker while signed in. The extension pairs itself (no API key or cookie to paste).
+3. Solve and submit on LeetCode. When LeetCode's judge returns **Accepted**, the problem, runtime/memory and your code sync automatically, and a toast confirms it on the LeetCode page.
+4. To backfill everything you've ever solved, press **Import full LeetCode history** on the Extension Hub.
+5. Submitting from the tracker's editor sends your code to LeetCode's judge directly and shows the real verdict.
+
+If the tracker is offline, syncs are queued in the extension and retried automatically. The toolbar popup shows pending syncs.
 
 For setup details, see [Developer Operations](./developer-operations.md) and [Troubleshooting](./troubleshooting.md).
