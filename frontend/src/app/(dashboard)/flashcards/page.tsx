@@ -916,28 +916,41 @@ export default function FlashcardsPage() {
       )
         return;
 
-      if (e.code === "Space") {
+      if (e.code === "Space" || e.key === "Enter") {
         e.preventDefault();
         soundEffects.playToggle();
         setIsFlipped((prev) => !prev);
       } else if (e.key === "1") {
-        handleGrade("Forgot");
+        e.preventDefault();
+        handleGrade("Again");
       } else if (e.key === "2") {
+        e.preventDefault();
         handleGrade("Hard");
       } else if (e.key === "3") {
+        e.preventDefault();
         handleGrade("Good");
       } else if (e.key === "4") {
+        e.preventDefault();
         handleGrade("Easy");
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        if (isFlipped) {
+          setIsFlipped(false);
+        } else {
+          window.location.href = "/";
+        }
       } else if (e.key === "ArrowRight") {
+        e.preventDefault();
         handleNext();
       } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
         handlePrev();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentIndex, filteredCards]);
+  }, [currentIndex, filteredCards, isFlipped]);
 
   const swipeRotation = (dragOffset / 200) * 8;
 
@@ -946,7 +959,7 @@ export default function FlashcardsPage() {
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between lg:items-end gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-bold uppercase tracking-wider mb-2 font-mono">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-bold uppercase tracking-wider mb-2 font-mono">
             <Brain size={13} />
             <span>FlashRecall SM-2 Deck</span>
           </div>
@@ -973,7 +986,7 @@ export default function FlashcardsPage() {
                 }}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   selectedCategory === cat
-                    ? "bg-purple-500 text-white font-extrabold shadow-sm"
+                    ? "bg-purple-600 text-white font-extrabold shadow-sm"
                     : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                 }`}
               >
@@ -1001,7 +1014,7 @@ export default function FlashcardsPage() {
                         ? "bg-amber-500 text-white font-extrabold shadow-sm"
                         : diff === "Hard"
                           ? "bg-rose-500 text-white font-extrabold shadow-sm"
-                          : "bg-purple-500 text-white font-extrabold shadow-sm"
+                          : "bg-purple-600 text-white font-extrabold shadow-sm"
                     : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                 }`}
               >
@@ -1045,6 +1058,15 @@ export default function FlashcardsPage() {
               </span>
             </div>
 
+            {/* Live screen reader announcement for card state flip */}
+            <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+              {currentCard
+                ? isFlipped
+                  ? `Card flipped to back: Core invariant: ${currentCard.back.coreInvariant}. Key takeaway: ${currentCard.back.keyTakeaway}`
+                  : `Card ${currentIndex + 1} of ${filteredCards.length}: ${currentCard.front.title}. Question: ${currentCard.front.question}`
+                : "No cards available"}
+            </div>
+
             {/* Swipe Visual Feedback Indicators */}
             <div className="relative">
               {dragOffset > 25 && (
@@ -1058,8 +1080,14 @@ export default function FlashcardsPage() {
                 </div>
               )}
 
-              {/* 3D Flashcard Container with Swipe Gesture */}
+              {/* 3D Flashcard Container with Swipe Gesture & Keyboard Accessibility */}
               <div
+                tabIndex={0}
+                role="region"
+                aria-label={`Flashcard ${currentIndex + 1} of ${filteredCards.length}: ${currentCard?.front.title || ""}. ${
+                  isFlipped ? "Showing back." : "Showing front."
+                } Press Space or Enter to flip.`}
+                aria-expanded={isFlipped}
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
@@ -1067,13 +1095,20 @@ export default function FlashcardsPage() {
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.code === "Space") {
+                    e.preventDefault();
+                    soundEffects.playToggle();
+                    setIsFlipped(!isFlipped);
+                  }
+                }}
                 onClick={() => {
                   if (Math.abs(dragOffset) < 10) {
                     soundEffects.playToggle();
                     setIsFlipped(!isFlipped);
                   }
                 }}
-                className={`relative min-h-[420px] rounded-[2.5rem] border bg-[var(--bg-card)] p-8 sm:p-10 shadow-2xl cursor-grab active:cursor-grabbing transition-all duration-150 flex flex-col justify-between select-none group ${
+                className={`relative min-h-[420px] rounded-[2.5rem] border bg-[var(--bg-card)] p-8 sm:p-10 shadow-2xl cursor-grab active:cursor-grabbing transition-all duration-150 flex flex-col justify-between select-none group focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)] focus-visible:outline-none ${
                   dragOffset > 30
                     ? "border-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.35)]"
                     : dragOffset < -30
@@ -1192,7 +1227,7 @@ export default function FlashcardsPage() {
                   </div>
                 )}
 
-                <div className="pt-3 border-t border-[var(--border-subtle)] text-center text-[10px] text-[var(--text-muted)] font-mono flex items-center justify-between">
+                <div className="pt-3 border-t border-[var(--border-subtle)] text-center text-[10px] text-gray-300 font-medium font-mono flex items-center justify-between">
                   <span>Swipe left for Hard</span>
                   <span>Tap to flip</span>
                   <span>Swipe right for Easy</span>
@@ -1202,11 +1237,64 @@ export default function FlashcardsPage() {
           </>
         )}
 
-        {/* SM-2 Recall Rating Buttons */}
+        {/* Keyboard Shortcut Hints Bar */}
+        <div
+          role="note"
+          aria-label="Keyboard shortcuts"
+          className="flex flex-wrap items-center justify-center gap-2 p-2.5 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] text-[11px] text-[var(--text-secondary)] font-mono"
+        >
+          <span className="flex items-center gap-1">
+            <kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-primary)] font-bold text-[10px]">
+              Space
+            </kbd>
+            <span>/</span>
+            <kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-primary)] font-bold text-[10px]">
+              Enter
+            </kbd>
+            <span>Flip</span>
+          </span>
+          <span className="text-[var(--border-subtle)]">&bull;</span>
+          <span className="flex items-center gap-1">
+            <kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-primary)] font-bold text-[10px]">
+              1
+            </kbd>
+            <span>Again</span>
+          </span>
+          <span className="text-[var(--border-subtle)]">&bull;</span>
+          <span className="flex items-center gap-1">
+            <kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-primary)] font-bold text-[10px]">
+              2
+            </kbd>
+            <span>Hard</span>
+          </span>
+          <span className="text-[var(--border-subtle)]">&bull;</span>
+          <span className="flex items-center gap-1">
+            <kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-primary)] font-bold text-[10px]">
+              3
+            </kbd>
+            <span>Good</span>
+          </span>
+          <span className="text-[var(--border-subtle)]">&bull;</span>
+          <span className="flex items-center gap-1">
+            <kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-primary)] font-bold text-[10px]">
+              4
+            </kbd>
+            <span>Easy</span>
+          </span>
+          <span className="text-[var(--border-subtle)]">&bull;</span>
+          <span className="flex items-center gap-1">
+            <kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-primary)] font-bold text-[10px]">
+              Esc
+            </kbd>
+            <span>Exit</span>
+          </span>
+        </div>
+
+        {/* SM-2 / FSRS Recall Rating Buttons */}
         <div className="grid grid-cols-4 gap-2 pt-2">
           {[
             {
-              label: "Forgot",
+              label: "Again",
               key: "1",
               color:
                 "bg-rose-500/10 text-rose-400 border-rose-500/20 hover:bg-rose-500/20",

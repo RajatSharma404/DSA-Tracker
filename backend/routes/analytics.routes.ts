@@ -24,6 +24,8 @@ router.get(
           nextReviewDate: true,
           interval: true,
           easinessFactor: true,
+          stability: true,
+          lastReviewedAt: true,
           problem: {
             select: { title: true, difficulty: true, topic: { select: { name: true } } },
           },
@@ -39,6 +41,8 @@ router.get(
           nextReviewDate: r.nextReviewDate,
           interval: r.interval,
           easinessFactor: r.easinessFactor,
+          stability: r.stability,
+          lastReviewedAt: r.lastReviewedAt,
         })),
       );
       // Keep the payload small: the 40 weakest memories are enough for the UI.

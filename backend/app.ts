@@ -3,7 +3,9 @@ import express, { Express } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
+import { randomUUID } from "crypto";
 import { generalApiLimiter } from "./middlewares/rateLimiter";
+import { logger } from "./utils/logger";
 
 import dashboardRoutes from "./routes/dashboard.routes";
 import statsRoutes from "./routes/stats.routes";
@@ -26,8 +28,9 @@ import bookmarksRoutes from "./routes/bookmarks.routes";
 import tagsRoutes from "./routes/tags.routes";
 import searchRoutes from "./routes/search.routes";
 import reviewQueueRoutes from "./routes/reviewQueue.routes";
-import cityRoutes from "./routes/city.routes";
 import miscRoutes from "./routes/misc.routes";
+import featuresRoutes from "./routes/features.routes";
+import { requireFeature } from "./middlewares/featureGate";
 
 dotenv.config();
 
@@ -82,20 +85,35 @@ export function createApp(): Express {
     }),
   );
 
-  app.use(express.json());
-
-  // Mount baseline API rate limiter
+  // 3. Mount baseline API rate limiter before body parsing to mitigate DoS
   app.use("/api", generalApiLimiter);
 
-  // Request logger
-  app.use((req, _res, next) => {
-    console.log(
-      `${req.method} ${req.path} - Auth Header: ${req.headers.authorization ? "Present" : "Missing"}`,
-    );
+  // 4. JSON body parser with strict 100kb payload bounding
+  app.use(express.json({ limit: "100kb" }));
+
+  // 5. Request logger (pino + request ID tracking)
+  app.use((req, res, next) => {
+    const reqId = (req.headers["x-request-id"] as string) || randomUUID();
+    res.setHeader("X-Request-Id", reqId);
+    const start = performance.now();
+
+    res.on("finish", () => {
+      const duration = Math.round(performance.now() - start);
+      logger.info({
+        reqId,
+        method: req.method,
+        path: req.originalUrl || req.url,
+        status: res.statusCode,
+        duration,
+        hasAuth: Boolean(req.headers.authorization),
+      });
+    });
+
     next();
   });
 
   // Mount API routers
+  app.use("/api", featuresRoutes);
   app.use("/api", dashboardRoutes);
   app.use("/api", statsRoutes);
   app.use("/api", topicsRoutes);
@@ -103,11 +121,13 @@ export function createApp(): Express {
   app.use("/api", progressRoutes);
   app.use("/api", learnRoutes);
   app.use("/api", adminRoutes);
+  app.use("/api/interviews", requireFeature("interviews"));
   app.use("/api", interviewsRoutes);
   app.use("/api", analyticsRoutes);
   app.use("/api", userRoutes);
   app.use("/api", leetcodeRoutes);
   app.use("/api", extensionRoutes);
+  app.use("/api/challenges", requireFeature("arena"));
   app.use("/api", challengesRoutes);
   app.use("/api", aiRoutes);
   app.use("/api", vaultRoutes);
@@ -117,8 +137,6 @@ export function createApp(): Express {
   app.use("/api", tagsRoutes);
   app.use("/api", searchRoutes);
   app.use("/api", reviewQueueRoutes);
-  // [PREVIOUS LOGIC - COMMENTED OUT: DSA CITY FEATURE REMOVAL]
-  // app.use("/api", cityRoutes);
   app.use("/api", miscRoutes);
 
   // [NEW OPTIMIZED LOGIC: LIGHTWEIGHT KEEP-ALIVE PING TO PREVENT COLD STARTS]
@@ -138,27 +156,50 @@ export function createApp(): Express {
 
   // 404 handler for unmatched API routes
   app.use("/api", (_req, res) => {
-    res.status(404).json({ error: "Endpoint not found" });
+    res.status(404).json({
+      error: {
+        code: "NOT_FOUND",
+        message: "Endpoint not found",
+      },
+    });
   });
 
-  // Centralized error-handling middleware (prevents leaking internal stack traces / paths)
+  // Centralized error-handling middleware returning consistent { error: { code, message } }
   app.use(
     (
-      err: any,
+      err: Error & { status?: number; statusCode?: number; code?: string },
       _req: express.Request,
       res: express.Response,
       _next: express.NextFunction,
     ) => {
-      console.error("[Unhandled Error]:", err?.message || err);
       const statusCode =
-        Number.isInteger(err?.status) && err.status >= 400 && err.status < 600
+        typeof err?.status === "number" && err.status >= 400 && err.status < 600
           ? err.status
-          : 500;
+          : typeof err?.statusCode === "number" && err.statusCode >= 400 && err.statusCode < 600
+            ? err.statusCode
+            : 500;
+
+      const code =
+        typeof err?.code === "string"
+          ? err.code
+          : statusCode === 404
+            ? "NOT_FOUND"
+            : statusCode === 400
+              ? "BAD_REQUEST"
+              : "INTERNAL_SERVER_ERROR";
+
+      const message =
+        process.env.NODE_ENV === "production" && statusCode === 500
+          ? "Internal server error"
+          : err?.message || "Internal server error";
+
+      logger.error({ err, code, statusCode }, "[Unhandled Error]");
+
       res.status(statusCode).json({
-        error:
-          process.env.NODE_ENV === "production"
-            ? "Internal server error"
-            : err?.message || "Internal server error",
+        error: {
+          code,
+          message,
+        },
       });
     },
   );

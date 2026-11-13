@@ -1,9 +1,23 @@
-export declare const getAIHint: (problemTitle: string, topic: string, difficulty: string) => Promise<string>;
-export declare const getPatternExplanation: (topic: string) => Promise<string>;
+/**
+ * Enhanced AI & Static Code Analysis Engine
+ * Powered by Modern C++ Idioms & Memory Safety Rules (LearnCpp Official Knowledge)
+ */
+interface CleanCodeSuggestion {
+    suggestion: string;
+    example: string;
+}
+interface EdgeCaseCheck {
+    case: string;
+    handled: boolean;
+    note: string;
+}
+/**
+ * Main AI Code Review API (Enhanced with LearnCpp insights)
+ */
 export declare const getAICodeReview: (code: string, problemTitle: string, topic: string) => Promise<{
     type: string;
     data: {
-        verdict: string;
+        verdict: "OPTIMAL" | "GOOD" | "NEEDS WORK";
         summary: string;
         efficiency: {
             timeComplexity: string;
@@ -16,19 +30,15 @@ export declare const getAICodeReview: (code: string, problemTitle: string, topic
         logic: {
             isCorrect: boolean;
             explanation: string;
-            edgeCases: {
-                case: string;
-                handled: boolean;
-                note: string;
-            }[];
+            edgeCases: EdgeCaseCheck[];
         };
-        cleanCode: {
-            suggestion: string;
-            example: string;
-        }[];
+        cleanCode: CleanCodeSuggestion[];
         proTip: string;
     };
 }>;
+/**
+ * Detailed Code Evaluator API
+ */
 export declare const evaluateCode: (code: string, problemTitle: string, topic: string, difficulty: string, language: string) => Promise<{
     isCorrect: boolean;
     verdict: string;
@@ -57,10 +67,7 @@ export declare const evaluateCode: (code: string, problemTitle: string, topic: s
         description: string;
         pseudocode: string;
     }[];
-    edgeCases: {
-        case: string;
-        handled: boolean;
-    }[];
+    edgeCases: EdgeCaseCheck[];
     score: number;
     feedback: string;
     originality: {
@@ -70,7 +77,65 @@ export declare const evaluateCode: (code: string, problemTitle: string, topic: s
         explanation: string;
     };
 }>;
+/**
+ * Algorithm Trace Engine for Live Diagramming
+ */
 export declare const getAlgoTracing: (code: string, problemTitle: string) => Promise<{
+    sampleInput: string;
+    expectedOutput: string;
+    approach: string;
+    steps: ({
+        step: number;
+        phase: string;
+        codeLine: string;
+        narrative: string;
+        thinking: string;
+        variables: {
+            name: string;
+            value: string;
+            changed: boolean;
+        }[];
+        dataStructure: {
+            type: string;
+            label: string;
+            items: ({
+                value: string;
+                state: "active";
+            } | {
+                value: string;
+                state: "default";
+            })[];
+        };
+    } | {
+        step: number;
+        phase: string;
+        codeLine: string;
+        narrative: string;
+        thinking: string;
+        variables: {
+            name: string;
+            value: string;
+            changed: boolean;
+        }[];
+        dataStructure: {
+            type: string;
+            label: string;
+            items: ({
+                value: string;
+                state: "done";
+            } | {
+                value: string;
+                state: "highlight";
+            } | {
+                value: string;
+                state: "default";
+            } | {
+                value: string;
+                state: "compare";
+            })[];
+        };
+    })[];
+} | {
     sampleInput: string;
     expectedOutput: string;
     approach: string;
@@ -88,13 +153,33 @@ export declare const getAlgoTracing: (code: string, problemTitle: string) => Pro
         dataStructure: {
             type: string;
             label: string;
-            items: {
+            items: ({
                 value: string;
-                state: string;
-            }[];
+                state: "highlight";
+            } | {
+                value: string;
+                state: "default";
+            } | {
+                value: string;
+                state: "active";
+            } | {
+                value: string;
+                state: "done";
+            })[];
         };
     }[];
 }>;
+/**
+ * AI Hint Provider
+ */
+export declare const getAIHint: (problemTitle: string, topic: string, difficulty: string) => Promise<string>;
+/**
+ * Topic Pattern Deep Dive
+ */
+export declare const getPatternExplanation: (topic: string) => Promise<string>;
+/**
+ * Personalized Problem Recommendations
+ */
 export declare const getAIRecommendations: (solvedProblems: Array<{
     title: string;
     topic: string;
@@ -129,7 +214,7 @@ export declare const getAIRecommendations: (solvedProblems: Array<{
         focus: string;
         problems: string[];
     }[];
-    tips: any[];
+    tips: string[];
     nextAction: {
         mode: "REVISION";
         title: string;
@@ -147,14 +232,6 @@ export declare const getAIRecommendations: (solvedProblems: Array<{
         difficulty: string;
         estimatedMinutes: number;
     } | {
-        mode: "BUILD_MOMENTUM";
-        title: string;
-        topic: string;
-        reason: string;
-        cta: string;
-        difficulty: string;
-        estimatedMinutes: number;
-    } | {
         mode: "BALANCED";
         title: string;
         topic: string;
@@ -164,4 +241,5 @@ export declare const getAIRecommendations: (solvedProblems: Array<{
         estimatedMinutes: number;
     };
 }>;
+export {};
 //# sourceMappingURL=aiService.d.ts.map

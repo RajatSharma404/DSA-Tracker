@@ -137,6 +137,29 @@ if (!isLeetCode) {
     }
   };
 
+  // Record whether the user is signed in (replaces reading the session cookie).
+  const reportSignIn = async () => {
+    try {
+      const csrf = (document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/) || [])[1] || "";
+      const res = await fetch("/graphql/", {
+        method: "POST",
+        credentials: "include",
+        headers: { "content-type": "application/json", "x-csrftoken": csrf },
+        body: JSON.stringify({ query: "query{userStatus{isSignedIn}}" }),
+      });
+      const json = await res.json();
+      const signedIn = Boolean(json?.data?.userStatus?.isSignedIn);
+      safeRuntimeSendMessage({ type: "LC_SIGNED_IN", payload: { signedIn } }, () => {});
+    } catch {
+      // best effort
+    }
+  };
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", reportSignIn, { once: true });
+  } else {
+    reportSignIn();
+  }
+
   window.addEventListener("message", (event) => {
     if (event.source !== window || event.origin !== window.location.origin) return;
     const data = event.data;

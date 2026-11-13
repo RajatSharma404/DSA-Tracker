@@ -4,9 +4,11 @@ import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { soundEffects } from "@/lib/soundEffects";
 import { Compass } from "lucide-react";
+import { useFeatures } from "@/components/providers/FeaturesProvider";
 
 export function GlobalKeyBindings() {
   const router = useRouter();
+  const features = useFeatures();
   const [activeChord, setActiveChord] = useState<string | null>(null);
   const chordTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -70,12 +72,16 @@ export function GlobalKeyBindings() {
             router.push("/search");
             break;
           case "p": // PvP Colosseum
-            soundEffects.playChord();
-            router.push("/pvp");
+            if (features.pvp) {
+              soundEffects.playChord();
+              router.push("/pvp");
+            }
             break;
           case "a": // AlgoTracer
-            soundEffects.playChord();
-            router.push("/tracer");
+            if (features.algotracer) {
+              soundEffects.playChord();
+              router.push("/tracer");
+            }
             break;
           case "f": // Flashcards
             soundEffects.playChord();

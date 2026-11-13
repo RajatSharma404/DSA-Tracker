@@ -53,9 +53,15 @@ import {
   ReferenceLine,
 } from "recharts";
 import Editor from "@monaco-editor/react";
+import dynamic from "next/dynamic";
 import { FlowchartPanel, type FlowchartData } from "@/components/FlowchartPanel";
 import { CHART_TOKENS } from "@/lib/chartTokens";
 import { generateAstFlowchart } from "@/lib/astFlowchartEngine";
+
+const MistakePatternsCard = dynamic(
+  () => import("@/components/dashboard/MistakePatternsCard"),
+  { ssr: false }
+);
 
 interface TimeAnalytics {
   totalTimeMinutes: number;
@@ -456,6 +462,9 @@ export default function AnalyticsPage() {
           ))}
         </div>
       </div>
+
+      {/* AI Cross-Topic Mistake Patterns */}
+      <MistakePatternsCard />
 
       {/* Top Metrics Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

@@ -212,6 +212,7 @@ export async function importSolvedProblems(
       update: {
         status: "DONE",
         completedAt,
+        ...(existing?.status !== "DONE" ? { state: "REVIEW" as const, lastReviewedAt: completedAt } : {}),
         ...(entry.runtime ? { leetcodeRuntime: entry.runtime } : {}),
         ...(entry.memory ? { leetcodeMemory: entry.memory } : {}),
       },
@@ -221,6 +222,9 @@ export async function importSolvedProblems(
         status: "DONE",
         timeSpent: 0,
         completedAt,
+        // Matches the extension sync: a solve enters the FSRS review cycle.
+        state: "REVIEW",
+        lastReviewedAt: completedAt,
         leetcodeRuntime: entry.runtime ?? null,
         leetcodeMemory: entry.memory ?? null,
       },
@@ -230,4 +234,43 @@ export async function importSolvedProblems(
   }
 
   return result;
+}
+
+/**
+ * Finds or creates a problem for an off-curriculum LeetCode slug under the
+ * "Extra Practice (Auto-Synced)" topic. Used by the extension sync route.
+ */
+export async function ensureExtraPracticeProblem(
+  slug: string,
+  title: string,
+  difficulty?: string | null,
+) {
+  const link = `https://leetcode.com/problems/${slug}/`;
+  const existing = await prisma.problem.findFirst({ where: { link } });
+  if (existing) return existing;
+
+  let topic = await prisma.topic.findFirst({ where: { name: EXTRA_PRACTICE_TOPIC } });
+  if (!topic) {
+    const maxOrderTopic = await prisma.topic.findFirst({ orderBy: { orderIndex: "desc" } });
+    topic = await prisma.topic.create({
+      data: {
+        name: EXTRA_PRACTICE_TOPIC,
+        description: "Problems solved on LeetCode that are not part of the standard curriculum.",
+        orderIndex: (maxOrderTopic?.orderIndex ?? 99) + 1,
+      },
+    });
+  }
+  const maxOrderProblem = await prisma.problem.findFirst({
+    where: { topicId: topic.id },
+    orderBy: { orderIndex: "desc" },
+  });
+  return prisma.problem.create({
+    data: {
+      title: title.slice(0, 200) || titleFromSlug(slug),
+      link,
+      difficulty: normalizeDifficulty(difficulty),
+      topicId: topic.id,
+      orderIndex: (maxOrderProblem?.orderIndex ?? 0) + 1,
+    },
+  });
 }

@@ -3,9 +3,9 @@
  *
  * Uses the FSRS power forgetting curve  R(t, S) = (1 + t / (9·S))^-1,
  * where S ("stability") is the number of days until recall drops to 90%.
- * Stability is estimated from the SM-2 fields already stored on Progress
- * (interval, easinessFactor) and the problem difficulty, so no new schema is
- * needed.
+ * When the FSRS scheduler has reviewed a problem, its real `stability` and
+ * `lastReviewedAt` are used. Otherwise stability is estimated from the SM-2
+ * interval/ease and problem difficulty.
  */
 
 export const AT_RISK_THRESHOLD = 0.7;
@@ -20,6 +20,9 @@ export interface RetentionInput {
   nextReviewDate: Date | null;
   interval: number;
   easinessFactor: number;
+  /** FSRS stability (days) when the problem has been through the scheduler */
+  stability?: number | null;
+  lastReviewedAt?: Date | null;
 }
 
 export interface RetentionItem {
@@ -58,7 +61,12 @@ export const recallAt = (days: number, stability: number) =>
 export const daysToThreshold = (stability: number, threshold = AT_RISK_THRESHOLD) =>
   9 * stability * (1 / threshold - 1);
 
-export const estimateStability = (input: Pick<RetentionInput, "interval" | "easinessFactor" | "difficulty">) => {
+export const estimateStability = (
+  input: Pick<RetentionInput, "interval" | "easinessFactor" | "difficulty" | "stability">,
+) => {
+  if (typeof input.stability === "number" && Number.isFinite(input.stability) && input.stability > 0) {
+    return input.stability;
+  }
   const ease = Number.isFinite(input.easinessFactor) && input.easinessFactor > 0 ? input.easinessFactor : 2.5;
   const easeFactor = Math.min(1.4, Math.max(0.55, ease / 2.5));
   if (input.interval > 0) {
@@ -69,6 +77,7 @@ export const estimateStability = (input: Pick<RetentionInput, "interval" | "easi
 };
 
 const lastReviewedAt = (input: RetentionInput): Date | null => {
+  if (input.lastReviewedAt) return input.lastReviewedAt;
   if (input.nextReviewDate && input.interval > 0) {
     return new Date(input.nextReviewDate.getTime() - input.interval * DAY_MS);
   }

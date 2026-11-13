@@ -55,6 +55,23 @@ function ExtensionHubContent() {
   const [isCheckingHealth, setIsCheckingHealth] = useState(false);
   const [lastCheckTime, setLastCheckTime] = useState<Date | null>(null);
 
+  // Device Pairing State (Task 2.1 & 2.3)
+  interface DeviceItem {
+    id: string;
+    name: string;
+    tokenPrefix: string;
+    scopes: string[];
+    createdAt: string;
+    lastUsedAt: string | null;
+    expiresAt: string | null;
+    revokedAt: string | null;
+  }
+  const [devices, setDevices] = useState<DeviceItem[]>([]);
+  const [isLoadingDevices, setIsLoadingDevices] = useState(false);
+  const [newDeviceName, setNewDeviceName] = useState("My Chrome Extension");
+  const [isCreatingDevice, setIsCreatingDevice] = useState(false);
+  const [newlyCreatedToken, setNewlyCreatedToken] = useState<string | null>(null);
+
   // Cookie Management
   const [leetcodeSession, setLeetcodeSession] = useState("");
   const [isSavingCookie, setIsSavingCookie] = useState(false);
@@ -94,7 +111,44 @@ function ExtensionHubContent() {
   useEffect(() => {
     checkHealth();
     loadUserSettings();
+    loadDevices();
   }, []);
+
+  const loadDevices = async () => {
+    setIsLoadingDevices(true);
+    try {
+      const data = await dsaApi.getExtensionDevices();
+      setDevices(data?.devices || []);
+    } catch (err) {
+      console.error("Failed to load extension devices:", err);
+    } finally {
+      setIsLoadingDevices(false);
+    }
+  };
+
+  const handleCreateDevice = async () => {
+    setIsCreatingDevice(true);
+    try {
+      const res = await dsaApi.createExtensionDevice(newDeviceName || "Chrome Extension");
+      setNewlyCreatedToken(res.token);
+      toast.success("Pairing token generated! Copy it now.");
+      await loadDevices();
+    } catch {
+      toast.error("Failed to generate pairing token");
+    } finally {
+      setIsCreatingDevice(false);
+    }
+  };
+
+  const handleRevokeDevice = async (id: string) => {
+    try {
+      await dsaApi.revokeExtensionDevice(id);
+      toast.success("Device revoked");
+      await loadDevices();
+    } catch {
+      toast.error("Failed to revoke device");
+    }
+  };
 
   const loadUserSettings = async () => {
     try {
@@ -260,10 +314,10 @@ function ExtensionHubContent() {
               : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]"
           }`}
         >
-          <Key size={16} />
-          <span>LeetCode Cookie Guide</span>
-          <span className="text-[10px] font-mono uppercase bg-cyan-500/10 text-cyan-400 px-2 py-0.5 rounded-full border border-cyan-500/20 hidden sm:inline">
-            Full Backlog Sync
+          <Lock size={16} />
+          <span>Device Pairing Tokens</span>
+          <span className="text-[10px] font-mono uppercase bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20 hidden sm:inline">
+            Zero-Cookie Auth
           </span>
         </button>
 
@@ -499,173 +553,185 @@ function ExtensionHubContent() {
       )}
 
       {/* ========================================================================= */}
-      {/* TAB 2: LEETCODE SESSION COOKIE GUIDE */}
+      {/* TAB 2: EXTENSION PAIRING TOKEN MANAGEMENT (Task 2.1 & 2.3) */}
       {/* ========================================================================= */}
       {activeTab === "cookie" && (
         <div className="space-y-8 animate-in fade-in duration-300">
           {/* Header Explanation */}
           <div className="p-6 rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-card)] shadow-xl space-y-4">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-400">
-                <Key className="w-5 h-5" />
+              <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <Lock className="w-5 h-5" />
               </div>
               <div>
                 <h2 className="text-xl font-bold text-[var(--text-primary)] font-display">
-                  How to Extract Your `LEETCODE_SESSION` Cookie
+                  Chrome Extension Device Pairing
                 </h2>
                 <p className="text-xs text-[var(--text-muted)]">
-                  The session cookie allows DSA Tracker to securely fetch your complete historical backlog of solved problems and your past submitted code for AI reviews.
+                  Pair your browser extensions securely with scoped cryptographic tokens. DSA Tracker Pro never reads or stores your sensitive LeetCode session cookies.
                 </p>
               </div>
             </div>
+          </div>
 
-            {/* Browser Selector Pill */}
-            <div className="flex items-center gap-2 pt-2 border-t border-[var(--border-subtle)]">
-              <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mr-1">
-                Select Your Browser:
-              </span>
-              {(["chrome", "edge", "firefox", "arc"] as BrowserType[]).map((b) => (
+          {/* Newly Created Token Banner (Show Once) */}
+          {newlyCreatedToken && (
+            <div className="p-6 rounded-3xl border-2 border-emerald-500/50 bg-emerald-950/20 shadow-2xl space-y-4 animate-in zoom-in-95 duration-200">
+              <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
+                <Sparkles size={18} />
+                <span>Pairing Token Generated Successfully!</span>
+              </div>
+              <p className="text-xs text-emerald-200/90 leading-relaxed">
+                Copy this token now and paste it into the <strong>DSA Tracker Pro extension popup</strong>. For your security, this plaintext token will <strong>never be shown again</strong>.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center gap-3">
+                <input
+                  type="text"
+                  readOnly
+                  value={newlyCreatedToken}
+                  className="w-full px-4 py-2.5 text-xs font-mono border border-emerald-500/30 rounded-xl bg-[var(--bg-secondary)] text-emerald-300 select-all focus:outline-none"
+                />
                 <button
-                  key={b}
-                  onClick={() => setSelectedBrowser(b)}
-                  className={`px-3 py-1 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                    selectedBrowser === b
-                      ? "bg-[var(--accent-primary)] text-[var(--bg-primary)] shadow-sm"
-                      : "bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]"
-                  }`}
+                  onClick={() => handleCopy(newlyCreatedToken, "newToken", "Pairing token copied!")}
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 shrink-0 cursor-pointer hover:bg-emerald-400 transition-all"
                 >
-                  {b === "chrome" ? "Chrome / Brave" : b === "edge" ? "Microsoft Edge" : b === "firefox" ? "Mozilla Firefox" : "Arc / Safari"}
+                  {copiedKey === "newToken" ? <Check size={14} /> : <Copy size={14} />}
+                  <span>{copiedKey === "newToken" ? "Copied!" : "Copy Token"}</span>
                 </button>
-              ))}
-            </div>
-          </div>
-
-          {/* DevTools Walkthrough Steps */}
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            {/* Step 1 */}
-            <div className="p-5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] space-y-3">
-              <div className="w-7 h-7 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center font-black text-xs">
-                1
+                <button
+                  onClick={() => setNewlyCreatedToken(null)}
+                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:text-[var(--text-primary)] text-xs font-semibold cursor-pointer border border-[var(--border-subtle)]"
+                >
+                  Dismiss
+                </button>
               </div>
-              <h4 className="text-xs font-bold text-[var(--text-primary)]">
-                Log In to LeetCode
-              </h4>
-              <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">
-                Open <a href="https://leetcode.com" target="_blank" rel="noreferrer" className="text-amber-400 underline">leetcode.com</a> and make sure you are actively logged in to your account.
-              </p>
             </div>
+          )}
 
-            {/* Step 2 */}
-            <div className="p-5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] space-y-3">
-              <div className="w-7 h-7 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center font-black text-xs">
-                2
-              </div>
-              <h4 className="text-xs font-bold text-[var(--text-primary)]">
-                Open DevTools (F12)
-              </h4>
-              <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">
-                Press <kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-secondary)] border border-[var(--border-medium)] font-mono text-[10px] text-amber-300">F12</kbd> or <kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-secondary)] border border-[var(--border-medium)] font-mono text-[10px] text-amber-300">Ctrl+Shift+I</kbd> (<kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-secondary)] border border-[var(--border-medium)] font-mono text-[10px] text-amber-300">Cmd+Opt+I</kbd> on Mac).
-              </p>
-            </div>
-
-            {/* Step 3 */}
-            <div className="p-5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] space-y-3">
-              <div className="w-7 h-7 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center font-black text-xs">
-                3
-              </div>
-              <h4 className="text-xs font-bold text-[var(--text-primary)]">
-                {selectedBrowser === "firefox" ? "Go to Storage" : "Go to Application"}
-              </h4>
-              <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">
-                In the top toolbar of DevTools, click on <strong>{selectedBrowser === "firefox" ? "Storage" : "Application"}</strong> (if hidden, click the <code className="text-amber-300">&gt;&gt;</code> chevron).
-              </p>
-            </div>
-
-            {/* Step 4 */}
-            <div className="p-5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] space-y-3">
-              <div className="w-7 h-7 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center font-black text-xs">
-                4
-              </div>
-              <h4 className="text-xs font-bold text-[var(--text-primary)]">
-                Open Cookies
-              </h4>
-              <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">
-                In the left sidebar, expand <strong>Cookies</strong> and select <code className="text-amber-300">https://leetcode.com</code>.
-              </p>
-            </div>
-
-            {/* Step 5 */}
-            <div className="p-5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] space-y-3">
-              <div className="w-7 h-7 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-black text-xs">
-                5
-              </div>
-              <h4 className="text-xs font-bold text-[var(--text-primary)]">
-                Copy LEETCODE_SESSION
-              </h4>
-              <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">
-                Find the cookie named <strong>LEETCODE_SESSION</strong>, double-click its <strong>Value</strong> column, and copy the full string.
-              </p>
-            </div>
-          </div>
-
-          {/* Interactive Cookie Input & Validator Box */}
+          {/* Generate Token Box */}
           <div className="p-6 sm:p-8 rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-card)] shadow-2xl space-y-6">
             <div className="space-y-1">
-              <div className="flex items-center justify-between">
-                <label
-                  htmlFor="sessionCookieInput"
-                  className="text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider flex items-center gap-2"
-                >
-                  <Lock size={14} className="text-[var(--accent-primary)]" />
-                  Paste & Save Your Session Cookie
-                </label>
-                {savedUser && (
-                  <span className="text-xs text-emerald-400 font-mono">
-                    Linked Account: @{savedUser}
-                  </span>
-                )}
-              </div>
+              <label
+                htmlFor="newDeviceNameInput"
+                className="text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider flex items-center gap-2"
+              >
+                <Key size={14} className="text-[var(--accent-primary)]" />
+                Generate New Pairing Token
+              </label>
               <p className="text-xs text-[var(--text-muted)]">
-                Paste the copied cookie value below. We will automatically sanitize and validate it against your account.
+                Provide a friendly name for your browser or workstation to identify this extension device.
               </p>
             </div>
 
-            <div className="space-y-3">
+            <div className="flex flex-col sm:flex-row items-center gap-3">
               <input
-                id="sessionCookieInput"
-                type="password"
-                value={leetcodeSession}
-                onChange={(e) => setLeetcodeSession(e.target.value)}
-                placeholder="Paste your LEETCODE_SESSION cookie (e.g. eyJ0eXAiOiJKV1QiLC...)"
-                className="w-full px-4 py-3 text-xs font-mono border border-[var(--border-medium)] rounded-2xl bg-[var(--bg-secondary)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)] transition-all shadow-inner"
+                id="newDeviceNameInput"
+                type="text"
+                value={newDeviceName}
+                onChange={(e) => setNewDeviceName(e.target.value)}
+                placeholder="e.g. MacBook Chrome, Office Workstation"
+                className="w-full sm:w-80 px-4 py-2.5 text-xs border border-[var(--border-medium)] rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)] transition-all"
               />
-
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="text-[11px] text-[var(--text-muted)] flex items-center gap-1.5">
-                  <ShieldCheck size={13} className="text-emerald-400 shrink-0" />
-                  <span>Cookies are stored encrypted in your local database and only used for your sync queries.</span>
-                </div>
-
-                <button
-                  onClick={handleSaveCookie}
-                  disabled={isSavingCookie || isSyncing || !leetcodeSession}
-                  className="w-full sm:w-auto px-6 py-2.5 text-xs font-bold rounded-xl bg-[var(--accent-primary)] text-[var(--bg-primary)] hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-md flex items-center justify-center gap-2"
-                >
-                  {isSavingCookie || isSyncing ? (
-                    <RefreshCw size={14} className="animate-spin" />
-                  ) : (
-                    <Check size={14} />
-                  )}
-                  <span>
-                    {isSavingCookie
-                      ? "Saving..."
-                      : isSyncing
-                      ? "Validating with LeetCode..."
-                      : "Save & Verify Session"}
-                  </span>
-                </button>
-              </div>
+              <button
+                onClick={handleCreateDevice}
+                disabled={isCreatingDevice || !newDeviceName.trim()}
+                className="w-full sm:w-auto px-6 py-2.5 text-xs font-bold rounded-xl bg-[var(--accent-primary)] text-[var(--bg-primary)] hover:opacity-90 transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 shadow-md shrink-0"
+              >
+                {isCreatingDevice ? <RefreshCw size={14} className="animate-spin" /> : <Zap size={14} />}
+                <span>{isCreatingDevice ? "Generating..." : "Generate Pairing Token"}</span>
+              </button>
             </div>
+          </div>
+
+          {/* Paired Devices List */}
+          <div className="p-6 sm:p-8 rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-card)] shadow-xl space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-bold text-[var(--text-primary)]">
+                  Paired Extension Devices
+                </h3>
+                <p className="text-xs text-[var(--text-muted)]">
+                  Manage active connections and revoke compromised or old devices at any time.
+                </p>
+              </div>
+              <button
+                onClick={loadDevices}
+                disabled={isLoadingDevices}
+                className="p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-subtle)] cursor-pointer"
+                title="Refresh Devices"
+              >
+                <RefreshCw size={14} className={isLoadingDevices ? "animate-spin" : ""} />
+              </button>
+            </div>
+
+            {isLoadingDevices && devices.length === 0 ? (
+              <div className="py-8 text-center text-xs text-[var(--text-muted)] font-mono">
+                Loading paired devices...
+              </div>
+            ) : devices.length === 0 ? (
+              <div className="py-8 text-center text-xs text-[var(--text-muted)] border border-dashed border-[var(--border-subtle)] rounded-2xl">
+                No paired extension devices found. Generate a pairing token above to connect.
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-[var(--border-subtle)] text-[var(--text-muted)] uppercase text-[10px] tracking-wider font-semibold">
+                      <th className="py-3 px-2">Device Name</th>
+                      <th className="py-3 px-2">Token Prefix</th>
+                      <th className="py-3 px-2">Created</th>
+                      <th className="py-3 px-2">Last Synced</th>
+                      <th className="py-3 px-2">Status</th>
+                      <th className="py-3 px-2 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[var(--border-subtle)] font-mono">
+                    {devices.map((device) => {
+                      const isRevoked = Boolean(device.revokedAt);
+                      const isExpired = device.expiresAt && new Date(device.expiresAt).getTime() < Date.now();
+                      const statusLabel = isRevoked ? "Revoked" : isExpired ? "Expired" : "Active";
+                      const statusClass = isRevoked
+                        ? "bg-rose-500/10 text-rose-400 border-rose-500/20"
+                        : isExpired
+                        ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                        : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+
+                      return (
+                        <tr key={device.id} className="hover:bg-[var(--bg-secondary)]/50 transition-colors">
+                          <td className="py-3 px-2 font-sans font-semibold text-[var(--text-primary)]">
+                            {device.name}
+                          </td>
+                          <td className="py-3 px-2 text-[var(--text-muted)]">
+                            <code>{device.tokenPrefix}…</code>
+                          </td>
+                          <td className="py-3 px-2 text-[var(--text-muted)] text-[11px]">
+                            {new Date(device.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="py-3 px-2 text-[var(--text-muted)] text-[11px]">
+                            {device.lastUsedAt ? new Date(device.lastUsedAt).toLocaleDateString() : "Never"}
+                          </td>
+                          <td className="py-3 px-2">
+                            <span className={`inline-block px-2 py-0.5 rounded-full border text-[10px] font-semibold uppercase ${statusClass}`}>
+                              {statusLabel}
+                            </span>
+                          </td>
+                          <td className="py-3 px-2 text-right">
+                            {!isRevoked && (
+                              <button
+                                onClick={() => handleRevokeDevice(device.id)}
+                                className="px-2.5 py-1 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 border border-rose-500/20 text-[11px] font-sans font-bold cursor-pointer transition-all"
+                              >
+                                Revoke
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       )}

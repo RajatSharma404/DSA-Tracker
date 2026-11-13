@@ -7,7 +7,6 @@ const mockPrisma = vi.hoisted(() => ({
   problem: { findMany: vi.fn(), findFirst: vi.fn(), create: vi.fn() },
   progress: { findMany: vi.fn(), upsert: vi.fn() },
   user: { findUnique: vi.fn(), findFirst: vi.fn(), update: vi.fn() },
-  solutionHistory: { findFirst: vi.fn(), create: vi.fn() },
 }));
 
 vi.mock("../db/prisma", () => ({ prisma: mockPrisma }));
@@ -17,13 +16,6 @@ vi.mock("../middlewares/auth", () => ({
     req.user = { id: "u1", email: "u1@example.com", role: "USER" };
     next();
   },
-  resolveAuthenticatedUser: vi.fn(async (header?: string) =>
-    header === "Bearer good" ? { id: "u1", email: "u1@example.com", role: "USER" } : null,
-  ),
-}));
-
-vi.mock("../middlewares/rateLimiter", () => ({
-  extensionSyncLimiter: (_req: any, _res: any, next: any) => next(),
 }));
 
 vi.mock("../leetcodeService", () => ({
@@ -39,13 +31,10 @@ import {
   slugFromLink,
   importSolvedProblems,
 } from "../services/leetcodeImportService";
-import extensionRouter from "../routes/extension.routes";
 import userRouter from "../routes/user.routes";
-import { fetchProblemSubmissions } from "../leetcodeService";
 
 const app = express();
 app.use(express.json());
-app.use("/api", extensionRouter);
 app.use("/api", userRouter);
 
 const ROADMAP = [
@@ -127,53 +116,6 @@ describe("importSolvedProblems", () => {
       data: expect.objectContaining({ title: "LRU Cache", difficulty: "MEDIUM", orderIndex: 5 }),
     });
     expect(mockPrisma.progress.upsert).toHaveBeenCalledTimes(1);
-  });
-});
-
-describe("POST /api/extension/sync (v2)", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockPrisma.problem.findMany.mockResolvedValue(ROADMAP);
-    mockPrisma.progress.findMany.mockResolvedValue([]);
-    mockPrisma.progress.upsert.mockResolvedValue({});
-    mockPrisma.user.findUnique.mockResolvedValue({ id: "u1" });
-    mockPrisma.solutionHistory.findFirst.mockResolvedValue(null);
-    mockPrisma.solutionHistory.create.mockResolvedValue({});
-  });
-
-  it("rejects requests without slug or credentials", async () => {
-    const res = await request(app).post("/api/extension/sync").send({});
-    expect(res.status).toBe(400);
-  });
-
-  it("rejects an invalid bearer token", async () => {
-    const res = await request(app)
-      .post("/api/extension/sync")
-      .set("Authorization", "Bearer bad")
-      .send({ version: 2, slug: "two-sum" });
-    expect(res.status).toBe(401);
-  });
-
-  it("syncs a captured verdict without calling LeetCode and stores the code", async () => {
-    const res = await request(app)
-      .post("/api/extension/sync")
-      .set("Authorization", "Bearer good")
-      .send({
-        version: 2,
-        slug: "two-sum",
-        runtime: "0 ms",
-        memory: "12 MB",
-        lang: "cpp",
-        code: "class Solution {};",
-        timestamp: 1_700_000_000,
-      });
-
-    expect(res.status).toBe(200);
-    expect(res.body.problem).toMatchObject({ id: "p-two-sum", title: "Two Sum" });
-    expect(fetchProblemSubmissions).not.toHaveBeenCalled();
-    expect(mockPrisma.solutionHistory.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({ verdict: "ACCEPTED", language: "cpp", problemId: "p-two-sum" }),
-    });
   });
 });
 

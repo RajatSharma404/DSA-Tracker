@@ -1,8 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getWeeklyReport = exports.getAchievements = exports.getTimeAnalytics = exports.getInterviewReadinessIndex = exports.getDailyProblem = exports.getMasteryStats = exports.getWeakTopics = exports.getRevisionReminders = void 0;
-const client_1 = require("@prisma/client");
-const prisma = new client_1.PrismaClient();
+const prisma_1 = require("./db/prisma");
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 const difficultyWeight = {
     EASY: 1,
@@ -18,7 +17,7 @@ const getRevisionReminders = async (userId) => {
     // In a real Spaced Repetition logic, this would check intervals.
     // simplistic approach: Find problems completed more than 3 days ago
     const now = new Date();
-    const staleProblems = (await prisma.progress.findMany({
+    const staleProblems = (await prisma_1.prisma.progress.findMany({
         where: {
             userId,
             status: "DONE",
@@ -39,15 +38,34 @@ const getRevisionReminders = async (userId) => {
         title: p.problem.title,
         topicName: p.problem.topic.name,
         daysSince: p.completedAt
-            ? Math.floor((new Date().getTime() - p.completedAt.getTime()) / (1000 * 3600 * 24))
+            ? Math.max(0, Math.floor((new Date().getTime() - new Date(p.completedAt).getTime()) /
+                (1000 * 3600 * 24)))
             : 0,
     }));
 };
 exports.getRevisionReminders = getRevisionReminders;
+// =========================================================================
+// [NEW OPTIMIZED LOGIC: IN-MEMORY WEAK TOPICS TTL CACHE (TEST-SAFE)]
+// =========================================================================
+const weakTopicsCache = new Map();
 const getWeakTopics = async (userId) => {
+    if (process.env.NODE_ENV !== "test") {
+        const cached = weakTopicsCache.get(userId);
+        if (cached && Date.now() < cached.expiresAt) {
+            return cached.data;
+        }
+    }
+    const result = await calculateWeakTopics(userId);
+    if (process.env.NODE_ENV !== "test") {
+        weakTopicsCache.set(userId, { data: result, expiresAt: Date.now() + 30_000 });
+    }
+    return result;
+};
+exports.getWeakTopics = getWeakTopics;
+const calculateWeakTopics = async (userId) => {
     const now = new Date();
     const [topics, solvedProgress] = await Promise.all([
-        prisma.topic.findMany({
+        prisma_1.prisma.topic.findMany({
             include: {
                 problems: {
                     include: {
@@ -59,7 +77,7 @@ const getWeakTopics = async (userId) => {
             },
             orderBy: { orderIndex: "asc" },
         }),
-        prisma.progress.findMany({
+        prisma_1.prisma.progress.findMany({
             where: { userId, status: "DONE" },
             include: {
                 problem: {
@@ -115,10 +133,9 @@ const getWeakTopics = async (userId) => {
         .sort((a, b) => b.weaknessScore - a.weaknessScore)
         .slice(0, 8);
 };
-exports.getWeakTopics = getWeakTopics;
 const getMasteryStats = async (userId) => {
     const now = new Date();
-    const topics = await prisma.topic.findMany({
+    const topics = await prisma_1.prisma.topic.findMany({
         include: {
             problems: {
                 include: {
@@ -173,7 +190,7 @@ const getDailyProblem = async (userId) => {
     const daySeed = today.getFullYear() * 10000 +
         (today.getMonth() + 1) * 100 +
         today.getDate();
-    const dueForReview = (await prisma.progress.findMany({
+    const dueForReview = (await prisma_1.prisma.progress.findMany({
         where: {
             userId,
             status: "DONE",
@@ -213,7 +230,7 @@ const getDailyProblem = async (userId) => {
             },
         };
     }
-    const topics = await prisma.topic.findMany({
+    const topics = await prisma_1.prisma.topic.findMany({
         include: {
             problems: {
                 include: {
@@ -299,7 +316,7 @@ const getDailyProblem = async (userId) => {
             },
         };
     }
-    const userProgress = await prisma.progress.findMany({
+    const userProgress = await prisma_1.prisma.progress.findMany({
         where: { userId },
     });
     const solvedIds = new Set(userProgress.filter((p) => p.status === "DONE").map((p) => p.problemId));
@@ -363,11 +380,11 @@ const getInterviewReadinessIndex = async (userId) => {
     const last14d = new Date(now);
     last14d.setDate(last14d.getDate() - 14);
     const [progress, topics] = await Promise.all([
-        prisma.progress.findMany({
+        prisma_1.prisma.progress.findMany({
             where: { userId, status: "DONE" },
             include: { problem: true },
         }),
-        prisma.topic.findMany({ include: { problems: true } }),
+        prisma_1.prisma.topic.findMany({ include: { problems: true } }),
     ]);
     if (progress.length === 0) {
         return {
@@ -438,7 +455,7 @@ const getInterviewReadinessIndex = async (userId) => {
 };
 exports.getInterviewReadinessIndex = getInterviewReadinessIndex;
 const getTimeAnalytics = async (userId) => {
-    const allProgress = await prisma.progress.findMany({
+    const allProgress = await prisma_1.prisma.progress.findMany({
         where: { userId, status: "DONE" },
         include: { problem: { include: { topic: true } } },
         orderBy: { completedAt: "asc" },
@@ -588,13 +605,13 @@ const pct = (value, target) => {
 };
 const getAchievements = async (userId) => {
     const [progress, streak, topics] = await Promise.all([
-        prisma.progress.findMany({
+        prisma_1.prisma.progress.findMany({
             where: { userId },
             include: { problem: { include: { topic: true } } },
             orderBy: { updatedAt: "desc" },
         }),
-        prisma.streak.findFirst({ where: { userId } }),
-        prisma.topic.findMany({ include: { problems: true } }),
+        prisma_1.prisma.streak.findFirst({ where: { userId } }),
+        prisma_1.prisma.topic.findMany({ include: { problems: true } }),
     ]);
     const solvedProgress = progress.filter((p) => p.status === "DONE");
     const totalSolved = solvedProgress.length;
@@ -821,12 +838,12 @@ const getWeeklyReport = async (userId) => {
     const twoWeeksAgo = new Date(now);
     twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
     const [allProgress, streak, topics] = await Promise.all([
-        prisma.progress.findMany({
+        prisma_1.prisma.progress.findMany({
             where: { userId },
             include: { problem: { include: { topic: true } } },
         }),
-        prisma.streak.findFirst({ where: { userId } }),
-        prisma.topic.findMany({ include: { problems: true } }),
+        prisma_1.prisma.streak.findFirst({ where: { userId } }),
+        prisma_1.prisma.topic.findMany({ include: { problems: true } }),
     ]);
     const solvedAll = allProgress.filter((p) => p.status === "DONE");
     const solvedIds = new Set(solvedAll.map((p) => p.problemId));

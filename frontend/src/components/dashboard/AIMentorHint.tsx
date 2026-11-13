@@ -13,6 +13,15 @@ export default function AIMentorHint({ problemId, problemTitle }: AIMentorHintPr
   const [hint, setHint] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [quotaRemaining, setQuotaRemaining] = useState<number | null>(null);
+
+  React.useEffect(() => {
+    dsaApi.getAiQuota().then((q: any) => {
+      if (q?.hints?.remaining !== undefined) {
+        setQuotaRemaining(q.hints.remaining);
+      }
+    }).catch(() => {});
+  }, []);
 
   const fetchHint = async () => {
     if (hint) {
@@ -25,6 +34,9 @@ export default function AIMentorHint({ problemId, problemTitle }: AIMentorHintPr
     try {
       const res = await dsaApi.getAIHint(problemId);
       setHint(res.hint);
+      if (res.quotaRemaining !== undefined) {
+        setQuotaRemaining(res.quotaRemaining);
+      }
     } catch (err) {
       console.error(err);
       setHint("I'm having trouble accessing my patterns database. Try visualizing the core data structure needed!");
@@ -35,17 +47,25 @@ export default function AIMentorHint({ problemId, problemTitle }: AIMentorHintPr
 
   return (
     <div className="mt-4">
-      <button
-        onClick={fetchHint}
-        className={`group flex items-center gap-2 text-[11px] font-black uppercase tracking-wider px-4 py-2 rounded-full transition-all duration-300
-          ${isOpen 
-            ? 'bg-purple-600 text-white shadow-[0_0_15px_rgba(147,51,234,0.3)]' 
-            : 'bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 border border-purple-500/20'}
-        `}
-      >
-        {loading ? <Loader2 size={13} className="animate-spin" /> : <Brain size={13} className={isOpen ? '' : 'group-hover:scale-125 transition-transform'} />}
-        {hint && isOpen ? 'Hide Insight' : 'Get Mentor Insight'}
-      </button>
+      <div className="flex items-center gap-3 flex-wrap">
+        <button
+          onClick={fetchHint}
+          className={`group flex items-center gap-2 text-[11px] font-black uppercase tracking-wider px-4 py-2 rounded-full transition-all duration-300
+            ${isOpen 
+              ? 'bg-purple-600 text-white shadow-[0_0_15px_rgba(147,51,234,0.3)]' 
+              : 'bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 border border-purple-500/20'}
+          `}
+        >
+          {loading ? <Loader2 size={13} className="animate-spin" /> : <Brain size={13} className={isOpen ? '' : 'group-hover:scale-125 transition-transform'} />}
+          {hint && isOpen ? 'Hide Insight' : 'Get Mentor Insight'}
+        </button>
+
+        {quotaRemaining !== null && (
+          <span className="text-[10px] font-mono font-medium px-2.5 py-1 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20">
+            {quotaRemaining} AI hints left today (resets at midnight)
+          </span>
+        )}
+      </div>
 
       {isOpen && (
         <div className="mt-4 p-5 bg-[var(--bg-secondary)] border border-purple-500/20 rounded-[1.5rem] animate-in slide-in-from-top-3 fade-in duration-500 shadow-xl overflow-hidden relative">

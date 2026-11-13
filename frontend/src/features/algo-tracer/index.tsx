@@ -56,7 +56,7 @@ export function AlgoTracer({
   const detection = useAlgoDetector(code);
 
   // Trace Engine
-  const { steps, isTracing, runTrace } = useTraceEngine({
+  const { steps, isTracing, error, runTrace } = useTraceEngine({
     initialCode: code,
     initialArrayInput: arrayInput,
     initialTarget: targetInput,
@@ -261,6 +261,31 @@ export function AlgoTracer({
               </option>
             ))}
           </select>
+
+          {/* 3 Quick-Load Example Snippets (Binary Search, DFS, Two-Pointer) */}
+          <div className="hidden xl:flex items-center gap-1 font-mono text-[10px]">
+            <button
+              onClick={() => handleSelectPreset("binary-search")}
+              title="Quick-load Binary Search snippet"
+              className="px-2 py-0.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] font-bold transition-colors cursor-pointer"
+            >
+              Binary Search
+            </button>
+            <button
+              onClick={() => handleSelectPreset("dfs")}
+              title="Quick-load Depth-First Search snippet"
+              className="px-2 py-0.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] font-bold transition-colors cursor-pointer"
+            >
+              DFS
+            </button>
+            <button
+              onClick={() => handleSelectPreset("two-pointers")}
+              title="Quick-load Two-Pointer snippet"
+              className="px-2 py-0.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] font-bold transition-colors cursor-pointer"
+            >
+              Two-Pointer
+            </button>
+          </div>
         </div>
 
         {/* Right Status Badges */}
@@ -325,6 +350,7 @@ export function AlgoTracer({
             currentStepIndex={currentStepIndex}
             diagramType={detection.suggestedDiagram}
             theory={detection.theory}
+            error={error}
           />
         </div>
       </div>

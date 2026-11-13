@@ -82,6 +82,15 @@ router.post(
   requireAuth,
   async (req: Request, res: Response) => {
     try {
+      // Security Guard: Server-side LeetCode submission is gated behind LEETCODE_SERVER_SUBMIT.
+      // NOTE: Automated server-side proxying of user code submissions may violate LeetCode's terms of service.
+      if (process.env.LEETCODE_SERVER_SUBMIT !== "true") {
+        return res.status(503).json({
+          error: "Server-side LeetCode code submission is disabled. Use the Chrome Extension to sync submissions directly.",
+          code: "LEETCODE_SERVER_SUBMIT_DISABLED",
+        });
+      }
+
       const { questionSlug, code, lang } = req.body;
       const userId = req.user!.id;
       const user = await prisma.user.findUnique({
@@ -118,6 +127,15 @@ router.get(
   requireAuth,
   async (req: Request, res: Response) => {
     try {
+      // Security Guard: Server-side LeetCode submission check is gated behind LEETCODE_SERVER_SUBMIT.
+      // NOTE: Automated server-side polling of code submissions may violate LeetCode's terms of service.
+      if (process.env.LEETCODE_SERVER_SUBMIT !== "true") {
+        return res.status(503).json({
+          error: "Server-side LeetCode submission check is disabled. Use the Chrome Extension to sync submissions directly.",
+          code: "LEETCODE_SERVER_SUBMIT_DISABLED",
+        });
+      }
+
       const userId = req.user!.id;
       const user = await prisma.user.findUnique({
         where: { id: userId },

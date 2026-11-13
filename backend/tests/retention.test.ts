@@ -28,6 +28,17 @@ describe("retentionService", () => {
     );
   });
 
+  it("prefers real FSRS stability and lastReviewedAt when present", () => {
+    expect(estimateStability({ interval: 3, easinessFactor: 2.5, difficulty: "HARD", stability: 42 })).toBe(42);
+    const report = buildRetentionReport(
+      [{ problemId: "x", title: "X", topic: "T", difficulty: "HARD", completedAt: new Date(now.getTime() - 300 * DAY), nextReviewDate: null, interval: 0, easinessFactor: 2.5, stability: 30, lastReviewedAt: now }],
+      now,
+      1,
+    );
+    expect(report.items[0].recall).toBe(1);
+    expect(report.items[0].stabilityDays).toBe(30);
+  });
+
   it("builds a sorted report with a monotonically decaying forecast", () => {
     const report = buildRetentionReport(
       [

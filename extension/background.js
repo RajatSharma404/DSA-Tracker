@@ -1,38 +1,41 @@
 /*
  * DSA Pro Live Sync — background service worker (MV3).
  *
- * Responsibilities
- *  - PAIR: the DSA Tracker web app hands over its API base + access token so
- *    accepted submissions made directly on LeetCode can be synced without the
- *    LeetCode session cookie ever leaving the browser.
- *  - SUBMIT_TO_LEETCODE: submits code through LeetCode's own JSON API from
- *    inside a leetcode.com tab (same-origin, real cookies + CSRF) and polls the
- *    judge for the verdict. No editor/DOM automation.
- *  - FETCH_LEETCODE_SNAPSHOT: reads the signed-in user's solved list, recent
- *    accepted submissions and stats via LeetCode GraphQL from a leetcode tab.
- *  - REPORT_ACCEPTED: forwards verdicts captured by leetcode-hook.js to the
- *    tracker API, with an offline retry queue (chrome.alarms).
+ * Auth: revocable `dsat_` device tokens (backend `ExtensionDevice`). A token
+ * arrives either automatically from the web app (PAIR, which mints one via
+ * POST /api/extension/devices) or pasted into the popup (SET_PAIRING_TOKEN).
+ * The extension never reads or transmits the LEETCODE_SESSION cookie.
+ *
+ *  - REPORT_ACCEPTED: verdicts captured by leetcode-hook.js from LeetCode's own
+ *    judge responses -> POST /api/extension/sync (strict contract, idempotent on
+ *    LeetCode's real submission id), with an offline retry queue.
+ *  - SUBMIT_TO_LEETCODE: submits through LeetCode's JSON API inside a
+ *    leetcode.com tab (same-origin cookies + CSRF) and polls for the verdict.
+ *  - FETCH_LEETCODE_SNAPSHOT: solved list, recent ACs, stats and calendar.
  */
 
 const VERSION = chrome.runtime.getManifest().version;
-const STORAGE_KEYS = {
-  pairing: "dsaPairing",
+const LEETCODE_ORIGIN = "https://leetcode.com";
+/** Used when paired from the popup (no app origin known): backend directly. */
+const DEFAULT_API_BASES = ["http://localhost:3001/api"];
+const KEYS = {
+  pairing: "dsaPairing", // { token, apiBase?, pairedAt, source }
+  status: "dsaPairingStatus", // "paired" | "not_paired" | "re_pair_needed"
+  lastError: "dsaLastError",
   queue: "dsaSyncQueue",
   lastSync: "dsaLastSync",
-  lastSnapshot: "dsaLastSnapshotAt",
+  lcSignedIn: "dsaLcSignedIn", // last observed LeetCode sign-in state
 };
 const RETRY_ALARM = "dsa-sync-retry";
 const MAX_QUEUE = 50;
-const LEETCODE_ORIGIN = "https://leetcode.com";
 
 // ---------------------------------------------------------------------------
-// Helpers
+// Storage helpers
 // ---------------------------------------------------------------------------
 
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-const storageGet = async (key) => (await chrome.storage.local.get(key))[key];
-const storageSet = (key, value) => chrome.storage.local.set({ [key]: value });
+const get = async (key) => (await chrome.storage.local.get(key))[key];
+const set = (values) => chrome.storage.local.set(values);
+const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const isAllowedAppOrigin = (origin) => {
   try {
@@ -44,17 +47,7 @@ const isAllowedAppOrigin = (origin) => {
   }
 };
 
-const getLeetCodeSessionCookie = async () => {
-  try {
-    const cookie = await chrome.cookies.get({
-      url: LEETCODE_ORIGIN,
-      name: "LEETCODE_SESSION",
-    });
-    return cookie?.value || "";
-  } catch {
-    return "";
-  }
-};
+const isDeviceToken = (t) => typeof t === "string" && t.startsWith("dsat_") && t.length >= 32 && t.length <= 200;
 
 const flashBadge = async (text, color) => {
   try {
@@ -62,13 +55,13 @@ const flashBadge = async (text, color) => {
     await chrome.action.setBadgeText({ text });
     setTimeout(() => chrome.action.setBadgeText({ text: "" }).catch(() => {}), 6000);
   } catch {
-    // badge is cosmetic
+    // cosmetic
   }
 };
 
 // ---------------------------------------------------------------------------
-// LeetCode tab management — every LeetCode API call runs inside a
-// leetcode.com document so it is same-origin with valid cookies + CSRF.
+// LeetCode tab management — LeetCode API calls run inside a leetcode.com
+// document so they are same-origin with the user's own cookies + CSRF.
 // ---------------------------------------------------------------------------
 
 let tabLease = null; // { tabId, created, users }
@@ -86,10 +79,7 @@ const waitForTabComplete = (tabId, timeoutMs = 20000) =>
     const onUpdated = (id, info) => {
       if (id === tabId && info.status === "complete") finish(resolve, true);
     };
-    const timer = setTimeout(
-      () => finish(reject, new Error("LeetCode took too long to load")),
-      timeoutMs,
-    );
+    const timer = setTimeout(() => finish(reject, new Error("LeetCode took too long to load")), timeoutMs);
     chrome.tabs.onUpdated.addListener(onUpdated);
     chrome.tabs
       .get(tabId)
@@ -107,7 +97,6 @@ const acquireLeetCodeTab = async () => {
       tabLease = null;
     }
   }
-
   const existing = await chrome.tabs.query({ url: `${LEETCODE_ORIGIN}/*` });
   const usable = existing.find((t) => !t.discarded && t.status === "complete") || existing[0];
   if (usable?.id) {
@@ -116,12 +105,7 @@ const acquireLeetCodeTab = async () => {
     tabLease = { tabId: usable.id, created: false, users: 1 };
     return usable.id;
   }
-
-  // Lightweight page: the problemset list loads fast and we only need the origin.
-  const created = await chrome.tabs.create({
-    url: `${LEETCODE_ORIGIN}/problemset/`,
-    active: false,
-  });
+  const created = await chrome.tabs.create({ url: `${LEETCODE_ORIGIN}/problemset/`, active: false });
   if (!created.id) throw new Error("Could not open a LeetCode tab");
   await waitForTabComplete(created.id);
   tabLease = { tabId: created.id, created: true, users: 1 };
@@ -140,13 +124,11 @@ const releaseLeetCodeTab = async () => {
 const runInLeetCode = async (func, args = []) => {
   const tabId = await acquireLeetCodeTab();
   try {
-    const [injection] = await chrome.scripting.executeScript({
-      target: { tabId },
-      world: "MAIN",
-      func,
-      args,
-    });
-    return injection?.result;
+    const [injection] = await chrome.scripting.executeScript({ target: { tabId }, world: "MAIN", func, args });
+    const result = injection?.result;
+    if (result?.error === "NOT_SIGNED_IN") await set({ [KEYS.lcSignedIn]: false });
+    else if (result?.ok) await set({ [KEYS.lcSignedIn]: true });
+    return result;
   } catch (error) {
     if (/No tab with id|Cannot access contents/i.test(String(error?.message))) {
       throw new Error("The LeetCode tab was closed or blocked. Please retry.");
@@ -158,8 +140,7 @@ const runInLeetCode = async (func, args = []) => {
 };
 
 // ---------------------------------------------------------------------------
-// In-page functions (serialized and executed inside leetcode.com).
-// They must be fully self-contained.
+// In-page functions (serialized into leetcode.com; must be self-contained)
 // ---------------------------------------------------------------------------
 
 async function lcSubmitInPage(slug, code, lang, timeoutMs) {
@@ -171,23 +152,15 @@ async function lcSubmitInPage(slug, code, lang, timeoutMs) {
     "x-dsa-tracker": "1",
   };
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
-  const gql = async (query, variables) => {
-    const res = await fetch("/graphql/", {
-      method: "POST",
-      credentials: "include",
-      headers,
-      body: JSON.stringify({ query, variables }),
-    });
-    return res.json();
-  };
+  const gql = async (query, variables) =>
+    (await fetch("/graphql/", { method: "POST", credentials: "include", headers, body: JSON.stringify({ query, variables }) })).json();
 
   try {
     const status = await gql("query{userStatus{isSignedIn username}}", {});
     if (!status?.data?.userStatus?.isSignedIn) return { error: "NOT_SIGNED_IN" };
 
     const q = await gql(
-      "query q($s:String!){question(titleSlug:$s){questionId questionFrontendId title difficulty isPaidOnly}}",
+      "query q($s:String!){question(titleSlug:$s){questionId questionFrontendId title difficulty}}",
       { s: slug },
     );
     const question = q?.data?.question;
@@ -200,14 +173,10 @@ async function lcSubmitInPage(slug, code, lang, timeoutMs) {
         credentials: "include",
         headers,
         referrer: `${location.origin}/problems/${slug}/`,
-        body: JSON.stringify({
-          lang,
-          question_id: question.questionId,
-          typed_code: code,
-        }),
+        body: JSON.stringify({ lang, question_id: question.questionId, typed_code: code }),
       });
       if (submitRes.status !== 429) break;
-      await sleep(2500 * (attempt + 1)); // LeetCode throttles rapid submits
+      await sleep(2500 * (attempt + 1));
     }
     if (submitRes.status === 401 || submitRes.status === 403) return { error: "NOT_SIGNED_IN" };
     if (submitRes.status === 429) return { error: "RATE_LIMITED" };
@@ -221,10 +190,7 @@ async function lcSubmitInPage(slug, code, lang, timeoutMs) {
     while (Date.now() - started < timeoutMs) {
       await sleep(wait);
       wait = Math.min(wait + 300, 2000);
-      const res = await fetch(`/submissions/detail/${submissionId}/check/`, {
-        credentials: "include",
-        headers,
-      });
+      const res = await fetch(`/submissions/detail/${submissionId}/check/`, { credentials: "include", headers });
       if (!res.ok) continue;
       const r = await res.json();
       if (r.state !== "SUCCESS") continue;
@@ -258,18 +224,9 @@ async function lcSubmitInPage(slug, code, lang, timeoutMs) {
 
 async function lcSnapshotInPage(maxPages) {
   const csrf = (document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/) || [])[1] || "";
-  const headers = {
-    "content-type": "application/json",
-    "x-csrftoken": csrf,
-    "x-dsa-tracker": "1",
-  };
+  const headers = { "content-type": "application/json", "x-csrftoken": csrf, "x-dsa-tracker": "1" };
   const gql = async (query, variables) => {
-    const res = await fetch("/graphql/", {
-      method: "POST",
-      credentials: "include",
-      headers,
-      body: JSON.stringify({ query, variables }),
-    });
+    const res = await fetch("/graphql/", { method: "POST", credentials: "include", headers, body: JSON.stringify({ query, variables }) });
     if (!res.ok) return { errors: [{ message: `HTTP ${res.status}` }] };
     return res.json();
   };
@@ -280,7 +237,7 @@ async function lcSnapshotInPage(maxPages) {
     if (!user?.isSignedIn || !user.username) return { error: "NOT_SIGNED_IN" };
     const username = user.username;
 
-    // 1) Full solved list. LeetCode has shipped two schemas; try both.
+    // LeetCode has shipped two problem-list schemas; try both.
     const solved = [];
     let source = "questionList";
     const pageSize = 100;
@@ -297,10 +254,9 @@ async function lcSnapshotInPage(maxPages) {
         source = "unavailable";
         break;
       }
-      solved.push(...list.data.filter((q) => q.status === "ac" || q.status === "AC" || !q.status));
+      solved.push(...list.data.filter((q) => !q.status || String(q.status).toLowerCase() === "ac"));
       if ((page + 1) * pageSize >= list.totalNum || list.data.length === 0) break;
     }
-
     if (source === "unavailable") {
       source = "problemsetQuestionListV2";
       for (let page = 0; page < maxPages; page += 1) {
@@ -323,13 +279,10 @@ async function lcSnapshotInPage(maxPages) {
       }
     }
 
-    // 2) Recent accepted submissions give real timestamps.
     const recent = await gql(
       `query q($u:String!,$l:Int!){ recentAcSubmissionList(username:$u,limit:$l){ id title titleSlug timestamp lang } }`,
       { u: username, l: 50 },
     );
-
-    // 3) Profile stats + submission calendar.
     const profile = await gql(
       `query q($u:String!){
         matchedUser(username:$u){
@@ -341,7 +294,6 @@ async function lcSnapshotInPage(maxPages) {
       }`,
       { u: username },
     );
-
     const mu = profile?.data?.matchedUser;
     let calendar = {};
     try {
@@ -382,7 +334,7 @@ async function lcSnapshotInPage(maxPages) {
 }
 
 // ---------------------------------------------------------------------------
-// Tracker API sync with offline queue
+// Tracker API sync (strict contract) + offline queue
 // ---------------------------------------------------------------------------
 
 const ERROR_MESSAGES = {
@@ -392,50 +344,111 @@ const ERROR_MESSAGES = {
   NO_SUBMISSION_ID: "LeetCode accepted the request but returned no submission id.",
 };
 const humanError = (code) =>
-  ERROR_MESSAGES[code] || (code?.startsWith("SUBMIT_HTTP_") ? `LeetCode rejected the submission (${code.slice(12)}).` : code);
+  ERROR_MESSAGES[code] ||
+  (code?.startsWith("SUBMIT_HTTP_") ? `LeetCode rejected the submission (${code.slice(12)}).` : code);
 
-const postAcceptedToTracker = async (payload) => {
-  const pairing = await storageGet(STORAGE_KEYS.pairing);
-  if (!pairing?.apiBase || !pairing?.token) {
-    const err = new Error("Open DSA Tracker once while signed in so the extension can pair.");
-    err.permanent = true;
-    throw err;
-  }
-  const res = await fetch(`${pairing.apiBase}/extension/sync`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${pairing.token}`,
-      "X-DSA-Extension-Version": VERSION,
-    },
-    body: JSON.stringify({ version: 2, ...payload }),
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    const err = new Error(`Tracker sync failed (${res.status}) ${body.slice(0, 160)}`);
-    err.permanent = res.status === 400 || res.status === 401 || res.status === 403;
-    err.malformed = res.status === 400;
-    throw err;
-  }
-  const json = await res.json().catch(() => ({}));
-  await storageSet(STORAGE_KEYS.lastSync, {
-    at: Date.now(),
-    slug: payload.slug,
-    title: json?.problem?.title || payload.title || payload.slug,
-  });
-  return json;
+/** "52 ms" -> 52, "18.4 MB" -> 18841 (KB). Undefined when unparseable. */
+const parseRuntimeMs = (v) => {
+  const m = String(v ?? "").match(/([\d.]+)\s*(ms|s)?/i);
+  if (!m) return undefined;
+  const n = Number(m[1]) * (m[2]?.toLowerCase() === "s" ? 1000 : 1);
+  return Number.isFinite(n) ? Math.round(n) : undefined;
+};
+const parseMemoryKb = (v) => {
+  const m = String(v ?? "").match(/([\d.]+)\s*(kb|mb|gb)?/i);
+  if (!m) return undefined;
+  const unit = (m[2] || "mb").toLowerCase();
+  const n = Number(m[1]) * (unit === "gb" ? 1024 * 1024 : unit === "mb" ? 1024 : 1);
+  return Number.isFinite(n) ? Math.round(n) : undefined;
+};
+const clampPct = (v) => (typeof v === "number" && Number.isFinite(v) ? Math.min(100, Math.max(0, v)) : undefined);
+
+/** Builds the strict ExtensionSyncRequest (see backend/contracts). */
+const toContractPayload = (r) => {
+  const difficulty = String(r.difficulty || "").toUpperCase();
+  const payload = {
+    submissionId: String(r.submissionId),
+    slug: String(r.slug).toLowerCase(),
+    verdict: "ACCEPTED",
+    submittedAt: new Date((Number(r.timestamp) || Math.floor(Date.now() / 1000)) * 1000).toISOString(),
+    runtimeMs: parseRuntimeMs(r.runtime),
+    memoryKb: parseMemoryKb(r.memory),
+    title: typeof r.title === "string" ? r.title.slice(0, 200) : undefined,
+    difficulty: ["EASY", "MEDIUM", "HARD"].includes(difficulty) ? difficulty : undefined,
+    lang: typeof r.lang === "string" ? r.lang.slice(0, 30) : undefined,
+    code: typeof r.code === "string" && r.code.trim() ? r.code.slice(0, 100000) : undefined,
+    runtimePercentile: clampPct(r.runtimePercentile),
+    memoryPercentile: clampPct(r.memoryPercentile),
+  };
+  Object.keys(payload).forEach((k) => payload[k] === undefined && delete payload[k]);
+  return payload;
 };
 
-const enqueue = async (payload) => {
-  const queue = (await storageGet(STORAGE_KEYS.queue)) || [];
-  const filtered = queue.filter((item) => item.submissionId !== payload.submissionId);
-  filtered.push({ ...payload, queuedAt: Date.now() });
-  await storageSet(STORAGE_KEYS.queue, filtered.slice(-MAX_QUEUE));
+const postToTracker = async (report) => {
+  const pairing = await get(KEYS.pairing);
+  if (!isDeviceToken(pairing?.token)) {
+    const err = new Error("Not paired. Open DSA Tracker while signed in, or paste a pairing token in the popup.");
+    err.unpaired = true;
+    throw err;
+  }
+  const bases = pairing.apiBase ? [pairing.apiBase] : DEFAULT_API_BASES;
+  const body = JSON.stringify(toContractPayload(report));
+  let lastError = null;
+
+  for (const base of bases) {
+    let res;
+    try {
+      res = await fetch(`${base}/extension/sync`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${pairing.token}` },
+        body,
+      });
+    } catch (networkError) {
+      lastError = networkError;
+      continue;
+    }
+    if (res.status === 401) {
+      await set({
+        [KEYS.pairing]: null,
+        [KEYS.status]: "re_pair_needed",
+        [KEYS.lastError]: "Pairing token was revoked or expired. Open DSA Tracker to re-pair.",
+      });
+      const err = new Error("Pairing token rejected — re-pair needed");
+      err.unpaired = true;
+      throw err;
+    }
+    if (res.status === 404) {
+      const err = new Error("This problem isn't in your tracker yet");
+      err.malformed = true;
+      throw err;
+    }
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      const err = new Error(`Tracker sync failed (${res.status}) ${text.slice(0, 160)}`);
+      err.malformed = res.status === 400;
+      throw err;
+    }
+    const json = await res.json().catch(() => ({}));
+    await set({
+      [KEYS.status]: "paired",
+      [KEYS.lastError]: "",
+      [KEYS.lastSync]: { at: Date.now(), slug: report.slug, title: report.title || report.slug },
+    });
+    return json;
+  }
+  throw lastError || new Error("Tracker unreachable");
+};
+
+const enqueue = async (report) => {
+  const queue = (await get(KEYS.queue)) || [];
+  const next = queue.filter((i) => i.submissionId !== report.submissionId);
+  next.push({ ...report, queuedAt: Date.now() });
+  await set({ [KEYS.queue]: next.slice(-MAX_QUEUE) });
   chrome.alarms.create(RETRY_ALARM, { periodInMinutes: 2 });
 };
 
 const flushQueue = async () => {
-  const queue = (await storageGet(STORAGE_KEYS.queue)) || [];
+  const queue = (await get(KEYS.queue)) || [];
   if (!queue.length) {
     chrome.alarms.clear(RETRY_ALARM);
     return { flushed: 0, remaining: 0 };
@@ -444,22 +457,19 @@ const flushQueue = async () => {
   let flushed = 0;
   for (const item of queue) {
     try {
-      await postAcceptedToTracker(item);
+      await postToTracker(item);
       flushed += 1;
     } catch (err) {
-      // Drop items that will never succeed or are older than a week.
-      const stale = Date.now() - (item.queuedAt || 0) > 7 * 24 * 3600 * 1000;
+      const stale = Date.now() - (item.queuedAt || 0) > 7 * 86400000;
       if (!stale && !err.malformed) remaining.push(item);
     }
   }
-  await storageSet(STORAGE_KEYS.queue, remaining);
+  await set({ [KEYS.queue]: remaining });
   if (!remaining.length) chrome.alarms.clear(RETRY_ALARM);
   return { flushed, remaining: remaining.length };
 };
 
-chrome.alarms.onAlarm.addListener((alarm) => {
-  if (alarm.name === RETRY_ALARM) flushQueue();
-});
+chrome.alarms.onAlarm.addListener((a) => a.name === RETRY_ALARM && flushQueue());
 chrome.runtime.onStartup.addListener(() => flushQueue());
 
 // ---------------------------------------------------------------------------
@@ -473,38 +483,77 @@ const senderOrigin = (sender) => {
     return "";
   }
 };
+const fromLeetCode = (sender) => /^https:\/\/([a-z0-9-]+\.)?leetcode\.com$/.test(senderOrigin(sender));
+const fromPopup = (sender) => !sender?.tab && sender?.id === chrome.runtime.id;
+
+const status = async () => {
+  const [pairing, st, lastError, queue, lastSync, lcSignedIn] = await Promise.all([
+    get(KEYS.pairing),
+    get(KEYS.status),
+    get(KEYS.lastError),
+    get(KEYS.queue),
+    get(KEYS.lastSync),
+    get(KEYS.lcSignedIn),
+  ]);
+  const paired = isDeviceToken(pairing?.token);
+  return {
+    installed: true,
+    version: VERSION,
+    paired,
+    status: paired ? "paired" : st || "not_paired",
+    pairedVia: paired ? pairing.source : null,
+    // Unknown until we've seen a LeetCode page or call; assume yes so the
+    // first action can tell the user precisely if they're signed out.
+    leetcodeSignedIn: lcSignedIn !== false,
+    pendingSyncs: (queue || []).length,
+    lastSync: lastSync || null,
+    lastSyncAt: lastSync ? new Date(lastSync.at).toISOString() : null,
+    lastError: lastError || "",
+  };
+};
 
 const handlers = {
-  async PING() {
-    const [session, pairing, queue, lastSync] = await Promise.all([
-      getLeetCodeSessionCookie(),
-      storageGet(STORAGE_KEYS.pairing),
-      storageGet(STORAGE_KEYS.queue),
-      storageGet(STORAGE_KEYS.lastSync),
-    ]);
-    return {
-      installed: true,
-      version: VERSION,
-      leetcodeSignedIn: Boolean(session),
-      paired: Boolean(pairing?.token),
-      pendingSyncs: (queue || []).length,
-      lastSync: lastSync || null,
-    };
-  },
+  PING: status,
+  GET_PAIRING_STATUS: status,
 
+  /** Web app hands over a freshly minted device token. */
   async PAIR(payload, sender) {
     const origin = senderOrigin(sender);
     if (!isAllowedAppOrigin(origin)) throw new Error("Pairing is only allowed from DSA Tracker pages");
-    const token = typeof payload.token === "string" ? payload.token.trim() : "";
-    if (!token || token.length > 4096) throw new Error("Missing access token");
-    // The API is always reached through the app's same-origin /api proxy.
-    await storageSet(STORAGE_KEYS.pairing, {
-      apiBase: `${origin}/api`,
-      token,
-      pairedAt: Date.now(),
+    if (!isDeviceToken(payload.token)) throw new Error("Invalid pairing token");
+    await set({
+      [KEYS.pairing]: { token: payload.token, apiBase: `${origin}/api`, pairedAt: Date.now(), source: "app" },
+      [KEYS.status]: "paired",
+      [KEYS.lastError]: "",
     });
     flushQueue();
     return { paired: true };
+  },
+
+  /** Manual fallback: token pasted into the popup. */
+  async SET_PAIRING_TOKEN(payload, sender, request) {
+    if (!fromPopup(sender)) throw new Error("Only the extension popup can set a token");
+    const token = String(request.token ?? payload.token ?? "").trim();
+    if (!isDeviceToken(token)) throw new Error("Invalid token format. Pairing tokens begin with 'dsat_'.");
+    await set({
+      [KEYS.pairing]: { token, pairedAt: Date.now(), source: "popup" },
+      [KEYS.status]: "paired",
+      [KEYS.lastError]: "",
+    });
+    flushQueue();
+    return { paired: true };
+  },
+
+  async UNPAIR(_payload, sender) {
+    if (!fromPopup(sender)) throw new Error("Only the extension popup can unpair");
+    await set({ [KEYS.pairing]: null, [KEYS.status]: "not_paired", [KEYS.lastError]: "" });
+    return { paired: false };
+  },
+
+  async LC_SIGNED_IN(payload, sender) {
+    if (!fromLeetCode(sender)) throw new Error("Not from LeetCode");
+    await set({ [KEYS.lcSignedIn]: Boolean(payload.signedIn) });
+    return { ok: true };
   },
 
   async SUBMIT_TO_LEETCODE(payload) {
@@ -514,8 +563,6 @@ const handlers = {
     if (!code.trim()) throw new Error("Code is empty");
     const lang = String(payload.language || "cpp");
     const timeoutMs = Math.min(Math.max(Number(payload.timeoutMs) || 45000, 10000), 120000);
-
-    if (!(await getLeetCodeSessionCookie())) throw new Error(ERROR_MESSAGES.NOT_SIGNED_IN);
 
     const out = await runInLeetCode(lcSubmitInPage, [slug, code, lang, timeoutMs]);
     if (!out) throw new Error("No response from the LeetCode tab");
@@ -541,17 +588,13 @@ const handlers = {
         memory: r.memory,
         runtimePercentile: r.runtimePercentile,
         memoryPercentile: r.memoryPercentile,
-        totalTestcases: r.totalTestcases,
         timestamp: Math.floor(Number(r.finishedAt) / 1000),
         title: out.question.title,
         difficulty: out.question.difficulty,
-        frontendId: out.question.questionFrontendId,
-        tags: [],
       };
-      postAcceptedToTracker(report).catch(() => enqueue(report));
+      postToTracker(report).catch((err) => !err.malformed && enqueue(report));
       flashBadge("✓", "#10b981");
     }
-
     return {
       accepted: r.accepted,
       verdict: r.statusMsg || "Unknown",
@@ -573,45 +616,35 @@ const handlers = {
   },
 
   async FETCH_LEETCODE_SNAPSHOT(payload) {
-    if (!(await getLeetCodeSessionCookie())) throw new Error(ERROR_MESSAGES.NOT_SIGNED_IN);
     const maxPages = Math.min(Math.max(Number(payload.maxPages) || 40, 1), 60);
     const out = await runInLeetCode(lcSnapshotInPage, [maxPages]);
     if (!out) throw new Error("No response from the LeetCode tab");
     if (out.error) throw new Error(humanError(out.error));
-    await storageSet(STORAGE_KEYS.lastSnapshot, Date.now());
     return out;
   },
 
   async REPORT_ACCEPTED(payload, sender) {
-    if (!/^https:\/\/([a-z0-9-]+\.)?leetcode\.com$/.test(senderOrigin(sender))) {
-      throw new Error("REPORT_ACCEPTED is only accepted from leetcode.com");
-    }
+    if (!fromLeetCode(sender)) throw new Error("REPORT_ACCEPTED is only accepted from leetcode.com");
     const slug = String(payload.slug || "").toLowerCase();
-    if (!/^[a-z0-9-]{1,120}$/.test(slug)) throw new Error("Invalid slug");
+    if (!/^[a-z0-9-]{1,120}$/.test(slug) || !payload.submissionId) throw new Error("Invalid report");
     const report = { ...payload, slug };
     try {
-      await postAcceptedToTracker(report);
+      await postToTracker(report);
       flashBadge("✓", "#10b981");
       return { synced: true };
     } catch (err) {
       if (err.malformed) throw err;
-      // Unreachable, unpaired or expired token: keep it and retry after the
-      // next successful PAIR (which happens every time the app is opened).
       await enqueue(report);
       flashBadge("…", "#f59e0b");
-      const queuedError = new Error(
-        err.permanent
-          ? "Open DSA Tracker while signed in to finish syncing (queued)"
-          : "Tracker unreachable — queued for retry",
+      const queued = new Error(
+        err.unpaired ? "Accepted! Open DSA Tracker to pair and finish syncing." : "Tracker unreachable — queued for retry",
       );
-      queuedError.payload = { queued: true };
-      throw queuedError;
+      queued.payload = { queued: true };
+      throw queued;
     }
   },
 
-  async FLUSH_QUEUE() {
-    return flushQueue();
-  },
+  FLUSH_QUEUE: flushQueue,
 };
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -620,14 +653,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     sendResponse({ ok: false, error: "Unsupported request type" });
     return false;
   }
-  handler(request.payload || {}, sender)
+  Promise.resolve(handler(request.payload || {}, sender, request))
     .then((payload) => sendResponse({ ok: true, payload }))
-    .catch((error) =>
-      sendResponse({
-        ok: false,
-        error: error?.message || "Extension error",
-        payload: error?.payload,
-      }),
-    );
+    .catch((error) => sendResponse({ ok: false, error: error?.message || "Extension error", payload: error?.payload }));
   return true;
 });

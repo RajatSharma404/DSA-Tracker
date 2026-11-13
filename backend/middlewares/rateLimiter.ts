@@ -51,3 +51,24 @@ export const aiRateLimiter = rateLimit({
     });
   },
 });
+
+/**
+ * Per-device rate limiter for authenticated Extension Sync requests.
+ */
+export const deviceSyncLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: process.env.NODE_ENV === "test" ? 1000 : 60, // 60 requests per minute per device
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: { keyGeneratorIpFallback: false },
+  keyGenerator: (req: Request) => req.extensionDevice?.id || req.ip || "unknown",
+  message: {
+    error: "Too many extension sync requests from this device. Please wait a moment and try again.",
+  },
+  handler: (_req: Request, res: Response) => {
+    res.status(429).json({
+      error: "Too many extension sync requests from this device. Please wait a moment and try again.",
+    });
+  },
+});
+

@@ -4,16 +4,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LogOut, ShieldCheck, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { safeSignOut } from "@/lib/auth/safeSignOut";
+import { useFeatures } from "@/components/providers/FeaturesProvider";
 import { motion } from "framer-motion";
 import { ThemeSelector } from "@/components/ui/ThemeSelector";
-import { NAV_SECTIONS, isNavItemActive, type NavSection } from "@/lib/navigation";
+import { NAV_SECTIONS, filterNavByFeatures, isNavItemActive, type NavSection } from "@/lib/navigation";
 
 const COLLAPSE_KEY = "dsa_sidebar_collapsed";
 
 export function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const features = useFeatures();
   // Expanded by default on wide screens; the user's choice is remembered.
   const [collapsed, setCollapsed] = useState<boolean>(() => {
     if (typeof window === "undefined") return true;
@@ -51,13 +54,14 @@ export function Sidebar() {
 
   const effectiveCollapsed = pathname.startsWith("/challenge/") || collapsed;
   const isAdmin = (session?.user as { role?: string } | undefined)?.role === "ADMIN";
+  const visible = filterNavByFeatures(NAV_SECTIONS, features);
   const sections: NavSection[] = isAdmin
-    ? NAV_SECTIONS.map((s) =>
+    ? visible.map((s) =>
         s.title === "Manage"
           ? { ...s, items: [...s.items, { icon: ShieldCheck, label: "Admin Panel", href: "/admin", hint: "Manage content" }] }
           : s,
       )
-    : NAV_SECTIONS;
+    : visible;
 
   return (
     <aside
@@ -190,7 +194,7 @@ export function Sidebar() {
               <div className="text-[10px] text-[var(--text-muted)] truncate">{session.user.email}</div>
             </div>
             <button
-              onClick={() => signOut({ callbackUrl: "/login" })}
+              onClick={() => safeSignOut()}
               className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors cursor-pointer"
               aria-label="Sign out"
               title="Sign out"
@@ -203,7 +207,7 @@ export function Sidebar() {
         <div className={`flex ${effectiveCollapsed ? "flex-col items-center gap-1" : "items-center justify-between"}`}>
           {effectiveCollapsed && (
             <button
-              onClick={() => signOut({ callbackUrl: "/login" })}
+              onClick={() => safeSignOut()}
               className="p-2 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-colors cursor-pointer"
               aria-label="Sign out"
             >

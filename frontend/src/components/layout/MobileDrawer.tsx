@@ -3,16 +3,16 @@
 import React, { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { safeSignOut } from "@/lib/auth/safeSignOut";
+import { useFeatures } from "@/components/providers/FeaturesProvider";
 import {
   ShieldCheck,
   LogOut,
   X,
 } from "lucide-react";
 import { ThemeSelector } from "@/components/ui/ThemeSelector";
-import { NAV_SECTIONS } from "@/lib/navigation";
-
-const navSections = NAV_SECTIONS;
+import { NAV_SECTIONS, filterNavByFeatures } from "@/lib/navigation";
 
 interface MobileDrawerProps {
   isOpen: boolean;
@@ -22,6 +22,8 @@ interface MobileDrawerProps {
 export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
+  // Must run before the early return below (rules of hooks).
+  const features = useFeatures();
 
   // Close drawer on escape key
   useEffect(() => {
@@ -52,7 +54,7 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
     ((session?.user as { role?: string } | undefined)?.role || "USER") ===
     "ADMIN";
 
-  const displaySections = navSections.map((section) => ({
+  const displaySections = filterNavByFeatures(NAV_SECTIONS, features).map((section) => ({
     ...section,
     items: [...section.items],
   }));
@@ -182,7 +184,7 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
           )}
 
           <button
-            onClick={() => signOut({ callbackUrl: "/login" })}
+            onClick={() => safeSignOut()}
             className="flex items-center justify-center w-full px-3 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] rounded-xl transition-colors cursor-pointer border border-[var(--border-subtle)]"
           >
             <LogOut size={16} className="mr-2" />

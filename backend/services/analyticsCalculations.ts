@@ -341,3 +341,180 @@ export function calculateDifficultyRamp(
     total,
   }));
 }
+
+export function formatDateInTimezone(date: Date, timeZone = "UTC"): string {
+  try {
+    const formatter = new Intl.DateTimeFormat("en-CA", {
+      timeZone: timeZone || "UTC",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    return formatter.format(date);
+  } catch {
+    return date.toISOString().slice(0, 10);
+  }
+}
+
+export function calculateStreakFromEvents(
+  events: Array<{ occurredAt?: Date | string | null }>,
+  timeZone = "UTC",
+  existingLongestStreak = 0,
+  referenceDate = new Date(),
+): { currentStreak: number; longestStreak: number } {
+  const dateSet = new Set<string>();
+  events.forEach((e) => {
+    if (!e.occurredAt) return;
+    const d = new Date(e.occurredAt);
+    if (Number.isNaN(d.getTime()) || d.getFullYear() < 2000) return;
+    dateSet.add(formatDateInTimezone(d, timeZone));
+  });
+
+  const todayStr = formatDateInTimezone(referenceDate, timeZone);
+  const yesterday = new Date(referenceDate);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = formatDateInTimezone(yesterday, timeZone);
+
+  let currentStreak = 0;
+  if (dateSet.has(todayStr)) {
+    const cursor = new Date(referenceDate);
+    while (dateSet.has(formatDateInTimezone(cursor, timeZone))) {
+      currentStreak++;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+  } else if (dateSet.has(yesterdayStr)) {
+    const cursor = new Date(yesterday);
+    while (dateSet.has(formatDateInTimezone(cursor, timeZone))) {
+      currentStreak++;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+  }
+
+  // Calculate longest historical streak from distinct dates
+  const sortedDatesAsc = Array.from(dateSet).sort((a, b) => a.localeCompare(b));
+  let calculatedLongest = sortedDatesAsc.length > 0 ? 1 : 0;
+  let run = 1;
+
+  for (let i = 1; i < sortedDatesAsc.length; i++) {
+    const [y1, m1, d1] = sortedDatesAsc[i - 1].split("-").map(Number);
+    const [y2, m2, d2] = sortedDatesAsc[i].split("-").map(Number);
+    const prev = new Date(Date.UTC(y1, m1 - 1, d1));
+    const curr = new Date(Date.UTC(y2, m2 - 1, d2));
+    const diffDays = Math.round(
+      (curr.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24),
+    );
+    if (diffDays === 1) {
+      run++;
+      if (run > calculatedLongest) {
+        calculatedLongest = run;
+      }
+    } else if (diffDays > 1) {
+      run = 1;
+    }
+  }
+
+  const longestStreak = Math.max(
+    calculatedLongest,
+    currentStreak,
+    existingLongestStreak,
+  );
+
+  return {
+    currentStreak,
+    longestStreak,
+  };
+}
+
+export function generateHeatmapFromEvents(
+  events: Array<{ occurredAt?: Date | string | null }>,
+  timeZone = "UTC",
+  days = 365,
+  referenceDate = new Date(),
+): Array<{ date: string; count: number }> {
+  const countsByDate = new Map<string, number>();
+  events.forEach((e) => {
+    if (!e.occurredAt) return;
+    const d = new Date(e.occurredAt);
+    if (Number.isNaN(d.getTime()) || d.getFullYear() < 2000) return;
+    const dateStr = formatDateInTimezone(d, timeZone);
+    countsByDate.set(dateStr, (countsByDate.get(dateStr) || 0) + 1);
+  });
+
+  const result: Array<{ date: string; count: number }> = [];
+  const ref = new Date(referenceDate);
+
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(ref);
+    d.setDate(d.getDate() - i);
+    const dateStr = formatDateInTimezone(d, timeZone);
+    result.push({
+      date: dateStr,
+      count: countsByDate.get(dateStr) || 0,
+    });
+  }
+
+  return result;
+}
+
+export function calculateWeeklySolveVelocityFromEvents(
+  events: Array<{ occurredAt?: Date | string | null }>,
+  timeZone = "UTC",
+  weeks = 8,
+  referenceDate = new Date(),
+): {
+  weeks: Array<{ week: string; solved: number }>;
+  average: number;
+} {
+  const ref = new Date(referenceDate);
+  ref.setHours(23, 59, 59, 999);
+
+  const MONTH_NAMES = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  ];
+
+  const weekBuckets: Array<{
+    week: string;
+    startMs: number;
+    endMs: number;
+    solved: number;
+  }> = [];
+
+  for (let i = weeks - 1; i >= 0; i--) {
+    const end = new Date(ref.getTime() - i * 7 * 24 * 60 * 60 * 1000);
+    const start = new Date(end.getTime() - 7 * 24 * 60 * 60 * 1000 + 1);
+
+    const mmm = MONTH_NAMES[start.getMonth()];
+    const dd = String(start.getDate()).padStart(2, "0");
+    const label = `Week of ${mmm} ${dd}`;
+
+    weekBuckets.push({
+      week: label,
+      startMs: start.getTime(),
+      endMs: end.getTime(),
+      solved: 0,
+    });
+  }
+
+  events.forEach((e) => {
+    if (!e.occurredAt) return;
+    const time = new Date(e.occurredAt).getTime();
+    if (Number.isNaN(time)) return;
+
+    for (const bucket of weekBuckets) {
+      if (time >= bucket.startMs && time <= bucket.endMs) {
+        bucket.solved++;
+        break;
+      }
+    }
+  });
+
+  const totalSolved = weekBuckets.reduce((acc, b) => acc + b.solved, 0);
+  const average = weeks > 0 ? Math.round((totalSolved / weeks) * 10) / 10 : 0;
+
+  return {
+    weeks: weekBuckets.map(({ week, solved }) => ({ week, solved })),
+    average,
+  };
+}
+

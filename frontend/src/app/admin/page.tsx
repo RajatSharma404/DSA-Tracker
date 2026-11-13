@@ -7,10 +7,15 @@ import {
   FolderEdit,
   PlusCircle,
   DatabaseZap,
+  SlidersHorizontal,
+  CheckCircle2,
+  XCircle,
+  Info,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { dsaApi } from "@/lib/api";
+import { FeatureFlags, DEFAULT_FEATURE_FLAGS } from "@/types/features";
 
 const adminModules = [
   {
@@ -42,6 +47,18 @@ const adminModules = [
 export default function AdminDashboard() {
   const [seeding, setSeeding] = useState(false);
   const [seedResult, setSeedResult] = useState<string | null>(null);
+  const [flags, setFlags] = useState<FeatureFlags>(DEFAULT_FEATURE_FLAGS);
+  const [flagsLoading, setFlagsLoading] = useState(true);
+
+  useEffect(() => {
+    dsaApi
+      .getFeatureFlags()
+      .then((data) => {
+        setFlags(data);
+        setFlagsLoading(false);
+      })
+      .catch(() => setFlagsLoading(false));
+  }, []);
 
   const handleSeed = async () => {
     setSeeding(true);
@@ -137,6 +154,92 @@ export default function AdminDashboard() {
             {seedResult}
           </p>
         )}
+      </div>
+
+      {/* Read-Only Feature Flags Panel (Phase 5 Single Source of Truth) */}
+      <div className="p-6 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)]">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <SlidersHorizontal size={20} className="text-[var(--accent-primary)]" />
+            <div>
+              <h2 className="text-lg font-bold text-[var(--text-primary)]">Feature Flags (Runtime Status)</h2>
+              <p className="text-xs text-[var(--text-muted)]">
+                Controlled via host environment variables (Render/Railway/host). Read-only in this phase.
+              </p>
+            </div>
+          </div>
+          <span className="text-[10px] font-mono uppercase px-2.5 py-1 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-secondary)] text-[var(--text-secondary)]">
+            Host Env Gated
+          </span>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-4">
+          {[
+            {
+              id: "pvp",
+              env: "FEATURE_PVP",
+              name: "1v1 PvP Battles",
+              tier: "PARKED",
+              enabled: flags.pvp,
+            },
+            {
+              id: "arena",
+              env: "FEATURE_ARENA",
+              name: "The Arena Speed Challenge",
+              tier: "PARKED",
+              enabled: flags.arena,
+            },
+            {
+              id: "interviews",
+              env: "FEATURE_INTERVIEWS",
+              name: "AI Mock Interviews",
+              tier: "PARKED",
+              enabled: flags.interviews,
+            },
+            {
+              id: "algotracer",
+              env: "FEATURE_ALGOTRACER",
+              name: "AlgoTracer 2.0 Visualizer",
+              tier: "SHOWPIECE",
+              enabled: flags.algotracer,
+            },
+          ].map((item) => (
+            <div
+              key={item.id}
+              className={`p-4 rounded-xl border transition-colors ${
+                item.enabled
+                  ? "bg-emerald-500/5 border-emerald-500/20"
+                  : "bg-[var(--bg-secondary)] border-[var(--border-subtle)]"
+              }`}
+            >
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[10px] font-mono text-[var(--text-muted)] uppercase tracking-wider">
+                  {item.tier}
+                </span>
+                {item.enabled ? (
+                  <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-400">
+                    <CheckCircle2 size={13} /> Active
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1 text-[11px] font-bold text-[var(--text-muted)]">
+                    <XCircle size={13} /> Disabled
+                  </span>
+                )}
+              </div>
+              <p className="text-sm font-semibold text-[var(--text-primary)]">{item.name}</p>
+              <p className="text-[10px] font-mono text-[var(--text-muted)] mt-1">{item.env}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex items-start gap-2.5 p-3 rounded-xl bg-[var(--bg-secondary)]/50 border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)]">
+          <Info size={16} className="text-[var(--text-muted)] shrink-0 mt-0.5" />
+          <p>
+            To modify these flags, configure the respective environment variable (e.g.{" "}
+            <code className="text-[var(--accent-primary)] font-mono text-[11px]">FEATURE_ARENA=true</code>) on your deployment dashboard or in{" "}
+            <code className="font-mono text-[11px]">backend/.env</code>. Changes take effect on the next request without requiring frontend rebuilds.
+          </p>
+        </div>
       </div>
     </div>
   );

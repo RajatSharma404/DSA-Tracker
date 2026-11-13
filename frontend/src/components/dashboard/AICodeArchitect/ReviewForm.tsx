@@ -45,7 +45,16 @@ export function ReviewForm({
   const [selectedSubmissionId, setSelectedSubmissionId] = useState<
     string | null
   >(null);
+  const [quotaRemaining, setQuotaRemaining] = useState<number | null>(null);
   const { success, error } = useToastNotification();
+
+  useEffect(() => {
+    dsaApi.getAiQuota().then((q: any) => {
+      if (q?.review?.remaining !== undefined) {
+        setQuotaRemaining(q.review.remaining);
+      }
+    }).catch(() => {});
+  }, []);
 
   const {
     data: submissions,
@@ -196,13 +205,20 @@ export function ReviewForm({
 
               {/* Footer */}
               <div className="px-6 py-4 bg-[var(--bg-secondary)] border-t border-white/5 flex items-center justify-between">
-                <button
-                  onClick={handleClear}
-                  className="p-2 text-white/20 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all"
-                  aria-label="Clear code"
-                >
-                  <Trash2 size={16} />
-                </button>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handleClear}
+                    className="p-2 text-white/20 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all"
+                    aria-label="Clear code"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                  {quotaRemaining !== null && (
+                    <span className="text-[10px] font-mono font-medium px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/20">
+                      {quotaRemaining} AI reviews left today (resets at midnight)
+                    </span>
+                  )}
+                </div>
                 <button
                   onClick={onReview}
                   disabled={isReviewing || !code.trim()}

@@ -129,9 +129,10 @@ function createAuthOptions(secret: string): NextAuthOptions {
       async session({ session, token }) {
         if (session.user) {
           interface sessionWithToken { accessToken?: string }
-          interface userWithRole { role?: string }
+          interface userWithRole { role?: string; id?: string }
           (session as sessionWithToken).accessToken = token.accessToken as string | undefined;
           (session.user as userWithRole).role = (token.role as string) ?? "USER";
+          (session.user as userWithRole).id = (token.sub as string) || (token.email as string);
         }
         return session;
       },
@@ -165,8 +166,12 @@ function missingSecretResponse() {
   );
 }
 
+export const authOptions: NextAuthOptions = createAuthOptions(
+  nextAuthSecret || "development-fallback-secret-at-least-32-bytes-long",
+);
+
 const handler = nextAuthSecret
-  ? NextAuth(createAuthOptions(nextAuthSecret))
+  ? NextAuth(authOptions)
   : null;
 
 interface RouteContext {

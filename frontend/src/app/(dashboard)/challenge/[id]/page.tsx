@@ -3,7 +3,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import dynamic from "next/dynamic";
 import { dsaApi } from "@/lib/api";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, notFound } from "next/navigation";
+import { useFeature } from "@/components/providers/FeaturesProvider";
 import {
   Timer,
   AlertTriangle,
@@ -35,6 +36,11 @@ const CodeEditor = dynamic(
 );
 
 export default function ChallengeSimulator() {
+  const isEnabled = useFeature("arena");
+  if (!isEnabled) {
+    notFound();
+  }
+
   const { id } = useParams();
   const router = useRouter();
   const [session, setSession] = useState<any>(null);

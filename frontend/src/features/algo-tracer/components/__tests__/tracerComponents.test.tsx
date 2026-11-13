@@ -88,7 +88,7 @@ describe("Algo Tracer UI Components", () => {
         />
       );
 
-      expect(screen.getByText("Play")).toBeDefined();
+      expect(screen.getByRole("button", { name: /play/i })).toBeDefined();
     });
   });
 

@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
 import { dsaApi, Problem } from "@/lib/api";
+import { useFeature } from "@/components/providers/FeaturesProvider";
 import {
   ArrowLeft,
   ExternalLink,
@@ -21,6 +22,7 @@ import {
   Maximize2,
   Zap,
   ShieldAlert,
+  Brain,
 } from "lucide-react";
 import Link from "next/link";
 import { trackEvent } from "@/lib/analytics";
@@ -61,6 +63,11 @@ const AIMentorHint = dynamic(
       <div className="h-56 animate-pulse rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)]" />
     ),
   },
+);
+
+const WhyDidIForgetModal = dynamic(
+  () => import("@/components/dashboard/WhyDidIForgetModal"),
+  { ssr: false }
 );
 
 const AICodeArchitect = dynamic(
@@ -111,6 +118,7 @@ const AlgoTracer = dynamic(
 export default function ProblemSolvePage() {
   const params = useParams();
   const router = useRouter();
+  const isTracerEnabled = useFeature("algotracer");
   const problemId = params?.problemId as string;
 
   const [problem, setProblem] = useState<Problem | null>(null);
@@ -128,6 +136,7 @@ export default function ProblemSolvePage() {
     submittedAt: string;
     timeSpent: number;
   } | null>(null);
+  const [showForgotModal, setShowForgotModal] = useState(false);
   const splitContainerRef = useRef<HTMLDivElement | null>(null);
   const sessionStartRef = useRef<number>(Date.now());
 
@@ -325,7 +334,7 @@ export default function ProblemSolvePage() {
                 </span>
               </div>
               <p className="text-xs text-[var(--text-muted)] mt-0.5">
-                {problemDetails.topicTags
+                {problemDetails?.topicTags
                   ?.map((tag) => tag.name)
                   .join(", ")}
               </p>
@@ -338,14 +347,25 @@ export default function ProblemSolvePage() {
               <span>Session {formatElapsed(elapsedSeconds)}</span>
             </div>
 
-            <Link
-              href="/tracer"
-              onClick={() => soundEffects.playClick()}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--accent-primary)]/10 hover:bg-[var(--accent-primary)]/20 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] transition-colors text-xs font-bold font-mono"
+            {isTracerEnabled && (
+              <Link
+                href="/tracer"
+                onClick={() => soundEffects.playClick()}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--accent-primary)]/10 hover:bg-[var(--accent-primary)]/20 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] transition-colors text-xs font-bold font-mono"
+              >
+                <Activity size={14} />
+                <span>Open in Tracer</span>
+              </Link>
+            )}
+
+            <button
+              onClick={() => setShowForgotModal(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-300 transition-colors text-xs font-bold font-mono cursor-pointer"
+              title="Cognitive analysis of why this problem was forgotten"
             >
-              <Activity size={14} />
-              <span>Open in Tracer</span>
-            </Link>
+              <Brain size={14} />
+              <span>Why did I forget?</span>
+            </button>
 
             <button
               onClick={() => {
@@ -400,7 +420,7 @@ export default function ProblemSolvePage() {
             >
               <div
                 className="prose prose-invert prose-sm max-w-none text-[var(--text-secondary)] leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: sanitizeHtml(problemDetails.content) }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(problemDetails?.content || "<p>Loading problem description...</p>") }}
               />
             </div>
           )}
@@ -447,22 +467,24 @@ export default function ProblemSolvePage() {
                   <Code2 size={15} />
                   <span>Code Editor</span>
                 </button>
-                <button
-                  onClick={() => {
-                    soundEffects.playClick();
-                    setActiveTab("trace");
-                  }}
-                  role="tab"
-                  aria-selected={activeTab === "trace"}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    activeTab === "trace"
-                      ? "bg-cyan-500 text-black font-bold shadow-md"
-                      : "bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]"
-                  }`}
-                >
-                  <Activity size={15} />
-                  <span>AlgoTracer 2.0</span>
-                </button>
+                {isTracerEnabled && (
+                  <button
+                    onClick={() => {
+                      soundEffects.playClick();
+                      setActiveTab("trace");
+                    }}
+                    role="tab"
+                    aria-selected={activeTab === "trace"}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      activeTab === "trace"
+                        ? "bg-cyan-500 text-black font-bold shadow-md"
+                        : "bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]"
+                    }`}
+                  >
+                    <Activity size={15} />
+                    <span>AlgoTracer 2.0</span>
+                  </button>
+                )}
                 <button
                   onClick={() => {
                     soundEffects.playClick();
@@ -574,7 +596,7 @@ export default function ProblemSolvePage() {
               </>
             )}
 
-            {activeTab === "trace" && (
+            {activeTab === "trace" && isTracerEnabled && (
               <div className="pt-2">
                 <AlgoTracer problemId={problem.id} />
               </div>
@@ -598,6 +620,15 @@ export default function ProblemSolvePage() {
           </div>
         </div>
       </div>
+
+      {showForgotModal && (
+        <WhyDidIForgetModal
+          problemId={problem.id}
+          problemTitle={problem.title}
+          isOpen={showForgotModal}
+          onClose={() => setShowForgotModal(false)}
+        />
+      )}
     </div>
   );
 }

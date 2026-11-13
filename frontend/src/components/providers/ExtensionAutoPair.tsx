@@ -1,34 +1,52 @@
 "use client";
 
 import { useEffect } from "react";
-import { getSession } from "next-auth/react";
-import { pairExtension } from "@/lib/extensionBridge";
+import { useSession } from "next-auth/react";
+import { getExtensionStatus, pairExtension } from "@/lib/extensionBridge";
+import { dsaApi } from "@/lib/api";
 
 const READY_EVENT = "DSA_TRACKER_EXTENSION_READY";
-const REPAIR_INTERVAL_MS = 6 * 60 * 60 * 1000; // tokens live 7d; refresh well before
+const ATTEMPT_KEY = "dsa_ext_autopair_attempt";
+const RETRY_AFTER_MS = 10 * 60 * 1000;
 
 /**
- * Keeps the browser extension paired with the signed-in account. Runs on
- * mount, whenever the extension announces itself (e.g. after an update), and
- * every few hours, so syncs started on leetcode.com never hit an expired token.
+ * Pairs the browser extension automatically. When the extension reports it is
+ * not paired (fresh install, unpaired, or token revoked), mint a revocable
+ * `dsat_` device token and hand it over. Paired extensions are left alone, so
+ * this never creates a device per page load.
  */
 export function ExtensionAutoPair() {
+  const { status } = useSession();
+
   useEffect(() => {
+    if (status !== "authenticated") return;
     let cancelled = false;
-    const pair = async () => {
-      const session = (await getSession().catch(() => null)) as { accessToken?: string } | null;
-      if (!cancelled && session?.accessToken) await pairExtension(session.accessToken);
+
+    const run = async () => {
+      const ext = await getExtensionStatus();
+      if (cancelled || ext.state === "NOT_INSTALLED" || ext.outdated || ext.paired) return;
+      try {
+        const last = Number(sessionStorage.getItem(ATTEMPT_KEY) || 0);
+        if (Date.now() - last < RETRY_AFTER_MS) return;
+        sessionStorage.setItem(ATTEMPT_KEY, String(Date.now()));
+      } catch {
+        // storage optional
+      }
+      try {
+        const { token } = (await dsaApi.createExtensionDevice("Chrome extension (auto-paired)")) as { token?: string };
+        if (!cancelled && token) await pairExtension(token);
+      } catch {
+        // Manual pairing from the Extension page still works.
+      }
     };
 
-    pair();
-    document.addEventListener(READY_EVENT, pair);
-    const timer = window.setInterval(pair, REPAIR_INTERVAL_MS);
+    run();
+    document.addEventListener(READY_EVENT, run);
     return () => {
       cancelled = true;
-      document.removeEventListener(READY_EVENT, pair);
-      window.clearInterval(timer);
+      document.removeEventListener(READY_EVENT, run);
     };
-  }, []);
+  }, [status]);
 
   return null;
 }

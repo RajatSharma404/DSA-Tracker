@@ -21,6 +21,7 @@ import {
   Telescope,
   type LucideIcon,
 } from "lucide-react";
+import type { FeatureFlags, FeatureName } from "@/types/features";
 
 export type NavItem = {
   icon: LucideIcon;
@@ -29,6 +30,8 @@ export type NavItem = {
   /** One-line hint shown in tooltips when the sidebar is collapsed */
   hint?: string;
   badge?: "new";
+  /** Hidden unless this runtime feature flag is on */
+  feature?: FeatureName;
 };
 
 export type NavSection = { title: string; items: NavItem[] };
@@ -42,15 +45,15 @@ export const NAV_SECTIONS: NavSection[] = [
       { icon: Network, label: "Roadmap", href: "/roadmap", hint: "Visual skill tree" },
       { icon: BookOpen, label: "Topics", href: "/topics", hint: "Problems by pattern" },
       { icon: GraduationCap, label: "Learn", href: "/learn", hint: "Theory tracks & lessons" },
-      { icon: Activity, label: "Code Tracer", href: "/tracer", hint: "Step through algorithms" },
+      { icon: Activity, label: "Code Tracer", href: "/tracer", hint: "Step through algorithms", feature: "algotracer" },
     ],
   },
   {
     title: "Compete",
     items: [
-      { icon: Zap, label: "Timed Challenges", href: "/challenge", hint: "Beat the clock" },
-      { icon: Swords, label: "1v1 Battles", href: "/pvp", hint: "Race another coder" },
-      { icon: Target, label: "Mock Interviews", href: "/interviews", hint: "Interview simulator" },
+      { icon: Zap, label: "Timed Challenges", href: "/challenge", hint: "Beat the clock", feature: "arena" },
+      { icon: Swords, label: "1v1 Battles", href: "/pvp", hint: "Race another coder", feature: "pvp" },
+      { icon: Target, label: "Mock Interviews", href: "/interviews", hint: "Interview simulator", feature: "interviews" },
     ],
   },
   {
@@ -84,3 +87,9 @@ export const NAV_SECTIONS: NavSection[] = [
 
 export const isNavItemActive = (pathname: string, href: string) =>
   pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
+
+/** Applies runtime feature flags and drops sections left empty. */
+export const filterNavByFeatures = (sections: NavSection[], flags: FeatureFlags): NavSection[] =>
+  sections
+    .map((s) => ({ ...s, items: s.items.filter((i) => !i.feature || flags[i.feature]) }))
+    .filter((s) => s.items.length > 0);

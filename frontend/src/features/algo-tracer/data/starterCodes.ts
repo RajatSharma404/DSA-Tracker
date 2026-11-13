@@ -341,6 +341,62 @@ def bfs(graph, start_node=0):
     },
   },
   {
+    id: "dfs",
+    title: "Depth-First Search (DFS)",
+    category: "Graphs",
+    defaultInput: {
+      array: [0, 1, 2, 3, 4, 5],
+      graph: JSON.stringify({
+        0: [1, 2],
+        1: [0, 3, 4],
+        2: [0, 5],
+        3: [1],
+        4: [1],
+        5: [2],
+      }),
+    },
+    codes: {
+      javascript: `function dfs(graph, startNode = 0) {
+  let visited = new Set();
+  let order = [];
+
+  function traverse(node) {
+    if (visited.has(node)) return;
+    visited.add(node);
+    order.push(node);
+    for (let neighbor of graph[node] || []) {
+      traverse(neighbor);
+    }
+  }
+
+  traverse(startNode);
+  return order;
+}`,
+      python: `def dfs(graph, start_node=0):
+    visited = set()
+    order = []
+
+    def traverse(node):
+        if node in visited:
+            return
+        visited.add(node)
+        order.append(node)
+        for neighbor in graph.get(node, []):
+            traverse(neighbor)
+
+    traverse(start_node)
+    return order`,
+      cpp: `void dfs(map<int, vector<int>>& graph, int node, unordered_set<int>& visited, vector<int>& order) {
+    if (visited.count(node)) return;
+    visited.insert(node);
+    order.push_back(node);
+    for (int neighbor : graph[node]) {
+        dfs(graph, neighbor, visited, order);
+    }
+}`,
+    },
+  },
+  {
     id: "stack",
     title: "Stack (Valid Parentheses)",
     category: "Data Structures",

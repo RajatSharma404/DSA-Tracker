@@ -267,6 +267,7 @@ export default function SearchPage() {
         <input
           type="text"
           placeholder="Search problems by name..."
+          aria-label="Search problems by name"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors text-sm"
@@ -442,6 +443,7 @@ function ProblemRow({
         <button
           type="button"
           onClick={onToggleStatus}
+          aria-label={isDone ? `Mark ${p.title} as TODO` : `Mark ${p.title} as Solved`}
           className="shrink-0 cursor-pointer transition-transform active:scale-90 hover:scale-110"
           title={isDone ? "Mark as TODO" : "Mark as Solved"}
         >
@@ -496,6 +498,7 @@ function ProblemRow({
       <div className="flex items-center gap-2 shrink-0">
         <button
           onClick={onToggleBookmark}
+          aria-label={p.isBookmarked ? `Remove bookmark for ${p.title}` : `Add bookmark for ${p.title}`}
           className={`p-2 rounded-xl border transition-all cursor-pointer ${
             p.isBookmarked
               ? "bg-amber-500/10 border-amber-500/30 text-amber-400"

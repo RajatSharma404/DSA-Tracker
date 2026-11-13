@@ -46,7 +46,7 @@ body[data-theme="oled"],
 
   --text-primary: #f8fafc;
   --text-secondary: #cbd5e1;
-  --text-muted: #64748b;
+  --text-muted: #94a3b8;
   --muted: var(--text-muted);
   --text-accent: #00f0ff;
 
@@ -209,7 +209,7 @@ body[data-theme="nordic"],
 
   --text-primary: #f0f9ff;
   --text-secondary: #bae6fd;
-  --text-muted: #64748b;
+  --text-muted: #94a3b8;
   --text-accent: #38bdf8;
 
   --accent-primary: #38bdf8;
@@ -249,7 +249,7 @@ body[data-theme="light"],
 
   --text-primary: #0f172a;
   --text-secondary: #334155;
-  --text-muted: #64748b;
+  --text-muted: #94a3b8;
   --text-accent: #4f46e5;
 
   --accent-primary: #4f46e5;
@@ -600,22 +600,6 @@ main[data-scroll-root="true"] {
   }
 }
 
-/* =========================================================================
-   [PREVIOUS LOGIC - COMMENTED OUT AS PER DIRECTIVE: STANDARD SHIMMER]
-   ========================================================================= */
-/*
-.shimmer {
-  background: linear-gradient(90deg,
-      var(--bg-card) 0%,
-      var(--bg-hover) 50%,
-      var(--bg-card) 100%) !important;
-  background-size: 200% 100% !important;
-  animation: shimmer 1.8s ease-in-out infinite !important;
-}
-*/
-/* =========================================================================
-   [NEW OPTIMIZED LOGIC: HARDWARE ACCELERATED GPU SHIMMER (60FPS)]
-   ========================================================================= */
 .shimmer {
   background: linear-gradient(90deg,
       var(--bg-card) 0%,

@@ -1,0 +1,85 @@
+name: Playwright E2E Tests
+
+on:
+  pull_request:
+    branches: [main, master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e-playwright:
+    name: Playwright E2E & Accessibility Suite
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: dsatracker_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install backend dependencies & generate Prisma
+        working-directory: ./backend
+        run: |
+          npm ci
+          npx prisma generate
+          npx prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dsatracker_test?schema=public
+
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Seed E2E test database
+        run: node scripts/run-seed-e2e.mjs --reset
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dsatracker_test?schema=public
+          NODE_ENV: test
+          E2E: "true"
+
+      - name: Install Playwright Browsers (Chromium)
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright E2E Tests
+        run: npx playwright test --repeat-each=3
+        env:
+          CI: "true"
+          NODE_ENV: test
+          E2E: "true"
+          PLAYWRIGHT_BASE_URL: http://localhost:3005
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dsatracker_test?schema=public
+          NEXTAUTH_SECRET: 58c6abb5a1c47b1872ea8b43a1963fd2
+          BACKEND_JWT_SECRET: 58c6abb5a1c47b1872ea8b43a1963fd258c6abb5a1c47b1872ea8b43a1963fd2
+          NEXT_PUBLIC_API_URL: http://localhost:3001/api
+
+      - name: Upload Playwright Report & Traces
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14

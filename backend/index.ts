@@ -29,7 +29,7 @@ export {
 
 let server: ReturnType<typeof app.listen> | null = null;
 
-if (process.env.NODE_ENV !== "test") {
+if (process.env.NODE_ENV !== "test" || process.env.E2E === "true") {
   server = app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
   });

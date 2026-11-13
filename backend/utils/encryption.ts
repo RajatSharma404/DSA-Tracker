@@ -8,24 +8,38 @@ const PREFIX = "enc:v1:";
  * Derives a consistent 32-byte cryptographic key from environment variables.
  */
 function getEncryptionKey(): Buffer {
-  const secret =
-    process.env.COOKIE_ENCRYPTION_KEY ||
-    process.env.NEXTAUTH_SECRET ||
-    process.env.AUTH_SECRET;
+  return getCandidateEncryptionKeys()[0];
+}
 
-  if (!secret) {
+/**
+ * Returns candidate 32-byte keys supporting key rotation (primary + previous keys).
+ */
+export function getCandidateEncryptionKeys(): Buffer[] {
+  const raw = [
+    process.env.COOKIE_ENCRYPTION_KEY,
+    process.env.COOKIE_ENCRYPTION_KEY_PREVIOUS,
+    process.env.NEXTAUTH_SECRET,
+    process.env.AUTH_SECRET,
+  ];
+  const valid = raw
+    .map((s) => (typeof s === "string" ? s.trim() : ""))
+    .filter(Boolean);
+
+  if (valid.length === 0) {
     if (process.env.NODE_ENV === "production") {
       throw new Error(
         "FATAL: COOKIE_ENCRYPTION_KEY or NEXTAUTH_SECRET must be defined in production.",
       );
     }
-    return crypto
-      .createHash("sha256")
-      .update("default-dsa-tracker-dev-insecure-key-32b")
-      .digest();
+    return [
+      crypto
+        .createHash("sha256")
+        .update("default-dsa-tracker-dev-insecure-key-32b")
+        .digest(),
+    ];
   }
 
-  return crypto.createHash("sha256").update(secret).digest();
+  return valid.map((s) => crypto.createHash("sha256").update(s).digest());
 }
 
 /**
@@ -57,30 +71,36 @@ export function decryptSecret(cipherText: string): string {
     return cipherText;
   }
 
-  try {
-    const key = getEncryptionKey();
-    const payload = cipherText.slice(PREFIX.length);
-    const parts = payload.split(":");
+  const payload = cipherText.slice(PREFIX.length);
+  const parts = payload.split(":");
 
-    if (parts.length !== 3) {
-      throw new Error("Invalid encrypted payload format");
-    }
-
-    const [ivHex, authTagHex, encryptedHex] = parts;
-    const iv = Buffer.from(ivHex, "hex");
-    const authTag = Buffer.from(authTagHex, "hex");
-
-    const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
-    decipher.setAuthTag(authTag);
-
-    let decrypted = decipher.update(encryptedHex, "hex", "utf8");
-    decrypted += decipher.final("utf8");
-
-    return decrypted;
-  } catch (error: any) {
-    console.error("Decryption error:", error?.message);
-    throw new Error("Failed to decrypt secret. Key mismatch or corrupted data.");
+  if (parts.length !== 3) {
+    throw new Error("Invalid encrypted payload format");
   }
+
+  const [ivHex, authTagHex, encryptedHex] = parts;
+  const iv = Buffer.from(ivHex, "hex");
+  const authTag = Buffer.from(authTagHex, "hex");
+
+  const candidateKeys = getCandidateEncryptionKeys();
+  let lastError: Error | null = null;
+
+  for (const key of candidateKeys) {
+    try {
+      const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
+      decipher.setAuthTag(authTag);
+
+      let decrypted = decipher.update(encryptedHex, "hex", "utf8");
+      decrypted += decipher.final("utf8");
+
+      return decrypted;
+    } catch (err: any) {
+      lastError = err;
+    }
+  }
+
+  console.error("Decryption error:", lastError?.message);
+  throw new Error("Failed to decrypt secret. Key mismatch or corrupted data.");
 }
 
 /**

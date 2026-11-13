@@ -1,12 +1,13 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
+    <title>DSA Pro Live Sync</title>
     <style>
       :root { color-scheme: dark; }
       body {
         margin: 0;
-        width: 300px;
+        width: 310px;
         font: 13px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
         background: #0b0d14;
         color: #e5e7eb;
@@ -15,17 +16,33 @@
         padding: 14px 16px;
         background: linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(168, 85, 247, 0.18));
         border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
       }
-      h1 { margin: 0; font-size: 14px; letter-spacing: 0.02em; }
+      h1 { margin: 0; font-size: 14px; }
       .ver { color: #94a3b8; font-size: 11px; }
+      .badge { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; padding: 3px 8px; border-radius: 999px; }
+      .badge-paired { background: #065f46; color: #6ee7b7; }
+      .badge-unpaired { background: #334155; color: #cbd5e1; }
+      .badge-repair { background: #881337; color: #fda4af; }
       ul { list-style: none; margin: 0; padding: 10px 16px; }
-      li { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; }
-      .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-      .ok { background: #10b981; box-shadow: 0 0 8px #10b981; }
-      .warn { background: #f59e0b; }
-      .bad { background: #ef4444; }
-      .muted { color: #94a3b8; font-size: 12px; }
-      .actions { padding: 0 16px 14px; display: flex; gap: 8px; }
+      li { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; gap: 12px; }
+      li span:last-child { color: #94a3b8; font-size: 12px; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .section { padding: 0 16px 14px; }
+      label { display: block; font-size: 11px; color: #94a3b8; margin-bottom: 4px; }
+      input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 8px 10px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.04);
+        color: inherit;
+        font: 12px ui-monospace, monospace;
+        margin-bottom: 8px;
+      }
+      .row { display: flex; gap: 8px; }
       button {
         flex: 1;
         padding: 8px;
@@ -34,25 +51,47 @@
         background: rgba(255, 255, 255, 0.05);
         color: inherit;
         font: inherit;
+        font-weight: 600;
         cursor: pointer;
       }
       button:hover { background: rgba(255, 255, 255, 0.1); }
+      .primary { background: #0284c7; border-color: #0284c7; color: #fff; }
+      .danger { color: #fca5a5; }
+      .hint { font-size: 11px; color: #94a3b8; margin: 0 0 8px; }
+      .error { color: #fca5a5; font-size: 11px; min-height: 0; padding: 0 16px 10px; }
+      .error:empty { display: none; }
     </style>
   </head>
   <body>
     <header>
-      <h1>DSA Pro Live Sync</h1>
-      <div class="ver" id="version"></div>
+      <div>
+        <h1>DSA Pro Live Sync</h1>
+        <div class="ver" id="version"></div>
+      </div>
+      <span id="statusBadge" class="badge badge-unpaired">…</span>
     </header>
     <ul>
-      <li><span>LeetCode</span><span id="lc" class="muted">…</span></li>
-      <li><span>Paired with tracker</span><span id="paired" class="muted">…</span></li>
-      <li><span>Pending syncs</span><span id="queue" class="muted">…</span></li>
-      <li><span>Last sync</span><span id="last" class="muted">…</span></li>
+      <li><span>LeetCode</span><span id="lc">…</span></li>
+      <li><span>Pending syncs</span><span id="queue">…</span></li>
+      <li><span>Last sync</span><span id="last">…</span></li>
     </ul>
-    <div class="actions">
-      <button id="retry">Retry pending</button>
-      <button id="leetcode">Open LeetCode</button>
+    <div class="error" id="errorMessage"></div>
+
+    <div class="section" id="pairingForm" hidden>
+      <p class="hint">Opening DSA Tracker while signed in pairs automatically. Or paste a token from the Extension page:</p>
+      <label for="tokenInput">Pairing token</label>
+      <input id="tokenInput" placeholder="dsat_…" autocomplete="off" spellcheck="false" />
+      <button id="pairBtn" class="primary" style="width: 100%">Pair extension</button>
+    </div>
+
+    <div class="section">
+      <div class="row">
+        <button id="retry">Retry pending</button>
+        <button id="leetcode">Open LeetCode</button>
+      </div>
+      <div class="row" id="pairedControls" style="margin-top: 8px" hidden>
+        <button id="unpairBtn" class="danger">Unpair this browser</button>
+      </div>
     </div>
     <script src="popup.js"></script>
   </body>

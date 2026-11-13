@@ -5,9 +5,6 @@ import Link from "next/link";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { Building2, ArrowRight, Network } from "lucide-react";
 
-// =========================================================================
-// [NEW OPTIMIZED LOGIC: LIGHTWEIGHT DECOMMISSIONED RETIRED ROUTE]
-// =========================================================================
 export default function CityComingSoonPage() {
   return (
     <PageTransition>
