@@ -29,3 +29,4 @@ All ADRs adhere to the following standard structure:
 - **Alternatives Considered:** Alternative approaches evaluated and specific reasons for rejection.
 - **Consequences:** The positive outcomes, operational trade-offs, and downstream impacts.
 - **Implementation Files:** Direct clickable links to the files implementing the decision.
+

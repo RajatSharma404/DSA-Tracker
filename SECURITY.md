@@ -57,3 +57,4 @@ Security fixes and patches are applied to the active modernization branch and ma
 - **AI Quota Tracking:** The `AiUsage` table enforces fine-grained per-user daily limits for hint generation (`AI_DAILY_LIMIT_HINTS`), code reviews (`AI_DAILY_LIMIT_REVIEW`), and study planning (`AI_DAILY_LIMIT_PLAN`).
 - **Payload Clamping:** The Express JSON body parser enforces a strict **100kb payload size limit** to prevent memory exhaustion attacks.
 - **Log Sanitization:** Sensitive authorization headers (`Authorization`, `cookie`, `set-cookie`, `x-pairing-token`) are automatically redacted by the Pino request logger.
+

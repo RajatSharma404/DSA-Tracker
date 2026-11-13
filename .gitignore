@@ -5,6 +5,10 @@ backend/node_modules/
 
 # Environment variables
 .env
+.env*
+!.env.example
+!backend/.env.example
+!frontend/.env.example
 .env.local
 .env*.local
 backend/.env

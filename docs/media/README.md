@@ -9,3 +9,4 @@ This directory is designated for repository media, demo screenshots, and animati
 
 > [!NOTE]
 > Please drop real PNG and GIF files into this directory to replace the markdown placeholder references in `README.md`.
+

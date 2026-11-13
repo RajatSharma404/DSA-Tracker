@@ -55,3 +55,4 @@ try {
 } finally {
   fs.rmSync(tempDir, { recursive: true, force: true });
 }
+

@@ -156,3 +156,4 @@ Restart the backend service:
 pm2 restart backend
 ```
 The frontend dynamically queries `/api/features` in its dashboard server layout and updates client navigation, hotkeys, and route accessibility immediately without requiring a frontend rebuild.
+
