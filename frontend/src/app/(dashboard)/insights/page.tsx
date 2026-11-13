@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Telescope } from "lucide-react";
 
 const RetentionForecast = dynamic(
   () => import("@/components/insights/RetentionForecast").then((m) => m.RetentionForecast),
@@ -19,15 +18,10 @@ const LeetCodeLivePanel = dynamic(
 export default function InsightsPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-6 pb-10">
-      <header className="flex items-center gap-3">
-        <span className="grid place-items-center w-11 h-11 rounded-2xl bg-[var(--accent-primary)]/12 text-[var(--accent-primary)] border border-[var(--accent-primary)]/25">
-          <Telescope size={20} />
-        </span>
+      <header>
         <div>
-          <h1 className="font-display text-3xl font-bold tracking-tight">Insights Lab</h1>
-          <p className="text-sm text-[var(--text-muted)]">
-            Predict what you&apos;ll forget, see your skill fingerprint, and mirror your LeetCode profile.
-          </p>
+          <h1 className="font-serif-display text-4xl leading-tight text-[var(--text-primary)]">Insights</h1>
+          <p className="mt-1.5 max-w-2xl text-sm text-[var(--text-secondary)]">What you&apos;re about to forget, your skill fingerprint, and your LeetCode profile.</p>
         </div>
       </header>
 

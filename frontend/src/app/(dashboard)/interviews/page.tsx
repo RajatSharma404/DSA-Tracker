@@ -265,17 +265,8 @@ export default function InterviewsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold uppercase tracking-wider mb-2">
-            <Sparkles size={12} />
-            <span>FAANG & Tier-1 Simulation</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-black text-[var(--text-primary)] tracking-tight font-display">
-            Mock Interview Arena
-          </h1>
-          <p className="text-sm text-[var(--text-muted)] mt-1">
-            Simulate high-pressure technical screens, target specific company
-            hiring bars, and track your readiness.
-          </p>
+          <h1 className="font-serif-display text-4xl leading-tight text-[var(--text-primary)]">Mock interviews</h1>
+          <p className="mt-1.5 max-w-2xl text-sm text-[var(--text-secondary)]">Practise a full interview with an AI interviewer.</p>
         </div>
 
         <button

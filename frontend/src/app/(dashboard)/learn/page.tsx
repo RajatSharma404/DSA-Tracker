@@ -171,23 +171,12 @@ export default function LearnPage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(34,211,238,0.15),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(16,185,129,0.10),transparent_30%)]" />
         <div className="relative grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/20 bg-cyan-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-cyan-300">
-              <Sparkles size={12} /> DSA bootcamp
-            </div>
-
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-gray-500">
                 Learn First
               </p>
-              <h1 className="mt-3 max-w-3xl text-4xl font-black tracking-tight text-white lg:text-6xl">
-                Build DSA intuition from complexity to advanced graphs.
-              </h1>
-              <p className="mt-4 max-w-3xl text-sm leading-6 text-gray-400 lg:text-base">
-                This Learn section is centered around the complete DSA bootcamp.
-                Open the curriculum, study each topic in order, and use the
-                lesson pages for theory, C++ implementations, dry runs,
-                complexity tables, and practice prompts.
-              </p>
+              <h1 className="font-serif-display text-4xl leading-tight text-[var(--text-primary)]">Learn</h1>
+              <p className="mt-1.5 max-w-2xl text-sm text-[var(--text-secondary)]">Short lessons on each pattern, so you know the idea before you practise it.</p>
             </div>
 
             <div className="flex flex-wrap gap-3">

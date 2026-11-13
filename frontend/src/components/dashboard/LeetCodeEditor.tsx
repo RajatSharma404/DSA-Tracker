@@ -24,6 +24,7 @@ import {
 } from "@/components/FlowchartPanel";
 import { generateAstFlowchart } from "@/lib/astFlowchartEngine";
 import { dsaApi } from "@/lib/api";
+import { useTheme } from "@/components/providers/ThemeProvider";
 import {
   submitViaExtension,
   getExtensionHealth,
@@ -103,6 +104,7 @@ export function LeetCodeEditor({
   problemId,
   onSubmissionSuccess,
 }: LeetCodeEditorProps) {
+  const { currentThemeOption } = useTheme();
   const [selectedLang, setSelectedLang] = useState<string>("cpp");
   const [code, setCode] = useState<string>("# Write your code here\n");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -114,7 +116,7 @@ export function LeetCodeEditor({
   const [savedCode, setSavedCode] = useState<Record<string, string>>({});
   const [leetcodeSubmission, setLeetcodeSubmission] =
     useState<LeetCodeSubmissionState | null>(null);
-  const [submitPath, setSubmitPath] = useState<
+  const [, setSubmitPath] = useState<
     "IDLE" | "EXTENSION" | "UNAVAILABLE"
   >("IDLE");
   const [extensionHealth, setExtensionHealth] =
@@ -501,76 +503,55 @@ export function LeetCodeEditor({
       >
         Skip to code editor
       </a>
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between px-6 py-4 bg-white/5 border-b border-white/5 gap-4 shrink-0">
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="flex gap-2">
-            {Object.entries(LANGUAGES).map(([key, config]) => (
-              <button
-                key={key}
-                onClick={() => handleLanguageChange(key)}
-                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${selectedLang === key
-                    ? "bg-white text-black"
-                    : "bg-white/5 text-gray-400 hover:bg-white/10"
-                  }`}
-              >
-                {config.label}
-              </button>
-            ))}
-          </div>
-          <div
-            className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${submitPath === "EXTENSION"
-                ? "border-green-500/30 bg-green-500/10 text-green-400"
-                : extensionHealth === "READY"
-                  ? "border-green-500/30 bg-green-500/10 text-green-400"
-                  : "border-gray-600/40 bg-gray-700/20 text-gray-300"
+      {/* Toolbar */}
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-3 py-2">
+        <div role="radiogroup" aria-label="Language" className="flex rounded-lg bg-[var(--bg-tertiary)] p-0.5">
+          {Object.entries(LANGUAGES).map(([key, config]) => (
+            <button
+              key={key}
+              role="radio"
+              aria-checked={selectedLang === key}
+              onClick={() => handleLanguageChange(key)}
+              className={`rounded-md px-3 py-1 text-xs transition-colors cursor-pointer ${
+                selectedLang === key
+                  ? "bg-[var(--bg-card)] font-medium text-[var(--text-primary)] shadow-[var(--shadow-sm)]"
+                  : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
               }`}
-          >
-            {submitPath === "EXTENSION"
-              ? "Extension: Connected"
-              : extensionHealth === "READY"
-                ? "Extension: Connected"
-                : "Extension: Unavailable"}
-          </div>
+            >
+              {config.label}
+            </button>
+          ))}
         </div>
 
-        <div id="editor-controls" className="flex items-center gap-2.5">
+        <div id="editor-controls" className="flex items-center gap-2">
+          <span
+            className="hidden items-center gap-1.5 text-xs text-[var(--text-muted)] md:flex"
+            title={
+              extensionHealth === "READY"
+                ? "Submissions go to LeetCode's judge and the AI review together"
+                : "Install the extension to also submit to LeetCode"
+            }
+          >
+            <span className={`h-1.5 w-1.5 rounded-full ${extensionHealth === "READY" ? "bg-emerald-500" : "bg-[var(--text-muted)]"}`} />
+            {extensionHealth === "READY" ? "Judged on LeetCode" : "AI review only"}
+          </span>
           <button
             type="button"
             onClick={handleVisualizeFlow}
             disabled={isVisualizing}
-            className="flex gap-2 items-center px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 hover:border-cyan-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm shadow-cyan-500/10 cursor-pointer"
-            title="Generate visual control flow diagram using CodeVis"
+            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] disabled:opacity-50 cursor-pointer"
+            title="Draw a control-flow diagram of your code"
           >
-            {isVisualizing ? (
-              <>
-                <Loader2 size={15} className="animate-spin text-cyan-400" />
-                <span>Visualizing...</span>
-              </>
-            ) : (
-              <>
-                <Workflow size={15} />
-                <span>🔀 Visualize Flow</span>
-              </>
-            )}
+            {isVisualizing ? <Loader2 size={14} className="animate-spin" /> : <Workflow size={14} />}
+            Flowchart
           </button>
-
           <button
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="flex gap-2 items-center bg-linear-to-r from-violet-500 to-purple-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wider hover:from-violet-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-violet-500/20 cursor-pointer"
+            className="flex items-center gap-1.5 rounded-lg bg-[var(--accent-primary)] px-3.5 py-1.5 text-sm font-medium text-[var(--on-accent)] hover:opacity-90 disabled:opacity-60 cursor-pointer"
           >
-            {isSubmitting ? (
-              <>
-                <Loader2 size={16} className="animate-spin" />
-                Evaluating...
-              </>
-            ) : (
-              <>
-                <Play size={16} />
-                Submit
-              </>
-            )}
+            {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
+            {isSubmitting ? "Submitting…" : "Submit"}
           </button>
         </div>
       </div>
@@ -601,7 +582,7 @@ export function LeetCodeEditor({
           </a>
           <Editor
             height="100%"
-            theme="vs-dark"
+            theme={currentThemeOption.isDark ? "vs-dark" : "vs"}
             language={LANGUAGES[selectedLang].monacoLang}
             value={code}
             onChange={(value) => setCode(value || "")}
@@ -674,7 +655,7 @@ export function LeetCodeEditor({
       )}
 
       {/* Tab Key & Keyboard Navigation Accessibility Note */}
-      <div className="px-5 py-2 bg-white/5 border-b border-white/5 flex items-center justify-between text-[11px] text-[var(--text-muted)] font-mono">
+      <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-4 py-1.5 text-[11px] text-[var(--text-muted)]">
         <span>Keyboard: Press <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white font-bold">Esc</kbd> or <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white font-bold">Ctrl+M</kbd> inside editor to toggle Tab key focus trap.</span>
         <span className="hidden sm:inline">Use Tab / Shift+Tab to navigate controls</span>
       </div>

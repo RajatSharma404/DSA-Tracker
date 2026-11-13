@@ -169,12 +169,8 @@ export default function VaultPage() {
               <BookOpen size={24} />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-[var(--text-primary)] tracking-tight font-display">
-                The Vault
-              </h1>
-              <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-widest font-mono">
-                DSA Invariants & Algorithmic Templates
-              </p>
+              <h1 className="font-serif-display text-4xl leading-tight text-[var(--text-primary)]">Notes</h1>
+              <p className="mt-1.5 max-w-2xl text-sm text-[var(--text-secondary)]">Everything you&apos;ve written down while solving.</p>
             </div>
           </div>
         </div>

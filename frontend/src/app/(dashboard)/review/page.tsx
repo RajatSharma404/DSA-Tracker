@@ -7,22 +7,8 @@ import {
   RefreshCw,
   Clock,
   CheckCircle2,
-  AlertTriangle,
   ChevronRight,
-  Zap,
-  Calendar,
-  Brain,
   Loader2,
-  Sparkles,
-  Layers,
-  ArrowRight,
-  ShieldCheck,
-  Flame,
-  Activity,
-  Bookmark,
-  Check,
-  RotateCcw,
-  BarChart2,
 } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 import { toast } from "sonner";
@@ -106,6 +92,13 @@ export default function ReviewQueuePage() {
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<"due" | "upcoming" | "all">("due");
   const [reviewNotice, setReviewNotice] = useState<string | null>(null);
+  const [recallAvg, setRecallAvg] = useState<number | null>(null);
+  useEffect(() => {
+    dsaApi
+      .getRetentionReport()
+      .then((r) => setRecallAvg(r.total ? r.averageRecall : null))
+      .catch(() => setRecallAvg(null));
+  }, []);
   const [forgotModal, setForgotModal] = useState<{ problemId: string; title: string } | null>(null);
 
   useEffect(() => {
@@ -274,10 +267,8 @@ export default function ReviewQueuePage() {
   const totalDueCount = dueProblems.length;
   const reviewedTodayCount = completedIds.size;
   const totalUpcomingCount = upcomingProblems.length;
-  const retentionHealthPct =
-    totalDueCount === 0
-      ? 98
-      : Math.max(65, Math.round(98 - totalDueCount * 4));
+  // Real average recall from the FSRS memory model (Insights → Memory forecast).
+  const recall = recallAvg;
 
   if (loading) {
     return (
@@ -301,16 +292,8 @@ export default function ReviewQueuePage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-bold uppercase tracking-wider mb-2 font-mono">
-            <Brain size={13} />
-            <span>SuperMemo-2 (SM-2) Neural Scheduler</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-black text-[var(--text-primary)] tracking-tight flex items-center gap-3 font-display">
-            Spaced Repetition Queue
-          </h1>
-          <p className="text-sm text-[var(--text-muted)] mt-1">
-            Combat the Ebbinghaus forgetting curve. Review algorithmic invariants precisely when your memory decays.
-          </p>
+          <h1 className="font-serif-display text-4xl leading-tight text-[var(--text-primary)]">Review</h1>
+          <p className="mt-1.5 max-w-2xl text-sm text-[var(--text-secondary)]">Problems due for review today, most at risk of being forgotten first.</p>
         </div>
 
         <div className="flex items-center gap-3 self-start sm:self-auto">
@@ -328,212 +311,85 @@ export default function ReviewQueuePage() {
         </div>
       </div>
 
-      {/* Hero SM-2 Leitner Hub */}
-      <div className="relative overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6 sm:p-8 shadow-2xl">
-        <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-purple-500/10 blur-[100px] pointer-events-none" />
-        <div className="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-blue-500/10 blur-[100px] pointer-events-none" />
-
-        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-          {/* Left: Retention Stats (5 cols) */}
-          <div className="lg:col-span-5 space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-2xl bg-purple-500/20 text-purple-300 border border-purple-500/30 shadow-inner">
-                <Zap size={22} />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-[var(--text-primary)] font-display">
-                  Algorithmic Retention Engine
-                </h3>
-                <p className="text-xs text-[var(--text-muted)]">
-                  Adaptive decay modeling based on recall difficulty.
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-3 font-mono">
-              <div className="p-3.5 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)]">
-                <span className="text-[10px] uppercase font-bold text-[var(--text-muted)]">
-                  Due Now
-                </span>
-                <div className="text-2xl font-black text-rose-400 mt-1 font-display">
-                  {totalDueCount}
-                </div>
-              </div>
-              <div className="p-3.5 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)]">
-                <span className="text-[10px] uppercase font-bold text-[var(--text-muted)]">
-                  Reviewed
-                </span>
-                <div className="text-2xl font-black text-emerald-400 mt-1 font-display">
-                  {reviewedTodayCount}
-                </div>
-              </div>
-              <div className="p-3.5 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)]">
-                <span className="text-[10px] uppercase font-bold text-[var(--text-muted)]">
-                  Retention
-                </span>
-                <div className="text-2xl font-black text-cyan-400 mt-1 font-display">
-                  {retentionHealthPct}%
-                </div>
-              </div>
-            </div>
-
-            {reviewNotice && (
-              <div className="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-xs text-cyan-200 flex items-center gap-2">
-                <CheckCircle2 size={14} className="text-cyan-400 shrink-0" />
-                <span className="truncate">{reviewNotice}</span>
-              </div>
+      {/* Summary */}
+      <div className="surface grid grid-cols-2 sm:grid-cols-4 sm:divide-x divide-[var(--border-subtle)]">
+        {[
+          { label: "Due now", value: totalDueCount, sub: totalDueCount ? "Oldest first" : "All caught up" },
+          { label: "Reviewed today", value: reviewedTodayCount, sub: "This session" },
+          { label: "Coming up", value: totalUpcomingCount, sub: "Scheduled later" },
+          {
+            label: "Average recall",
+            value: recall === null ? "—" : `${Math.round(recall * 100)}%`,
+            sub: "Across everything solved",
+            href: "/insights",
+          },
+        ].map((s) => (
+          <div key={s.label} className="px-5 py-4">
+            <div className="text-xs text-[var(--text-muted)]">{s.label}</div>
+            <div className="mt-1 text-2xl font-semibold tabular text-[var(--text-primary)]">{s.value}</div>
+            {s.href ? (
+              <Link href={s.href} className="text-xs text-[var(--text-muted)] underline-offset-2 hover:text-[var(--text-primary)] hover:underline">
+                See forecast
+              </Link>
+            ) : (
+              <div className="text-xs text-[var(--text-muted)]">{s.sub}</div>
             )}
           </div>
-
-          {/* Right: Leitner 5-Stage Interval Curve (7 cols) */}
-          <div className="lg:col-span-7 rounded-3xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] p-5 sm:p-6 backdrop-blur-md space-y-3">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-bold text-[var(--text-primary)] flex items-center gap-1.5 font-display">
-                <Layers size={14} className="text-cyan-400" /> Leitner Memory Stages
-              </span>
-              <span className="text-[11px] text-[var(--text-muted)] font-mono">
-                SuperMemo-2 Intervals
-              </span>
-            </div>
-
-            <div className="grid grid-cols-5 gap-2 font-mono">
-              {[
-                {
-                  stage: "Stage 1",
-                  time: "1-2 Days",
-                  color: "bg-rose-500",
-                  label: "Learning",
-                },
-                {
-                  stage: "Stage 2",
-                  time: "3-6 Days",
-                  color: "bg-orange-500",
-                  label: "Reinforcing",
-                },
-                {
-                  stage: "Stage 3",
-                  time: "7-14 Days",
-                  color: "bg-amber-500",
-                  label: "Consolidating",
-                },
-                {
-                  stage: "Stage 4",
-                  time: "15-30 Days",
-                  color: "bg-blue-500",
-                  label: "Long Term",
-                },
-                {
-                  stage: "Stage 5",
-                  time: "30d+ Mastered",
-                  color: "bg-emerald-500",
-                  label: "Permanent",
-                },
-              ].map((box, i) => (
-                <div
-                  key={i}
-                  className="p-2.5 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] text-center space-y-1"
-                >
-                  <div
-                    className={`w-2 h-2 rounded-full mx-auto ${box.color}`}
-                  />
-                  <div className="text-[10px] font-bold text-[var(--text-primary)] truncate">
-                    {box.stage}
-                  </div>
-                  <div className="text-[9px] text-[var(--text-muted)]">
-                    {box.time}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <p className="text-[11px] text-[var(--text-muted)] pt-1 leading-tight">
-              ⚡ <strong>Pro Tip:</strong> Press keys{" "}
-              <kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-card)] text-[var(--text-primary)] font-mono text-[10px] border border-[var(--border-subtle)]">
-                1
-              </kbd>
-              ,{" "}
-              <kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-card)] text-[var(--text-primary)] font-mono text-[10px] border border-[var(--border-subtle)]">
-                2
-              </kbd>
-              ,{" "}
-              <kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-card)] text-[var(--text-primary)] font-mono text-[10px] border border-[var(--border-subtle)]">
-                3
-              </kbd>
-              ,{" "}
-              <kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-card)] text-[var(--text-primary)] font-mono text-[10px] border border-[var(--border-subtle)]">
-                4
-              </kbd>{" "}
-              to rapidly grade the top due problem.
-            </p>
-          </div>
-        </div>
+        ))}
       </div>
+      <p className="-mt-4 text-xs text-[var(--text-muted)]">
+        Grade the top card with{" "}
+        {[1, 2, 3, 4].map((k) => (
+          <kbd key={k} className="mx-0.5 rounded border border-[var(--border-subtle)] px-1.5 font-mono text-[10px]">
+            {k}
+          </kbd>
+        ))}{" "}
+        (forgot → easy). The scheduler spaces the next review by how well you recalled it.
+      </p>
 
-      {/* Deck Tabs */}
-      <div className="flex items-center gap-2 border-b border-[var(--border-subtle)] pb-3">
-        <button
-          onClick={() => {
-            soundEffects.playClick();
-            setActiveTab("due");
-          }}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 font-mono ${
-            activeTab === "due"
-              ? "bg-purple-500/20 text-purple-300 border border-purple-500/30 shadow-inner"
-              : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
-          }`}
-        >
-          <AlertTriangle size={14} className="text-rose-400" />
-          <span>Due for Review ({totalDueCount})</span>
-        </button>
-
-        <button
-          onClick={() => {
-            soundEffects.playClick();
-            setActiveTab("upcoming");
-          }}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 font-mono ${
-            activeTab === "upcoming"
-              ? "bg-blue-500/20 text-blue-300 border border-blue-500/30 shadow-inner"
-              : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
-          }`}
-        >
-          <Calendar size={14} className="text-blue-400" />
-          <span>Upcoming Schedule ({totalUpcomingCount})</span>
-        </button>
+      {/* Tabs */}
+      <div role="tablist" className="flex items-center gap-6 border-b border-[var(--border-subtle)]">
+        {([
+          ["due", `Due (${totalDueCount})`],
+          ["upcoming", `Upcoming (${totalUpcomingCount})`],
+        ] as const).map(([id, label]) => (
+          <button
+            key={id}
+            role="tab"
+            aria-selected={activeTab === id}
+            onClick={() => {
+              soundEffects.playClick();
+              setActiveTab(id);
+            }}
+            className={`-mb-px border-b-2 pb-2.5 text-sm transition-colors cursor-pointer ${
+              activeTab === id
+                ? "border-[var(--accent-primary)] text-[var(--text-primary)] font-medium"
+                : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
       {/* Tab 1: Due Now Deck */}
       {activeTab === "due" && (
         <div className="space-y-4">
           {dueProblems.length === 0 ? (
-            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-12 text-center space-y-4 shadow-xl">
-              <div className="w-16 h-16 rounded-3xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/10">
-                <CheckCircle2 size={32} />
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-xl font-bold text-[var(--text-primary)] font-display">
-                  All Caught Up!
-                </h3>
-                <p className="text-xs text-[var(--text-muted)] max-w-md mx-auto leading-relaxed">
-                  Zero problems are due for revision right now. Your retention curve is locked in. Solve new problems to expand your repertoire!
+            <div className="surface flex flex-col items-start gap-3 p-6">
+              <CheckCircle2 size={18} className="text-emerald-500" />
+              <div>
+                <h3 className="text-[15px] font-semibold text-[var(--text-primary)]">Nothing due right now</h3>
+                <p className="mt-1 max-w-md text-sm text-[var(--text-secondary)]">
+                  Problems you solve are scheduled here when they&apos;re about to slip. Until then, new practice is the best use of your time.
                 </p>
               </div>
-              <div className="pt-2 flex justify-center gap-3">
-                <Link
-                  href="/topics"
-                  onClick={() => soundEffects.playClick()}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--accent-primary)] text-black font-bold text-xs hover:scale-[1.02] active:scale-[0.98] transition-all shadow-md"
-                >
-                  <span>Explore Topics</span>
-                  <ArrowRight size={14} />
+              <div className="flex gap-2 pt-1">
+                <Link href="/topics" className="rounded-lg bg-[var(--accent-primary)] px-3.5 py-2 text-sm font-medium text-[var(--on-accent)] hover:opacity-90">
+                  Browse topics
                 </Link>
-                <Link
-                  href="/recommendations"
-                  onClick={() => soundEffects.playClick()}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-primary)] font-bold text-xs transition-all border border-[var(--border-subtle)]"
-                >
-                  <Sparkles size={14} className="text-purple-400" />
-                  <span>AI Recommendations</span>
+                <Link href="/recommendations" className="rounded-lg border border-[var(--border-medium)] px-3.5 py-2 text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]">
+                  Recommendations
                 </Link>
               </div>
             </div>

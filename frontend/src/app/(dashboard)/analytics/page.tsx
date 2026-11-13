@@ -430,16 +430,8 @@ export default function AnalyticsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/20 text-[var(--accent-primary)] text-xs font-bold uppercase tracking-wider mb-2 font-mono">
-            <Activity size={13} />
-            <span>Executive Velocity Intelligence</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-black text-[var(--text-primary)] tracking-tight flex items-center gap-3 font-display">
-            Analysis & Stats Arena
-          </h1>
-          <p className="text-sm text-[var(--text-muted)] mt-1">
-            Measure your algorithmic throughput, track speed improvements, and benchmark against top-tier hiring bars.
-          </p>
+          <h1 className="font-serif-display text-4xl leading-tight text-[var(--text-primary)]">Analytics</h1>
+          <p className="mt-1.5 max-w-2xl text-sm text-[var(--text-secondary)]">How your practice is trending over time.</p>
         </div>
 
         {/* Time Horizon Selector */}

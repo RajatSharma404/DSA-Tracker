@@ -992,3 +992,34 @@ main[data-scroll-root="true"] {
 .codevis-highlight-inline {
   background: var(--accent-muted, rgba(0, 240, 255, 0.18)) !important;
 }
+
+/* Theme-aware long-form text (problem statements, lessons). */
+.prose-theme {
+  --tw-prose-body: var(--text-secondary);
+  --tw-prose-headings: var(--text-primary);
+  --tw-prose-lead: var(--text-secondary);
+  --tw-prose-links: var(--accent-primary);
+  --tw-prose-bold: var(--text-primary);
+  --tw-prose-counters: var(--text-muted);
+  --tw-prose-bullets: var(--text-muted);
+  --tw-prose-hr: var(--border-subtle);
+  --tw-prose-quotes: var(--text-primary);
+  --tw-prose-quote-borders: var(--border-medium);
+  --tw-prose-captions: var(--text-muted);
+  --tw-prose-code: var(--text-primary);
+  --tw-prose-pre-code: var(--text-primary);
+  --tw-prose-pre-bg: var(--bg-tertiary);
+  --tw-prose-th-borders: var(--border-medium);
+  --tw-prose-td-borders: var(--border-subtle);
+}
+.prose-theme :where(code):not(:where(pre *)) {
+  background: var(--bg-tertiary);
+  border-radius: 0.3rem;
+  padding: 0.1em 0.35em;
+  font-weight: 500;
+}
+.prose-theme :where(code):not(:where(pre *))::before,
+.prose-theme :where(code):not(:where(pre *))::after {
+  content: none;
+}
+

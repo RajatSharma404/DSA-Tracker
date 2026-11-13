@@ -45,13 +45,8 @@ export default function SettingsPage() {
   return (
     <div className="w-full min-w-0 p-2 sm:p-6 space-y-8">
       <div>
-        <h1 className="text-3xl font-display font-bold text-[var(--text-primary)] mb-2 flex items-center gap-3">
-          <Sparkles className="w-7 h-7 text-[var(--accent-primary)]" />
-          Settings & Customization
-        </h1>
-        <p className="text-sm text-[var(--text-muted)]">
-          Customize your interface visual theme, typography system, and external service integrations.
-        </p>
+        <h1 className="font-serif-display text-4xl leading-tight text-[var(--text-primary)]">Settings</h1>
+        <p className="mt-1.5 max-w-2xl text-sm text-[var(--text-secondary)]">Appearance, account and LeetCode connection.</p>
       </div>
 
       {/* Theme & Visual Appearance Section */}

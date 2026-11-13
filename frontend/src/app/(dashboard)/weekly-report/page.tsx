@@ -153,16 +153,8 @@ export default function WeeklyReportPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/20 text-[var(--accent-primary)] text-xs font-bold uppercase tracking-wider mb-2 font-mono">
-            <FileText size={13} />
-            <span>Executive Performance Summary</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-black text-[var(--text-primary)] tracking-tight flex items-center gap-3 font-display">
-            Weekly Progress Report
-          </h1>
-          <p className="text-sm text-[var(--text-muted)] mt-1 font-mono">
-            Period: {startDate} — {endDate}
-          </p>
+          <h1 className="font-serif-display text-4xl leading-tight text-[var(--text-primary)]">Weekly report</h1>
+          <p className="mt-1.5 max-w-2xl text-sm text-[var(--text-secondary)]">Your last seven days at a glance.</p>
         </div>
 
         <button

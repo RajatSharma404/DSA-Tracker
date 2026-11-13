@@ -41,18 +41,8 @@ export default function RoadmapPage() {
     <div className="space-y-8 animate-in fade-in duration-700 w-full min-w-0">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/20 rounded-full text-[var(--accent-primary)] text-[10px] font-bold uppercase tracking-widest mb-3">
-            <Network size={12} />
-            <span>Interactive Algorithmic Graph</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-black text-[var(--text-primary)] tracking-tight font-display">
-            Curriculum Dependency{" "}
-            <span className="text-[var(--accent-primary)]">Roadmap</span>
-          </h1>
-          <p className="text-[var(--text-muted)] mt-1 max-w-xl text-sm font-medium">
-            Explore your learning journey through a live dependency graph, or switch to the
-            custom builder to design plain-text pattern trees.
-          </p>
+          <h1 className="font-serif-display text-4xl leading-tight text-[var(--text-primary)]">Roadmap</h1>
+          <p className="mt-1.5 max-w-2xl text-sm text-[var(--text-secondary)]">How the topics build on each other. Finish one to unlock what depends on it.</p>
         </div>
 
         {/* Cyberpunk Sliding Neon Toggle */}

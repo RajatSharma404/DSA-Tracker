@@ -69,7 +69,7 @@ export const NAV_SECTIONS: NavSection[] = [
   {
     title: "Insights",
     items: [
-      { icon: Telescope, label: "Insights Lab", href: "/insights", hint: "Memory forecast & DSA DNA", badge: "new" },
+      { icon: Telescope, label: "Insights", href: "/insights", hint: "Memory forecast & DSA DNA", badge: "new" },
       { icon: BarChart3, label: "Analytics", href: "/analytics", hint: "Trends & breakdowns" },
       { icon: Trophy, label: "Achievements", href: "/achievements", hint: "Badges & milestones" },
       { icon: FileText, label: "Weekly Report", href: "/weekly-report", hint: "Your week in review" },

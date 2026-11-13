@@ -959,16 +959,8 @@ export default function FlashcardsPage() {
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between lg:items-end gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-bold uppercase tracking-wider mb-2 font-mono">
-            <Brain size={13} />
-            <span>FlashRecall SM-2 Deck</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-black text-[var(--text-primary)] tracking-tight flex items-center gap-3 font-display">
-            Algorithmic Invariant Flashcards
-          </h1>
-          <p className="text-sm text-[var(--text-muted)] mt-1 max-w-2xl">
-            Master high-yield algorithmic invariants from Easy fundamentals to Hard competitive patterns. Drill code templates with SM-2 spaced repetition.
-          </p>
+          <h1 className="font-serif-display text-4xl leading-tight text-[var(--text-primary)]">Flashcards</h1>
+          <p className="mt-1.5 max-w-2xl text-sm text-[var(--text-secondary)]">Recall the key idea behind a problem in under a minute.</p>
         </div>
 
         {/* Dual Filter Controls (Category & Difficulty) */}

@@ -219,16 +219,8 @@ export default function PvPMainPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-bold uppercase tracking-wider mb-2">
-            <Swords size={13} />
-            <span>Gladiator Colosseum</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-black text-[var(--text-primary)] tracking-tight flex items-center gap-3 font-display">
-            1v1 PvP Ranked Battles
-          </h1>
-          <p className="text-sm text-[var(--text-muted)] mt-1">
-            Duel other developers in real time on identical coding challenges. Climb the global ELO ladder.
-          </p>
+          <h1 className="font-serif-display text-4xl leading-tight text-[var(--text-primary)]">1v1 battles</h1>
+          <p className="mt-1.5 max-w-2xl text-sm text-[var(--text-secondary)]">Race someone else on the same problem.</p>
         </div>
       </div>
 

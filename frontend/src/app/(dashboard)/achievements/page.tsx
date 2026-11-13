@@ -131,16 +131,8 @@ export default function AchievementsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold uppercase tracking-wider mb-2">
-            <Trophy size={13} />
-            <span>Gladiator Trophy Hall</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight flex items-center gap-3">
-            Achievements & Badges
-          </h1>
-          <p className="text-sm text-gray-400 mt-1">
-            Unlock rare algorithmic honors, conquer milestone bounties, and ascend the gladiator ranks.
-          </p>
+          <h1 className="font-serif-display text-4xl leading-tight text-[var(--text-primary)]">Achievements</h1>
+          <p className="mt-1.5 max-w-2xl text-sm text-[var(--text-secondary)]">Milestones you&apos;ve reached, and the next ones within reach.</p>
         </div>
       </div>
 

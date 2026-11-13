@@ -155,18 +155,8 @@ export default function ChallengeSelection() {
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-black uppercase tracking-widest">
-              <Flame size={14} className="text-amber-400 animate-pulse" />
-              <span>The Competitive Pressure Arena</span>
-            </div>
-            <h1 className="text-3xl sm:text-5xl font-black text-[var(--text-primary)] tracking-tight italic uppercase font-display">
-              Interview Pressure Simulator
-            </h1>
-            <p className="text-sm text-[var(--text-muted)] leading-relaxed">
-              Train your brain to conquer the clock. Solve complex algorithms
-              under severe cognitive load, strict time bounds, and zero margin
-              for error.
-            </p>
+            <h1 className="font-serif-display text-4xl leading-tight text-[var(--text-primary)]">Timed challenges</h1>
+            <p className="mt-1.5 max-w-2xl text-sm text-[var(--text-secondary)]">Solve a set of problems against the clock.</p>
           </div>
 
           {/* Division Badge Card */}

@@ -9,20 +9,12 @@ import { useFeature } from "@/components/providers/FeaturesProvider";
 import {
   ArrowLeft,
   ExternalLink,
-  Sparkles,
-  BookOpen,
-  Code2,
-  TrendingUp,
   Timer,
   Focus,
   CheckCircle2,
-  Activity,
   Keyboard,
   Minimize2,
-  Maximize2,
-  Zap,
   ShieldAlert,
-  Brain,
 } from "lucide-react";
 import Link from "next/link";
 import { trackEvent } from "@/lib/analytics";
@@ -306,70 +298,62 @@ export default function ProblemSolvePage() {
 
   return (
     <div className="h-full flex flex-col w-full min-w-0">
-      {/* Header Bar */}
-      <div className="border-b border-[var(--border-subtle)] bg-[var(--bg-card)] px-6 py-4">
-        <div className="max-w-450 mx-auto flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex items-center gap-4">
+      {/* Header */}
+      <div className="border-b border-[var(--border-subtle)] px-5 py-3">
+        <div className="mx-auto flex max-w-450 flex-wrap items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-3">
             <button
-              onClick={() => {
-                soundEffects.playClick();
-                router.back();
-              }}
+              onClick={() => router.back()}
               aria-label="Go back"
-              className="p-2 hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded-xl transition-colors cursor-pointer border border-[var(--border-subtle)]"
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] cursor-pointer"
             >
-              <ArrowLeft size={18} />
+              <ArrowLeft size={17} />
             </button>
-            <div>
-              <div className="flex items-center gap-3">
-                <h1 className="text-xl font-bold text-[var(--text-primary)] font-display">
-                  {problem.title}
-                </h1>
-                <span
-                  className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border font-mono ${getDifficultyColor(
-                    problem.difficulty,
-                  )}`}
-                >
-                  {problem.difficulty}
+            <div className="min-w-0">
+              <div className="flex items-center gap-2.5">
+                <h1 className="truncate text-lg font-semibold tracking-tight text-[var(--text-primary)]">{problem.title}</h1>
+                <span className={`text-xs font-medium ${
+                  problem.difficulty === "EASY" ? "text-emerald-500" : problem.difficulty === "HARD" ? "text-rose-500" : "text-amber-500"
+                }`}>
+                  {problem.difficulty[0] + problem.difficulty.slice(1).toLowerCase()}
                 </span>
               </div>
-              <p className="text-xs text-[var(--text-muted)] mt-0.5">
-                {problemDetails?.topicTags
-                  ?.map((tag) => tag.name)
-                  .join(", ")}
-              </p>
+              {problemDetails?.topicTags?.length ? (
+                <p className="truncate text-xs text-[var(--text-muted)]">
+                  {problemDetails.topicTags.map((tag) => tag.name).join(" · ")}
+                </p>
+              ) : null}
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto font-mono">
-            <div className="px-3 py-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] flex items-center gap-2">
-              <Timer size={12} className="text-[var(--accent-primary)]" />
-              <span>Session {formatElapsed(elapsedSeconds)}</span>
-            </div>
-
-            {isTracerEnabled && (
-              <Link
-                href="/tracer"
-                onClick={() => soundEffects.playClick()}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--accent-primary)]/10 hover:bg-[var(--accent-primary)]/20 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] transition-colors text-xs font-bold font-mono"
-              >
-                <Activity size={14} />
-                <span>Open in Tracer</span>
-              </Link>
-            )}
-
+          <div className="flex items-center gap-1 text-[13px]">
+            <span className="mr-2 flex items-center gap-1.5 font-mono text-xs text-[var(--text-muted)] tabular" title="Time on this problem">
+              <Timer size={13} /> {formatElapsed(elapsedSeconds)}
+            </span>
             <button
               onClick={() => setShowForgotModal(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-300 transition-colors text-xs font-bold font-mono cursor-pointer"
-              title="Cognitive analysis of why this problem was forgotten"
+              className="rounded-lg px-2.5 py-1.5 text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] cursor-pointer"
+              title="See why this problem slipped from memory"
             >
-              <Brain size={14} />
-              <span>Why did I forget?</span>
+              Why did I forget?
             </button>
-
+            {isTracerEnabled && (
+              <Link href="/tracer" className="rounded-lg px-2.5 py-1.5 text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]">
+                Tracer
+              </Link>
+            )}
+            {problem.link && (
+              <a
+                href={problem.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+              >
+                LeetCode <ExternalLink size={12} />
+              </a>
+            )}
             <button
               onClick={() => {
-                soundEffects.playToggle();
                 const next = !focusMode;
                 setFocusMode(next);
                 if (next) {
@@ -378,28 +362,16 @@ export default function ProblemSolvePage() {
                 }
               }}
               aria-pressed={focusMode}
-              className={`flex items-center gap-2 px-4 py-1.5 rounded-xl transition-all text-xs font-bold border cursor-pointer ${
+              title="Hide the description and tools"
+              className={`ml-1 flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 cursor-pointer ${
                 focusMode
-                  ? "bg-[var(--accent-primary)] text-black border-[var(--accent-primary)] shadow-md"
-                  : "bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] border-[var(--border-subtle)]"
+                  ? "border-[var(--accent-primary)] text-[var(--accent-primary)]"
+                  : "border-[var(--border-medium)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               }`}
             >
-              {focusMode ? <Minimize2 size={14} /> : <Focus size={14} />}
-              <span>{focusMode ? "Exit Focus" : "Focus Mode"}</span>
+              {focusMode ? <Minimize2 size={13} /> : <Focus size={13} />}
+              {focusMode ? "Exit focus" : "Focus"}
             </button>
-
-            {problem.link && (
-              <a
-                href={problem.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Open problem on LeetCode"
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded-xl border border-[var(--border-subtle)] transition-colors text-xs font-bold"
-              >
-                <ExternalLink size={13} />
-                <span>LeetCode</span>
-              </a>
-            )}
           </div>
         </div>
       </div>
@@ -419,7 +391,7 @@ export default function ProblemSolvePage() {
               style={{ width: `calc(${leftPanelWidth}% - 2px)` }}
             >
               <div
-                className="prose prose-invert prose-sm max-w-none text-[var(--text-secondary)] leading-relaxed"
+                className="prose prose-sm prose-theme max-w-none leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: sanitizeHtml(problemDetails?.content || "<p>Loading problem description...</p>") }}
               />
             </div>
@@ -444,108 +416,37 @@ export default function ProblemSolvePage() {
                 : { width: `calc(${100 - leftPanelWidth}% - 2px)` }
             }
           >
-            {/* Tab Navigation */}
+            {/* Tabs */}
             {!focusMode && (
-              <div
-                role="tablist"
-                aria-label="Problem workspace tabs"
-                className="flex flex-wrap gap-2 border-b border-[var(--border-subtle)] pb-4"
-              >
-                <button
-                  onClick={() => {
-                    soundEffects.playClick();
-                    setActiveTab("solve");
-                  }}
-                  role="tab"
-                  aria-selected={activeTab === "solve"}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    activeTab === "solve"
-                      ? "bg-[var(--accent-primary)] text-black shadow-md"
-                      : "bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]"
-                  }`}
-                >
-                  <Code2 size={15} />
-                  <span>Code Editor</span>
-                </button>
-                {isTracerEnabled && (
+              <div role="tablist" aria-label="Workspace" className="-mx-1 flex gap-5 overflow-x-auto border-b border-[var(--border-subtle)] px-1 no-scrollbar">
+                {([
+                  ["solve", "Code"],
+                  ...(isTracerEnabled ? ([["trace", "Trace"]] as const) : []),
+                  ["hints", "Hints"],
+                  ["architect", "Review my code"],
+                  ["notes", "Notes"],
+                ] as const).map(([id, label]) => (
                   <button
-                    onClick={() => {
-                      soundEffects.playClick();
-                      setActiveTab("trace");
-                    }}
+                    key={id}
                     role="tab"
-                    aria-selected={activeTab === "trace"}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                      activeTab === "trace"
-                        ? "bg-cyan-500 text-black font-bold shadow-md"
-                        : "bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]"
+                    aria-selected={activeTab === id}
+                    onClick={() => setActiveTab(id as typeof activeTab)}
+                    className={`-mb-px shrink-0 border-b-2 pb-2.5 text-sm transition-colors cursor-pointer ${
+                      activeTab === id
+                        ? "border-[var(--accent-primary)] font-medium text-[var(--text-primary)]"
+                        : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                     }`}
                   >
-                    <Activity size={15} />
-                    <span>AlgoTracer 2.0</span>
+                    {label}
                   </button>
-                )}
-                <button
-                  onClick={() => {
-                    soundEffects.playClick();
-                    setActiveTab("hints");
-                  }}
-                  role="tab"
-                  aria-selected={activeTab === "hints"}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    activeTab === "hints"
-                      ? "bg-[var(--accent-primary)] text-black shadow-md"
-                      : "bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]"
-                  }`}
-                >
-                  <Sparkles size={15} />
-                  <span>AI Hints</span>
-                </button>
-                <button
-                  onClick={() => {
-                    soundEffects.playClick();
-                    setActiveTab("architect")}
-                  }
-                  role="tab"
-                  aria-selected={activeTab === "architect"}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    activeTab === "architect"
-                      ? "bg-[var(--accent-primary)] text-black shadow-md"
-                      : "bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]"
-                  }`}
-                >
-                  <TrendingUp size={15} />
-                  <span>Code Review</span>
-                </button>
-                <button
-                  onClick={() => {
-                    soundEffects.playClick();
-                    setActiveTab("notes");
-                  }}
-                  role="tab"
-                  aria-selected={activeTab === "notes"}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    activeTab === "notes"
-                      ? "bg-[var(--accent-primary)] text-black shadow-md"
-                      : "bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]"
-                  }`}
-                >
-                  <BookOpen size={15} />
-                  <span>Notes</span>
-                </button>
+                ))}
               </div>
             )}
 
             {focusMode && (
-              <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] px-4 py-3">
-                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] font-mono">
-                  Zen Focus Session
-                </p>
-                <p className="text-sm text-[var(--text-secondary)] mt-1">
-                  Distraction-free coding mode is active. Session elapsed:{" "}
-                  {formatElapsed(elapsedSeconds)}. Press <kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-secondary)] border border-[var(--border-subtle)] font-mono text-xs">Esc</kbd> to exit.
-                </p>
-              </div>
+              <p className="text-xs text-[var(--text-muted)]">
+                Focus mode. Press <kbd className="rounded border border-[var(--border-subtle)] px-1 font-mono">Esc</kbd> to bring the description back.
+              </p>
             )}
 
             {/* Tab Content */}
