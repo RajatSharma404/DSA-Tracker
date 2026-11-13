@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      :root { color-scheme: dark; }
+      body {
+        margin: 0;
+        width: 300px;
+        font: 13px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #0b0d14;
+        color: #e5e7eb;
+      }
+      header {
+        padding: 14px 16px;
+        background: linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(168, 85, 247, 0.18));
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      h1 { margin: 0; font-size: 14px; letter-spacing: 0.02em; }
+      .ver { color: #94a3b8; font-size: 11px; }
+      ul { list-style: none; margin: 0; padding: 10px 16px; }
+      li { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; }
+      .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+      .ok { background: #10b981; box-shadow: 0 0 8px #10b981; }
+      .warn { background: #f59e0b; }
+      .bad { background: #ef4444; }
+      .muted { color: #94a3b8; font-size: 12px; }
+      .actions { padding: 0 16px 14px; display: flex; gap: 8px; }
+      button {
+        flex: 1;
+        padding: 8px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.05);
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+      }
+      button:hover { background: rgba(255, 255, 255, 0.1); }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>DSA Pro Live Sync</h1>
+      <div class="ver" id="version"></div>
+    </header>
+    <ul>
+      <li><span>LeetCode</span><span id="lc" class="muted">…</span></li>
+      <li><span>Paired with tracker</span><span id="paired" class="muted">…</span></li>
+      <li><span>Pending syncs</span><span id="queue" class="muted">…</span></li>
+      <li><span>Last sync</span><span id="last" class="muted">…</span></li>
+    </ul>
+    <div class="actions">
+      <button id="retry">Retry pending</button>
+      <button id="leetcode">Open LeetCode</button>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>

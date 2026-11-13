@@ -1,8 +1,26 @@
+/*
+ * DSA Pro Live Sync — isolated-world content script.
+ *
+ * On DSA Tracker pages: bridges DOM CustomEvents from the web app to the
+ * background service worker (request/response with requestId).
+ * On LeetCode pages: relays verdicts captured by leetcode-hook.js to the
+ * background worker and shows a small confirmation toast.
+ */
 const APP_SOURCE = "DSA_TRACKER_APP";
 const EXT_SOURCE = "DSA_TRACKER_EXTENSION";
+const HOOK_SOURCE = "DSA_TRACKER_LC_HOOK";
 const REQUEST_EVENT = "DSA_TRACKER_EXTENSION_REQUEST";
 const REQUEST_DOM_EVENT = "DSA_TRACKER_EXTENSION_REQUEST_DOM";
 const RESPONSE_DOM_EVENT = "DSA_TRACKER_EXTENSION_RESPONSE_DOM";
+const READY_DOM_EVENT = "DSA_TRACKER_EXTENSION_READY";
+const ALLOWED_APP_ACTIONS = new Set([
+  "PING",
+  "PAIR",
+  "SUBMIT_TO_LEETCODE",
+  "FETCH_LEETCODE_SNAPSHOT",
+]);
+
+const isLeetCode = /(^|\.)leetcode\.com$/.test(window.location.hostname);
 const inFlightRequestIds = new Set();
 
 const safeRuntimeSendMessage = (message, callback) => {
@@ -10,11 +28,18 @@ const safeRuntimeSendMessage = (message, callback) => {
     if (!chrome?.runtime?.id) {
       callback({
         ok: false,
-        error: "Extension runtime unavailable. Reload extension and page.",
+        error: "Extension was updated or reloaded. Refresh this page.",
       });
       return;
     }
-    chrome.runtime.sendMessage(message, callback);
+    chrome.runtime.sendMessage(message, (response) => {
+      const lastError = chrome.runtime.lastError;
+      if (lastError) {
+        callback({ ok: false, error: lastError.message });
+        return;
+      }
+      callback(response || { ok: false, error: "Empty response from extension" });
+    });
   } catch (error) {
     callback({
       ok: false,
@@ -23,165 +48,108 @@ const safeRuntimeSendMessage = (message, callback) => {
   }
 };
 
-const isTrustedOrigin = (origin) => {
-  if (!origin) return false;
-  try {
-    const url = new URL(origin);
-    const isLocalhost =
-      url.hostname === "localhost" || url.hostname === "127.0.0.1";
-    return (
-      isLocalhost ||
-      url.hostname === "leetcode.com" ||
-      url.hostname.endsWith(".leetcode.com")
-    );
-  } catch {
-    return false;
-  }
-};
-
-function sendResponse(requestId, ok, payload, error) {
-  const targetOrigin = isTrustedOrigin(window.location.origin)
-    ? window.location.origin
-    : window.location.origin;
-
-  window.postMessage(
-    {
-      source: EXT_SOURCE,
-      requestId,
-      ok,
-      payload,
-      error,
-    },
-    targetOrigin,
-  );
-
+const respondToApp = (requestId, response) => {
   document.dispatchEvent(
     new CustomEvent(RESPONSE_DOM_EVENT, {
       detail: {
         source: EXT_SOURCE,
         requestId,
-        ok,
-        payload,
-        error,
+        ok: Boolean(response?.ok),
+        payload: response?.payload ?? null,
+        error: response?.ok ? null : response?.error || "Request failed",
       },
     }),
   );
-}
+};
 
-const forwardRequestToBackground = (data) => {
-  if (!data?.requestId || !data?.action) return;
-
-  if (!data || data.source !== APP_SOURCE || data.type !== REQUEST_EVENT)
+const forwardAppRequest = (detail) => {
+  const { requestId, action, payload } = detail || {};
+  if (typeof requestId !== "string" || !requestId) return;
+  if (!ALLOWED_APP_ACTIONS.has(action)) {
+    respondToApp(requestId, { ok: false, error: `Unsupported action: ${action}` });
     return;
-  if (inFlightRequestIds.has(data.requestId)) return;
-
-  inFlightRequestIds.add(data.requestId);
+  }
+  if (inFlightRequestIds.has(requestId)) return;
+  inFlightRequestIds.add(requestId);
 
   safeRuntimeSendMessage(
-    {
-      type: data.action,
-      payload: data.payload || {},
-    },
+    { type: action, payload: payload && typeof payload === "object" ? payload : {} },
     (response) => {
-      const runtimeLastError = chrome?.runtime?.lastError;
-      if (runtimeLastError) {
-        sendResponse(data.requestId, false, null, runtimeLastError.message);
-        inFlightRequestIds.delete(data.requestId);
-        return;
-      }
-      if (!response?.ok) {
-        sendResponse(
-          data.requestId,
-          false,
-          null,
-          response?.error || "Request failed",
-        );
-        inFlightRequestIds.delete(data.requestId);
-        return;
-      }
-      sendResponse(data.requestId, true, response.payload, null);
-      inFlightRequestIds.delete(data.requestId);
+      inFlightRequestIds.delete(requestId);
+      respondToApp(requestId, response);
     },
   );
 };
 
-window.addEventListener("message", (event) => {
-  if (event.source !== window) return;
-  if (!isTrustedOrigin(event.origin)) return;
-  const data = event.data;
-  forwardRequestToBackground(data);
-});
-
-document.addEventListener(REQUEST_DOM_EVENT, (event) => {
-  const customEvent = event;
-  const detail = customEvent.detail || {};
-  forwardRequestToBackground({
-    source: APP_SOURCE,
-    type: REQUEST_EVENT,
-    requestId: detail.requestId,
-    action: detail.action,
-    payload: detail.payload,
+if (!isLeetCode) {
+  // ---------------- DSA Tracker web app bridge ----------------
+  document.addEventListener(REQUEST_DOM_EVENT, (event) => {
+    const detail = event.detail || {};
+    if (detail.source !== APP_SOURCE || detail.type !== REQUEST_EVENT) return;
+    forwardAppRequest(detail);
   });
-});
 
-// Existing auto-sync behavior for accepted submissions on LeetCode pages.
-if (window.location.hostname.includes("leetcode.com")) {
-  let hasSynced = false;
-
-  function checkAccepted() {
-    if (hasSynced) return;
-
-    const path = window.location.pathname;
-    if (!path.includes("/problems/")) return;
-
-    const parts = path.split("/");
-    const slugIndex = parts.indexOf("problems") + 1;
-    if (slugIndex >= parts.length) return;
-    const slug = parts[slugIndex];
-
-    const candidateNodes = [
-      document.querySelector('[data-e2e-locator="submission-result"]'),
-      document.querySelector('[data-cy="submission-result"]'),
-      document.querySelector('[class*="result"]'),
-      document.querySelector('[class*="status"]'),
-    ].filter(Boolean);
-
-    const acceptedFromCandidates = candidateNodes.some((node) => {
-      const text = (node.textContent || "").trim().toLowerCase();
-      return text.includes("accepted");
-    });
-
-    const acceptedFromTextScan = Array.from(
-      document.querySelectorAll("span, div, p, strong"),
-    ).some((el) => {
-      const text = (el.textContent || "").trim().toLowerCase();
-      if (text !== "accepted" && !text.includes("accepted")) return false;
-
-      const color = getComputedStyle(el).color;
-      return (
-        color === "rgb(44, 181, 93)" ||
-        color === "rgb(0, 175, 155)" ||
-        color === "rgb(46, 160, 67)"
-      );
-    });
-
-    if (acceptedFromCandidates || acceptedFromTextScan) {
-      hasSynced = true;
-      safeRuntimeSendMessage(
-        { type: "SYNC_PROBLEM", problemSlug: slug },
-        () => {},
-      );
+  // Let the app know the bridge is live without waiting for a ping timeout.
+  const announce = () =>
+    document.dispatchEvent(
+      new CustomEvent(READY_DOM_EVENT, {
+        detail: { source: EXT_SOURCE, version: chrome.runtime.getManifest().version },
+      }),
+    );
+  announce();
+  document.addEventListener("DOMContentLoaded", announce, { once: true });
+  document.documentElement.setAttribute(
+    "data-dsa-extension",
+    chrome.runtime.getManifest().version,
+  );
+} else {
+  // ---------------- LeetCode verdict relay ----------------
+  const showToast = (text, tone = "ok") => {
+    try {
+      const el = document.createElement("div");
+      el.textContent = text;
+      el.style.cssText = [
+        "position:fixed",
+        "right:20px",
+        "bottom:20px",
+        "z-index:2147483647",
+        "padding:10px 14px",
+        "border-radius:12px",
+        "font:600 13px/1.3 system-ui,-apple-system,sans-serif",
+        "color:#fff",
+        `background:${tone === "ok" ? "linear-gradient(135deg,#059669,#10b981)" : "linear-gradient(135deg,#b45309,#f59e0b)"}`,
+        "box-shadow:0 10px 30px rgba(0,0,0,.35)",
+        "opacity:0",
+        "transform:translateY(8px)",
+        "transition:opacity .25s ease,transform .25s ease",
+      ].join(";");
+      (document.body || document.documentElement).appendChild(el);
+      requestAnimationFrame(() => {
+        el.style.opacity = "1";
+        el.style.transform = "translateY(0)";
+      });
+      setTimeout(() => {
+        el.style.opacity = "0";
+        setTimeout(() => el.remove(), 300);
+      }, 3800);
+    } catch {
+      // ignore
     }
-  }
+  };
 
-  setInterval(checkAccepted, 1500);
+  window.addEventListener("message", (event) => {
+    if (event.source !== window || event.origin !== window.location.origin) return;
+    const data = event.data;
+    if (!data || data.source !== HOOK_SOURCE || data.type !== "ACCEPTED") return;
 
-  let lastUrl = window.location.href;
-  new MutationObserver(() => {
-    const url = window.location.href;
-    if (url !== lastUrl) {
-      lastUrl = url;
-      hasSynced = false;
-    }
-  }).observe(document, { subtree: true, childList: true });
+    safeRuntimeSendMessage({ type: "REPORT_ACCEPTED", payload: data.data }, (response) => {
+      if (response?.ok) {
+        showToast(`✓ Synced "${data.data.title || data.data.slug}" to DSA Tracker`);
+      } else if (response?.payload?.queued) {
+        showToast("Accepted! Will sync to DSA Tracker when it's reachable.", "warn");
+      } else if (response?.error) {
+        showToast(`DSA Tracker sync: ${response.error}`, "warn");
+      }
+    });
+  });
 }
