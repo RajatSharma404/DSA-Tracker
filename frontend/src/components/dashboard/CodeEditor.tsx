@@ -145,7 +145,7 @@ export function CodeEditor({
   return (
     <div
       ref={rootRef}
-      className={`flex ${isVertical ? "flex-col" : "w-full"} border border-white/10 rounded-4xl overflow-hidden bg-[#0a0a0a] text-white ${className ?? "h-125"}`}
+      className={`flex ${isVertical ? "flex-col" : "w-full"} border border-white/10 rounded-4xl overflow-hidden bg-[var(--bg-secondary)] text-white ${className ?? "h-125"}`}
     >
       {/* Editor pane */}
       <div
@@ -249,7 +249,7 @@ export function CodeEditor({
 
       {/* Output pane */}
       <div
-        className={`${isVertical ? "" : "w-[32%]"} flex flex-col bg-[#050505] shrink-0`}
+        className={`${isVertical ? "" : "w-[32%]"} flex flex-col bg-[var(--bg-secondary)] shrink-0`}
         style={isVertical ? { height: `${100 - editorRatio}%` } : undefined}
       >
         <div className="px-4 py-3 border-b border-white/5 flex items-center gap-2 shrink-0">

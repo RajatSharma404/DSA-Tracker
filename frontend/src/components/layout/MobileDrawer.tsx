@@ -5,81 +5,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import {
-  LayoutDashboard,
-  GraduationCap,
-  Network,
-  Swords,
-  Activity,
-  BookOpen,
-  Target,
-  Zap,
-  RotateCcw,
-  Sparkles,
-  Building2,
-  Brain,
-  Search,
-  BarChart3,
-  Trophy,
-  FileText,
-  Puzzle,
-  Library,
-  Settings,
   ShieldCheck,
   LogOut,
   X,
-  type LucideIcon,
 } from "lucide-react";
 import { ThemeSelector } from "@/components/ui/ThemeSelector";
+import { NAV_SECTIONS } from "@/lib/navigation";
 
-type NavItem = {
-  icon: LucideIcon;
-  label: string;
-  href: string;
-};
-
-const navSections: Array<{ title: string; items: NavItem[] }> = [
-  {
-    title: "Practice",
-    items: [
-      { icon: LayoutDashboard, label: "Dashboard", href: "/" },
-      { icon: GraduationCap, label: "Learn", href: "/learn" },
-      { icon: Network, label: "Visual Roadmap", href: "/roadmap" },
-      { icon: Swords, label: "1v1 PvP Battles", href: "/pvp" },
-      { icon: Activity, label: "AlgoTracer 2.0", href: "/tracer" },
-      { icon: BookOpen, label: "Topics", href: "/topics" },
-      // [PREVIOUS LOGIC - COMMENTED OUT: DSA CITY FEATURE REMOVAL]
-      // { icon: Target, label: "DSA City", href: "/city" },
-      { icon: Zap, label: "The Arena", href: "/challenge" },
-      { icon: Target, label: "Mock Interviews", href: "/interviews" },
-    ],
-  },
-  {
-    title: "Review",
-    items: [
-      { icon: RotateCcw, label: "Review Queue", href: "/review" },
-      { icon: Sparkles, label: "Flashcards SM-2", href: "/flashcards" },
-      { icon: Building2, label: "Company Tracks", href: "/company-tracks" },
-      { icon: Brain, label: "AI Recommend", href: "/recommendations" },
-      { icon: Search, label: "Explore Problems", href: "/search" },
-    ],
-  },
-  {
-    title: "Analyze",
-    items: [
-      { icon: BarChart3, label: "Analytics", href: "/analytics" },
-      { icon: Trophy, label: "Achievements", href: "/achievements" },
-      { icon: FileText, label: "Weekly Report", href: "/weekly-report" },
-    ],
-  },
-  {
-    title: "Manage",
-    items: [
-      { icon: Puzzle, label: "Extension Hub", href: "/extension" },
-      { icon: Library, label: "The Vault", href: "/vault" },
-      { icon: Settings, label: "Settings", href: "/settings" },
-    ],
-  },
-];
+const navSections = NAV_SECTIONS;
 
 interface MobileDrawerProps {
   isOpen: boolean;

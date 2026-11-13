@@ -230,7 +230,7 @@ export default function AchievementsPage() {
               className={`p-6 rounded-3xl border transition-all duration-300 flex flex-col justify-between space-y-4 shadow-md ${
                 isUnlocked
                   ? "bg-linear-to-b from-[#161208] via-[#0d0d12] to-[#070912] border-amber-500/30 hover:border-amber-500/50 shadow-amber-500/5"
-                  : "bg-[#0a0a0f] border-white/5 opacity-75 hover:opacity-100"
+                  : "bg-[var(--bg-secondary)] border-white/5 opacity-75 hover:opacity-100"
               }`}
             >
               <div className="space-y-3">

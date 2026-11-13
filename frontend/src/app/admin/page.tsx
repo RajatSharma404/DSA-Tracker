@@ -74,7 +74,7 @@ export default function AdminDashboard() {
           <Link
             key={module.href}
             href={module.href}
-            className="group p-6 rounded-2xl bg-[#111] border border-[#222] hover:border-[#333] transition-all"
+            className="group p-6 rounded-2xl bg-[var(--bg-tertiary)] border border-[#222] hover:border-[#333] transition-all"
           >
             <div
               className={`h-12 w-12 rounded-xl ${module.bgColor} ${module.color} flex items-center justify-center mb-6`}
@@ -113,7 +113,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="p-6 rounded-2xl bg-[#111] border border-[#222]">
+      <div className="p-6 rounded-2xl bg-[var(--bg-tertiary)] border border-[#222]">
         <div className="flex items-center gap-3 mb-2">
           <DatabaseZap size={20} className="text-green-400" />
           <h2 className="text-lg font-bold">Seed Roadmap Data</h2>

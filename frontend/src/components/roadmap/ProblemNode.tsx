@@ -75,7 +75,7 @@ const ProblemNode = ({ data }: ProblemNodeProps) => {
               ? "bg-emerald-950/20 border-emerald-500/30 hover:border-emerald-500/60"
               : isDoing
                 ? "bg-blue-950/20 border-blue-500/30 hover:border-blue-500/60"
-                : "bg-[#0e0e16] border-white/10 hover:border-white/20"
+                : "bg-[var(--bg-secondary)] border-white/10 hover:border-white/20"
         }
         hover:-translate-y-0.5 hover:scale-[1.01]
       `}

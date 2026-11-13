@@ -69,7 +69,7 @@ export default function ActivityHeatmap({ data }: ActivityHeatmapProps) {
   }, [data]);
 
   const getColor = (count: number) => {
-    if (count === 0) return "bg-[#1a1a1a]";
+    if (count === 0) return "bg-[var(--bg-tertiary)]";
     if (count <= 2) return "bg-blue-900/40";
     if (count <= 4) return "bg-blue-700/60";
     if (count <= 6) return "bg-blue-500/80";

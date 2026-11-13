@@ -45,7 +45,7 @@ export default function SkillRadar() {
 
   if (loading) {
     return (
-      <div className="h-75 w-full flex items-center justify-center bg-[#0d0d0d] border border-white/5 rounded-4xl">
+      <div className="h-75 w-full flex items-center justify-center bg-[var(--bg-card)] border border-white/5 rounded-4xl">
         <Loader2 className="animate-spin text-blue-500" />
       </div>
     );
@@ -57,7 +57,7 @@ export default function SkillRadar() {
       : 0;
 
   return (
-    <div className="relative p-8 rounded-4xl bg-[#0d0d0d] border border-white/5 overflow-hidden group">
+    <div className="relative p-8 rounded-4xl bg-[var(--bg-card)] border border-white/5 overflow-hidden group">
       {/* Background Glow */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-[60px] rounded-full pointer-events-none -mr-16 -mt-16 group-hover:bg-blue-500/20 transition-all duration-700" />
 

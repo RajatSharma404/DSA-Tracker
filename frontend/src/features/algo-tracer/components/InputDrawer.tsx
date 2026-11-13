@@ -87,7 +87,7 @@ export function InputDrawer({
   };
 
   return (
-    <div className="w-full rounded-2xl bg-[#0e0e1a] border border-cyan-500/30 p-3 sm:p-4 shadow-2xl animate-in slide-in-from-bottom duration-200 shrink-0">
+    <div className="w-full rounded-2xl bg-[var(--bg-secondary)] border border-cyan-500/30 p-3 sm:p-4 shadow-2xl animate-in slide-in-from-bottom duration-200 shrink-0">
       <div className="flex items-center justify-between border-b border-white/5 pb-2 mb-2.5">
         <div className="flex items-center gap-2 text-xs font-mono font-bold text-cyan-400 uppercase tracking-wider">
           <Sliders size={13} />

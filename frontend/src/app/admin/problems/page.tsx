@@ -134,7 +134,7 @@ export default function AdminProblems() {
           <select
             value={selectedTopicId}
             onChange={(e) => setSelectedTopicId(e.target.value)}
-            className="bg-[#111] border border-[#222] rounded-xl px-4 py-2 text-sm focus:border-blue-500 outline-none"
+            className="bg-[var(--bg-tertiary)] border border-[#222] rounded-xl px-4 py-2 text-sm focus:border-blue-500 outline-none"
           >
             {topics.map((t) => (
               <option key={t.id} value={t.id}>
@@ -160,7 +160,7 @@ export default function AdminProblems() {
       {(isAdding || editingId) && (
         <form
           onSubmit={handleSubmit}
-          className="p-6 bg-[#111] border border-purple-500/30 rounded-2xl space-y-4 animate-in fade-in slide-in-from-top-4 duration-300"
+          className="p-6 bg-[var(--bg-tertiary)] border border-purple-500/30 rounded-2xl space-y-4 animate-in fade-in slide-in-from-top-4 duration-300"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -172,7 +172,7 @@ export default function AdminProblems() {
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
                 }
-                className="w-full bg-[#050505] border border-[#222] rounded-xl px-4 py-3 focus:border-purple-500 outline-none"
+                className="w-full bg-[var(--bg-secondary)] border border-[#222] rounded-xl px-4 py-3 focus:border-purple-500 outline-none"
                 placeholder="e.g. Two Sum"
                 required
               />
@@ -189,7 +189,7 @@ export default function AdminProblems() {
                     difficulty: e.target.value as any,
                   })
                 }
-                className="w-full bg-[#050505] border border-[#222] rounded-xl px-4 py-3 focus:border-purple-500 outline-none"
+                className="w-full bg-[var(--bg-secondary)] border border-[#222] rounded-xl px-4 py-3 focus:border-purple-500 outline-none"
               >
                 <option value="EASY">Easy</option>
                 <option value="MEDIUM">Medium</option>
@@ -206,7 +206,7 @@ export default function AdminProblems() {
               onChange={(e) =>
                 setFormData({ ...formData, link: e.target.value })
               }
-              className="w-full bg-[#050505] border border-[#222] rounded-xl px-4 py-3 focus:border-purple-500 outline-none"
+              className="w-full bg-[var(--bg-secondary)] border border-[#222] rounded-xl px-4 py-3 focus:border-purple-500 outline-none"
               placeholder="https://leetcode.com/problems/..."
             />
           </div>
@@ -232,7 +232,7 @@ export default function AdminProblems() {
         </form>
       )}
 
-      <div className="bg-[#111] border border-[#222] rounded-2xl overflow-hidden">
+      <div className="bg-[var(--bg-tertiary)] border border-[#222] rounded-2xl overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-[#222] bg-white/5">

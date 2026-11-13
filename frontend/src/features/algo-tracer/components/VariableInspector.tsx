@@ -13,7 +13,7 @@ export function VariableInspector({ step, className = "" }: VariableInspectorPro
 
   return (
     <div
-      className={`rounded-2xl bg-[#090912] border border-white/5 p-2.5 flex flex-col shadow-lg overflow-hidden shrink-0 ${className}`}
+      className={`rounded-2xl bg-[var(--bg-secondary)] border border-white/5 p-2.5 flex flex-col shadow-lg overflow-hidden shrink-0 ${className}`}
     >
       <div className="flex items-center justify-between border-b border-white/5 pb-1 mb-1.5 shrink-0">
         <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-300 uppercase tracking-wider">

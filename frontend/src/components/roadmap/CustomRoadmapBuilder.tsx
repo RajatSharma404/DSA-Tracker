@@ -99,7 +99,7 @@ function RoadmapBuilderNode({
 
   return (
     <div
-      className={`group relative min-w-52.5 rounded-[1.2rem] border bg-[#0c0c0c] px-4 py-3 backdrop-blur-xl transition-all duration-200 ${commonBorder}`}
+      className={`group relative min-w-52.5 rounded-[1.2rem] border bg-[var(--bg-secondary)] px-4 py-3 backdrop-blur-xl transition-all duration-200 ${commonBorder}`}
       style={{
         boxShadow: `0 0 0 1px ${data.accent}1f, 0 22px 45px rgba(0,0,0,0.55)`,
       }}
@@ -791,7 +791,7 @@ function BuilderWorkspace() {
 
   if (loading) {
     return (
-      <div className="flex h-[70vh] items-center justify-center rounded-4xl border border-white/5 bg-[#050505]">
+      <div className="flex h-[70vh] items-center justify-center rounded-4xl border border-white/5 bg-[var(--bg-secondary)]">
         <div className="flex items-center gap-3 text-sm font-medium text-gray-400">
           <Loader2 className="animate-spin" size={16} />
           Loading custom roadmap builder...
@@ -843,7 +843,7 @@ function BuilderWorkspace() {
           ref={canvasRef}
           onDrop={handleDrop}
           onDragOver={handleDragOver}
-          className="relative min-h-[72vh] overflow-hidden rounded-4xl border border-white/5 bg-[#050505] shadow-[0_30px_120px_rgba(0,0,0,0.45)]"
+          className="relative min-h-[72vh] overflow-hidden rounded-4xl border border-white/5 bg-[var(--bg-secondary)] shadow-[0_30px_120px_rgba(0,0,0,0.45)]"
         >
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(59,130,246,0.14),transparent_30%),linear-gradient(180deg,rgba(255,255,255,0.03),transparent_26%)]" />
           <div
@@ -937,7 +937,7 @@ function BuilderWorkspace() {
           </ReactFlow>
         </div>
 
-        <div className="flex min-h-[72vh] flex-col overflow-hidden rounded-4xl border border-white/5 bg-[#0c0c0c] shadow-[0_30px_120px_rgba(0,0,0,0.4)]">
+        <div className="flex min-h-[72vh] flex-col overflow-hidden rounded-4xl border border-white/5 bg-[var(--bg-secondary)] shadow-[0_30px_120px_rgba(0,0,0,0.4)]">
           <div className="flex items-center gap-2 border-b border-white/5 p-3">
             {[
               { id: "nodes", label: "Nodes", icon: Workflow },

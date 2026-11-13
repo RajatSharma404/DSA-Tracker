@@ -68,7 +68,7 @@ export function StructuredReport({ data }: { data: StructuredReview }) {
       </div>
 
       {/* Efficiency Section */}
-      <div className="p-5 bg-[#0a0a0f] border border-white/5 rounded-2xl space-y-4">
+      <div className="p-5 bg-[var(--bg-secondary)] border border-white/5 rounded-2xl space-y-4">
         <div className="flex items-center gap-2 mb-1">
           <Zap size={14} className="text-blue-400" />
           <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
@@ -133,7 +133,7 @@ export function StructuredReport({ data }: { data: StructuredReview }) {
       </div>
 
       {/* Logic & Edge Cases */}
-      <div className="p-5 bg-[#0a0a0f] border border-white/5 rounded-2xl space-y-4">
+      <div className="p-5 bg-[var(--bg-secondary)] border border-white/5 rounded-2xl space-y-4">
         <div className="flex items-center gap-2 mb-1">
           <ShieldCheck size={14} className="text-indigo-400" />
           <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
@@ -188,7 +188,7 @@ export function StructuredReport({ data }: { data: StructuredReview }) {
 
       {/* Clean Code Suggestions */}
       {data.cleanCode && data.cleanCode.length > 0 && (
-        <div className="p-5 bg-[#0a0a0f] border border-white/5 rounded-2xl space-y-4">
+        <div className="p-5 bg-[var(--bg-secondary)] border border-white/5 rounded-2xl space-y-4">
           <div className="flex items-center gap-2 mb-1">
             <Code size={14} className="text-pink-400" />
             <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">

@@ -284,7 +284,7 @@ const TopicCard = memo(function TopicCard({
       ref={cardRef}
       onMouseMove={handleCardMouseMove}
       onMouseLeave={resetCardTilt}
-      className="relative bg-[#111] border border-[#222] rounded-xl overflow-hidden transition-all duration-300 will-change-transform"
+      className="relative bg-[var(--bg-tertiary)] border border-[#222] rounded-xl overflow-hidden transition-all duration-300 will-change-transform"
       style={{
         transform:
           "var(--card-transform, perspective(2200px) rotateX(0deg) rotateY(0deg) translateZ(0px))",
@@ -311,10 +311,10 @@ const TopicCard = memo(function TopicCard({
             onToggle();
           }
         }}
-        className="relative z-10 flex items-center justify-between p-5 cursor-pointer hover:bg-[#1a1a1a] transition-colors"
+        className="relative z-10 flex items-center justify-between p-5 cursor-pointer hover:bg-[var(--bg-tertiary)] transition-colors"
       >
         <div className="flex items-center gap-4">
-          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#222] text-sm font-medium text-gray-400 shadow-inner shadow-white/10 transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-0.5">
+          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[var(--bg-tertiary)] text-sm font-medium text-gray-400 shadow-inner shadow-white/10 transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-0.5">
             {index + 1}
           </div>
           <div>
@@ -335,7 +335,7 @@ const TopicCard = memo(function TopicCard({
                 {topic.progressPercentage}%
               </span>
             </div>
-            <div className="w-full h-1.5 bg-[#222] rounded-full mt-2 hidden sm:block max-w-[140px] self-end">
+            <div className="w-full h-1.5 bg-[var(--bg-tertiary)] rounded-full mt-2 hidden sm:block max-w-[140px] self-end">
               <div
                 className="h-full bg-white transition-all duration-500 rounded-full"
                 style={{ width: `${topic.progressPercentage}%` }}
@@ -353,7 +353,7 @@ const TopicCard = memo(function TopicCard({
       </div>
 
       {isExpanded && (
-        <div className="relative border-t border-[#222] bg-[#0a0a0a] p-2 sm:p-4 space-y-4 overflow-hidden min-w-0 animate-in fade-in duration-400">
+        <div className="relative border-t border-[#222] bg-[var(--bg-secondary)] p-2 sm:p-4 space-y-4 overflow-hidden min-w-0 animate-in fade-in duration-400">
           <div className="pointer-events-none absolute -top-20 -left-16 w-56 h-56 rounded-full bg-blue-500/5 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-20 -right-16 w-56 h-56 rounded-full bg-emerald-500/5 blur-3xl" />
           <TopicStudyGuide topicName={topic.name} />
@@ -370,8 +370,8 @@ const TopicCard = memo(function TopicCard({
                   className={cn(
                     "relative overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-lg border border-transparent transition-all transform-gpu hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(0,0,0,0.35)]",
                     problem.status === "DONE"
-                      ? "bg-[#111]/50 opacity-70"
-                      : "bg-[#111] hover:border-[#333]",
+                      ? "bg-[var(--bg-tertiary)]/50 opacity-70"
+                      : "bg-[var(--bg-tertiary)] hover:border-[#333]",
                   )}
                 >
                   <div className="pointer-events-none absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.04),transparent_45%)]" />

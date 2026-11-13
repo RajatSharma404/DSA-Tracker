@@ -165,7 +165,7 @@ function renderBlock(block: LearnLessonDetail["blocks"][number]) {
       ? normalizeMultiline(content.markdown)
       : "";
   return (
-    <div className="rounded-2xl border border-white/10 bg-[#111] p-4">
+    <div className="rounded-2xl border border-white/10 bg-[var(--bg-tertiary)] p-4">
       <div className="prose prose-invert prose-sm max-w-none prose-p:leading-relaxed prose-headings:mb-3 prose-p:mb-2 prose-li:my-0.5">
         <ReactMarkdown>{markdown}</ReactMarkdown>
       </div>
@@ -257,7 +257,7 @@ export default function LearnLessonPage() {
     return (
       <div className="w-full min-w-0 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_420px] animate-pulse">
         <section className="space-y-5">
-          <div className="rounded-3xl border border-white/10 bg-[#0d0d0d] p-6 space-y-4">
+          <div className="rounded-3xl border border-white/10 bg-[var(--bg-card)] p-6 space-y-4">
             <div className="h-3 w-44 rounded-full bg-white/5" />
             <div className="h-8 w-2/3 rounded-full bg-white/5" />
             <div className="h-4 w-full rounded-full bg-white/5" />
@@ -267,7 +267,7 @@ export default function LearnLessonPage() {
               <div className="h-8 w-28 rounded-full bg-white/5" />
             </div>
           </div>
-          <div className="rounded-3xl border border-white/10 bg-[#0d0d0d] p-6 space-y-4">
+          <div className="rounded-3xl border border-white/10 bg-[var(--bg-card)] p-6 space-y-4">
             <div className="h-5 w-48 rounded-full bg-white/5" />
             <div className="space-y-3">
               <div className="h-4 w-full rounded-full bg-white/5" />
@@ -277,7 +277,7 @@ export default function LearnLessonPage() {
             <div className="h-56 rounded-2xl bg-white/5" />
           </div>
         </section>
-        <aside className="space-y-4 rounded-3xl border border-white/10 bg-[#0d0d0d] p-5">
+        <aside className="space-y-4 rounded-3xl border border-white/10 bg-[var(--bg-card)] p-5">
           <div className="h-5 w-32 rounded-full bg-white/5" />
           <div className="space-y-3">
             <div className="h-24 rounded-2xl bg-white/5" />
@@ -300,7 +300,7 @@ export default function LearnLessonPage() {
   return (
     <div className="w-full min-w-0 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_420px]">
       <section className="space-y-5">
-        <div className="rounded-3xl border border-white/10 bg-[#0d0d0d] p-6">
+        <div className="rounded-3xl border border-white/10 bg-[var(--bg-card)] p-6">
           <p className="text-xs uppercase tracking-[0.2em] text-gray-500">
             {data.lesson.track.title} / {data.lesson.module.title}
           </p>
@@ -371,7 +371,7 @@ export default function LearnLessonPage() {
       </section>
 
       <aside className="space-y-4 lg:sticky lg:top-6 lg:h-fit">
-        <div className="rounded-3xl border border-white/10 bg-[#0d0d0d] p-5">
+        <div className="rounded-3xl border border-white/10 bg-[var(--bg-card)] p-5">
           <p className="text-xs font-bold uppercase tracking-widest text-gray-500">
             Module lessons
           </p>
@@ -400,7 +400,7 @@ export default function LearnLessonPage() {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-[#0d0d0d] p-5">
+        <div className="rounded-3xl border border-white/10 bg-[var(--bg-card)] p-5">
           <p className="text-xs font-bold uppercase tracking-widest text-gray-500">
             Practice questions
           </p>

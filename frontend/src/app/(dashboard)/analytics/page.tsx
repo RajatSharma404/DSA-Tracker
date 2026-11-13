@@ -178,7 +178,7 @@ int binarySearch(int arr[], int n, int target) {
 const CustomChartTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-[#12121a] p-3 shadow-2xl text-xs font-mono">
+      <div className="rounded-2xl border border-white/10 bg-[var(--bg-tertiary)] p-3 shadow-2xl text-xs font-mono">
         {label && (
           <p className="font-bold text-white mb-2 border-b border-white/10 pb-1">
             {label}

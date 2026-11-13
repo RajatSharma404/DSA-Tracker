@@ -48,7 +48,7 @@ export default function AIMentorHint({ problemId, problemTitle }: AIMentorHintPr
       </button>
 
       {isOpen && (
-        <div className="mt-4 p-5 bg-[#0f0a15] border border-purple-500/20 rounded-[1.5rem] animate-in slide-in-from-top-3 fade-in duration-500 shadow-xl overflow-hidden relative">
+        <div className="mt-4 p-5 bg-[var(--bg-secondary)] border border-purple-500/20 rounded-[1.5rem] animate-in slide-in-from-top-3 fade-in duration-500 shadow-xl overflow-hidden relative">
           <div className="absolute top-0 right-0 p-4 opacity-[0.03] pointer-events-none">
              <Sparkles size={60} className="text-purple-500" />
           </div>

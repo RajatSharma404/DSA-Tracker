@@ -105,7 +105,7 @@ export default function LoginPage() {
 
         {/* Main Card */}
         <div
-          className="w-full bg-[#0d0d0d] border border-white/10 p-10 rounded-[2.5rem] shadow-2xl backdrop-blur-xl"
+          className="w-full bg-[var(--bg-card)] border border-white/10 p-10 rounded-[2.5rem] shadow-2xl backdrop-blur-xl"
           data-scroll-reveal
         >
           <div className="space-y-8">
@@ -141,7 +141,7 @@ export default function LoginPage() {
                       <span className="w-full border-t border-white/10" />
                     </div>
                     <div className="relative flex justify-center">
-                      <span className="bg-[#0d0d0d] px-3 text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                      <span className="bg-[var(--bg-card)] px-3 text-[10px] font-bold uppercase tracking-widest text-gray-500">
                         or use email
                       </span>
                     </div>

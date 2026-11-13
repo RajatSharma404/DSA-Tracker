@@ -110,7 +110,7 @@ export default function ProblemNotes({ problemId }: ProblemNotesProps) {
         <div className="animate-in slide-in-from-top-2 fade-in duration-200">
           {/* Add Note Form */}
           {isAdding && (
-            <div className="p-3 bg-[#0c0c10] border border-white/10 rounded-xl mb-3">
+            <div className="p-3 bg-[var(--bg-secondary)] border border-white/10 rounded-xl mb-3">
               {/* Type Selector */}
               <div className="flex gap-1.5 mb-2">
                 {NOTE_TYPES.map(t => (

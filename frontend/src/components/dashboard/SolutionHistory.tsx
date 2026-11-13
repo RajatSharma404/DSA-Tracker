@@ -114,7 +114,7 @@ export function SolutionHistory({ problemId }: SolutionHistoryProps) {
         return (
           <div
             key={sol.id}
-            className={`rounded-xl border transition-all ${isExpanded ? "border-white/10 bg-[#0d0d0d]" : "border-white/5 bg-[#0a0a0a]"}`}
+            className={`rounded-xl border transition-all ${isExpanded ? "border-white/10 bg-[var(--bg-card)]" : "border-white/5 bg-[var(--bg-secondary)]"}`}
           >
             <button
               onClick={() => setExpandedId(isExpanded ? null : sol.id)}

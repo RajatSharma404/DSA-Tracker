@@ -70,7 +70,7 @@ export function InputConfigSection({
   };
 
   return (
-    <div className="rounded-3xl bg-[#0c0c16] border border-white/5 p-4 sm:p-5 space-y-4 shadow-xl">
+    <div className="rounded-3xl bg-[var(--bg-secondary)] border border-white/5 p-4 sm:p-5 space-y-4 shadow-xl">
       <div className="flex items-center justify-between border-b border-white/5 pb-2.5">
         <div className="flex items-center gap-2 text-xs font-bold text-gray-300 uppercase tracking-wider">
           <Sliders size={14} className="text-cyan-400" />

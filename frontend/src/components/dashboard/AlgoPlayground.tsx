@@ -125,7 +125,7 @@ export default function AlgoPlayground({ problemId, initialCode = '' }: AlgoPlay
   return (
     <div className="mt-8 min-w-0 overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between bg-[#0a0a0a] border border-white/5 p-5 rounded-2xl mb-4">
+      <div className="flex items-center justify-between bg-[var(--bg-secondary)] border border-white/5 p-5 rounded-2xl mb-4">
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 text-indigo-400 border border-indigo-500/20">
             <Brain size={20} />
@@ -147,7 +147,7 @@ export default function AlgoPlayground({ problemId, initialCode = '' }: AlgoPlay
 
       {/* Loading State */}
       {loading && (
-        <div className="p-12 bg-[#0a0a0a] border border-white/5 rounded-3xl flex flex-col items-center gap-4 animate-in fade-in">
+        <div className="p-12 bg-[var(--bg-secondary)] border border-white/5 rounded-3xl flex flex-col items-center gap-4 animate-in fade-in">
           <div className="relative">
             <div className="w-16 h-16 rounded-full border-2 border-indigo-500/30 animate-spin border-t-indigo-500" />
             <div className="absolute inset-0 flex items-center justify-center">
@@ -163,10 +163,10 @@ export default function AlgoPlayground({ problemId, initialCode = '' }: AlgoPlay
 
       {/* Main Visualizer */}
       {traceData && traceData.steps.length > 0 && !loading && (
-        <div className="bg-[#070709] border border-white/5 rounded-3xl overflow-hidden animate-in slide-in-from-bottom-4 fade-in duration-700 min-w-0">
+        <div className="bg-[var(--bg-secondary)] border border-white/5 rounded-3xl overflow-hidden animate-in slide-in-from-bottom-4 fade-in duration-700 min-w-0">
           
           {/* Context Bar */}
-          <div className="px-6 py-4 bg-[#0c0c0e] border-b border-white/5 flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="px-6 py-4 bg-[var(--bg-secondary)] border-b border-white/5 flex flex-col sm:flex-row sm:items-center gap-3">
             <div className="flex items-center gap-4 flex-1 min-w-0 overflow-hidden">
               <div className="shrink-0 flex items-center gap-2 px-3 py-1.5 bg-indigo-500/10 text-indigo-400 rounded-lg border border-indigo-500/20">
                 <Code2 size={12} />
@@ -253,7 +253,7 @@ export default function AlgoPlayground({ problemId, initialCode = '' }: AlgoPlay
           {currentStep && (
             <div className="px-6 pb-6 space-y-4 min-w-0">
               {/* Code Line Being Executed */}
-              <div className="p-4 bg-[#0d0d12] border border-white/5 rounded-2xl font-mono text-sm overflow-x-auto">
+              <div className="p-4 bg-[var(--bg-secondary)] border border-white/5 rounded-2xl font-mono text-sm overflow-x-auto">
                 <div className="flex items-center gap-3 mb-2">
                   <div className={`w-2 h-2 rounded-full ${phase.color === 'text-green-400' ? 'bg-green-500' : 'bg-blue-500'} animate-pulse shadow-lg`} />
                   <span className="text-[9px] font-black text-gray-600 uppercase tracking-widest">Executing</span>
@@ -264,7 +264,7 @@ export default function AlgoPlayground({ problemId, initialCode = '' }: AlgoPlay
               {/* Narrative + Thinking */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {/* What's happening */}
-                <div className={`p-5 rounded-2xl border-l-4 ${phase.border.replace('/30', '/50')} bg-[#0d0d12] border border-white/5`}>
+                <div className={`p-5 rounded-2xl border-l-4 ${phase.border.replace('/30', '/50')} bg-[var(--bg-secondary)] border border-white/5`}>
                   <div className="flex items-center gap-2 mb-3">
                     <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">What&apos;s happening</span>
                   </div>
@@ -283,7 +283,7 @@ export default function AlgoPlayground({ problemId, initialCode = '' }: AlgoPlay
 
               {/* Data Structure Visualization */}
               {currentStep.dataStructure && currentStep.dataStructure.items && (
-                <div className="p-5 bg-[#0d0d12] border border-white/5 rounded-2xl">
+                <div className="p-5 bg-[var(--bg-secondary)] border border-white/5 rounded-2xl">
                   <div className="flex items-center gap-2 mb-4">
                     <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">{currentStep.dataStructure.label || 'Data Structure'}</span>
                     <span className="text-[8px] font-bold text-gray-700 uppercase px-2 py-0.5 bg-white/5 rounded">{currentStep.dataStructure.type}</span>
@@ -320,7 +320,7 @@ export default function AlgoPlayground({ problemId, initialCode = '' }: AlgoPlay
               )}
 
               {/* Variable Watch Panel */}
-              <div className="p-5 bg-[#0d0d12] border border-white/5 rounded-2xl">
+              <div className="p-5 bg-[var(--bg-secondary)] border border-white/5 rounded-2xl">
                 <div className="flex items-center gap-2 mb-4">
                   <Cpu size={12} className="text-gray-500" />
                   <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Variable Watch</span>

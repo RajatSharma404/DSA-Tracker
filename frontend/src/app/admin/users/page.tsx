@@ -69,7 +69,7 @@ export default function AdminUsers() {
         <h1 className="text-2xl font-bold">User Management</h1>
       </div>
 
-      <div className="bg-[#111] border border-[#222] rounded-2xl overflow-hidden">
+      <div className="bg-[var(--bg-tertiary)] border border-[#222] rounded-2xl overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-[#222] bg-white/5">

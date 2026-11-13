@@ -290,7 +290,7 @@ export default function RecommendationsPage() {
             return (
               <div
                 key={i}
-                className="p-6 rounded-3xl border border-white/5 bg-[#0a0a0f] hover:border-purple-500/30 hover:bg-[#0e0d16] transition-all flex flex-col justify-between space-y-4 shadow-md group"
+                className="p-6 rounded-3xl border border-white/5 bg-[var(--bg-secondary)] hover:border-purple-500/30 hover:bg-[var(--bg-secondary)] transition-all flex flex-col justify-between space-y-4 shadow-md group"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
@@ -334,7 +334,7 @@ export default function RecommendationsPage() {
             {data.weeklyPlan.map((day, i) => (
               <div
                 key={i}
-                className="p-4 rounded-3xl border border-white/5 bg-[#0a0a0f] flex flex-col justify-between space-y-3 shadow-sm"
+                className="p-4 rounded-3xl border border-white/5 bg-[var(--bg-secondary)] flex flex-col justify-between space-y-3 shadow-sm"
               >
                 <div className="space-y-2">
                   <span className="px-2.5 py-1 rounded-xl bg-purple-500/10 text-purple-300 border border-purple-500/20 text-[10px] font-black uppercase tracking-wider">
@@ -355,7 +355,7 @@ export default function RecommendationsPage() {
           </div>
 
           {/* Goal Calculator */}
-          <div className="rounded-3xl border border-white/10 bg-[#0a0a0f] p-6 sm:p-7 space-y-4">
+          <div className="rounded-3xl border border-white/10 bg-[var(--bg-secondary)] p-6 sm:p-7 space-y-4">
             <div className="flex items-center gap-3">
               <div className="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
                 <Target size={20} />
@@ -396,7 +396,7 @@ export default function RecommendationsPage() {
       {/* Tab 3: Topic Weakness Breakdown */}
       {activeTab === "weakness" && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div className="p-6 rounded-3xl border border-red-500/15 bg-[#0a0a0f] space-y-4">
+          <div className="p-6 rounded-3xl border border-red-500/15 bg-[var(--bg-secondary)] space-y-4">
             <h3 className="text-base font-bold text-red-400 flex items-center gap-2">
               <AlertTriangle size={18} /> High Priority Weak Topics
             </h3>
@@ -415,7 +415,7 @@ export default function RecommendationsPage() {
             </div>
           </div>
 
-          <div className="p-6 rounded-3xl border border-emerald-500/15 bg-[#0a0a0f] space-y-4">
+          <div className="p-6 rounded-3xl border border-emerald-500/15 bg-[var(--bg-secondary)] space-y-4">
             <h3 className="text-base font-bold text-emerald-400 flex items-center gap-2">
               <CheckCircle2 size={18} /> Strong & Mastered Topics
             </h3>
@@ -437,7 +437,7 @@ export default function RecommendationsPage() {
       )}
 
       {/* Pro Mentorship Advice Cards */}
-      <div className="rounded-3xl border border-white/5 bg-[#0a0a0f] p-6 space-y-3">
+      <div className="rounded-3xl border border-white/5 bg-[var(--bg-secondary)] p-6 space-y-3">
         <h4 className="text-sm font-bold text-white flex items-center gap-2">
           <BookOpen size={16} className="text-cyan-400" />
           High-Yield Algorithmic Mental Models

@@ -129,9 +129,9 @@ export function ReviewForm({
           <div className="relative group">
             <div className="absolute -inset-1 bg-linear-to-r from-blue-600/20 to-cyan-500/20 rounded-4xl blur-xl opacity-50 group-hover:opacity-100 transition duration-1000"></div>
 
-            <div className="relative bg-[#080808] border border-white/10 rounded-3xl overflow-hidden shadow-2xl min-w-0">
+            <div className="relative bg-[var(--bg-secondary)] border border-white/10 rounded-3xl overflow-hidden shadow-2xl min-w-0">
               {/* Terminal Header */}
-              <div className="bg-[#121212] border-b border-white/5 px-6 py-3.5 flex items-center justify-between">
+              <div className="bg-[var(--bg-tertiary)] border-b border-white/5 px-6 py-3.5 flex items-center justify-between">
                 <div className="flex gap-2">
                   <div className="w-3 h-3 rounded-full bg-[#ff5f56] opacity-80"></div>
                   <div className="w-3 h-3 rounded-full bg-[#ffbd2e] opacity-80"></div>
@@ -147,7 +147,7 @@ export function ReviewForm({
 
               {/* Submissions Dropdown */}
               {submissions && submissions.length > 0 && (
-                <div className="px-6 py-3 bg-[#0c0c0c] border-b border-white/5 flex gap-3 flex-wrap items-center">
+                <div className="px-6 py-3 bg-[var(--bg-secondary)] border-b border-white/5 flex gap-3 flex-wrap items-center">
                   <span className="text-[10px] uppercase font-black tracking-widest text-blue-400 flex items-center gap-2">
                     <Zap size={12} className="text-yellow-400" />
                     Sync Solution from LeetCode
@@ -169,7 +169,7 @@ export function ReviewForm({
               )}
 
               {fetchingSubs && submissions === null && (
-                <div className="px-6 py-3 bg-[#0c0c0c] border-b border-white/5 text-[10px] text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                <div className="px-6 py-3 bg-[var(--bg-secondary)] border-b border-white/5 text-[10px] text-gray-500 uppercase tracking-widest flex items-center gap-2">
                   <Loader2 size={12} className="animate-spin text-blue-400" />
                   Checking LeetCode for recent submissions...
                 </div>
@@ -195,7 +195,7 @@ export function ReviewForm({
               </div>
 
               {/* Footer */}
-              <div className="px-6 py-4 bg-[#0a0a0a] border-t border-white/5 flex items-center justify-between">
+              <div className="px-6 py-4 bg-[var(--bg-secondary)] border-t border-white/5 flex items-center justify-between">
                 <button
                   onClick={handleClear}
                   className="p-2 text-white/20 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all"

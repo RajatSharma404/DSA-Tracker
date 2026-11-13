@@ -167,7 +167,7 @@ export default function LearnPage() {
 
   return (
     <div className="w-full min-w-0 space-y-8">
-      <section className="relative overflow-hidden rounded-4xl border border-white/10 bg-[#0b0b0b] p-8 shadow-2xl shadow-cyan-950/20">
+      <section className="relative overflow-hidden rounded-4xl border border-white/10 bg-[var(--bg-secondary)] p-8 shadow-2xl shadow-cyan-950/20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(34,211,238,0.15),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(16,185,129,0.10),transparent_30%)]" />
         <div className="relative grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="space-y-6">
@@ -322,7 +322,7 @@ export default function LearnPage() {
         {tracks.map((track) => (
           <div
             key={track.id}
-            className="overflow-hidden rounded-4xl border border-white/10 bg-[#0b0b0b]"
+            className="overflow-hidden rounded-4xl border border-white/10 bg-[var(--bg-secondary)]"
           >
             <div className="border-b border-white/10 bg-linear-to-r from-white/5 to-transparent px-6 py-5">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -369,7 +369,7 @@ export default function LearnPage() {
                 {track.modules.map((module, moduleIndex) => (
                   <div
                     key={module.id}
-                    className="rounded-3xl border border-white/10 bg-[#111] p-4"
+                    className="rounded-3xl border border-white/10 bg-[var(--bg-tertiary)] p-4"
                   >
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                       <div>
@@ -430,7 +430,7 @@ export default function LearnPage() {
               </div>
 
               <div className="space-y-4 lg:sticky lg:top-6 lg:h-fit">
-                <div className="rounded-3xl border border-white/10 bg-[#111] p-4">
+                <div className="rounded-3xl border border-white/10 bg-[var(--bg-tertiary)] p-4">
                   <p className="text-xs uppercase tracking-[0.22em] text-gray-500">
                     Study path
                   </p>

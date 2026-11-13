@@ -104,7 +104,7 @@ export default function AdminTopics() {
       {(isAdding || editingId) && (
         <form
           onSubmit={handleSubmit}
-          className="p-6 bg-[#111] border border-blue-500/30 rounded-2xl space-y-4 animate-in fade-in slide-in-from-top-4 duration-300"
+          className="p-6 bg-[var(--bg-tertiary)] border border-blue-500/30 rounded-2xl space-y-4 animate-in fade-in slide-in-from-top-4 duration-300"
         >
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -116,7 +116,7 @@ export default function AdminTopics() {
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
-                className="w-full bg-[#050505] border border-[#222] rounded-xl px-4 py-3 focus:border-blue-500 outline-none"
+                className="w-full bg-[var(--bg-secondary)] border border-[#222] rounded-xl px-4 py-3 focus:border-blue-500 outline-none"
                 placeholder="e.g. Arrays & Hashing"
                 required
               />
@@ -134,7 +134,7 @@ export default function AdminTopics() {
                     orderIndex: parseInt(e.target.value),
                   })
                 }
-                className="w-full bg-[#050505] border border-[#222] rounded-xl px-4 py-3 focus:border-blue-500 outline-none"
+                className="w-full bg-[var(--bg-secondary)] border border-[#222] rounded-xl px-4 py-3 focus:border-blue-500 outline-none"
               />
             </div>
           </div>
@@ -147,7 +147,7 @@ export default function AdminTopics() {
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }
-              className="w-full bg-[#050505] border border-[#222] rounded-xl px-4 py-3 focus:border-blue-500 outline-none h-24"
+              className="w-full bg-[var(--bg-secondary)] border border-[#222] rounded-xl px-4 py-3 focus:border-blue-500 outline-none h-24"
               placeholder="Short description of this module..."
             />
           </div>
@@ -173,7 +173,7 @@ export default function AdminTopics() {
         </form>
       )}
 
-      <div className="bg-[#111] border border-[#222] rounded-2xl overflow-hidden">
+      <div className="bg-[var(--bg-tertiary)] border border-[#222] rounded-2xl overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-[#222] bg-white/5">

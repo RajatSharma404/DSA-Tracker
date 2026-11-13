@@ -67,7 +67,7 @@ describe("Layout Components (components/layout)", () => {
         </ThemeProvider>
       );
 
-      expect(screen.getByTitle("Admin Panel")).toBeDefined();
+      expect(screen.getByRole("link", { name: "Admin Panel" })).toBeDefined();
     });
   });
 

@@ -49,7 +49,7 @@ export function ReviewResult({
   }
 
   return (
-    <div className="p-5 sm:p-8 rounded-4xl bg-[#0c0c10] border border-white/5 relative overflow-hidden min-w-0">
+    <div className="p-5 sm:p-8 rounded-4xl bg-[var(--bg-secondary)] border border-white/5 relative overflow-hidden min-w-0">
       <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-4">
           <div className="p-3 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">

@@ -314,7 +314,7 @@ export function FlowchartPanel({
 
   return (
     <div
-      className={`flex flex-col h-full bg-[#0d0d14] rounded-3xl border border-white/10 overflow-hidden shadow-2xl relative select-none ${className}`}
+      className={`flex flex-col h-full bg-[var(--bg-secondary)] rounded-3xl border border-white/10 overflow-hidden shadow-2xl relative select-none ${className}`}
     >
       {/* Panel Header */}
       <div className="flex items-center justify-between px-5 py-3.5 bg-white/5 border-b border-white/10 shrink-0">

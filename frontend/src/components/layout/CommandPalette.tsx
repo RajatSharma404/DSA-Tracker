@@ -18,6 +18,7 @@ import {
   Sparkles,
   Building2,
   BarChart3,
+  Telescope,
   Trophy,
   FileText,
   Puzzle,
@@ -178,7 +179,7 @@ export function CommandPalette() {
     setOpen(false);
     toast.info("Initiating background LeetCode sync...");
     try {
-      await dsaApi.syncLeetcode();
+      await dsaApi.smartSyncLeetcode();
       soundEffects.playSuccess();
       toast.success("LeetCode submissions synced successfully!");
     } catch (err) {
@@ -496,6 +497,14 @@ export function CommandPalette() {
           heading="Performance & Account"
           className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-bold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-[var(--text-muted)]"
         >
+          <Command.Item
+            value="Insights Lab memory forecast DSA DNA retention"
+            onSelect={() => runCommand(() => router.push("/insights"))}
+            className="relative flex cursor-pointer select-none items-center rounded-xl px-3 py-2 text-sm text-[var(--text-secondary)] outline-none aria-selected:bg-[var(--accent-primary)]/15 aria-selected:text-[var(--accent-primary)] aria-selected:font-semibold"
+          >
+            <Telescope className="mr-3 h-4 w-4 shrink-0" />
+            Insights Lab · Memory Forecast & DSA DNA
+          </Command.Item>
           <Command.Item
             onSelect={() => runCommand(() => router.push("/analytics"))}
             className="relative flex cursor-pointer select-none items-center rounded-xl px-3 py-2 text-sm text-[var(--text-secondary)] outline-none aria-selected:bg-[var(--accent-primary)]/15 aria-selected:text-[var(--accent-primary)] aria-selected:font-semibold"

@@ -12,6 +12,7 @@ import { KeyboardShortcutsModal } from "@/components/layout/KeyboardShortcutsMod
 import { SyncInstructionModal } from "@/components/layout/SyncInstructionModal";
 import { GlobalKeyBindings } from "@/components/layout/GlobalKeyBindings";
 import { OfflineBanner } from "@/components/ui/OfflineBanner";
+import { ExtensionAutoPair } from "@/components/providers/ExtensionAutoPair";
 
 const Sidebar = dynamic(
   () => import("@/components/layout/Sidebar").then((mod) => mod.Sidebar),
@@ -63,7 +64,8 @@ export default function DashboardLayout({
   };
 
   return (
-    <div className="flex h-screen w-full min-w-0 overflow-hidden bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors duration-250">
+    <div className="relative isolate flex h-screen w-full min-w-0 overflow-hidden bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors duration-250">
+      <div aria-hidden className="ambient-backdrop -z-10" />
       {/* Desktop Sidebar (hidden on < md screens) */}
       <Sidebar />
 
@@ -89,6 +91,7 @@ export default function DashboardLayout({
           </PageTransition>
           <CommandPalette />
           <GlobalKeyBindings />
+          <ExtensionAutoPair />
           <OfflineBanner />
           <KeyboardShortcutsModal
             isOpen={isShortcutsModalOpen}

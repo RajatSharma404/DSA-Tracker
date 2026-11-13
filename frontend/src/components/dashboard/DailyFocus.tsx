@@ -161,6 +161,10 @@ export default function DailyFocus() {
     );
   }
 
+  // Nothing to show (both sources failed or returned empty): don't render an
+  // empty card. The dashboard hero already carries the date and next action.
+  if (!daily && !dailyLc) return null;
+
   const now = new Date();
   const dateStr = now.toLocaleDateString("en-US", {
     weekday: "long",

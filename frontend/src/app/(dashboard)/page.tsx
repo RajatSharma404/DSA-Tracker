@@ -7,9 +7,7 @@ import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import {
   ArrowRight,
-  CheckCircle2,
   Flame,
-  BookOpen,
   LayoutGrid,
   Network,
   Target,
@@ -19,12 +17,11 @@ import Link from "next/link";
 import {
   Skeleton,
   ActivityCardSkeleton,
-  StatsCardSkeleton,
+
 } from "@/components/ui/Skeleton";
-import { DESIGN_TOKENS } from "@/lib/design-tokens";
 import { useToastNotification } from "@/components/providers/ToastProvider";
 import { trackEvent } from "@/lib/analytics";
-import { StreakFlame } from "@/components/ui/StreakFlame";
+import { DashboardHero } from "@/components/dashboard/DashboardHero";
 
 const ActivityHeatmap = dynamic(
   () => import("@/components/dashboard/ActivityHeatmap"),
@@ -57,22 +54,6 @@ const BadgeShowcase = dynamic(
   {
     ssr: false,
     loading: () => <Skeleton variant="card" className="h-44" />,
-  },
-);
-
-const StatCard = dynamic(
-  () => import("@/components/ui/StatCard").then((mod) => mod.StatCard),
-  {
-    ssr: false,
-    loading: () => <StatsCardSkeleton />,
-  },
-);
-
-const StreakCard = dynamic(
-  () => import("@/components/dashboard/StreakCard"),
-  {
-    ssr: false,
-    loading: () => <StatsCardSkeleton />,
   },
 );
 
@@ -362,14 +343,12 @@ export default function Dashboard() {
       {/* Weak Topic Alert Banner (Feature 3) */}
       <WeakTopicBanner />
 
-      <div>
-        <h1 className="text-3xl font-black tracking-tight text-[var(--text-primary)] font-display">
-          Dashboard
-        </h1>
-        <p className="text-[var(--text-muted)] text-sm mt-1">
-          Welcome back to DSA Pro. Keep crushing those algorithmic milestones.
-        </p>
-      </div>
+      <DashboardHero
+        name={session?.user?.name}
+        stats={stats}
+        solvedLast7d={solvedLast7d}
+        projectedDaysToFinish={projectedDaysToFinish}
+      />
 
       {/* Daily Focus — Problem of the Day */}
       <DailyFocus />
@@ -799,44 +778,6 @@ export default function Dashboard() {
           />
           <BadgeShowcase />
           <SkillRadar />
-        </div>
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="Overall Progress"
-          value={`${stats.progressPercentage}%`}
-          description={`${stats.solvedProblems} of ${stats.totalProblems} solved`}
-          icon={Target}
-        />
-        <StreakCard
-          streak={stats.currentStreak}
-          longestStreak={stats.longestStreak}
-        />
-        <StatCard
-          title="Problems Solved"
-          value={stats.solvedProblems}
-          icon={CheckCircle2}
-        />
-        <StatCard title="Active Topics" value="In Progress" icon={BookOpen} />
-      </div>
-
-      {/* Progress Bar overall */}
-      <div className="p-6 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-subtle)] shadow-xl relative overflow-hidden">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="font-bold text-lg text-[var(--text-primary)] font-display">Roadmap Completion</h3>
-          <span className="text-sm font-black font-mono text-[var(--accent-primary)] drop-shadow-[0_0_6px_var(--accent-glow)]">
-            {stats.progressPercentage}%
-          </span>
-        </div>
-        <div className="w-full h-3.5 bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] rounded-full overflow-hidden p-0.5 shadow-inner">
-          <div
-            className="h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_12px_var(--accent-glow)] relative"
-            style={{
-              width: `${stats.progressPercentage}%`,
-              background: "var(--accent-gradient)",
-            }}
-          />
         </div>
       </div>
 

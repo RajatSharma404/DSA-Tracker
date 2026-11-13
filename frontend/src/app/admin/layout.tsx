@@ -10,7 +10,7 @@ const Sidebar = dynamic(
   {
     ssr: false,
     loading: () => (
-      <aside className="hidden md:block w-64 shrink-0 border-r border-white/5 bg-[#0a0a0a]" />
+      <aside className="hidden md:block w-64 shrink-0 border-r border-white/5 bg-[var(--bg-secondary)]" />
     ),
   },
 );
@@ -34,8 +34,8 @@ export default function AdminLayout({
 
   if (status === "loading") {
     return (
-      <div className="flex h-screen bg-[#050505] text-white">
-        <aside className="hidden md:block w-64 shrink-0 border-r border-white/5 bg-[#0a0a0a] animate-pulse" />
+      <div className="flex h-screen bg-[var(--bg-secondary)] text-white">
+        <aside className="hidden md:block w-64 shrink-0 border-r border-white/5 bg-[var(--bg-secondary)] animate-pulse" />
         <main className="flex-1 overflow-y-auto p-8 md:p-12">
           <div className="space-y-6 animate-pulse">
             <div className="h-10 w-36 rounded-full bg-white/5" />
@@ -54,7 +54,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="flex h-screen bg-[#050505] text-white">
+    <div className="flex h-screen bg-[var(--bg-secondary)] text-white">
       <Sidebar />
       <main className="flex-1 overflow-y-auto p-8 md:p-12 relative">
         <div className="absolute top-0 right-0 p-4">
