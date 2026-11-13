@@ -99,8 +99,8 @@ export function DsaDna() {
     { solved: 0, total: 0 },
   );
   const strongest = [...usable].sort((a, b) => b.progressPercentage - a.progressPercentage)[0];
-  const archetype = !strongest
-    ? "Explorer"
+  const archetype = !strongest || totals.solved === 0
+    ? "Just getting started"
     : totals.solved / Math.max(1, totals.total) > 0.75
       ? "Grandmaster"
       : usable.filter((t) => t.progressPercentage >= 50).length >= usable.length / 2
@@ -288,7 +288,11 @@ export function DsaDna() {
                   </div>
                 </>
               ) : (
-                <div className="text-xs text-[var(--text-muted)]">Hover a strand to inspect a pattern.</div>
+                <div className="text-xs text-[var(--text-muted)]">
+                  {totals.solved === 0
+                    ? "Every strand grows as you solve problems in that topic."
+                    : "Hover a strand to inspect a pattern."}
+                </div>
               )}
             </div>
           </div>
