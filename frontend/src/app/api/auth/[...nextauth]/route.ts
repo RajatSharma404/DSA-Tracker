@@ -26,7 +26,7 @@ if (!prisma) {
 }
 
 const allowInsecureCredentialsLogin =
-  process.env.ALLOW_INSECURE_CREDENTIALS_LOGIN === "true";
+  process.env.ALLOW_INSECURE_CREDENTIALS_LOGIN === "true" || !hasGoogleOAuth;
 
 async function upsertAuthUser(email: string, name: string | null) {
   if (!prisma) return null;

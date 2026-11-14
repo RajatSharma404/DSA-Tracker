@@ -30,8 +30,16 @@ export default function LoginPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [submitError, setSubmitError] = useState("");
+  const [hasGoogle, setHasGoogle] = useState<boolean | null>(null);
+  useEffect(() => {
+    getProviders()
+      .then((p) => setHasGoogle(Boolean(p?.google)))
+      .catch(() => setHasGoogle(false));
+  }, []);
+
   const allowInsecureCredentialsLogin =
-    process.env.NEXT_PUBLIC_ALLOW_INSECURE_CREDENTIALS_LOGIN === "true";
+    process.env.NEXT_PUBLIC_ALLOW_INSECURE_CREDENTIALS_LOGIN === "true" ||
+    hasGoogle === false;
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -55,13 +63,6 @@ export default function LoginPage() {
 
     router.push(result?.url || "/");
   };
-
-  const [hasGoogle, setHasGoogle] = useState<boolean | null>(null);
-  useEffect(() => {
-    getProviders()
-      .then((p) => setHasGoogle(Boolean(p?.google)))
-      .catch(() => setHasGoogle(false));
-  }, []);
 
   const field =
     "w-full rounded-lg border border-[var(--input-border)] bg-[var(--input-bg)] px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none focus:border-[var(--accent-primary)]";
