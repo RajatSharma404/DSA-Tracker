@@ -19,8 +19,8 @@ Benchmark dataset generated via `scripts/seed-bench.ts`:
 | **Weak Topics Aggregation** (Topic-by-topic solve rate) | `Hash Right Join` + Memoized `Topic_pkey` | 41 shared hit | **0.496 ms** | Optimal |
 | **Heatmap & Activity Events** (1-year rolling daily aggregation) | `Index Only Scan` on `activity_events_userId_occurredAt_idx` (0 heap fetches) | 99 shared hit | **3.923 ms** | Optimal |
 
-*Raw PostgreSQL execution plans saved to [docs/metrics/raw-plans.txt](file:///d:/DSA-Tracker/docs/metrics/raw-plans.txt).*
-*Index optimization recommendations documented in [docs/metrics/proposals.md](file:///d:/DSA-Tracker/docs/metrics/proposals.md).*
+*Raw PostgreSQL execution plans saved to [docs/metrics/raw-plans.txt](./raw-plans.txt).*
+*Index optimization recommendations documented in [docs/metrics/proposals.md](./proposals.md).*
 
 ---
 
@@ -55,7 +55,7 @@ Total JS Chunks analyzed in `frontend/.next/static`: **6.10 MB** across 95 chunk
 
 ## 4. Load Testing (k6)
 
-- **Script location:** [scripts/k6-load-test.js](file:///d:/DSA-Tracker/scripts/k6-load-test.js)
+- **Script location:** [scripts/k6-load-test.js](../../scripts/k6-load-test.js)
 - **Target Endpoints:** `/api/dashboard/bootstrap` and `/api/review-queue`
 - **Ramping Profile:** 1 to 50 Virtual Users (VUs) over 2 minutes (30s ramp up, 1m sustained at 50 VUs, 30s ramp down)
 - **Status in Local Environment:** **Not measured** (k6 CLI is not pre-installed on this Windows host environment).

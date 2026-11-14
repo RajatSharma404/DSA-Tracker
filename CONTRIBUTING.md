@@ -133,5 +133,5 @@ npm run check:links
 - **Strict TypeScript:** No new `any` types. No `@ts-ignore` suppressions.
 - **Input Validation:** All backend routes and controller inputs must be validated with Zod schemas before business execution.
 - **Zero Server-Side Code Execution:** Never introduce `eval()`, `new Function()`, or dynamic execution primitives.
-- **Clean Code & Feature Flags:** Do not leave commented-out blocks of dead code. Experimental or incomplete features must be cleanly gated via `backend/features.ts` and `FeaturesProvider` matching [docs/scope.md](file:///d:/DSA-Tracker/docs/scope.md).
+- **Clean Code & Feature Flags:** Do not leave commented-out blocks of dead code. Experimental or incomplete features must be cleanly gated via `backend/features.ts` and `FeaturesProvider` matching [docs/scope.md](./docs/scope.md).
 

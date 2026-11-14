@@ -16,7 +16,7 @@ These features were incomplete, required active WebSocket infrastructure, or div
 
 ## Decision
 We adopted a structured **Feature Flagging & Parked State Strategy**:
-1. **Feature Tiering ([docs/scope.md](file:///d:/DSA-Tracker/docs/scope.md)):**
+1. **Feature Tiering ([docs/scope.md](../scope.md)):**
    - **Core (Always ON):** Dashboard, Review Queue, Flashcards, Problems, Extension, Analytics, Settings.
    - **Frozen (Active, No New Dev):** Theory tracks, Company tracks, Problem vault.
    - **Showpiece (Default ON):** AlgoTracer AST code visualizer.
