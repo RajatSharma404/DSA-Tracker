@@ -70,10 +70,10 @@ export default function LoginPage() {
     <main className="min-h-screen w-full bg-[var(--bg-primary)] text-[var(--text-primary)]">
       <div className="mx-auto grid min-h-screen max-w-5xl items-center gap-12 px-6 py-12 lg:grid-cols-[1.1fr_1fr]">
         <section className="max-w-md">
-          <div className="flex items-center gap-2.5">
+          <a href="/home" className="flex items-center gap-2.5" title="What is DSA Tracker?">
             <BrandMark />
             <span className="text-[15px] font-semibold tracking-tight">DSA Tracker</span>
-          </div>
+          </a>
           <h1 className="page-title mt-10 text-4xl leading-[1.08] sm:text-5xl">
             Practise with a plan. <span className="text-[var(--accent-primary)]">Remember</span> what you solve.
           </h1>

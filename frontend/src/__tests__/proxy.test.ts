@@ -2,17 +2,22 @@ import { describe, it, expect, vi } from "vitest";
 
 const mocks = vi.hoisted(() => {
   let authConfig: any = null;
+  let handler: any = null;
   return {
     getAuthConfig: () => authConfig,
-    setAuthConfig: (cfg: any) => {
+    getHandler: () => handler,
+    setAuthConfig: (cfg: any, fn?: any) => {
       authConfig = cfg;
+      handler = fn ?? null;
     },
   };
 });
 
 vi.mock("next-auth/middleware", () => ({
-  withAuth: vi.fn((config) => {
-    mocks.setAuthConfig(config);
+  // withAuth(options) or withAuth(middleware, options)
+  withAuth: vi.fn((a, b) => {
+    if (typeof a === "function") mocks.setAuthConfig(b, a);
+    else mocks.setAuthConfig(a);
     return () => "mocked-middleware";
   }),
 }));
@@ -69,5 +74,29 @@ describe("Proxy / Middleware Auth Config", () => {
       req: { nextUrl: { pathname: "/dashboard" } },
     });
     expect(isAuthorized).toBe(false);
+  });
+
+  it("lets the root path through to the redirect handler", () => {
+    const authConfig = mocks.getAuthConfig();
+    expect(authConfig.callbacks.authorized({ token: null, req: { nextUrl: { pathname: "/" } } })).toBe(true);
+  });
+
+  it("redirects signed-out visitors on / to the landing page", () => {
+    const res = mocks.getHandler()({
+      url: "http://localhost:3005/",
+      nextUrl: { pathname: "/" },
+      nextauth: { token: null },
+    });
+    expect(res.status).toBe(307);
+    expect(res.headers.get("location")).toBe("http://localhost:3005/home");
+  });
+
+  it("does not redirect signed-in users on /", () => {
+    const res = mocks.getHandler()({
+      url: "http://localhost:3005/",
+      nextUrl: { pathname: "/" },
+      nextauth: { token: { role: "USER" } },
+    });
+    expect(res.headers.get("location")).toBeNull();
   });
 });
