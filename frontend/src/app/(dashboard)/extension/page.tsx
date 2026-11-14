@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { Check, Copy, KeyRound, Trash2 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Bookmark, Check, Copy, KeyRound, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { ExtensionLiveStatus } from "@/components/dashboard/ExtensionLiveStatus";
 import { Panel } from "@/components/ui/Panel";
 import { dsaApi } from "@/lib/api";
+import { buildBookmarklet } from "@/lib/bookmarklet";
 
 interface DeviceItem {
   id: string;
@@ -59,6 +60,129 @@ function Step({ n, title, children }: { n: number; title: string; children: Reac
         {children}
       </div>
     </li>
+  );
+}
+
+type InstallTab = "bookmark" | "userscript" | "extension";
+
+const INSTALL_TABS: Array<{ id: InstallTab; label: string; hint: string }> = [
+  { id: "extension", label: "Extension", hint: "Everything: auto-sync, submit from the editor, history import" },
+  { id: "userscript", label: "Userscript", hint: "Auto-sync accepted solves, via Tampermonkey" },
+  { id: "bookmark", label: "Sync bookmark", hint: "Nothing to install. Click it on LeetCode to import" },
+];
+
+/** Bookmarklet link; href is set imperatively because React blocks javascript: URLs. */
+function BookmarkletLink() {
+  const ref = useRef<HTMLAnchorElement>(null);
+  useEffect(() => {
+    ref.current?.setAttribute("href", buildBookmarklet(window.location.origin));
+  }, []);
+  return (
+    <a
+      ref={ref}
+      onClick={(e) => {
+        e.preventDefault();
+        toast.info("Drag this button to your bookmarks bar, then click it on leetcode.com.");
+      }}
+      className="inline-flex cursor-grab items-center gap-2 rounded-lg border border-dashed border-[var(--accent-primary)] px-3.5 py-2 text-sm font-medium text-[var(--accent-primary)] active:cursor-grabbing"
+      title="Drag me to your bookmarks bar"
+    >
+      <Bookmark size={14} /> Sync from LeetCode
+    </a>
+  );
+}
+
+function InstallOptions({ extPath }: { extPath: string | null }) {
+  const [tab, setTab] = useState<InstallTab>("extension");
+  const linkCls = "text-[var(--accent-primary)] underline-offset-2 hover:underline";
+  return (
+    <Panel title="Install" description="Pick one. You can switch any time." flush>
+      <div role="tablist" className="grid grid-cols-3 border-y border-[var(--border-subtle)]">
+        {INSTALL_TABS.map((t) => (
+          <button
+            key={t.id}
+            role="tab"
+            aria-selected={tab === t.id}
+            onClick={() => setTab(t.id)}
+            className={`relative px-4 py-3 text-left transition-colors cursor-pointer ${
+              tab === t.id ? "bg-[var(--bg-hover)]" : "hover:bg-[var(--bg-hover)]"
+            }`}
+          >
+            <div className={`text-sm ${tab === t.id ? "font-medium text-[var(--text-primary)]" : "text-[var(--text-secondary)]"}`}>
+              {t.label}
+            </div>
+            <div className="mt-0.5 hidden text-xs text-[var(--text-muted)] sm:block">{t.hint}</div>
+            {tab === t.id && <span className="absolute inset-x-4 bottom-0 h-0.5 rounded-full bg-[var(--accent-primary)]" />}
+          </button>
+        ))}
+      </div>
+
+      {tab === "extension" && (
+        <ol className="divide-y divide-[var(--border-subtle)]">
+          <Step n={1} title="Download and unzip">
+            <a href="/dsa-tracker-extension.zip" download className={`text-[13px] ${linkCls}`}>
+              dsa-tracker-extension.zip
+            </a>
+            <p className="text-[13px] text-[var(--text-secondary)]">
+              Working in this repo? Run <code className="font-mono">npm run extension</code> instead and skip the download.
+            </p>
+            {extPath && <CopyField value={extPath} label="extension folder" />}
+          </Step>
+          <Step n={2} title="Load it">
+            <p className="text-[13px] text-[var(--text-secondary)]">
+              Open <code className="font-mono">chrome://extensions</code> (Arc: <code className="font-mono">arc://extensions</code>),
+              turn on Developer mode in the top right, click <strong>Load unpacked</strong> and pick the unzipped folder.
+            </p>
+          </Step>
+          <Step n={3} title="Sign in to leetcode.com in the same browser">
+            <p className="text-[13px] text-[var(--text-secondary)]">Come back here and it pairs on its own.</p>
+          </Step>
+        </ol>
+      )}
+
+      {tab === "userscript" && (
+        <ol className="divide-y divide-[var(--border-subtle)]">
+          <Step n={1} title="Install Tampermonkey">
+            <p className="text-[13px] text-[var(--text-secondary)]">
+              A free, widely used userscript manager from your browser&apos;s store:{" "}
+              <a href="https://www.tampermonkey.net/" target="_blank" rel="noopener noreferrer" className={linkCls}>
+                tampermonkey.net
+              </a>
+              . In Chrome, also allow userscripts on its extension details page.
+            </p>
+          </Step>
+          <Step n={2} title="Install the script">
+            <a href="/dsa-tracker.user.js" className={`text-[13px] ${linkCls}`}>
+              dsa-tracker.user.js
+            </a>
+            <p className="text-[13px] text-[var(--text-secondary)]">Tampermonkey opens an install screen. Click Install.</p>
+          </Step>
+          <Step n={3} title="Reload this page">
+            <p className="text-[13px] text-[var(--text-secondary)]">
+              It pairs automatically. Accepted solves on LeetCode then sync on their own. Use the Sync bookmark for your past history.
+            </p>
+          </Step>
+        </ol>
+      )}
+
+      {tab === "bookmark" && (
+        <ol className="divide-y divide-[var(--border-subtle)]">
+          <Step n={1} title="Drag this to your bookmarks bar">
+            <BookmarkletLink />
+            <p className="text-[13px] text-[var(--text-secondary)]">
+              Bookmarks bar hidden? Press <kbd className="rounded border border-[var(--border-subtle)] px-1 font-mono text-[11px]">⌘⇧B</kbd>{" "}
+              (Ctrl+Shift+B on Windows).
+            </p>
+          </Step>
+          <Step n={2} title="Click it on leetcode.com whenever you want to sync">
+            <p className="text-[13px] text-[var(--text-secondary)]">
+              A small window opens, reads your solved problems from your own LeetCode session, and saves them here. Allow
+              pop-ups for leetcode.com if asked.
+            </p>
+          </Step>
+        </ol>
+      )}
+    </Panel>
   );
 }
 
@@ -143,34 +267,7 @@ export default function ExtensionPage() {
 
       <ExtensionLiveStatus />
 
-      <Panel title="Install" description="About 30 seconds, once per browser. Works in Chrome, Arc, Brave and Edge." flush>
-        <ol className="divide-y divide-[var(--border-subtle)] border-t border-[var(--border-subtle)]">
-          <Step n={1} title="Run the setup command">
-            <p className="text-[13px] text-[var(--text-secondary)]">
-              It copies the extension folder to your clipboard and opens your browser&apos;s extensions page.
-            </p>
-            <CopyField value="npm run extension" label="command" />
-          </Step>
-          <Step n={2} title="Turn on Developer mode, then Load unpacked">
-            <p className="text-[13px] text-[var(--text-secondary)]">
-              Developer mode is a toggle in the top right of the extensions page. In the folder picker, press{" "}
-              <kbd className="rounded border border-[var(--border-subtle)] px-1 font-mono text-[11px]">⌘⇧G</kbd> and paste.
-            </p>
-            {extPath ? (
-              <CopyField value={extPath} label="extension folder" />
-            ) : (
-              <p className="text-[13px] text-[var(--text-muted)]">
-                Select the <code className="font-mono">extension</code> folder at the root of this repository.
-              </p>
-            )}
-          </Step>
-          <Step n={3} title="Sign in to leetcode.com in the same browser">
-            <p className="text-[13px] text-[var(--text-secondary)]">
-              Then come back here. The extension pairs itself and the checklist above turns green.
-            </p>
-          </Step>
-        </ol>
-      </Panel>
+      <InstallOptions extPath={extPath} />
 
       <Panel
         title="Paired browsers"

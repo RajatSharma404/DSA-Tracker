@@ -17,6 +17,9 @@ export interface ExtensionStatus {
   lastSync: { at: number; slug: string; title: string } | null;
   /** v1 extensions cannot fetch snapshots or pair */
   outdated: boolean;
+  /** "extension" (full) or "userscript" (sync only) */
+  kind: "extension" | "userscript" | null;
+  capabilities: Array<"sync" | "submit" | "snapshot">;
 }
 
 export interface LeetCodeSubmitResult {
@@ -69,6 +72,15 @@ const REQUEST_DOM_EVENT = "DSA_TRACKER_EXTENSION_REQUEST_DOM";
 const RESPONSE_DOM_EVENT = "DSA_TRACKER_EXTENSION_RESPONSE_DOM";
 const SNAPSHOT_CACHE_KEY = "dsa_lc_snapshot_v1";
 
+const readDetail = <T>(detail: unknown): T | null => {
+  if (typeof detail !== "string") return (detail as T) ?? null;
+  try {
+    return JSON.parse(detail) as T;
+  } catch {
+    return null;
+  }
+};
+
 const randomId = () => `dsa_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 
 /** True when the v2 content script has stamped the document. */
@@ -88,8 +100,8 @@ const sendOnce = <T>(action: string, payload: Record<string, unknown>, timeoutMs
       window.clearTimeout(timer);
       document.removeEventListener(RESPONSE_DOM_EVENT, onResponse as EventListener);
     };
-    const onResponse = (event: CustomEvent<ExtensionEnvelope>) => {
-      const data = event.detail;
+    const onResponse = (event: CustomEvent<ExtensionEnvelope | string>) => {
+      const data = readDetail<ExtensionEnvelope>(event.detail);
       if (!data || data.source !== "DSA_TRACKER_EXTENSION" || data.requestId !== requestId) return;
       cleanup();
       if (data.ok) resolve(data.payload as T);
@@ -103,7 +115,9 @@ const sendOnce = <T>(action: string, payload: Record<string, unknown>, timeoutMs
     document.addEventListener(RESPONSE_DOM_EVENT, onResponse as EventListener);
     document.dispatchEvent(
       new CustomEvent(REQUEST_DOM_EVENT, {
-        detail: { source: "DSA_TRACKER_APP", type: REQUEST_EVENT, requestId, action, payload },
+        // JSON string: object details can be dropped between JS worlds
+        // (Firefox, userscript sandboxes).
+        detail: JSON.stringify({ source: "DSA_TRACKER_APP", type: REQUEST_EVENT, requestId, action, payload }),
       }),
     );
   });
@@ -136,6 +150,8 @@ const NOT_INSTALLED: ExtensionStatus = {
   pendingSyncs: 0,
   lastSync: null,
   outdated: false,
+  kind: null,
+  capabilities: [],
 };
 
 export const getExtensionStatus = async (): Promise<ExtensionStatus> => {
@@ -147,6 +163,8 @@ export const getExtensionStatus = async (): Promise<ExtensionStatus> => {
       paired?: boolean;
       pendingSyncs?: number;
       lastSync?: ExtensionStatus["lastSync"];
+      kind?: ExtensionStatus["kind"];
+      capabilities?: ExtensionStatus["capabilities"];
     }>("PING", {}, 1500, 1);
     if (!s?.installed) return NOT_INSTALLED;
     const version = s.version ?? null;
@@ -158,6 +176,8 @@ export const getExtensionStatus = async (): Promise<ExtensionStatus> => {
       pendingSyncs: s.pendingSyncs ?? 0,
       lastSync: s.lastSync ?? null,
       outdated: !version || Number(version.split(".")[0]) < 2,
+      kind: s.kind ?? "extension",
+      capabilities: s.capabilities ?? ["sync", "submit", "snapshot"],
     };
   } catch {
     return NOT_INSTALLED;
@@ -167,8 +187,13 @@ export const getExtensionStatus = async (): Promise<ExtensionStatus> => {
 /** Back-compat wrapper used by older call sites. */
 export const getExtensionHealth = async () => {
   const s = await getExtensionStatus();
-  return { state: s.state, signedIn: s.signedIn };
+  // "READY" here means the editor can submit through it.
+  const canSubmit = s.capabilities.includes("submit");
+  return { state: canSubmit ? s.state : ("NOT_INSTALLED" as ExtensionHealthState), signedIn: s.signedIn };
 };
+
+export const canSnapshot = (s: ExtensionStatus) =>
+  s.state === "READY" && !s.outdated && s.capabilities.includes("snapshot");
 
 /**
  * Hand the extension the current access token so syncs that start on
@@ -199,6 +224,12 @@ export const fetchLeetCodeSnapshot = async (): Promise<LeetCodeSnapshot> => {
     { maxPages: 40 },
     90_000,
   );
+  cacheSnapshot(snapshot);
+  return snapshot;
+};
+
+/** Stores profile stats + calendar for the LeetCode Live panel. */
+export const cacheSnapshot = (snapshot: Pick<LeetCodeSnapshot, "username" | "stats" | "calendar">) => {
   try {
     localStorage.setItem(
       SNAPSHOT_CACHE_KEY,
@@ -207,7 +238,6 @@ export const fetchLeetCodeSnapshot = async (): Promise<LeetCodeSnapshot> => {
   } catch {
     // storage is optional
   }
-  return snapshot;
 };
 
 export const readCachedSnapshot = (): {

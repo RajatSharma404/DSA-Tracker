@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { CheckCircle2, CircleAlert, CircleDashed, DownloadCloud, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { getExtensionStatus, type ExtensionStatus } from "@/lib/extensionBridge";
+import { getExtensionStatus, canSnapshot, type ExtensionStatus } from "@/lib/extensionBridge";
 import { dsaApi } from "@/lib/api";
 
 const ago = (ts: number) => {
@@ -48,7 +48,7 @@ export function ExtensionLiveStatus() {
   const steps: Array<{ ok: boolean | null; label: string; detail: string }> = [
     {
       ok: status ? Boolean(installed && !status.outdated) : null,
-      label: "Extension v2 installed",
+      label: status?.kind === "userscript" ? "Userscript installed" : "Extension installed",
       detail: !installed
         ? "Follow the install steps below"
         : status?.outdated
@@ -81,9 +81,9 @@ export function ExtensionLiveStatus() {
         </div>
         <button
           onClick={importAll}
-          disabled={importing || status?.state !== "READY"}
+          disabled={importing || !status || !canSnapshot(status)}
           className="inline-flex items-center gap-2 rounded-xl bg-[image:var(--accent-gradient)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-          title={status?.state !== "READY" ? "Install the extension and sign in to LeetCode first" : undefined}
+          title={status && !canSnapshot(status) ? (status.kind === "userscript" ? "Use the Sync bookmark to import history" : "Install the extension and sign in to LeetCode first") : undefined}
         >
           {importing ? <Loader2 size={15} className="animate-spin" /> : <DownloadCloud size={15} />}
           {importing ? "Importing full history…" : "Import full LeetCode history"}

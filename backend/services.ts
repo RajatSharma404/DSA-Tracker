@@ -1,4 +1,5 @@
 import { prisma } from "./db/prisma";
+import { EXTRA_PRACTICE_TOPIC } from "./services/leetcodeImportService";
 import { appCacheStore } from "./utils/cacheStore";
 import { isFeatureEnabled, FeatureName } from "./features";
 
@@ -1154,8 +1155,10 @@ export const getWeeklyReport = async (userId: string) => {
     thisWeekSolves.map((p) => p.problem.topic.name),
   );
 
-  // Topics progress
-  const topicProgress = topics
+  // Topics progress. The auto-synced "Extra Practice" bucket only ever holds
+  // problems you've already solved, so it isn't a curriculum topic.
+  const curriculum = topics.filter((t) => t.name !== EXTRA_PRACTICE_TOPIC);
+  const topicProgress = curriculum
     .map((t) => {
       const total = t.problems.length;
       const solved = t.problems.filter((p) => solvedIds.has(p.id)).length;
@@ -1218,8 +1221,8 @@ export const getWeeklyReport = async (userId: string) => {
       longest: streak?.longestStreak || 0,
     },
     overall: {
-      totalSolved: solvedAll.length,
-      totalProblems: topics.reduce((s, t) => s + t.problems.length, 0),
+      totalSolved: solvedAll.filter((p) => p.problem.topic.name !== EXTRA_PRACTICE_TOPIC).length,
+      totalProblems: curriculum.reduce((s, t) => s + t.problems.length, 0),
     },
     weakTopics,
     strongTopics,

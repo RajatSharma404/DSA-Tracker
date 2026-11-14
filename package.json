@@ -28,7 +28,8 @@
     "e2e:db": "docker compose -f docker-compose.e2e.yml up -d",
     "e2e:seed": "node scripts/run-seed-e2e.mjs --reset",
     "e2e": "playwright test",
-    "extension": "node scripts/setup-extension.mjs"
+    "extension": "node scripts/setup-extension.mjs",
+    "extension:build": "node scripts/build-extension.mjs"
   },
   "dependencies": {
     "animejs": "^4.3.6",

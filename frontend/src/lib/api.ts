@@ -768,9 +768,9 @@ export const dsaApi = {
    * profiles, no cookie pasting). Falls back to the server-side sync.
    */
   smartSyncLeetcode: async () => {
-    const { getExtensionStatus, fetchLeetCodeSnapshot } = await import("./extensionBridge");
+    const { getExtensionStatus, fetchLeetCodeSnapshot, canSnapshot } = await import("./extensionBridge");
     const status = await getExtensionStatus();
-    if (status.state === "READY" && !status.outdated) {
+    if (canSnapshot(status)) {
       const snapshot = await fetchLeetCodeSnapshot();
       return dsaApi.importLeetcodeSnapshot(snapshot);
     }

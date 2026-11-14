@@ -48,16 +48,26 @@ const safeRuntimeSendMessage = (message, callback) => {
   }
 };
 
+/** Event details cross JS worlds as JSON strings (objects can arrive as null). */
+const readDetail = (detail) => {
+  if (typeof detail !== "string") return detail || {};
+  try {
+    return JSON.parse(detail);
+  } catch {
+    return {};
+  }
+};
+
 const respondToApp = (requestId, response) => {
   document.dispatchEvent(
     new CustomEvent(RESPONSE_DOM_EVENT, {
-      detail: {
+      detail: JSON.stringify({
         source: EXT_SOURCE,
         requestId,
         ok: Boolean(response?.ok),
         payload: response?.payload ?? null,
         error: response?.ok ? null : response?.error || "Request failed",
-      },
+      }),
     }),
   );
 };
@@ -84,7 +94,7 @@ const forwardAppRequest = (detail) => {
 if (!isLeetCode) {
   // ---------------- DSA Tracker web app bridge ----------------
   document.addEventListener(REQUEST_DOM_EVENT, (event) => {
-    const detail = event.detail || {};
+    const detail = readDetail(event.detail);
     if (detail.source !== APP_SOURCE || detail.type !== REQUEST_EVENT) return;
     forwardAppRequest(detail);
   });
@@ -93,7 +103,7 @@ if (!isLeetCode) {
   const announce = () =>
     document.dispatchEvent(
       new CustomEvent(READY_DOM_EVENT, {
-        detail: { source: EXT_SOURCE, version: chrome.runtime.getManifest().version },
+        detail: JSON.stringify({ source: EXT_SOURCE, version: chrome.runtime.getManifest().version }),
       }),
     );
   announce();

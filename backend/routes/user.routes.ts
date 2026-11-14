@@ -243,7 +243,7 @@ router.post(
         if (problem) {
           const completedAt = timestampOpt
             ? new Date(timestampOpt * 1000)
-            : existingProgress?.completedAt || new Date();
+            : existingProgress?.completedAt ?? null; // undated solves stay undated
 
           await prisma.progress.upsert({
             where: { userId_problemId: { userId, problemId: problem.id } },
@@ -304,9 +304,7 @@ router.post(
               userId,
               problemId: newProblem.id,
               status: "DONE",
-              completedAt: timestampOpt
-                ? new Date(timestampOpt * 1000)
-                : new Date(),
+              completedAt: timestampOpt ? new Date(timestampOpt * 1000) : null,
               leetcodeRuntime: runtimeOpt,
               leetcodeMemory: memoryOpt,
             },

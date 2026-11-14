@@ -91,6 +91,13 @@ describe("importSolvedProblems", () => {
     );
   });
 
+  it("leaves undated solves undated instead of stamping them as solved today", async () => {
+    await importSolvedProblems("u1", [{ titleSlug: "two-sum" }]);
+    const call = mockPrisma.progress.upsert.mock.calls[0][0];
+    expect(call.create.completedAt).toBeNull();
+    expect(call.update.completedAt).toBeNull();
+  });
+
   it("skips already-complete progress and creates extra-practice problems once", async () => {
     mockPrisma.progress.findMany.mockResolvedValue([
       {

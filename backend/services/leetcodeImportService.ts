@@ -200,12 +200,15 @@ export async function importSolvedProblems(
     }
 
     // Keep the earliest known completion date; never move it forward.
+    // LeetCode's solved list has no dates (only recent ACs do). An undated
+    // solve stays undated: stamping it "now" would put a whole history into
+    // this week's activity, streaks and reports.
     const completedAt =
       existing?.completedAt && solvedAt
         ? existing.completedAt < solvedAt
           ? existing.completedAt
           : solvedAt
-        : existing?.completedAt || solvedAt || new Date();
+        : existing?.completedAt ?? solvedAt ?? null;
 
     await prisma.progress.upsert({
       where: { userId_problemId: { userId, problemId: problem.id } },

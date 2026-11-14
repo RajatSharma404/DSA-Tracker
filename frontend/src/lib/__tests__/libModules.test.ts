@@ -135,7 +135,8 @@ describe("Frontend Core Libraries", () => {
 
     it("should handle READY status when extension responds with signedIn true", async () => {
       const listener = (event: Event) => {
-        const customEvent = event as CustomEvent;
+        const raw = (event as CustomEvent).detail;
+        const customEvent = { detail: typeof raw === "string" ? JSON.parse(raw) : raw };
         if (customEvent.detail?.action === "PING") {
           document.dispatchEvent(
             new CustomEvent("DSA_TRACKER_EXTENSION_RESPONSE_DOM", {
@@ -160,7 +161,8 @@ describe("Frontend Core Libraries", () => {
 
     it("should handle INSTALLED_NOT_READY status when extension is not signed in", async () => {
       const listener = (event: Event) => {
-        const customEvent = event as CustomEvent;
+        const raw = (event as CustomEvent).detail;
+        const customEvent = { detail: typeof raw === "string" ? JSON.parse(raw) : raw };
         if (customEvent.detail?.action === "PING") {
           document.dispatchEvent(
             new CustomEvent("DSA_TRACKER_EXTENSION_RESPONSE_DOM", {
@@ -185,7 +187,8 @@ describe("Frontend Core Libraries", () => {
 
     it("should submit via extension successfully and handle errors", async () => {
       const listener = (event: Event) => {
-        const customEvent = event as CustomEvent;
+        const raw = (event as CustomEvent).detail;
+        const customEvent = { detail: typeof raw === "string" ? JSON.parse(raw) : raw };
         if (customEvent.detail?.action === "SUBMIT_TO_LEETCODE") {
           document.dispatchEvent(
             new CustomEvent("DSA_TRACKER_EXTENSION_RESPONSE_DOM", {

@@ -8,6 +8,7 @@ import {
   fetchLeetCodeSnapshot,
   getExtensionStatus,
   readCachedSnapshot,
+  canSnapshot,
   type ExtensionStatus,
   type LeetCodeSnapshot,
 } from "@/lib/extensionBridge";
@@ -72,7 +73,7 @@ export function LeetCodeLivePanel() {
 
   const grid = useMemo(() => (data ? buildCalendarGrid(data.calendar) : null), [data]);
   const ac = (d: string) => data?.stats.acByDifficulty.find((x) => x.difficulty === d)?.count ?? 0;
-  const ready = status?.state === "READY" && !status.outdated;
+  const ready = status ? canSnapshot(status) : false;
 
   return (
     <section className="surface p-5 sm:p-6" aria-labelledby="lc-live-title">

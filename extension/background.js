@@ -499,6 +499,8 @@ const status = async () => {
   return {
     installed: true,
     version: VERSION,
+    kind: "extension",
+    capabilities: ["sync", "submit", "snapshot"],
     paired,
     status: paired ? "paired" : st || "not_paired",
     pairedVia: paired ? pairing.source : null,

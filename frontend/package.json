@@ -12,7 +12,9 @@
     "test:coverage": "vitest run --coverage",
     "cap:sync": "cap sync android",
     "cap:open": "cap open android",
-    "cap:run": "cap run android"
+    "cap:run": "cap run android",
+    "predev": "node -e \"const f='../scripts/build-extension.mjs';if(require('fs').existsSync(f))require('child_process').execFileSync(process.execPath,[f],{stdio:'inherit'})\"",
+    "prebuild": "node -e \"const f='../scripts/build-extension.mjs';if(require('fs').existsSync(f))require('child_process').execFileSync(process.execPath,[f],{stdio:'inherit'})\""
   },
   "dependencies": {
     "@capacitor/android": "^8.5.1",
