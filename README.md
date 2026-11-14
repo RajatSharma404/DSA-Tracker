@@ -30,6 +30,8 @@ Free, open source, self-hostable. LeetCode stays the judge.
 - **Insights.** Mistake patterns, weekly report, activity history, your LeetCode contest rating, and a shareable "DSA DNA" skill fingerprint.
 - **Nine themes**, all from established palettes (Catppuccin, Rosé Pine, Nord, Tokyo Night, Gruvbox and others), light and dark.
 
+![Built-in roadmaps: Blind 75, NeetCode, Grind, LeetCode Patterns and company lists](./docs/media/roadmaps.png)
+
 ![Code tracer stepping through bubble sort](./docs/media/tracer.png)
 
 ## Connecting LeetCode
