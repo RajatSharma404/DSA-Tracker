@@ -65,7 +65,7 @@ const pct = (n: number) => `${Math.round(n * 100)}%`;
 const fmtDay = (d: number) => `day ${Math.round(d)}`;
 
 export function ForgettingCurve() {
-  const { withReviews, once } = useMemo(buildPaths, []);
+  const { withReviews, once } = useMemo(() => buildPaths(), []);
   const lineRef = useRef<SVGPathElement>(null);
   const [drawn, setDrawn] = useState(false);
   const [cursor, setCursor] = useState<number | null>(null);
