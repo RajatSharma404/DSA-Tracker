@@ -124,12 +124,11 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install backend dependencies & generate Prisma
-        working-directory: ./backend
+      - name: Install dependencies & setup Prisma
         run: |
           npm ci
-          npx prisma generate
-          npx prisma db push
+          cd frontend && npm ci
+          cd ../backend && npm ci && npx prisma generate && npx prisma db push
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dsatracker_test?schema=public
 
