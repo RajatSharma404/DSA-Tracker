@@ -1,7 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getWeeklyReport = exports.getAchievements = exports.getTimeAnalytics = exports.getInterviewReadinessIndex = exports.getDailyProblem = exports.getMasteryStats = exports.getWeakTopics = exports.getRevisionReminders = void 0;
+exports.getWeeklyReport = exports.getAchievements = exports.getTimeAnalytics = exports.getInterviewReadinessIndex = exports.getDailyProblem = exports.getMasteryStats = exports.invalidateWeakTopicsCache = exports.getWeakTopics = exports.getRevisionReminders = void 0;
 const prisma_1 = require("./db/prisma");
+const leetcodeImportService_1 = require("./services/leetcodeImportService");
+const cacheStore_1 = require("./utils/cacheStore");
+const features_1 = require("./features");
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 const difficultyWeight = {
     EASY: 1,
@@ -45,23 +48,32 @@ const getRevisionReminders = async (userId) => {
 };
 exports.getRevisionReminders = getRevisionReminders;
 // =========================================================================
-// [NEW OPTIMIZED LOGIC: IN-MEMORY WEAK TOPICS TTL CACHE (TEST-SAFE)]
+// [NEW OPTIMIZED LOGIC: REDIS/IN-MEMORY WEAK TOPICS TTL CACHE (TEST-SAFE)]
 // =========================================================================
-const weakTopicsCache = new Map();
 const getWeakTopics = async (userId) => {
+    const cacheKey = `weak_topics:${userId}`;
     if (process.env.NODE_ENV !== "test") {
-        const cached = weakTopicsCache.get(userId);
-        if (cached && Date.now() < cached.expiresAt) {
-            return cached.data;
+        const cached = await cacheStore_1.appCacheStore.get(cacheKey);
+        if (cached) {
+            return cached;
         }
     }
     const result = await calculateWeakTopics(userId);
     if (process.env.NODE_ENV !== "test") {
-        weakTopicsCache.set(userId, { data: result, expiresAt: Date.now() + 30_000 });
+        await cacheStore_1.appCacheStore.set(cacheKey, result, 30);
     }
     return result;
 };
 exports.getWeakTopics = getWeakTopics;
+const invalidateWeakTopicsCache = async (userId) => {
+    if (userId) {
+        await cacheStore_1.appCacheStore.delete(`weak_topics:${userId}`);
+    }
+    else {
+        await cacheStore_1.appCacheStore.clear();
+    }
+};
+exports.invalidateWeakTopicsCache = invalidateWeakTopicsCache;
 const calculateWeakTopics = async (userId) => {
     const now = new Date();
     const [topics, solvedProgress] = await Promise.all([
@@ -813,12 +825,45 @@ const getAchievements = async (userId) => {
             unlocked: completedTopics.length >= 5,
             progress: pct(completedTopics.length, 5),
         },
+        // Feature-gated badges (unlocked only when experimental/parked features are enabled)
+        {
+            id: "arena-champion",
+            name: "Arena Champion",
+            description: "Complete an Arena timed speed challenge",
+            icon: "⚡",
+            category: "Milestones",
+            requiredFeature: "arena",
+            unlocked: false,
+            progress: 0,
+        },
+        {
+            id: "pvp-gladiator",
+            name: "Colosseum Victor",
+            description: "Win a 1v1 PvP speed duel",
+            icon: "⚔️",
+            category: "Milestones",
+            requiredFeature: "pvp",
+            unlocked: false,
+            progress: 0,
+        },
+        {
+            id: "mock-interview-ace",
+            name: "Interview Ace",
+            description: "Score 80%+ on an AI Mock Technical Interview",
+            icon: "🎯",
+            category: "Milestones",
+            requiredFeature: "interviews",
+            unlocked: false,
+            progress: 0,
+        },
     ];
-    const unlockedCount = badges.filter((b) => b.unlocked).length;
+    // Exclude badges whose required feature is currently disabled
+    const activeBadges = badges.filter((b) => !b.requiredFeature || (0, features_1.isFeatureEnabled)(b.requiredFeature));
+    const unlockedCount = activeBadges.filter((b) => b.unlocked).length;
     return {
-        badges,
+        badges: activeBadges,
         stats: {
-            totalBadges: badges.length,
+            totalBadges: activeBadges.length,
             unlocked: unlockedCount,
             totalSolved,
             currentStreak,
@@ -862,8 +907,10 @@ const getWeeklyReport = async (userId) => {
     };
     // Topics touched this week
     const topicsTouched = new Set(thisWeekSolves.map((p) => p.problem.topic.name));
-    // Topics progress
-    const topicProgress = topics
+    // Topics progress. The auto-synced "Extra Practice" bucket only ever holds
+    // problems you've already solved, so it isn't a curriculum topic.
+    const curriculum = topics.filter((t) => t.name !== leetcodeImportService_1.EXTRA_PRACTICE_TOPIC);
+    const topicProgress = curriculum
         .map((t) => {
         const total = t.problems.length;
         const solved = t.problems.filter((p) => solvedIds.has(p.id)).length;
@@ -923,8 +970,8 @@ const getWeeklyReport = async (userId) => {
             longest: streak?.longestStreak || 0,
         },
         overall: {
-            totalSolved: solvedAll.length,
-            totalProblems: topics.reduce((s, t) => s + t.problems.length, 0),
+            totalSolved: solvedAll.filter((p) => p.problem.topic.name !== leetcodeImportService_1.EXTRA_PRACTICE_TOPIC).length,
+            totalProblems: curriculum.reduce((s, t) => s + t.problems.length, 0),
         },
         weakTopics,
         strongTopics,

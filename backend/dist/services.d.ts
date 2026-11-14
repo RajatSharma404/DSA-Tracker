@@ -1,3 +1,4 @@
+import { FeatureName } from "./features";
 export declare const getRevisionReminders: (userId: string) => Promise<{
     id: any;
     title: any;
@@ -5,6 +6,7 @@ export declare const getRevisionReminders: (userId: string) => Promise<{
     daysSince: number;
 }[]>;
 export declare const getWeakTopics: (userId: string) => Promise<any[]>;
+export declare const invalidateWeakTopicsCache: (userId?: string) => Promise<void>;
 export declare const getMasteryStats: (userId: string) => Promise<{
     subject: string;
     A: number;
@@ -157,6 +159,7 @@ interface Badge {
     unlocked: boolean;
     progress?: number;
     unlockedAt?: string;
+    requiredFeature?: FeatureName;
 }
 export declare const getAchievements: (userId: string) => Promise<{
     badges: Badge[];

@@ -20,7 +20,7 @@ Object.defineProperty(exports, "calculateDifficultyRamp", { enumerable: true, ge
 dotenv_1.default.config();
 const PORT = process.env.PORT || 3001;
 let server = null;
-if (process.env.NODE_ENV !== "test") {
+if (process.env.NODE_ENV !== "test" || process.env.E2E === "true") {
     server = app_1.app.listen(PORT, () => {
         console.log(`Server is running on http://localhost:${PORT}`);
     });
