@@ -91,10 +91,8 @@ export function ControlsBar({
         let label = "";
         let color = "";
 
-        if (step.type === "swap") {
-          label = "Swap";
-          color = "bg-rose-400";
-        } else if (step.type === "found") {
+        // Swaps happen every few steps; marking each one just adds noise.
+        if (step.type === "found") {
           label = "Found Target";
           color = "bg-emerald-400";
         } else if (step.type === "split") {
@@ -225,12 +223,12 @@ export function ControlsBar({
               soundEffects.playClick();
               onScrub(targetStep);
             }}
-            className="flex-1 h-3 rounded-full bg-[var(--bg-tertiary)] overflow-visible cursor-pointer relative group transition-all hover:h-3.5 border border-[var(--border-subtle)]"
+            className="flex-1 h-1.5 rounded-full bg-[var(--bg-tertiary)] overflow-visible cursor-pointer relative group transition-[height] hover:h-2"
           >
             {/* Progress Fill */}
             <div
               style={{ width: `${progressPercent}%` }}
-              className="h-full bg-[var(--accent-primary)] rounded-full transition-all duration-150 shadow-[0_0_8px_var(--accent-glow)]"
+              className="h-full bg-[var(--accent-primary)] rounded-full transition-[width] duration-150"
             />
 
             {/* Milestone Event Pins */}
@@ -251,7 +249,7 @@ export function ControlsBar({
                   soundEffects.playClick();
                   onScrub(marker.stepIndex);
                 }}
-                className={`absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full ${marker.color} ring-2 ring-[var(--bg-card)] shadow-xs transition-transform hover:scale-150 z-10`}
+                className={`absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-2 h-2 rounded-full ${marker.color} ring-2 ring-[var(--bg-card)] transition-transform hover:scale-150 z-10`}
               />
             ))}
 

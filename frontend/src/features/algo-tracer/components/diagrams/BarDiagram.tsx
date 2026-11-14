@@ -33,20 +33,20 @@ export function BarDiagram({
     .filter((s) => s.type === "swap").length;
 
   return (
-    <div className="flex flex-col h-full w-full justify-between p-2.5 sm:p-3 bg-[var(--bg-card)] rounded-2xl border border-[var(--border-subtle)] shadow-xl overflow-hidden">
+    <div className="flex flex-col h-full w-full justify-between p-3 bg-[var(--bg-card)] rounded-xl border border-[var(--border-subtle)] overflow-hidden">
       {/* Counters & Legend */}
       <div className="flex items-center justify-between pb-1.5 border-b border-[var(--border-subtle)] shrink-0 text-[10px] font-mono">
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 text-amber-400 font-bold">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+          <div className="flex items-center gap-1 text-[var(--text-secondary)]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)]" />
             Compare
           </div>
-          <div className="flex items-center gap-1 text-rose-400 font-bold">
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+          <div className="flex items-center gap-1 text-[var(--text-secondary)]">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
             Swap
           </div>
-          <div className="flex items-center gap-1 text-emerald-400 font-bold">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          <div className="flex items-center gap-1 text-[var(--text-secondary)]">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/70" />
             Sorted
           </div>
           {pivot !== null && pivot !== undefined && (
@@ -80,26 +80,22 @@ export function BarDiagram({
             Math.round((Math.abs(val) / maxVal) * 85),
           );
 
-          let barColor = "bg-[var(--bg-secondary)] border-[var(--border-subtle)]";
-          let textColor = "text-[var(--text-secondary)]";
-          let glowEffect = "";
+          let barColor = "bg-[var(--bg-tertiary)]";
+          let textColor = "text-[var(--text-muted)]";
+          const glowEffect = "";
 
-          if (isSorted) {
-            barColor = "bg-emerald-500 border-emerald-400";
-            textColor = "text-emerald-400 font-extrabold";
-            glowEffect = "shadow-[0_0_10px_rgba(16,185,129,0.35)]";
-          } else if (isSwapping) {
-            barColor = "bg-rose-500 border-rose-400 animate-bounce";
-            textColor = "text-rose-300 font-extrabold";
-            glowEffect = "shadow-[0_0_12px_rgba(244,63,94,0.5)]";
+          if (isSwapping) {
+            barColor = "bg-rose-500";
+            textColor = "text-rose-500 font-semibold";
           } else if (isComparing) {
-            barColor = "bg-amber-500 border-amber-400";
-            textColor = "text-amber-300 font-extrabold";
-            glowEffect = "shadow-[0_0_12px_rgba(245,158,11,0.5)] scale-[1.02]";
+            barColor = "bg-[var(--accent-primary)]";
+            textColor = "text-[var(--text-primary)] font-semibold";
           } else if (isPivot) {
-            barColor = "bg-purple-500 border-purple-400";
-            textColor = "text-purple-300 font-extrabold";
-            glowEffect = "shadow-[0_0_12px_rgba(168,85,247,0.5)]";
+            barColor = "bg-violet-500";
+            textColor = "text-violet-500 font-semibold";
+          } else if (isSorted) {
+            barColor = "bg-emerald-500/70";
+            textColor = "text-emerald-500";
           }
 
           return (
@@ -115,10 +111,10 @@ export function BarDiagram({
               {/* Bar itself with relative height */}
               <div
                 style={{ height: `${heightPercent}%` }}
-                className={`w-full rounded-t-xl border-t-2 border-l-2 border-r-2 ${barColor} ${glowEffect} transition-all duration-200 flex items-start justify-center pt-1 min-h-3`}
+                className={`w-full rounded-t-md ${barColor} ${glowEffect} transition-[height,background-color] duration-200 flex items-start justify-center pt-1 min-h-3`}
               >
                 {isPivot && (
-                  <span className="text-[9px] font-black text-black font-mono">
+                  <span className="text-[9px] font-semibold text-[var(--on-accent)] font-mono">
                     P
                   </span>
                 )}

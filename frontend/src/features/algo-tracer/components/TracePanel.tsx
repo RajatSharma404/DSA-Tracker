@@ -22,6 +22,8 @@ interface TracePanelProps {
   diagramType: DiagramType;
   theory?: TheoryData;
   error?: string | null;
+  /** console.log output from a live trace */
+  logs?: string[];
 }
 
 export function TracePanel({
@@ -31,6 +33,7 @@ export function TracePanel({
   diagramType,
   theory,
   error,
+  logs = [],
 }: TracePanelProps) {
   const [viewMode, setViewMode] = useState<"diagram" | "stack">("diagram");
   const [isTheoryOpen, setIsTheoryOpen] = useState(false);
@@ -103,11 +106,25 @@ export function TracePanel({
         return <QueueDiagram step={activeStep} />;
       default:
         return (
-          <BarDiagram
-            step={activeStep}
-            allSteps={allSteps}
-            currentIndex={currentStepIndex}
-          />
+          <div className="h-full overflow-auto p-4 font-mono text-xs">
+            <p className="mb-3 font-sans text-[13px] text-[var(--text-muted)]">
+              Nothing array-shaped to draw for this code, so here are its variables at this step.
+            </p>
+            <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5">
+              {Object.entries(activeStep.variables ?? {}).map(([k, v]) => (
+                <div key={k} className="contents">
+                  <dt className="text-[var(--text-muted)]">{k}</dt>
+                  <dd className="truncate text-[var(--text-primary)]">{JSON.stringify(v)}</dd>
+                </div>
+              ))}
+            </dl>
+            {logs.length > 0 && (
+              <div className="mt-4">
+                <div className="mb-1 font-sans text-[11px] text-[var(--text-muted)]">console.log</div>
+                <pre className="whitespace-pre-wrap rounded-md bg-[var(--bg-tertiary)] p-2 text-[var(--text-secondary)]">{logs.join("\n")}</pre>
+              </div>
+            )}
+          </div>
         );
     }
   };

@@ -159,7 +159,9 @@ describe("Algo Tracer Hooks", () => {
   });
 
   describe("useTraceEngine (hooks/useTraceEngine.ts)", () => {
-    it("should generate trace steps automatically on mount", () => {
+    // JavaScript is executed live in a Web Worker (covered in liveTracer.test.ts);
+    // other languages use the template engine synchronously.
+    it("should generate template trace steps automatically on mount", () => {
       const code = `
         function bubbleSort(arr) {
           for (let i = 0; i < arr.length; i++) {
@@ -173,9 +175,11 @@ describe("Algo Tracer Hooks", () => {
         useTraceEngine({
           initialCode: code,
           initialArrayInput: [4, 1, 3],
+          language: "python",
         })
       );
 
+      expect(result.current.mode).toBe("template");
       expect(result.current.steps.length).toBeGreaterThan(0);
       expect(result.current.error).toBeNull();
       expect(result.current.isTracing).toBe(false);

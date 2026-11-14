@@ -56,7 +56,7 @@ export function Sidebar() {
 
   // Workspaces need the width: collapse automatically while solving.
   const effectiveCollapsed =
-    pathname.startsWith("/challenge/") || pathname.startsWith("/problems/") || collapsed;
+    pathname.startsWith("/challenge/") || pathname.startsWith("/problems/") || pathname === "/tracer" || collapsed;
   const isAdmin = (session?.user as { role?: string } | undefined)?.role === "ADMIN";
   const visible = filterNavByFeatures(NAV_SECTIONS, features);
   const sections: NavSection[] = isAdmin

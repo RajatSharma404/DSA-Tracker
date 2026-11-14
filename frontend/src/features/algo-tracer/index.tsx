@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Activity, Zap, CheckCircle2, Sliders } from "lucide-react";
 import { SupportedLanguage, AlgorithmType, TraceSession } from "./types";
 import { STARTER_PRESETS } from "./data/starterCodes";
 import { useAlgoDetector } from "./hooks/useAlgoDetector";
@@ -56,18 +55,21 @@ export function AlgoTracer({
   const detection = useAlgoDetector(code);
 
   // Trace Engine
-  const { steps, isTracing, error, runTrace } = useTraceEngine({
+  const { steps, isTracing, error, runTrace, mode, diagram, logs } = useTraceEngine({
     initialCode: code,
     initialArrayInput: arrayInput,
     initialTarget: targetInput,
     initialGraphInput: graphInput,
     algoType: detection.type,
+    language,
   });
 
+  // The code the visible trace was produced from (to flag stale traces).
+  const [tracedCode, setTracedCode] = useState<string>(code);
   const handleRunTrace = useCallback(() => {
-    runTrace(code, arrayInput, targetInput, graphInput, detection.type);
-    toast.success(`Trace generated for ${detection.displayName}!`);
-  }, [code, arrayInput, targetInput, graphInput, detection.type, detection.displayName, runTrace]);
+    setTracedCode(code);
+    runTrace(code, arrayInput, targetInput, graphInput, detection.type, language);
+  }, [code, arrayInput, targetInput, graphInput, detection.type, language, runTrace]);
 
   // Playback hook
   const {
@@ -166,16 +168,15 @@ export function AlgoTracer({
       setGraphInput(preset.defaultInput.graph);
     }
 
-    setTimeout(() => {
-      runTrace(
-        preset.codes[language] || preset.codes.javascript,
-        preset.defaultInput.array || arrayInput,
-        preset.defaultInput.target ?? targetInput,
-        preset.defaultInput.graph ?? graphInput,
-        preset.id,
-      );
-      reset();
-    }, 100);
+    setTracedCode(preset.codes[language] || preset.codes.javascript);
+    runTrace(
+      preset.codes[language] || preset.codes.javascript,
+      preset.defaultInput.array || arrayInput,
+      preset.defaultInput.target ?? targetInput,
+      preset.defaultInput.graph ?? graphInput,
+      preset.id,
+      language,
+    ).then(() => reset());
   };
 
   const handleClearCode = () => {
@@ -197,43 +198,34 @@ export function AlgoTracer({
 
   return (
     <div className="flex flex-col h-full min-h-0 w-full overflow-hidden p-2 sm:p-3 space-y-2 bg-[var(--bg-primary)] text-[var(--text-primary)] select-none">
-      {/* ROW 1: SLIM TOPBAR (44px, fixed) */}
-      <header className="h-11 px-3.5 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] flex items-center justify-between gap-3 shadow-lg shrink-0">
-        <div className="flex items-center gap-3">
-          {/* Brand Tag */}
-          <div className="flex items-center gap-1.5 text-xs font-black tracking-wider text-[var(--text-primary)]">
-            <span className="p-1 rounded-lg bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] border border-[var(--accent-primary)]/30">
-              <Zap size={13} />
-            </span>
-            <span className="hidden sm:inline font-display font-bold">AlgoTrace</span>
-            <span className="text-[var(--accent-primary)] font-mono text-[10px] uppercase px-1.5 py-0.2 rounded bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/20">
-              PRO
-            </span>
-          </div>
-
-          {/* Language Selector Tabs */}
-          <div className="flex items-center gap-0.5 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-xl p-0.5 font-mono text-[11px]">
+      {/* Toolbar */}
+      <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 px-1">
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="text-[15px] font-semibold tracking-tight text-[var(--text-primary)]">Tracer</h1>
+          <div role="radiogroup" aria-label="Language" className="flex rounded-lg bg-[var(--bg-tertiary)] p-0.5">
             {(
               [
-                { id: "javascript", label: "JS" },
+                { id: "javascript", label: "JavaScript" },
                 { id: "python", label: "Python" },
                 { id: "cpp", label: "C++" },
               ] as const
             ).map((lang) => (
               <button
                 key={lang.id}
+                role="radio"
+                aria-checked={language === lang.id}
                 onClick={() => {
+                  if (lang.id === language) return;
                   setLanguage(lang.id);
-                  const foundPreset = STARTER_PRESETS.find(
-                    (p) => p.id === detection.type,
-                  );
-                  if (foundPreset && foundPreset.codes[lang.id]) {
-                    setCode(foundPreset.codes[lang.id]);
-                  }
+                  const preset = STARTER_PRESETS.find((p) => p.id === detection.type) ?? STARTER_PRESETS[0];
+                  const nextCode = preset.codes[lang.id] || preset.codes.javascript;
+                  setCode(nextCode);
+                  setTracedCode(nextCode);
+                  runTrace(nextCode, arrayInput, targetInput, graphInput, preset.id, lang.id).then(() => reset());
                 }}
-                className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+                className={`rounded-md px-3 py-1 text-xs transition-colors cursor-pointer ${
                   language === lang.id
-                    ? "bg-[var(--accent-primary)] text-black font-extrabold shadow-sm"
+                    ? "bg-[var(--bg-card)] font-medium text-[var(--text-primary)] shadow-[var(--shadow-sm)]"
                     : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                 }`}
               >
@@ -241,19 +233,17 @@ export function AlgoTracer({
               </button>
             ))}
           </div>
-
-          {/* Template Dropdown */}
           <select
             onChange={(e) => {
-              if (e.target.value) {
-                handleSelectPreset(e.target.value as AlgorithmType);
-              }
+              if (e.target.value) handleSelectPreset(e.target.value as AlgorithmType);
+              e.target.value = "";
             }}
             defaultValue=""
-            className="bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-xl px-2.5 py-1 text-xs font-mono font-bold text-[var(--text-secondary)] outline-none cursor-pointer hidden md:block"
+            aria-label="Load an example"
+            className="rounded-lg border border-[var(--input-border)] bg-[var(--input-bg)] px-2.5 py-1 text-xs text-[var(--text-secondary)] outline-none cursor-pointer"
           >
             <option value="" disabled>
-              Load Template ▾
+              Load an example…
             </option>
             {STARTER_PRESETS.map((p) => (
               <option key={p.id} value={p.id}>
@@ -261,46 +251,23 @@ export function AlgoTracer({
               </option>
             ))}
           </select>
-
-          {/* 3 Quick-Load Example Snippets (Binary Search, DFS, Two-Pointer) */}
-          <div className="hidden xl:flex items-center gap-1 font-mono text-[10px]">
-            <button
-              onClick={() => handleSelectPreset("binary-search")}
-              title="Quick-load Binary Search snippet"
-              className="px-2 py-0.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] font-bold transition-colors cursor-pointer"
-            >
-              Binary Search
-            </button>
-            <button
-              onClick={() => handleSelectPreset("dfs")}
-              title="Quick-load Depth-First Search snippet"
-              className="px-2 py-0.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] font-bold transition-colors cursor-pointer"
-            >
-              DFS
-            </button>
-            <button
-              onClick={() => handleSelectPreset("two-pointers")}
-              title="Quick-load Two-Pointer snippet"
-              className="px-2 py-0.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] font-bold transition-colors cursor-pointer"
-            >
-              Two-Pointer
-            </button>
-          </div>
         </div>
 
-        {/* Right Status Badges */}
-        <div className="flex items-center gap-2 font-mono text-[11px]">
-          {/* Detected Algo */}
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 font-bold">
-            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-            <span>{detection.displayName}</span>
-          </div>
-
-          {/* Extension Ready */}
-          <div className="hidden lg:flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold">
-            <CheckCircle2 size={12} />
-            <span>Extension Ready</span>
-          </div>
+        <div className="flex items-center gap-3 text-xs">
+          {code !== tracedCode && (
+            <button onClick={handleRunTrace} className="text-amber-500 hover:underline underline-offset-2 cursor-pointer">
+              Code changed: Run & Trace to update
+            </button>
+          )}
+          {mode === "live" ? (
+            <span className="flex items-center gap-1.5 text-[var(--text-secondary)]" title="Your code is executed in a sandbox and every step is recorded">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Running your code
+            </span>
+          ) : (
+            <span className="flex items-center gap-1.5 text-[var(--text-secondary)]" title="Python and C++ can't run in the browser, so this is a scripted animation of the detected algorithm">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-500" /> Template animation: {detection.displayName}
+            </span>
+          )}
         </div>
       </header>
 
@@ -348,7 +315,8 @@ export function AlgoTracer({
             currentStep={currentStep}
             allSteps={steps}
             currentStepIndex={currentStepIndex}
-            diagramType={detection.suggestedDiagram}
+            diagramType={diagram ?? detection.suggestedDiagram}
+            logs={logs}
             theory={detection.theory}
             error={error}
           />
