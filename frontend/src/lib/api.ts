@@ -116,6 +116,7 @@ export const fetchBackendJwt = async (force = false): Promise<string | null> => 
           const res = await fetch("/api/backend-token", {
             method: "GET",
             headers: { Accept: "application/json" },
+            credentials: "same-origin",
           });
           if (res.ok) {
             const data = (await res.json()) as { token?: string; expiresIn?: number };

@@ -20,7 +20,9 @@ const LEETCODE_ORIGIN = "https://leetcode.com";
  * The deployed tracker's origin, stamped in by scripts/build-extension.mjs
  * (empty in the source folder, which only trusts localhost).
  */
-const APP_ORIGINS = [/*@APP_ORIGINS*/];
+const APP_ORIGINS = Array.from(
+  new Set(["https://dsa-ready.vercel.app", /*@APP_ORIGINS*/].filter(Boolean)),
+);
 /** Used when paired from the popup (no app origin known). */
 const DEFAULT_API_BASES = [...APP_ORIGINS.map((o) => `${o}/api`), "http://localhost:3001/api"];
 const KEYS = {

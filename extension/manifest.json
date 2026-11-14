@@ -12,7 +12,8 @@
   "host_permissions": [
     "https://leetcode.com/*",
     "http://localhost/*",
-    "http://127.0.0.1/*"
+    "http://127.0.0.1/*",
+    "https://dsa-ready.vercel.app/*"
   ],
   "background": {
     "service_worker": "background.js"
@@ -36,7 +37,8 @@
       "matches": [
         "http://localhost/*",
         "http://127.0.0.1/*",
-        "https://leetcode.com/*"
+        "https://leetcode.com/*",
+        "https://dsa-ready.vercel.app/*"
       ],
       "js": [
         "content.js"
