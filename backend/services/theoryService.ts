@@ -1,138 +1,19 @@
 import { randomUUID } from "crypto";
 import { prisma } from "../db/prisma";
 
+/**
+ * The theory tables are created by Prisma migrations. This used to recreate
+ * them with raw SQL using snake_case columns, which no longer matched the
+ * migrated (camelCase) schema and failed on every Learn request. Now it only
+ * verifies they exist.
+ */
 export const ensureTheorySchemaExists = async () => {
-  await prisma.$executeRawUnsafe(`
-    DO $$
-    BEGIN
-      IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'TheoryDifficulty') THEN
-        CREATE TYPE "TheoryDifficulty" AS ENUM ('BEGINNER', 'INTERMEDIATE', 'ADVANCED');
-      END IF;
-    END
-    $$;
-  `);
-
-  await prisma.$executeRawUnsafe(`
-    DO $$
-    BEGIN
-      IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'TheoryBlockType') THEN
-        CREATE TYPE "TheoryBlockType" AS ENUM ('MARKDOWN', 'CODE', 'NOTE', 'QUIZ', 'IMAGE');
-      END IF;
-    END
-    $$;
-  `);
-
-  await prisma.$executeRawUnsafe(`
-    DO $$
-    BEGIN
-      IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'TheoryProgressStatus') THEN
-        CREATE TYPE "TheoryProgressStatus" AS ENUM ('NOT_STARTED', 'IN_PROGRESS', 'COMPLETED');
-      END IF;
-    END
-    $$;
-  `);
-
-  await prisma.$executeRawUnsafe(`
-    CREATE TABLE IF NOT EXISTS theory_tracks (
-      id uuid PRIMARY KEY,
-      slug text UNIQUE NOT NULL,
-      title text NOT NULL,
-      description text NULL,
-      order_index integer NOT NULL DEFAULT 0,
-      is_published boolean NOT NULL DEFAULT true,
-      created_at timestamptz NOT NULL DEFAULT NOW(),
-      updated_at timestamptz NOT NULL DEFAULT NOW()
-    );
-  `);
-
-  await prisma.$executeRawUnsafe(`
-    CREATE TABLE IF NOT EXISTS theory_modules (
-      id uuid PRIMARY KEY,
-      track_id uuid NOT NULL REFERENCES theory_tracks(id) ON DELETE CASCADE,
-      topic_id uuid NULL REFERENCES "Topic"(id) ON DELETE SET NULL,
-      slug text NOT NULL,
-      title text NOT NULL,
-      summary text NULL,
-      order_index integer NOT NULL DEFAULT 0,
-      estimated_minutes integer NOT NULL DEFAULT 0,
-      is_published boolean NOT NULL DEFAULT true,
-      created_at timestamptz NOT NULL DEFAULT NOW(),
-      updated_at timestamptz NOT NULL DEFAULT NOW(),
-      UNIQUE(track_id, slug)
-    );
-  `);
-
-  await prisma.$executeRawUnsafe(`
-    CREATE TABLE IF NOT EXISTS theory_lessons (
-      id uuid PRIMARY KEY,
-      module_id uuid NOT NULL REFERENCES theory_modules(id) ON DELETE CASCADE,
-      slug text NOT NULL,
-      title text NOT NULL,
-      summary text NULL,
-      order_index integer NOT NULL DEFAULT 0,
-      difficulty "TheoryDifficulty" NOT NULL DEFAULT 'BEGINNER',
-      estimated_minutes integer NOT NULL DEFAULT 0,
-      learning_objectives jsonb NULL,
-      is_published boolean NOT NULL DEFAULT true,
-      created_at timestamptz NOT NULL DEFAULT NOW(),
-      updated_at timestamptz NOT NULL DEFAULT NOW(),
-      UNIQUE(module_id, slug)
-    );
-  `);
-
-  await prisma.$executeRawUnsafe(`
-    CREATE TABLE IF NOT EXISTS theory_lesson_blocks (
-      id uuid PRIMARY KEY,
-      lesson_id uuid NOT NULL REFERENCES theory_lessons(id) ON DELETE CASCADE,
-      block_type "TheoryBlockType" NOT NULL,
-      order_index integer NOT NULL,
-      content jsonb NOT NULL,
-      language text NULL,
-      UNIQUE(lesson_id, order_index)
-    );
-  `);
-
-  await prisma.$executeRawUnsafe(`
-    CREATE TABLE IF NOT EXISTS theory_problem_links (
-      id uuid PRIMARY KEY,
-      lesson_id uuid NULL REFERENCES theory_lessons(id) ON DELETE CASCADE,
-      module_id uuid NULL REFERENCES theory_modules(id) ON DELETE CASCADE,
-      problem_id uuid NOT NULL REFERENCES "Problem"(id) ON DELETE CASCADE,
-      required boolean NOT NULL DEFAULT true,
-      order_index integer NOT NULL DEFAULT 0
-    );
-  `);
-
-  await prisma.$executeRawUnsafe(`
-    CREATE TABLE IF NOT EXISTS user_theory_lesson_progress (
-      user_id uuid NOT NULL REFERENCES "User"(id) ON DELETE CASCADE,
-      lesson_id uuid NOT NULL REFERENCES theory_lessons(id) ON DELETE CASCADE,
-      status "TheoryProgressStatus" NOT NULL DEFAULT 'NOT_STARTED',
-      progress_percent integer NOT NULL DEFAULT 0,
-      time_spent_seconds integer NOT NULL DEFAULT 0,
-      completed_at timestamptz NULL,
-      last_seen_block_id text NULL,
-      created_at timestamptz NOT NULL DEFAULT NOW(),
-      updated_at timestamptz NOT NULL DEFAULT NOW(),
-      PRIMARY KEY(user_id, lesson_id)
-    );
-  `);
-
-  await prisma.$executeRawUnsafe(
-    `CREATE INDEX IF NOT EXISTS idx_theory_modules_topic_id ON theory_modules(topic_id);`,
+  const rows = await prisma.$queryRawUnsafe<Array<{ exists: string | null }>>(
+    `SELECT to_regclass('public.theory_tracks')::text AS "exists"`,
   );
-  await prisma.$executeRawUnsafe(
-    `CREATE INDEX IF NOT EXISTS idx_theory_problem_links_lesson_id ON theory_problem_links(lesson_id);`,
-  );
-  await prisma.$executeRawUnsafe(
-    `CREATE INDEX IF NOT EXISTS idx_theory_problem_links_module_id ON theory_problem_links(module_id);`,
-  );
-  await prisma.$executeRawUnsafe(
-    `CREATE INDEX IF NOT EXISTS idx_theory_problem_links_problem_id ON theory_problem_links(problem_id);`,
-  );
-  await prisma.$executeRawUnsafe(
-    `CREATE INDEX IF NOT EXISTS idx_user_theory_lesson_progress_lesson_id ON user_theory_lesson_progress(lesson_id);`,
-  );
+  if (!rows[0]?.exists) {
+    throw new Error("Theory tables are missing. Run `npx prisma migrate deploy` in backend/.");
+  }
 };
 
 export const seedStarterTheoryContent = async () => {

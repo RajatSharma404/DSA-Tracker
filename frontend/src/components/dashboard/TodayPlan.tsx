@@ -2,9 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, ChevronRight, RotateCcw, Target, CalendarDays, Check } from "lucide-react";
-import { dsaApi, type DashboardStats } from "@/lib/api";
+import { ArrowUpRight, ChevronRight, RotateCcw, Target, CalendarDays, Check, Map as MapIcon } from "lucide-react";
+import { dsaApi, type DashboardStats, type RoadmapProblem } from "@/lib/api";
 import { Panel } from "@/components/ui/Panel";
+import { getFollowedRoadmap } from "@/lib/followedRoadmap";
 
 type Difficulty = "EASY" | "MEDIUM" | "HARD" | string;
 
@@ -23,7 +24,7 @@ interface DailyLc {
 
 type Item = {
   key: string;
-  kind: "review" | "focus" | "plan" | "daily";
+  kind: "review" | "roadmap" | "focus" | "plan" | "daily";
   title: string;
   meta: string;
   difficulty?: Difficulty;
@@ -33,6 +34,7 @@ type Item = {
 
 const KIND = {
   review: { icon: RotateCcw, label: "Review" },
+  roadmap: { icon: MapIcon, label: "Next in" },
   focus: { icon: Target, label: "Today's focus" },
   plan: { icon: Target, label: "Practice" },
   daily: { icon: CalendarDays, label: "LeetCode daily" },
@@ -55,6 +57,19 @@ export function TodayPlan({ revisions }: { revisions: DashboardStats["revisions"
   const [daily, setDaily] = useState<DailyProblem | null>(null);
   const [lc, setLc] = useState<DailyLc | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [roadmapNext, setRoadmapNext] = useState<{ name: string; slug: string; problem: RoadmapProblem } | null>(null);
+
+  useEffect(() => {
+    const followed = getFollowedRoadmap();
+    if (!followed) return;
+    dsaApi
+      .getRoadmap(followed)
+      .then((r) => {
+        const next = r.sections.flatMap((s) => s.problems).find((p) => !p.solved);
+        if (next) setRoadmapNext({ name: r.name, slug: r.slug, problem: next });
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     Promise.allSettled([dsaApi.getDailyProblem(), dsaApi.getLeetcodeDailyChallenge()]).then(([d, l]) => {
@@ -76,6 +91,21 @@ export function TodayPlan({ revisions }: { revisions: DashboardStats["revisions"
       push(
         { key: `r-${r.id}`, kind: "review", title: r.title, meta: `${r.topicName} · solved ${r.daysSince}d ago`, href: `/problems/${r.id}` },
         r.id,
+      );
+    }
+    if (roadmapNext) {
+      const p = roadmapNext.problem;
+      push(
+        {
+          key: `rm-${p.slug}`,
+          kind: "roadmap",
+          title: p.title,
+          meta: roadmapNext.name,
+          difficulty: p.difficulty,
+          // Problems not yet in the tracker open from the roadmap page.
+          href: p.problemId ? `/problems/${p.problemId}` : `/roadmap?list=${roadmapNext.slug}`,
+        },
+        p.problemId ?? undefined,
       );
     }
     if (daily?.problem) {
@@ -109,7 +139,7 @@ export function TodayPlan({ revisions }: { revisions: DashboardStats["revisions"
       });
     }
     return out.slice(0, 7);
-  }, [revisions, daily, lc]);
+  }, [revisions, daily, lc, roadmapNext]);
 
   const dueCount = revisions?.length ?? 0;
 
@@ -147,7 +177,11 @@ export function TodayPlan({ revisions }: { revisions: DashboardStats["revisions"
                 <span className="w-5 shrink-0 text-right font-mono text-xs text-[var(--text-muted)] tabular">{idx + 1}</span>
                 <span
                   className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-[var(--border-subtle)] ${
-                    item.kind === "review" ? "text-amber-500" : item.kind === "daily" ? "text-[var(--text-secondary)]" : "text-[var(--accent-primary)]"
+                    item.kind === "review"
+                      ? "text-amber-500"
+                      : item.kind === "daily"
+                        ? "text-[var(--text-secondary)]"
+                        : "text-[var(--accent-primary)]"
                   }`}
                   aria-hidden
                 >

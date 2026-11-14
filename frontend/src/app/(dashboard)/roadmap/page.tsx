@@ -1,119 +1,95 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Network, Activity, Info, Grid2X2, PencilLine } from "lucide-react";
-import { useState } from "react";
-import { soundEffects } from "@/lib/soundEffects";
+import { Suspense } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { RoadmapCatalog } from "@/components/roadmap/RoadmapCatalog";
+import { RoadmapDetail } from "@/components/roadmap/RoadmapDetail";
 
-const CustomRoadmapBuilder = dynamic(
-  () => import("@/components/roadmap/CustomRoadmapBuilder"),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex min-h-[60vh] items-center justify-center rounded-4xl border border-[var(--border-subtle)] bg-[var(--bg-card)] text-sm font-medium text-[var(--text-muted)] font-mono">
-        Loading roadmap builder...
-      </div>
-    ),
-  },
-);
+const CustomRoadmapBuilder = dynamic(() => import("@/components/roadmap/CustomRoadmapBuilder"), {
+  ssr: false,
+  loading: () => <div className="surface h-[60vh] shimmer" />,
+});
+const RoadmapGraph = dynamic(() => import("@/components/roadmap/RoadmapGraph"), {
+  ssr: false,
+  loading: () => <div className="surface h-[60vh] shimmer" />,
+});
 
-const RoadmapGraph = dynamic(
-  () => import("@/components/roadmap/RoadmapGraph"),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex min-h-[60vh] items-center justify-center rounded-4xl border border-[var(--border-subtle)] bg-[var(--bg-card)] text-sm font-medium text-[var(--text-muted)] font-mono">
-        Loading visual roadmap...
-      </div>
-    ),
-  },
-);
+type View = "lists" | "map" | "build";
+const VIEWS: Array<{ id: View; label: string }> = [
+  { id: "lists", label: "Roadmaps" },
+  { id: "map", label: "Topic map" },
+  { id: "build", label: "Build your own" },
+];
 
-export default function RoadmapPage() {
-  const [mode, setMode] = useState<"custom" | "visual">("custom");
+function RoadmapContent() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const params = useSearchParams();
+  const view = (params.get("view") as View) || "lists";
+  const list = params.get("list");
 
-  const handleToggleMode = (newMode: "custom" | "visual") => {
-    soundEffects.playClick();
-    setMode(newMode);
+  const go = (next: Record<string, string | null>) => {
+    const q = new URLSearchParams(params.toString());
+    for (const [k, v] of Object.entries(next)) {
+      if (v) q.set(k, v);
+      else q.delete(k);
+    }
+    router.push(`${pathname}${q.size ? `?${q}` : ""}`, { scroll: false });
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700 w-full min-w-0">
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+    <div className="mx-auto w-full max-w-6xl space-y-6 pb-12">
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="page-title text-3xl leading-tight text-[var(--text-primary)]">Roadmap</h1>
-          <p className="mt-1.5 max-w-2xl text-sm text-[var(--text-secondary)]">How the topics build on each other. Finish one to unlock what depends on it.</p>
+          <p className="mt-1.5 max-w-2xl text-sm text-[var(--text-secondary)]">
+            Follow a proven list like Blind 75 or NeetCode 150, track your progress on it, and solve each problem
+            right here.
+          </p>
         </div>
-
-        {/* Cyberpunk Sliding Neon Toggle */}
-        <div className="relative inline-flex p-1.5 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] shadow-xl">
-          <div
-            className={`absolute top-1.5 bottom-1.5 rounded-xl bg-[var(--accent-primary)] shadow-[0_0_15px_var(--accent-glow)] transition-all duration-300 ease-out pointer-events-none ${
-              mode === "custom" ? "left-1.5 w-[calc(50%-6px)]" : "left-[calc(50%+3px)] w-[calc(50%-6px)]"
-            }`}
-          />
-          <button
-            onClick={() => handleToggleMode("custom")}
-            className={`relative z-10 inline-flex items-center justify-center gap-2 px-5 py-2 text-xs font-black uppercase tracking-[0.16em] transition-colors cursor-pointer font-mono ${
-              mode === "custom"
-                ? "text-black"
-                : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-            }`}
-          >
-            <PencilLine size={14} />
-            <span>Builder</span>
-          </button>
-          <button
-            onClick={() => handleToggleMode("visual")}
-            className={`relative z-10 inline-flex items-center justify-center gap-2 px-5 py-2 text-xs font-black uppercase tracking-[0.16em] transition-colors cursor-pointer font-mono ${
-              mode === "visual"
-                ? "text-black"
-                : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-            }`}
-          >
-            <Grid2X2 size={14} />
-            <span>Visual</span>
-          </button>
+        <div role="tablist" className="flex gap-5 border-b border-[var(--border-subtle)] sm:border-0">
+          {VIEWS.map((v) => (
+            <button
+              key={v.id}
+              role="tab"
+              aria-selected={view === v.id}
+              onClick={() => go({ view: v.id === "lists" ? null : v.id, list: null })}
+              className={`-mb-px border-b-2 pb-2 text-sm transition-colors cursor-pointer ${
+                view === v.id
+                  ? "border-[var(--accent-primary)] font-medium text-[var(--text-primary)]"
+                  : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              }`}
+            >
+              {v.label}
+            </button>
+          ))}
         </div>
-      </div>
+      </header>
 
-      <div className="relative group">
-        {mode === "custom" ? <CustomRoadmapBuilder /> : <RoadmapGraph />}
-      </div>
-
-      {mode === "visual" && (
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="p-7 rounded-4xl bg-[var(--bg-card)] border border-[var(--border-subtle)] flex items-start gap-5 shadow-xl">
-            <div className="p-3.5 rounded-2xl bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border border-[var(--accent-primary)]/20">
-              <Activity size={22} />
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-[var(--text-primary)] mb-1 font-display">
-                Hierarchical Pattern Flow
-              </h3>
-              <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-                The curriculum is structured following dependent algorithmic invariants.
-                Mastering &quot;Arrays&quot; unlocks &quot;Two Pointers&quot;,
-                which branches out into &quot;Sliding Window&quot;, Binary Search, and Tree traversals.
-              </p>
-            </div>
-          </div>
-          <div className="p-7 rounded-4xl bg-[var(--bg-card)] border border-[var(--border-subtle)] flex items-start gap-5 shadow-xl">
-            <div className="p-3.5 rounded-2xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
-              <Info size={22} />
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-[var(--text-primary)] mb-1 font-display">
-                Real-Time Mastery Rings
-              </h3>
-              <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-                Every problem you solve across your study guides and daily practice is
-                instantly calculated. Topic nodes reflect live completion percentages and glowing connection edges.
-              </p>
-            </div>
-          </div>
+      {view === "lists" &&
+        (list ? (
+          <RoadmapDetail slug={list} onBack={() => go({ list: null })} />
+        ) : (
+          <RoadmapCatalog onOpen={(slug) => go({ list: slug })} />
+        ))}
+      {view === "map" && (
+        <div className="space-y-3">
+          <p className="text-[13px] text-[var(--text-muted)]">
+            How this tracker&apos;s own topics depend on each other. Finishing a topic unlocks the ones built on it.
+          </p>
+          <RoadmapGraph />
         </div>
       )}
+      {view === "build" && <CustomRoadmapBuilder />}
     </div>
+  );
+}
+
+export default function RoadmapPage() {
+  return (
+    <Suspense fallback={<div className="surface h-96 shimmer" />}>
+      <RoadmapContent />
+    </Suspense>
   );
 }

@@ -299,10 +299,10 @@ model TheoryTrack {
   slug        String        @unique
   title       String
   description String?
-  orderIndex  Int           @default(0)
-  isPublished Boolean       @default(true)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  orderIndex  Int           @default(0) @map("order_index")
+  isPublished Boolean       @default(true) @map("is_published")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
   modules     TheoryModule[]
 
   @@map("theory_tracks")
@@ -310,16 +310,16 @@ model TheoryTrack {
 
 model TheoryModule {
   id               String            @id @default(uuid())
-  trackId          String
-  topicId          String?
+  trackId          String @map("track_id")
+  topicId          String? @map("topic_id")
   slug             String
   title            String
   summary          String?
-  orderIndex       Int               @default(0)
-  estimatedMinutes Int               @default(0)
-  isPublished      Boolean           @default(true)
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  orderIndex       Int               @default(0) @map("order_index")
+  estimatedMinutes Int               @default(0) @map("estimated_minutes")
+  isPublished      Boolean           @default(true) @map("is_published")
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
   track            TheoryTrack       @relation(fields: [trackId], references: [id], onDelete: Cascade)
   topic            Topic?            @relation(fields: [topicId], references: [id], onDelete: SetNull)
   lessons          TheoryLesson[]
@@ -332,17 +332,17 @@ model TheoryModule {
 
 model TheoryLesson {
   id                 String                    @id @default(uuid())
-  moduleId           String
+  moduleId           String @map("module_id")
   slug               String
   title              String
   summary            String?
-  orderIndex         Int                       @default(0)
+  orderIndex         Int                       @default(0) @map("order_index")
   difficulty         TheoryDifficulty          @default(BEGINNER)
-  estimatedMinutes   Int                       @default(0)
-  learningObjectives Json?
-  isPublished        Boolean                   @default(true)
-  createdAt          DateTime                  @default(now())
-  updatedAt          DateTime                  @updatedAt
+  estimatedMinutes   Int                       @default(0) @map("estimated_minutes")
+  learningObjectives Json? @map("learning_objectives")
+  isPublished        Boolean                   @default(true) @map("is_published")
+  createdAt          DateTime                  @default(now()) @map("created_at")
+  updatedAt          DateTime                  @updatedAt @map("updated_at")
   module             TheoryModule              @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   blocks             TheoryLessonBlock[]
   problemLinks       TheoryProblemLink[]
@@ -354,9 +354,9 @@ model TheoryLesson {
 
 model TheoryLessonBlock {
   id         String          @id @default(uuid())
-  lessonId   String
-  blockType  TheoryBlockType
-  orderIndex Int
+  lessonId   String @map("lesson_id")
+  blockType  TheoryBlockType @map("block_type")
+  orderIndex Int @map("order_index")
   content    Json
   language   String?
   lesson     TheoryLesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
@@ -367,11 +367,11 @@ model TheoryLessonBlock {
 
 model TheoryProblemLink {
   id         String       @id @default(uuid())
-  lessonId   String?
-  moduleId   String?
-  problemId  String
+  lessonId   String? @map("lesson_id")
+  moduleId   String? @map("module_id")
+  problemId  String @map("problem_id")
   required   Boolean      @default(true)
-  orderIndex Int          @default(0)
+  orderIndex Int          @default(0) @map("order_index")
   lesson     TheoryLesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   module     TheoryModule? @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   problem    Problem      @relation(fields: [problemId], references: [id], onDelete: Cascade)
@@ -383,15 +383,15 @@ model TheoryProblemLink {
 }
 
 model UserTheoryLessonProgress {
-  userId           String
-  lessonId         String
+  userId           String @map("user_id")
+  lessonId         String @map("lesson_id")
   status           TheoryProgressStatus @default(NOT_STARTED)
-  progressPercent  Int                  @default(0)
-  timeSpentSeconds Int                  @default(0)
-  completedAt      DateTime?
-  lastSeenBlockId  String?
-  createdAt        DateTime             @default(now())
-  updatedAt        DateTime             @updatedAt
+  progressPercent  Int                  @default(0) @map("progress_percent")
+  timeSpentSeconds Int                  @default(0) @map("time_spent_seconds")
+  completedAt      DateTime? @map("completed_at")
+  lastSeenBlockId  String? @map("last_seen_block_id")
+  createdAt        DateTime             @default(now()) @map("created_at")
+  updatedAt        DateTime             @updatedAt @map("updated_at")
   user             User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   lesson           TheoryLesson         @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 

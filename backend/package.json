@@ -4,7 +4,7 @@
   "description": "DSA Roadmap Tracker Backend",
   "main": "index.ts",
   "scripts": {
-    "dev": "ts-node index.ts",
+    "dev": "tsx watch --clear-screen=false index.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",

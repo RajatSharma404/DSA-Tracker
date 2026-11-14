@@ -1,0 +1,305 @@
+{
+ "source": "https://www.techinterviewhandbook.org/grind75 (default 8-week plan, captured 2026-11-14)",
+ "problems": [
+  {
+   "slug": "two-sum",
+   "week": "Week 1"
+  },
+  {
+   "slug": "valid-parentheses",
+   "week": "Week 1"
+  },
+  {
+   "slug": "merge-two-sorted-lists",
+   "week": "Week 1"
+  },
+  {
+   "slug": "best-time-to-buy-and-sell-stock",
+   "week": "Week 1"
+  },
+  {
+   "slug": "valid-palindrome",
+   "week": "Week 1"
+  },
+  {
+   "slug": "invert-binary-tree",
+   "week": "Week 1"
+  },
+  {
+   "slug": "valid-anagram",
+   "week": "Week 1"
+  },
+  {
+   "slug": "binary-search",
+   "week": "Week 1"
+  },
+  {
+   "slug": "flood-fill",
+   "week": "Week 1"
+  },
+  {
+   "slug": "lowest-common-ancestor-of-a-binary-search-tree",
+   "week": "Week 1"
+  },
+  {
+   "slug": "balanced-binary-tree",
+   "week": "Week 1"
+  },
+  {
+   "slug": "linked-list-cycle",
+   "week": "Week 1"
+  },
+  {
+   "slug": "implement-queue-using-stacks",
+   "week": "Week 1"
+  },
+  {
+   "slug": "first-bad-version",
+   "week": "Week 2"
+  },
+  {
+   "slug": "ransom-note",
+   "week": "Week 2"
+  },
+  {
+   "slug": "climbing-stairs",
+   "week": "Week 2"
+  },
+  {
+   "slug": "longest-palindrome",
+   "week": "Week 2"
+  },
+  {
+   "slug": "reverse-linked-list",
+   "week": "Week 2"
+  },
+  {
+   "slug": "majority-element",
+   "week": "Week 2"
+  },
+  {
+   "slug": "add-binary",
+   "week": "Week 2"
+  },
+  {
+   "slug": "diameter-of-binary-tree",
+   "week": "Week 2"
+  },
+  {
+   "slug": "middle-of-the-linked-list",
+   "week": "Week 2"
+  },
+  {
+   "slug": "maximum-depth-of-binary-tree",
+   "week": "Week 2"
+  },
+  {
+   "slug": "contains-duplicate",
+   "week": "Week 2"
+  },
+  {
+   "slug": "maximum-subarray",
+   "week": "Week 2"
+  },
+  {
+   "slug": "insert-interval",
+   "week": "Week 3"
+  },
+  {
+   "slug": "01-matrix",
+   "week": "Week 3"
+  },
+  {
+   "slug": "k-closest-points-to-origin",
+   "week": "Week 3"
+  },
+  {
+   "slug": "longest-substring-without-repeating-characters",
+   "week": "Week 3"
+  },
+  {
+   "slug": "3sum",
+   "week": "Week 3"
+  },
+  {
+   "slug": "binary-tree-level-order-traversal",
+   "week": "Week 3"
+  },
+  {
+   "slug": "clone-graph",
+   "week": "Week 3"
+  },
+  {
+   "slug": "evaluate-reverse-polish-notation",
+   "week": "Week 3"
+  },
+  {
+   "slug": "course-schedule",
+   "week": "Week 4"
+  },
+  {
+   "slug": "implement-trie-prefix-tree",
+   "week": "Week 4"
+  },
+  {
+   "slug": "coin-change",
+   "week": "Week 4"
+  },
+  {
+   "slug": "product-of-array-except-self",
+   "week": "Week 4"
+  },
+  {
+   "slug": "min-stack",
+   "week": "Week 4"
+  },
+  {
+   "slug": "validate-binary-search-tree",
+   "week": "Week 4"
+  },
+  {
+   "slug": "number-of-islands",
+   "week": "Week 4"
+  },
+  {
+   "slug": "rotting-oranges",
+   "week": "Week 4"
+  },
+  {
+   "slug": "search-in-rotated-sorted-array",
+   "week": "Week 5"
+  },
+  {
+   "slug": "combination-sum",
+   "week": "Week 5"
+  },
+  {
+   "slug": "permutations",
+   "week": "Week 5"
+  },
+  {
+   "slug": "merge-intervals",
+   "week": "Week 5"
+  },
+  {
+   "slug": "lowest-common-ancestor-of-a-binary-tree",
+   "week": "Week 5"
+  },
+  {
+   "slug": "time-based-key-value-store",
+   "week": "Week 5"
+  },
+  {
+   "slug": "accounts-merge",
+   "week": "Week 5"
+  },
+  {
+   "slug": "sort-colors",
+   "week": "Week 5"
+  },
+  {
+   "slug": "word-break",
+   "week": "Week 6"
+  },
+  {
+   "slug": "partition-equal-subset-sum",
+   "week": "Week 6"
+  },
+  {
+   "slug": "string-to-integer-atoi",
+   "week": "Week 6"
+  },
+  {
+   "slug": "spiral-matrix",
+   "week": "Week 6"
+  },
+  {
+   "slug": "subsets",
+   "week": "Week 6"
+  },
+  {
+   "slug": "binary-tree-right-side-view",
+   "week": "Week 6"
+  },
+  {
+   "slug": "longest-palindromic-substring",
+   "week": "Week 6"
+  },
+  {
+   "slug": "unique-paths",
+   "week": "Week 6"
+  },
+  {
+   "slug": "construct-binary-tree-from-preorder-and-inorder-traversal",
+   "week": "Week 6"
+  },
+  {
+   "slug": "container-with-most-water",
+   "week": "Week 7"
+  },
+  {
+   "slug": "letter-combinations-of-a-phone-number",
+   "week": "Week 7"
+  },
+  {
+   "slug": "word-search",
+   "week": "Week 7"
+  },
+  {
+   "slug": "find-all-anagrams-in-a-string",
+   "week": "Week 7"
+  },
+  {
+   "slug": "minimum-height-trees",
+   "week": "Week 7"
+  },
+  {
+   "slug": "task-scheduler",
+   "week": "Week 7"
+  },
+  {
+   "slug": "lru-cache",
+   "week": "Week 7"
+  },
+  {
+   "slug": "kth-smallest-element-in-a-bst",
+   "week": "Week 8"
+  },
+  {
+   "slug": "minimum-window-substring",
+   "week": "Week 8"
+  },
+  {
+   "slug": "serialize-and-deserialize-binary-tree",
+   "week": "Week 8"
+  },
+  {
+   "slug": "trapping-rain-water",
+   "week": "Week 8"
+  },
+  {
+   "slug": "find-median-from-data-stream",
+   "week": "Week 8"
+  },
+  {
+   "slug": "word-ladder",
+   "week": "Week 8"
+  },
+  {
+   "slug": "basic-calculator",
+   "week": "Week 8"
+  },
+  {
+   "slug": "maximum-profit-in-job-scheduling",
+   "week": "Week 8"
+  },
+  {
+   "slug": "merge-k-sorted-lists",
+   "week": "Week 8"
+  },
+  {
+   "slug": "largest-rectangle-in-histogram",
+   "week": "Week 8"
+  }
+ ]
+}

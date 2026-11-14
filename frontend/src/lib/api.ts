@@ -344,6 +344,31 @@ export interface RetentionReport {
   }>;
 }
 
+export type RoadmapKind = "community" | "official" | "company";
+export interface RoadmapSummary {
+  slug: string;
+  name: string;
+  author: string;
+  source: string;
+  kind: RoadmapKind;
+  description: string;
+  estimatedWeeks: number;
+  problemCount: number;
+  sectionCount: number;
+  byDifficulty: { EASY: number; MEDIUM: number; HARD: number };
+  solved: number;
+}
+export interface RoadmapProblem {
+  slug: string;
+  title: string;
+  difficulty: "EASY" | "MEDIUM" | "HARD";
+  problemId: string | null;
+  solved: boolean;
+}
+export interface RoadmapDetail extends Omit<RoadmapSummary, "sectionCount" | "byDifficulty"> {
+  sections: Array<{ name: string; problems: RoadmapProblem[] }>;
+}
+
 export interface Topic {
   id: string;
   name: string;
@@ -776,6 +801,11 @@ export const dsaApi = {
     }
     return dsaApi.syncLeetcode();
   },
+  getRoadmaps: async (): Promise<RoadmapSummary[]> => (await api.get("/roadmaps")).data,
+  getRoadmap: async (slug: string): Promise<RoadmapDetail> =>
+    (await api.get(`/roadmaps/${encodeURIComponent(slug)}`)).data,
+  openRoadmapProblem: async (slug: string): Promise<{ problemId: string }> =>
+    (await api.post(`/roadmaps/problems/${encodeURIComponent(slug)}/open`)).data,
   getRetentionReport: async (): Promise<RetentionReport> =>
     (await api.get("/analytics/retention")).data,
   syncLeetcode: async () => {

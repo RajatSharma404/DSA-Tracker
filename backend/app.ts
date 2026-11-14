@@ -30,6 +30,7 @@ import searchRoutes from "./routes/search.routes";
 import reviewQueueRoutes from "./routes/reviewQueue.routes";
 import miscRoutes from "./routes/misc.routes";
 import featuresRoutes from "./routes/features.routes";
+import roadmapsRoutes from "./routes/roadmaps.routes";
 import { requireFeature } from "./middlewares/featureGate";
 
 dotenv.config();
@@ -120,6 +121,7 @@ export function createApp(): Express {
 
   // Mount API routers
   app.use("/api", featuresRoutes);
+  app.use("/api", roadmapsRoutes);
   app.use("/api", dashboardRoutes);
   app.use("/api", statsRoutes);
   app.use("/api", topicsRoutes);
