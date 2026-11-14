@@ -100,6 +100,21 @@ jobs:
     name: Security, Extension Audit & Schema Parity
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: dsatracker_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -108,6 +123,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+
+      - name: Install backend dependencies & generate Prisma
+        working-directory: ./backend
+        run: |
+          npm ci
+          npx prisma generate
+          npx prisma db push
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dsatracker_test?schema=public
 
       - name: Verify Chrome Extension Least-Privilege Permissions
         run: |
@@ -137,3 +161,5 @@ jobs:
             --from-schema-datasource prisma/schema.prisma \
             --to-schema-datamodel prisma/schema.prisma \
             --exit-code
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dsatracker_test?schema=public
