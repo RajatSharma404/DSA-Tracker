@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: dsa-tracker-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install && npm run build:render
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: DATABASE_URL
+        sync: false
+      - key: NEXTAUTH_SECRET
+        generateValue: true
+      - key: BACKEND_JWT_SECRET
+        generateValue: true
+      - key: COOKIE_ENCRYPTION_KEY
+        generateValue: true
+      - key: CORS_ORIGINS
+        sync: false
+      - key: ALLOW_INSECURE_CREDENTIALS_LOGIN
+        value: "false"
