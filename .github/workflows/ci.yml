@@ -67,7 +67,7 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: Cache Next.js bundle
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             frontend/.next/cache
