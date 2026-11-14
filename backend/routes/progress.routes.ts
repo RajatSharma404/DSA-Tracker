@@ -1,12 +1,12 @@
 import { Router, Request, Response } from "express";
 import { z } from "zod";
+import { scheduleSolve } from "../services/reviewScheduling";
 import { prisma } from "../db/prisma";
 import { requireAuth } from "../middlewares/auth";
 import { validate } from "../middlewares/validate";
 import {
   isNonEmptyString,
   isProgressStatus,
-  getNextRevisionInterval,
 } from "../services/nextActionService";
 import { getUserCityProgressInfo } from "../services/cityProgressService";
 
@@ -76,23 +76,11 @@ router.post(
         where: { userId_problemId: { userId, problemId: normalizedProblemId } },
       })) as any;
 
-      let nextInterval = 2;
-      let nextEF = existing?.easinessFactor || 2.5;
-
-      nextInterval = getNextRevisionInterval(existing?.interval || 0);
-
-      const nextReview = new Date();
-      nextReview.setDate(nextReview.getDate() + nextInterval);
-
       await prisma.progress.update({
         where: {
           userId_problemId: { userId, problemId: normalizedProblemId },
         },
-        data: {
-          interval: nextInterval,
-          easinessFactor: nextEF,
-          nextReviewDate: nextReview,
-        } as any,
+        data: scheduleSolve(existing, new Date()),
       });
 
       const streak = await prisma.streak.upsert({

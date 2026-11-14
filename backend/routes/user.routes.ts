@@ -1,4 +1,5 @@
 import { Router, Request, Response } from "express";
+import { scheduleUnscheduledSolves } from "../services/reviewScheduling";
 import { prisma } from "../db/prisma";
 import { requireAuth } from "../middlewares/auth";
 import {
@@ -314,6 +315,7 @@ router.post(
         }
       }
 
+      await scheduleUnscheduledSolves(userId);
       console.log(`Sync complete. Matched ${results.length} problems.`);
 
       res.json({

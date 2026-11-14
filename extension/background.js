@@ -16,8 +16,13 @@
 
 const VERSION = chrome.runtime.getManifest().version;
 const LEETCODE_ORIGIN = "https://leetcode.com";
-/** Used when paired from the popup (no app origin known): backend directly. */
-const DEFAULT_API_BASES = ["http://localhost:3001/api"];
+/**
+ * The deployed tracker's origin, stamped in by scripts/build-extension.mjs
+ * (empty in the source folder, which only trusts localhost).
+ */
+const APP_ORIGINS = [/*@APP_ORIGINS*/];
+/** Used when paired from the popup (no app origin known). */
+const DEFAULT_API_BASES = [...APP_ORIGINS.map((o) => `${o}/api`), "http://localhost:3001/api"];
 const KEYS = {
   pairing: "dsaPairing", // { token, apiBase?, pairedAt, source }
   status: "dsaPairingStatus", // "paired" | "not_paired" | "re_pair_needed"
@@ -41,7 +46,8 @@ const isAllowedAppOrigin = (origin) => {
   try {
     const url = new URL(origin);
     if (url.hostname === "localhost" || url.hostname === "127.0.0.1") return true;
-    return url.protocol === "https:" && url.hostname.endsWith(".onrender.com");
+    // Exact match only: a wildcard host would let any site on it pair.
+    return APP_ORIGINS.includes(url.origin);
   } catch {
     return false;
   }

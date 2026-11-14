@@ -1,4 +1,5 @@
 import { Router, Request, Response } from "express";
+import { scheduleUnscheduledSolves } from "../services/reviewScheduling";
 import { prisma } from "../db/prisma";
 import { requireAuth } from "../middlewares/auth";
 import {
@@ -16,6 +17,7 @@ router.get(
   requireAuth,
   async (req: Request, res: Response) => {
     try {
+      await scheduleUnscheduledSolves(req.user!.id);
       const rows = await prisma.progress.findMany({
         where: { userId: req.user!.id, status: "DONE" },
         select: {

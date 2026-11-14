@@ -6,6 +6,10 @@
  *
  * Runs automatically before `next dev` / `next build` (see frontend
  * package.json). Outputs are gitignored.
+ *
+ * The deployed site's address is stamped into both, so they trust exactly
+ * that site (plus localhost). It comes from APP_URL, else NEXTAUTH_URL, else
+ * Vercel's production domain. Nothing set means a localhost-only build.
  */
 import { readFileSync, writeFileSync, readdirSync, statSync, mkdirSync } from "node:fs";
 import path from "node:path";
@@ -20,10 +24,49 @@ mkdirSync(outDir, { recursive: true });
 const manifest = JSON.parse(readFileSync(path.join(extDir, "manifest.json"), "utf8"));
 const version = manifest.version;
 
+// ------------------------------------------------------- deployed site origin
+const appOrigin = (() => {
+  const raw =
+    process.env.APP_URL ||
+    process.env.NEXTAUTH_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL && `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`);
+  if (!raw) return null;
+  try {
+    const url = new URL(raw);
+    if (url.hostname === "localhost" || url.hostname === "127.0.0.1") return null;
+    if (url.protocol !== "https:") throw new Error("must be https");
+    return url.origin;
+  } catch (err) {
+    console.warn(`build-extension: ignoring app URL "${raw}" (${err.message})`);
+    return null;
+  }
+})();
+
+if (appOrigin) {
+  manifest.host_permissions.push(`${appOrigin}/*`);
+  const bridge = manifest.content_scripts.find((cs) => cs.js.includes("content.js"));
+  bridge.matches.push(`${appOrigin}/*`);
+}
+const overrides = new Map([
+  ["manifest.json", Buffer.from(JSON.stringify(manifest, null, 2) + "\n")],
+  [
+    "background.js",
+    Buffer.from(
+      readFileSync(path.join(extDir, "background.js"), "utf8").replace(
+        "/*@APP_ORIGINS*/",
+        appOrigin ? JSON.stringify(appOrigin) : "",
+      ),
+    ),
+  ],
+]);
+
 // ---------------------------------------------------------------- userscript
 const template = readFileSync(path.join(extDir, "userscript.template.js"), "utf8");
 const hook = readFileSync(path.join(extDir, "leetcode-hook.js"), "utf8");
-const userscript = template.replaceAll("__VERSION__", version).replace("__HOOK__", JSON.stringify(hook));
+const userscript = template
+  .replaceAll("__VERSION__", version)
+  .replace("__HOOK__", JSON.stringify(hook))
+  .replace("// __APP_INCLUDES__\n", appOrigin ? `// @include      ${appOrigin}/*\n` : "");
 writeFileSync(path.join(outDir, "dsa-tracker.user.js"), userscript);
 
 // ------------------------------------------------------------------- zip
@@ -47,7 +90,10 @@ const walk = (dir, base = "") =>
     return statSync(full).isDirectory() ? walk(full, rel) : [{ full, rel }];
   });
 
-const files = walk(extDir).map(({ full, rel }) => ({ name: `dsa-tracker-extension/${rel}`, data: readFileSync(full) }));
+const files = walk(extDir).map(({ full, rel }) => ({
+  name: `dsa-tracker-extension/${rel}`,
+  data: overrides.get(rel) ?? readFileSync(full),
+}));
 const locals = [];
 const centrals = [];
 let offset = 0;
@@ -90,4 +136,4 @@ end.writeUInt32LE(centralBuf.length, 12);
 end.writeUInt32LE(offset, 16);
 writeFileSync(path.join(outDir, "dsa-tracker-extension.zip"), Buffer.concat([...locals, centralBuf, end]));
 
-console.log(`extension v${version}: built userscript and zip (${files.length} files) in frontend/public`);
+console.log(`extension v${version}: built userscript and zip (${files.length} files) in frontend/public, trusting ${appOrigin ?? "localhost only"}`);

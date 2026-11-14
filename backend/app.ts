@@ -78,17 +78,23 @@ export function createApp(): Express {
     }),
   );
 
+  // The browser extension calls /api/extension/* from its own origin
+  // (chrome-extension://<id>). Those routes authenticate with the device's
+  // bearer token rather than cookies, so any extension origin may call them.
+  const EXTENSION_ORIGIN = /^(chrome|moz|safari-web)-extension:\/\/[a-z0-9-]+$/i;
   app.use(
-    cors({
-      origin: (origin, callback) => {
-        // Allow requests with no origin (e.g. mobile apps, curl, server-to-server, tests)
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin) || allowedOrigins.includes("*")) {
-          return callback(null, true);
-        }
-        return callback(new Error(`Origin ${origin} not allowed by CORS`));
-      },
-      credentials: true,
+    cors((req, callback) => {
+      const origin = req.headers.origin;
+      const allowed =
+        // Requests with no origin: server-to-server (the Next.js proxy), curl, tests
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        allowedOrigins.includes("*") ||
+        (EXTENSION_ORIGIN.test(origin) && (req.url ?? "").startsWith("/api/extension/"));
+      if (allowed) return callback(null, { origin: true, credentials: true });
+      const error = new Error(`Origin ${origin} not allowed by CORS`) as Error & { status?: number };
+      error.status = 403;
+      return callback(error);
     }),
   );
 

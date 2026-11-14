@@ -36,10 +36,10 @@ router.get(
         slug,
         title,
         description,
-        "orderIndex"
+        order_index AS "orderIndex"
       FROM theory_tracks
-      WHERE "isPublished" = true
-      ORDER BY "orderIndex" ASC, "createdAt" ASC
+      WHERE is_published = true
+      ORDER BY order_index ASC, created_at ASC
     `;
 
       if (tracks.length === 0) {
@@ -59,10 +59,10 @@ router.get(
             slug,
             title,
             description,
-            "orderIndex"
+            order_index AS "orderIndex"
           FROM theory_tracks
-          WHERE "isPublished" = true
-          ORDER BY "orderIndex" ASC, "createdAt" ASC
+          WHERE is_published = true
+          ORDER BY order_index ASC, created_at ASC
         `;
         } catch (seedError) {
           console.error("Auto-seed learn tracks failed:", seedError);
@@ -88,16 +88,16 @@ router.get(
         Prisma.sql`
       SELECT
         id,
-        "trackId",
+        track_id AS "trackId",
         slug,
         title,
         summary,
-        "orderIndex",
-        "estimatedMinutes"
+        order_index AS "orderIndex",
+        estimated_minutes AS "estimatedMinutes"
       FROM theory_modules
-      WHERE "isPublished" = true
-        AND "trackId" IN (${Prisma.join(trackIds)})
-      ORDER BY "orderIndex" ASC, "createdAt" ASC
+      WHERE is_published = true
+        AND track_id IN (${Prisma.join(trackIds)})
+      ORDER BY order_index ASC, created_at ASC
     `,
       );
 
@@ -119,17 +119,17 @@ router.get(
               Prisma.sql`
           SELECT
             id,
-            "moduleId",
+            module_id AS "moduleId",
             slug,
             title,
             summary,
-            "orderIndex",
-            "estimatedMinutes",
+            order_index AS "orderIndex",
+            estimated_minutes AS "estimatedMinutes",
             difficulty::text AS difficulty
           FROM theory_lessons
-          WHERE "isPublished" = true
-            AND "moduleId" IN (${Prisma.join(moduleIds)})
-          ORDER BY "orderIndex" ASC, "createdAt" ASC
+          WHERE is_published = true
+            AND module_id IN (${Prisma.join(moduleIds)})
+          ORDER BY order_index ASC, created_at ASC
         `,
             )
           : [];
@@ -146,12 +146,12 @@ router.get(
             >(
               Prisma.sql`
           SELECT
-            "lessonId",
+            lesson_id AS "lessonId",
             status::text AS status,
-            "progressPercent"
+            progress_percent AS "progressPercent"
           FROM user_theory_lesson_progress
-          WHERE "userId" = ${userId}
-            AND "lessonId" IN (${Prisma.join(lessonIds)})
+          WHERE user_id = ${userId}
+            AND lesson_id IN (${Prisma.join(lessonIds)})
         `,
             )
           : [];
@@ -311,22 +311,22 @@ router.get(
           l.title,
           l.summary,
           l.difficulty::text AS difficulty,
-          l."estimatedMinutes",
-          l."learningObjectives",
+          l.estimated_minutes AS "estimatedMinutes",
+          l.learning_objectives AS "learningObjectives",
           m.id AS "moduleId",
           m.title AS "moduleTitle",
           m.slug AS "moduleSlug",
           t.title AS "trackTitle",
           t.slug AS "trackSlug"
         FROM theory_lessons l
-        INNER JOIN theory_modules m ON m.id = l."moduleId"
-        INNER JOIN theory_tracks t ON t.id = m."trackId"
+        INNER JOIN theory_modules m ON m.id = l.module_id
+        INNER JOIN theory_tracks t ON t.id = m.track_id
         WHERE t.slug = ${trackSlug}
           AND m.slug = ${moduleSlug}
           AND l.slug = ${lessonSlug}
-          AND t."isPublished" = true
-          AND m."isPublished" = true
-          AND l."isPublished" = true
+          AND t.is_published = true
+          AND m.is_published = true
+          AND l.is_published = true
         LIMIT 1
       `;
 
@@ -354,13 +354,13 @@ router.get(
       >`
         SELECT
           id,
-          "blockType"::text AS "blockType",
-          "orderIndex",
+          block_type::text AS "blockType",
+          order_index AS "orderIndex",
           content,
           language
         FROM theory_lesson_blocks
-        WHERE "lessonId" = ${lesson.id}
-        ORDER BY "orderIndex" ASC
+        WHERE lesson_id = ${lesson.id}
+        ORDER BY order_index ASC
       `;
 
       const normalizedObjectives = normalizeLearningObjectives(
@@ -388,12 +388,12 @@ router.get(
           >`
         SELECT
           status::text AS status,
-          "progressPercent",
-          "timeSpentSeconds",
-          "completedAt"
+          progress_percent AS "progressPercent",
+          time_spent_seconds AS "timeSpentSeconds",
+          completed_at AS "completedAt"
         FROM user_theory_lesson_progress
-        WHERE "userId" = ${userId}
-          AND "lessonId" = ${lesson.id}
+        WHERE user_id = ${userId}
+          AND lesson_id = ${lesson.id}
       `
         : [];
 
@@ -409,22 +409,22 @@ router.get(
       const siblingLessons = await prisma.$queryRaw<
         Array<{ id: string; slug: string; title: string; orderIndex: number }>
       >`
-        SELECT id, slug, title, "orderIndex"
+        SELECT id, slug, title, order_index AS "orderIndex"
         FROM theory_lessons
-        WHERE "moduleId" = ${lesson.moduleId}
-          AND "isPublished" = true
-        ORDER BY "orderIndex" ASC, "createdAt" ASC
+        WHERE module_id = ${lesson.moduleId}
+          AND is_published = true
+        ORDER BY order_index ASC, created_at ASC
       `;
 
       const siblingProgressRows = userId
         ? await prisma.$queryRaw<Array<{ lessonId: string; status: string }>>`
         SELECT
-          "lessonId",
+          lesson_id AS "lessonId",
           status::text AS status
         FROM user_theory_lesson_progress
-        WHERE "userId" = ${userId}
-          AND "lessonId" IN (
-            SELECT id FROM theory_lessons WHERE "moduleId" = ${lesson.moduleId}
+        WHERE user_id = ${userId}
+          AND lesson_id IN (
+            SELECT id FROM theory_lessons WHERE module_id = ${lesson.moduleId}
           )
       `
         : [];
@@ -451,15 +451,15 @@ router.get(
           p.link,
           t.name AS "topicName",
           tpl.required,
-          tpl."orderIndex",
+          tpl.order_index AS "orderIndex",
           CASE WHEN pr.status = 'DONE' THEN true ELSE false END AS solved
         FROM theory_problem_links tpl
-          INNER JOIN "Problem" p ON p.id = tpl."problemId"
+          INNER JOIN "Problem" p ON p.id = tpl.problem_id
         LEFT JOIN "Topic" t ON t.id = p."topicId"
         LEFT JOIN "Progress" pr ON pr."problemId" = p.id AND pr."userId" = ${userId}
-          WHERE tpl."lessonId" = ${lesson.id}
-            OR (tpl."lessonId" IS NULL AND tpl."moduleId" = ${lesson.moduleId})
-          ORDER BY tpl."orderIndex" ASC
+          WHERE tpl.lesson_id = ${lesson.id}
+            OR (tpl.lesson_id IS NULL AND tpl.module_id = ${lesson.moduleId})
+          ORDER BY tpl.order_index ASC
       `;
 
       const isUnlocked = progress.status === "COMPLETED";

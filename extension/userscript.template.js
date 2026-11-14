@@ -6,7 +6,7 @@
 // @match        https://leetcode.com/*
 // @include      http://localhost:*/*
 // @include      http://127.0.0.1:*/*
-// @include      https://*.onrender.com/*
+// __APP_INCLUDES__
 // @grant        GM_xmlhttpRequest
 // @grant        GM_getValue
 // @grant        GM_setValue

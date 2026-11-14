@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import { z } from "zod";
+import { scheduleSolve } from "../services/reviewScheduling";
 import { prisma } from "../db/prisma";
 import { extensionSyncLimiter, deviceSyncLimiter } from "../middlewares/rateLimiter";
 import { requireAuth, resolveAuthenticatedUser } from "../middlewares/auth";
@@ -250,8 +251,19 @@ router.post(
         if (isAccepted) {
           const existingProgress = await prisma.progress.findUnique({
             where: { userId_problemId: { userId, problemId: problem.id } },
-            select: { completedAt: true },
+            select: {
+              completedAt: true,
+              stability: true,
+              difficultyFsrs: true,
+              interval: true,
+              repetitions: true,
+              lapses: true,
+              state: true,
+              nextReviewDate: true,
+              lastReviewedAt: true,
+            },
           });
+          const solveSchedule = scheduleSolve(existingProgress, submittedDate);
           const acceptedCode = parseResult.data.code;
           await prisma.$transaction(async (tx) => {
             await tx.syncReceipt.create({
@@ -275,8 +287,7 @@ router.post(
                 status: "DONE",
                 // A re-solve refreshes the review clock but keeps the first solve date.
                 completedAt: existingProgress?.completedAt ?? submittedDate,
-                state: "REVIEW",
-                lastReviewedAt: submittedDate,
+                ...solveSchedule,
                 leetcodeRuntime: runtimeMs ? `${runtimeMs} ms` : null,
                 leetcodeMemory: memoryKb ? `${memoryKb} KB` : null,
               },
@@ -285,8 +296,7 @@ router.post(
                 problemId: problem.id,
                 status: "DONE",
                 completedAt: submittedDate,
-                state: "REVIEW",
-                lastReviewedAt: submittedDate,
+                ...solveSchedule,
                 leetcodeRuntime: runtimeMs ? `${runtimeMs} ms` : null,
                 leetcodeMemory: memoryKb ? `${memoryKb} KB` : null,
               },

@@ -1,3 +1,4 @@
+import { scheduleUnscheduledSolves } from "./reviewScheduling";
 import { prisma } from "../db/prisma";
 
 /**
@@ -236,6 +237,7 @@ export async function importSolvedProblems(
     result.problems.push({ id: problem.id, title: problem.title, slug, isNew });
   }
 
+  await scheduleUnscheduledSolves(userId);
   return result;
 }
 

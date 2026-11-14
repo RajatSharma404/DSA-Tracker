@@ -26,7 +26,18 @@ import { requireFeature } from "../middlewares/featureGate";
 import { isFeatureEnabled } from "../features";
 
 const router = Router();
-router.use(aiRateLimiter);
+
+/**
+ * Throttle only requests that call the AI model. This router is mounted at
+ * /api, so a bare router.use() would apply the limit to every API route
+ * mounted after it (review queue, daily problem, search...) and fail them
+ * with 429 after ~20 requests a minute. Plain database reads such as
+ * /ai/study-plan and /ai/quota stay unthrottled here.
+ */
+const MODEL_GETS = ["/ai/pattern/", "/ai/mistake-patterns"];
+const callsModel = (req: Request) =>
+  req.path.startsWith("/ai/") && (req.method !== "GET" || MODEL_GETS.some((p) => req.path.startsWith(p)));
+router.use((req, res, next) => (callsModel(req) ? aiRateLimiter(req, res, next) : next()));
 
 /**
  * Length cap validator: reject code > 20k, notes > 5k with 400

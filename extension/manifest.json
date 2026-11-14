@@ -12,8 +12,7 @@
   "host_permissions": [
     "https://leetcode.com/*",
     "http://localhost/*",
-    "http://127.0.0.1/*",
-    "https://*.onrender.com/*"
+    "http://127.0.0.1/*"
   ],
   "background": {
     "service_worker": "background.js"
@@ -37,7 +36,6 @@
       "matches": [
         "http://localhost/*",
         "http://127.0.0.1/*",
-        "https://*.onrender.com/*",
         "https://leetcode.com/*"
       ],
       "js": [

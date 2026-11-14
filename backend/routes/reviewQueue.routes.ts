@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { z } from "zod";
 import { ActivityEventType } from "@prisma/client";
+import { scheduleUnscheduledSolves } from "../services/reviewScheduling";
 import { prisma } from "../db/prisma";
 import { requireAuth } from "../middlewares/auth";
 import { validate } from "../middlewares/validate";
@@ -41,6 +42,7 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       const userId = req.user!.id;
+      await scheduleUnscheduledSolves(userId);
       const now = new Date();
 
       const dueReviews = await prisma.progress.findMany({

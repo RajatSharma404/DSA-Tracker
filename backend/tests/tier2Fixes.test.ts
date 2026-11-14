@@ -25,6 +25,11 @@ const mockPrisma = vi.hoisted(() => ({
   },
 }));
 
+// Review scheduling has its own tests (reviewScheduling.test.ts); these suites mock Prisma narrowly.
+vi.mock("../services/reviewScheduling", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../services/reviewScheduling")>()),
+  scheduleUnscheduledSolves: vi.fn().mockResolvedValue(0),
+}));
 vi.mock("../db/prisma", () => ({
   prisma: mockPrisma,
 }));

@@ -1,4 +1,5 @@
 import { Router, Request, Response } from "express";
+import { scheduleUnscheduledSolves } from "../services/reviewScheduling";
 import { prisma } from "../db/prisma";
 import { requireAuth } from "../middlewares/auth";
 import { getWeakTopics, getRevisionReminders } from "../services";
@@ -11,6 +12,7 @@ const router = Router();
 router.get("/dashboard/bootstrap", requireAuth, async (req: Request, res: Response) => {
   try {
     const userId = req.user!.id;
+    await scheduleUnscheduledSolves(userId);
 
     const [
       user,
@@ -110,6 +112,7 @@ router.get("/dashboard/bootstrap", requireAuth, async (req: Request, res: Respon
 router.get("/dashboard", requireAuth, async (req: Request, res: Response) => {
   try {
     const userId = req.user!.id;
+    await scheduleUnscheduledSolves(userId);
 
     const [totalProblems, solvedProblems, streak, weakTopics, revisions] =
       await Promise.all([
