@@ -30,7 +30,7 @@ When the user enters `/update`, `update`, `uypdate`, `eod`, or asks for an end-o
 ## 🔄 Autonomous Skill Self-Evolution & Technology Modernization Protocol
 
 Whenever any new technology, framework, dependency, runtime, npm package, database model, route, component, or architectural pattern is introduced, upgraded, or deprecated:
-1. **Universal Skill Self-Update**: The agent MUST automatically inspect `.agents/skills/` and update ALL affected `SKILL.md` runbooks, checklists, and scripts so skills perpetually adapt to the latest technology and never suffer from obsolescence or documentation drift.
+1. **Universal Skill Self-Update**: The agent MUST automatically inspect global Antigravity skills (`~/.gemini/antigravity/skills/`) and update ALL affected `SKILL.md` runbooks, checklists, and scripts so skills perpetually adapt to the latest technology and never suffer from obsolescence or documentation drift.
 2. **Automated Tooling Modernization**: Update all helper scripts (`scripts/*.mjs`, `scripts/*.ps1`, `scripts/*.sh`) in the skills to support new build systems, test runners, compiler flags, and CLI arguments.
 3. **Proactive Modernization**: Do not wait for explicit user commands to modernize skills; automatically synchronize skill runbooks during daily commits, EOD updates, and feature implementations.
 

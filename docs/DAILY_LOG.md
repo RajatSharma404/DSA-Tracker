@@ -298,3 +298,27 @@ This file tracks daily development milestones, testing scores, architectural cha
 - Backend: 15 files, **147 tests passing** (+14 new: import service, extension v2, snapshot import, retention model).
 - Frontend: 46 files, **197 tests passing** (+6 new).
 - `tsc --noEmit` clean in both packages; ESLint 0 errors; Prisma schemas in sync.
+
+---
+
+## 2026-11-15 — Antigravity Global Customizations Migration & Repository Cleanup
+
+### ✨ Changes
+- **Global Customizations Migration (`~/.gemini/antigravity/` & `~/.gemini/`)**:
+  - Migrated all 28 domain skills (136 files) and 4 system rules from workspace `.agents/` to global Antigravity customization roots (`~/.gemini/antigravity/skills/` and `~/.gemini/antigravity/rules/`).
+  - Removed local `.agents/` directory from repository to streamline the workspace and make all skills and rules available across all Antigravity projects.
+  - Updated `AGENTS.md` autonomous skill evolution protocol to reference global Antigravity skills.
+- **Repository Hygiene & Clean Code**:
+  - Removed obsolete script `audit:improvements` from `package.json`.
+  - Cleaned up transient test artifacts (`test-results/`, `playwright-report/`, `.env.generated-secret`).
+  - Hardened verification across ERDs, Mermaid diagrams, Prisma schema parity, and documentation links.
+
+### 🧪 Test & QA Health
+- **Full Stack Test Suite**: 76 test files, **452 unit & integration tests passing** (Vitest).
+  - Backend: 23 test files, **213 tests passing**.
+  - Frontend: 53 test files, **239 tests passing**.
+- **TypeScript Diagnostics**: Clean pass across backend and frontend (`npm run typecheck` exited 0).
+- **Prisma Parity**: Backend and frontend Prisma schemas in exact synchronization (`npm run check:prisma-sync` passed).
+- **ERD & Mermaid Diagnostics**: 6/6 ERD markdown models and 9/9 Mermaid flowcharts validated.
+- **Documentation Verification**: 97/97 markdown links and anchors verified.
+
