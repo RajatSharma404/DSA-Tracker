@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LogOut, ShieldCheck, PanelLeftClose, PanelLeftOpen } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { safeSignOut } from "@/lib/auth/safeSignOut";
 import { useFeatures } from "@/components/providers/FeaturesProvider";
@@ -20,19 +20,29 @@ export function Sidebar() {
   const { data: session } = useSession();
   const features = useFeatures();
   // Expanded by default on wide screens; the user's choice is remembered.
-  const [collapsed, setCollapsed] = useState<boolean>(() => {
-    if (typeof window === "undefined") return true;
+  // The first render must match the server's (collapsed), or React's
+  // hydration fails (error #418); the saved choice is applied right after.
+  const [collapsed, setCollapsed] = useState<boolean>(true);
+  const restored = useRef(false);
+  const [tooltip, setTooltip] = useState<{ label: string; hint?: string; top: number } | null>(null);
+
+  useLayoutEffect(() => {
+    let next = window.innerWidth < 1280;
     try {
       const saved = localStorage.getItem(COLLAPSE_KEY);
-      if (saved !== null) return saved === "1";
+      if (saved !== null) next = saved === "1";
     } catch {
       // ignore
     }
-    return window.innerWidth < 1280;
-  });
-  const [tooltip, setTooltip] = useState<{ label: string; hint?: string; top: number } | null>(null);
+    setCollapsed(next);
+  }, []);
 
   useEffect(() => {
+    // Skip the mount run: it still holds the server default, not the user's choice.
+    if (!restored.current) {
+      restored.current = true;
+      return;
+    }
     try {
       localStorage.setItem(COLLAPSE_KEY, collapsed ? "1" : "0");
     } catch {
