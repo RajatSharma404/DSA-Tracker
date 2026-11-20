@@ -87,6 +87,29 @@ interface EvaluationResult {
   feedback: string;
 }
 
+/** Fills any part the AI review left out, so the panel never reads undefined. */
+function normalizeEvaluation(raw: Partial<EvaluationResult> | null | undefined): EvaluationResult {
+  const r = raw ?? {};
+  return {
+    isCorrect: Boolean(r.isCorrect),
+    verdict: r.verdict || "UNKNOWN",
+    verdictMessage: r.verdictMessage || "",
+    failingCase: r.failingCase,
+    complexity: { time: "N/A", timeExplanation: "", space: "N/A", spaceExplanation: "", ...(r.complexity ?? {}) },
+    optimalComplexity: {
+      time: "N/A",
+      space: "N/A",
+      isCurrentOptimal: false,
+      explanation: "",
+      ...(r.optimalComplexity ?? {}),
+    },
+    betterApproaches: Array.isArray(r.betterApproaches) ? r.betterApproaches : [],
+    edgeCases: Array.isArray(r.edgeCases) ? r.edgeCases : [],
+    score: typeof r.score === "number" ? r.score : 0,
+    feedback: r.feedback || "",
+  };
+}
+
 interface LeetCodeSubmissionState {
   verdict: string;
   accepted: boolean;
@@ -372,8 +395,9 @@ export function LeetCodeEditor({
     const evaluationPromise = dsaApi
       .evaluateCode(problemId, code, langConfig.leetcodeLang)
       .then((r) => {
-        setEvaluation(r.evaluation);
-        return r.evaluation as EvaluationResult;
+        const evaluation = normalizeEvaluation(r?.evaluation);
+        setEvaluation(evaluation);
+        return evaluation;
       })
       .catch((error: unknown) => {
         const errObj = error as { message?: string; response?: { data?: { error?: string } } };
