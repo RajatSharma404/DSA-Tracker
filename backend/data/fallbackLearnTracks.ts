@@ -482,6 +482,12 @@ export const appendDetailedTheoryBlock = (params: {
     learningObjectives,
   } = params;
 
+  // Hand-written lessons (code plus a quiz) already teach the topic; the
+  // generic template below would only add noise under them.
+  const isAuthored =
+    blocks.some((block) => block.blockType === "CODE") && blocks.some((block) => block.blockType === "QUIZ");
+  if (isAuthored) return blocks;
+
   const alreadyHasPracticePrompt = blocks.some((block) => {
     if (block.blockType !== "MARKDOWN") return false;
     if (typeof block.content !== "object" || block.content === null)

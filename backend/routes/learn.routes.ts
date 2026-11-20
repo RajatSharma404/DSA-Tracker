@@ -13,12 +13,14 @@ import {
   seedStarterTheoryContent,
 } from "../services/theoryService";
 import { seedComprehensiveDSA } from "../seedComprehensiveDSA";
+import { installCourse, loadCourses } from "../services/courseLoader";
 import { seedLearnCppCurriculum } from "../seedLearnCppCurriculum";
 
 const router = Router();
 
 /**
- * The full curriculum (Complete DSA Bootcamp and LearnCpp) used to be
+ * The full curriculum (Complete DSA Bootcamp, LearnCpp and the Markdown
+ * courses in data/courses/) used to be
  * installed only through admin endpoints, so a fresh database showed a
  * single starter module. Install whichever track is missing, once per
  * process. Never re-run a seed for a track that exists: the seeds delete
@@ -34,6 +36,11 @@ export function ensureCurriculum(): Promise<void> {
     for (const { slug, seed } of CURRICULUM) {
       const exists = await prisma.theoryTrack.findUnique({ where: { slug }, select: { id: true } });
       if (!exists) await seed();
+    }
+    // Courses written as Markdown in data/courses/ (see its README).
+    for (const course of loadCourses()) {
+      const exists = await prisma.theoryTrack.findUnique({ where: { slug: course.slug }, select: { id: true } });
+      if (!exists) await installCourse(course);
     }
   })().catch((err) => {
     curriculumReady = null; // try again on the next request
