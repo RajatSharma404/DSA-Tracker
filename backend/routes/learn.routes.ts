@@ -12,8 +12,35 @@ import {
   ensureTheorySchemaExists,
   seedStarterTheoryContent,
 } from "../services/theoryService";
+import { seedComprehensiveDSA } from "../seedComprehensiveDSA";
+import { seedLearnCppCurriculum } from "../seedLearnCppCurriculum";
 
 const router = Router();
+
+/**
+ * The full curriculum (Complete DSA Bootcamp and LearnCpp) used to be
+ * installed only through admin endpoints, so a fresh database showed a
+ * single starter module. Install whichever track is missing, once per
+ * process. Never re-run a seed for a track that exists: the seeds delete
+ * and recreate their track, which would wipe learners' lesson progress.
+ */
+const CURRICULUM: Array<{ slug: string; seed: () => Promise<unknown> }> = [
+  { slug: "complete-dsa-bootcamp", seed: seedComprehensiveDSA },
+  { slug: "learncpp-cplusplus-mastery", seed: seedLearnCppCurriculum },
+];
+let curriculumReady: Promise<void> | null = null;
+export function ensureCurriculum(): Promise<void> {
+  curriculumReady ??= (async () => {
+    for (const { slug, seed } of CURRICULUM) {
+      const exists = await prisma.theoryTrack.findUnique({ where: { slug }, select: { id: true } });
+      if (!exists) await seed();
+    }
+  })().catch((err) => {
+    curriculumReady = null; // try again on the next request
+    console.error("Learn curriculum install failed:", err);
+  });
+  return curriculumReady;
+}
 
 router.get(
   "/learn/tracks",
@@ -21,6 +48,7 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       const userId = req.user?.id ?? null;
+      await ensureCurriculum();
 
       let tracks = await prisma.$queryRaw<
         Array<{
