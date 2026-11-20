@@ -29,5 +29,8 @@ export default withAuth(
 export const config = {
   // Public: API, login, the landing page, static assets, and the extension
   // downloads (Tampermonkey fetches the userscript outside the user's session).
-  matcher: ["/((?!api|login|home|dsa-tracker|_next/static|_next/image|favicon.ico).*)"],
+  // Static files (anything with an extension: manifest.webmanifest, sw.js,
+  // icons, the extension zip and userscript) and the offline page must load
+  // signed out, or the browser gets the login page's HTML instead.
+  matcher: ["/((?!api|login|home|offline|_next/static|_next/image|.*\\..*).*)"],
 };
